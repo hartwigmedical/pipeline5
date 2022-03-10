@@ -21,6 +21,8 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
@@ -49,7 +51,7 @@ public class StartingPoint {
                         SageGermlineCaller.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomatic.NAMESPACE, GripssGermline.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
-        RERUN_527(concat(CALLING_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE)));
+        RERUN_527(concat(CALLING_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE, Orange.NAMESPACE)));
 
         private final List<String> namespaces;
 

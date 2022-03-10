@@ -134,8 +134,7 @@ public class SomaticPipeline {
                     Future<GripssGermlineOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                             new GripssGermline(resourceFiles, structuralCallerOutput, persistedDataset)));
                     GripssOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
-                    GripssGermlineOutput gripssGermlineProcessOutput =
-                            pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
+                    GripssGermlineOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
 
                     if (state.shouldProceed()) {
                         Future<PurpleOutput> purpleOutputFuture =
@@ -167,8 +166,8 @@ public class SomaticPipeline {
                                     new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                             Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
-                            Future<LilacOutput> lilacOutputFuture =
-                                    executorService.submit(() -> stageRunner.run(metadata, new Lilac(pair, resourceFiles, purpleOutput)));
+                            Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Lilac(pair, resourceFiles, purpleOutput)));
                             Future<SigsOutput> signatureOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
