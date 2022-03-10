@@ -36,8 +36,8 @@ public class HmfToolCommandBuilder {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public HmfToolCommandBuilder panelBed(final Optional<String> panelBedLocation) {
-        //  arguments.addAll(panelBedLocation.stream().flatMap(l -> Stream.of("-panel_bed", l)).collect(Collectors.toList()));
+    public HmfToolCommandBuilder targetRegionsBed(final Optional<String> targetRegionsBedLocation) {
+        //  arguments.addAll(targetRegionsBedLocation.stream().flatMap(l -> Stream.of("-panel_bed", l)).collect(Collectors.toList()));
         return this;
     }
 
