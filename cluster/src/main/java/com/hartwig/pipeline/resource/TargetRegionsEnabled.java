@@ -4,15 +4,17 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class PanelEnabled implements ResourceFiles {
+public class TargetRegionsEnabled implements ResourceFiles {
 
     private final ResourceFiles decorated;
-    private final String panelBed;
+    private final String targetRegionsBed;
 
-    public PanelEnabled(final ResourceFiles decorated, final String panelBedLocation) {
+    public TargetRegionsEnabled(final ResourceFiles decorated, final String targetRegionsBed) {
         this.decorated = decorated;
-        this.panelBed = panelBedLocation.startsWith("gs://") ? OverridePanelCommand.RESOURCES_OVERRIDE + panelBedLocation.substring(
-                panelBedLocation.lastIndexOf("/")) : VmDirectories.RESOURCES + "/" + ResourceNames.PANEL + "/" + panelBedLocation;
+        this.targetRegionsBed =
+                targetRegionsBed.startsWith("gs://")
+                        ? TargetRegionsCommand.RESOURCES_OVERRIDE + targetRegionsBed.substring(targetRegionsBed.lastIndexOf("/"))
+                        : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsBed;
     }
 
     @Override
@@ -186,7 +188,7 @@ public class PanelEnabled implements ResourceFiles {
     }
 
     @Override
-    public Optional<String> panelBed() {
-        return Optional.of(panelBed);
+    public Optional<String> targetRegionsBed() {
+        return Optional.of(targetRegionsBed);
     }
 }
