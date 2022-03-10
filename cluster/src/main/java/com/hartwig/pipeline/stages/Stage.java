@@ -20,15 +20,15 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
     String namespace();
 
     default List<BashCommand> commands(M metadata) {
-        return Collections.emptyList();
+        return disabled();
     }
 
     default List<BashCommand> tumorOnlyCommands(M metadata) {
-        return Collections.emptyList();
+        return disabled();
     }
 
     default List<BashCommand> referenceOnlyCommands(M metadata) {
-        return Collections.emptyList();
+        return disabled();
     }
 
     default List<BashCommand> tumorReferenceCommands(M metadata) {
@@ -46,4 +46,8 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
     }
 
     boolean shouldRun(Arguments arguments);
+
+    static List<BashCommand> disabled() {
+        return Collections.emptyList();
+    }
 }

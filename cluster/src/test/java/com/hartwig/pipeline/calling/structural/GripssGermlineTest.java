@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.calling.structural.gripss.Gripss;
+import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
@@ -17,7 +19,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
-public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticRunMetadata> {
+public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetadata> {
 
     private static final String TUMOR_GRIPSS_VCF_GZ = "reference.gripss.germline.vcf.gz";
     private static final String TUMOR_GRIPSS_FILTERED_VCF_GZ = "reference.gripss.filtered.germline.vcf.gz";
@@ -35,8 +37,8 @@ public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticR
     }
 
     @Override
-    protected Stage<GripssGermlineOutput, SomaticRunMetadata> createVictim() {
-        return new GripssGermline(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.structuralCallerOutput(), persistedDataset);
+    protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
+        return new GripssGermline(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -58,8 +60,8 @@ public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticR
                 + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
                 + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
-                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe -sample reference "
-                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output -output_id germline");
+                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe -output_id germline "
+                + "-sample reference -vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output");
     }
 
     @Override
@@ -68,7 +70,7 @@ public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticR
     }
 
     @Override
-    protected void validateOutput(final GripssGermlineOutput output) {
+    protected void validateOutput(final GripssOutput output) {
         // no further validation yet
     }
 
@@ -83,7 +85,7 @@ public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticR
     }
 
     @Override
-    protected void validatePersistedOutput(final GripssGermlineOutput output) {
+    protected void validatePersistedOutput(final GripssOutput output) {
         String outputDir = "set/" + GRIPSS;
         assertThat(output.filteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, outputDir + TUMOR_GRIPSS_FILTERED_VCF_GZ));
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, outputDir + TUMOR_GRIPSS_VCF_GZ));
@@ -96,7 +98,7 @@ public class GripssGermlineTest extends StageTest<GripssGermlineOutput, SomaticR
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final GripssGermlineOutput output) {
+    protected void validatePersistedOutputFromPersistedDataset(final GripssOutput output) {
         assertThat(output.filteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ));
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_VCF_GZ));
     }

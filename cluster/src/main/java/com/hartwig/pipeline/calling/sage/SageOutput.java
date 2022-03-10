@@ -37,7 +37,7 @@ public interface SageOutput extends StageOutput {
         return maybeSomaticTumorSampleBqrPlot().orElse(GoogleStorageLocation.empty());
     }
 
-    static ImmutableSageOutput.Builder builder(String nameSpace) {
+    static ImmutableSageOutput.Builder builder(final String nameSpace) {
         return ImmutableSageOutput.builder().name(nameSpace);
     }
 }

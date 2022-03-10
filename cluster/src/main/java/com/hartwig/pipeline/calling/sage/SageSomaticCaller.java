@@ -8,6 +8,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Stage;
 
 public class SageSomaticCaller extends SageCaller {
 
@@ -18,6 +19,6 @@ public class SageSomaticCaller extends SageCaller {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return Collections.emptyList();
+        return Stage.disabled();
     }
 }
