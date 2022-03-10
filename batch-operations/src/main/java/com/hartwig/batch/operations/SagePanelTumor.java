@@ -6,8 +6,11 @@ import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.PANEL_BED;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
+import static com.hartwig.batch.operations.BatchCommon.SAGE_DIR;
+import static com.hartwig.batch.operations.BatchCommon.SAGE_JAR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.StringJoiner;
@@ -31,10 +34,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SagePanelTumor implements BatchOperation {
-
-    private static final String SAGE_DIR = "sage";
-    private static final String SAGE_JAR = "sage.jar";
-    private static final String PANEL_BED = "primary_targets_restricted_transcripts.bed";
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,

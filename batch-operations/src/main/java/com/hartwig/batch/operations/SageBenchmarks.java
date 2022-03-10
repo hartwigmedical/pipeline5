@@ -5,10 +5,9 @@ import static java.lang.String.format;
 import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FILENAME;
 import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
 import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_BENCHMARKS_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
-import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
 import static com.hartwig.batch.operations.BatchCommon.SAGE_DIR;
@@ -36,7 +35,7 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class SageRerun implements BatchOperation {
+public class SageBenchmarks implements BatchOperation {
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
@@ -44,13 +43,21 @@ public class SageRerun implements BatchOperation {
 
         InputFileDescriptor descriptor = inputs.get();
 
-        final String sampleId = descriptor.inputValue();
+        final String[] inputData = descriptor.inputValue().split(",", -1);
+        final String sampleId = inputData[0];
+        final String referenceId = inputData[1];
+
+        String runData = inputData[2];
+        boolean runTumorNormal = runData.equals("TumorNormal");
+        boolean runTumorOnly = runData.equals("TumorOnly");
+        boolean runGermline = runData.equals("Germline");
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 BATCH_TOOLS_BUCKET, SAGE_DIR, SAGE_JAR, VmDirectories.TOOLS));
 
+        /*
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 BATCH_TOOLS_BUCKET, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
 
@@ -58,45 +65,94 @@ public class SageRerun implements BatchOperation {
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 BATCH_RESOURCE_BUCKET, SAGE_DIR, ponFile, VmDirectories.INPUT));
+        */
 
-        // download tumor and ref CRAM
-        final RemoteLocationsApi locations = new RemoteLocationsApi("hmf-crunch", sampleId);
+        // download tumor and ref BAMs as required
+        String tumorBamFile = String.format("%s.bam", sampleId);
+        String referenceBamFile = String.format("%s.bam", referenceId);
 
-        String[] tumorCramData = getCramFileData(locations.getTumorAlignment());
-        String tumorCramFile = tumorCramData[CRAM_FILENAME];
+        if(runTumorNormal || runTumorOnly)
+        {
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
+                    BATCH_BENCHMARKS_BUCKET, sampleId, tumorBamFile, VmDirectories.INPUT));
+        }
 
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s* %s", tumorCramData[CRAM_FULL_PATH], VmDirectories.INPUT));
-
-        String referenceId = locations.getReference();
-
-        String[] refCramData = getCramFileData(locations.getReferenceAlignment());
-        String refCramFile = refCramData[CRAM_FILENAME];
-
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s* %s", refCramData[CRAM_FULL_PATH], VmDirectories.INPUT));
-
-        final String sageVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        if(runTumorNormal || runGermline)
+        {
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
+                    BATCH_BENCHMARKS_BUCKET, sampleId, referenceBamFile, VmDirectories.INPUT));
+        }
 
         // run Sage
         final StringJoiner sageArgs = new StringJoiner(" ");
-        sageArgs.add(String.format("-tumor %s", sampleId));
-        sageArgs.add(String.format("-tumor_bam %s/%s", VmDirectories.INPUT, tumorCramFile));
-        sageArgs.add(String.format("-reference %s", referenceId));
-        sageArgs.add(String.format("-reference_bam %s/%s", VmDirectories.INPUT, refCramFile));
-        sageArgs.add(String.format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
-        sageArgs.add(String.format("-panel_bed %s", resourceFiles.sageSomaticCodingPanel()));
+
+        if(runTumorNormal || runTumorOnly)
+        {
+            sageArgs.add(String.format("-tumor %s", sampleId));
+            sageArgs.add(String.format("-tumor_bam %s/%s", VmDirectories.INPUT, tumorBamFile));
+        }
+        else if(runGermline)
+        {
+            sageArgs.add(String.format("-tumor %s", sampleId));
+            sageArgs.add(String.format("-tumor_bam %s/%s", VmDirectories.INPUT, referenceBamFile));
+        }
+
+        if(runTumorNormal)
+        {
+            sageArgs.add(String.format("-reference %s", referenceId));
+            sageArgs.add(String.format("-reference_bam %s/%s", VmDirectories.INPUT, referenceBamFile));
+        }
+        else if(runGermline)
+        {
+            sageArgs.add(String.format("-reference %s", referenceId));
+            sageArgs.add(String.format("-reference_bam %s/%s", VmDirectories.INPUT, tumorBamFile));
+        }
+
+        if(runGermline)
+        {
+            sageArgs.add(String.format("-hotspots %s", resourceFiles.sageGermlineHotspots()));
+            sageArgs.add(String.format("-panel_bed %s", resourceFiles.sageGermlineCodingPanel()));
+        }
+        else
+        {
+            sageArgs.add(String.format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
+            sageArgs.add(String.format("-panel_bed %s", resourceFiles.sageSomaticCodingPanel()));
+        }
+
         sageArgs.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
 
         sageArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         sageArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         sageArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        sageArgs.add(String.format("-out %s", sageVcf));
 
+        if(runGermline)
+        {
+            sageArgs.add("-panel_only");
+            sageArgs.add("-hotspot_min_tumor_qual 50");
+            sageArgs.add("-panel_min_tumor_qual 75");
+            sageArgs.add("-hotspot_max_germline_vaf 100");
+            sageArgs.add("-hotspot_max_germline_rel_raw_base_qual 100");
+            sageArgs.add("-panel_max_germline_vaf 100");
+            sageArgs.add("-panel_max_germline_rel_raw_base_qual 100");
+            sageArgs.add("-mnv_filter_enabled false");
+        }
+
+        String sageVcf;
+
+        if(runTumorOnly)
+            sageVcf = String.format("%s/%s.sage.tumor_only.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        else if(runGermline)
+            sageVcf = String.format("%s/%s.sage.germline.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        else
+            sageVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
+
+        sageArgs.add(String.format("-out %s", sageVcf));
         sageArgs.add(String.format("-perf_warn_time 50"));
-        // sageArgs.add(String.format("-log_debug"));
         sageArgs.add(String.format("-threads %s", Bash.allCpus()));
 
         startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
 
+        /*
         // annotate with Pave - PON and gene impacts
         final StringJoiner paveArgs = new StringJoiner(" ");
         String ponFilters = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
@@ -117,6 +173,7 @@ public class SageRerun implements BatchOperation {
         String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
 
         startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
+        */
 
         // upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
@@ -131,6 +188,6 @@ public class SageRerun implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SageRerun", "Sage + Pave Rerun", OperationDescriptor.InputType.FLAT);
+        return OperationDescriptor.of("SageBenchmarks", "Sage benchmark samples", OperationDescriptor.InputType.FLAT);
     }
 }
