@@ -49,7 +49,7 @@ public class StartingPoint {
                         SageGermlineCaller.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomatic.NAMESPACE, GripssGermline.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
-        RERUN_527(concat(PURPLE_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE)));
+        RERUN_527(concat(CALLING_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE)));
 
         private final List<String> namespaces;
 
