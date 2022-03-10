@@ -1,13 +1,17 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.StatusCheck;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -68,5 +72,10 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
     @Override
     protected boolean isEnabledOnShallowSeq() {
         return false;
+    }
+
+    @Override
+    protected void validatePersistedOutput(final LilacOutput output) {
+        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
     }
 }
