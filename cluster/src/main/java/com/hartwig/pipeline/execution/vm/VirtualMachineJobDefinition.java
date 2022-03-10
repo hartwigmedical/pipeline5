@@ -106,9 +106,9 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition gripss(String type, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition gripss(String name, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gripss-" + type)
+                .name(name)
                 .startupCommand(startupScript)
                 .performanceProfile(custom(4, 24))
                 .namespacedResults(resultsDirectory)

@@ -6,6 +6,8 @@ import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FILENAME;
 import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
 import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.SAGE_DIR;
+import static com.hartwig.batch.operations.BatchCommon.SAGE_JAR;
 import static com.hartwig.batch.operations.SageRerunOld.cramToBam;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
@@ -32,9 +34,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 public class SageCompare implements BatchOperation {
-
-    private static final String SAGE_DIR = "sage";
-    private static final String SAGE_JAR = "sage.jar";
 
     private static final String RUN_BOTH = "both";
     private static final String RUN_NEW = "new";
