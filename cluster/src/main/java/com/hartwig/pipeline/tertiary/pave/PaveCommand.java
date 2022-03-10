@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class PaveCommand extends JavaJarCommand {
 
     public PaveCommand(final ResourceFiles resourceFiles, final String tumorSampleName, final String vcfFile) {
-        super("pave", Versions.PAVE, "pave.jar", "8G", arguments(tumorSampleName, vcfFile, resourceFiles));
+        super("pave", Versions.PAVE, "pave.jar", "16G", arguments(tumorSampleName, vcfFile, resourceFiles));
     }
 
     @NotNull

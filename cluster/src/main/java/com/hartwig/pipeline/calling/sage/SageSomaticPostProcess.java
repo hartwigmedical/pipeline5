@@ -34,6 +34,8 @@ public class SageSomaticPostProcess extends SubStage {
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
         OutputFile mappabilityAnnotationFile = mappabilityAnnotation.apply(tumorSampleName).outputFile();
+
+
         OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
         OutputFile ponFilterFile = ponFilter.apply(tumorSampleName).outputFile();
 
