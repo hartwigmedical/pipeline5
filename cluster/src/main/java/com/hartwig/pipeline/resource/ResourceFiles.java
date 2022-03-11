@@ -109,7 +109,7 @@ public interface ResourceFiles {
 
     String purpleCohortGermlineDeletions();
 
-    default Optional<String> panelBed() {
+    default Optional<String> targetRegionsBed() {
         return Optional.empty();
     }
 
