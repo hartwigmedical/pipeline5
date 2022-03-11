@@ -47,7 +47,6 @@
     </scm>
 
     <modules>
-        <module>batch</module>
         <module>cluster</module>
     </modules>
 
