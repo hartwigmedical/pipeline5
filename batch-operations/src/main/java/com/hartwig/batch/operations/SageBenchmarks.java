@@ -8,6 +8,7 @@ import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_BENCHMARKS_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
 import static com.hartwig.batch.operations.BatchCommon.SAGE_DIR;
@@ -52,36 +53,47 @@ public class SageBenchmarks implements BatchOperation {
         boolean runTumorOnly = runData.equals("TumorOnly");
         boolean runGermline = runData.equals("Germline");
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 BATCH_TOOLS_BUCKET, SAGE_DIR, SAGE_JAR, VmDirectories.TOOLS));
 
-        /*
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_BUCKET, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
-
-        String ponFile = "SageGermlinePon.1000x.37.tsv.gz";
-
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_RESOURCE_BUCKET, SAGE_DIR, ponFile, VmDirectories.INPUT));
-        */
-
-        // download tumor and ref BAMs as required
         String tumorBamFile = String.format("%s.bam", sampleId);
         String referenceBamFile = String.format("%s.bam", referenceId);
 
-        if(runTumorNormal || runTumorOnly)
+        if(inputData.length >= 5)
         {
-            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
-                    BATCH_BENCHMARKS_BUCKET, sampleId, tumorBamFile, VmDirectories.INPUT));
+            String tumorBamDir = inputData[3];
+            String refBamDir = inputData[4];
+
+            if(runTumorNormal || runTumorOnly)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s* %s",
+                        tumorBamDir, tumorBamFile, VmDirectories.INPUT));
+            }
+
+            if(runTumorNormal || runGermline)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s* %s",
+                        refBamDir, referenceBamFile, VmDirectories.INPUT));
+            }
+        }
+        else
+        {
+            // download tumor and ref BAMs as required
+            if(runTumorNormal || runTumorOnly)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
+                        BATCH_BENCHMARKS_BUCKET, sampleId, tumorBamFile, VmDirectories.INPUT));
+            }
+
+            if(runTumorNormal || runGermline)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
+                        BATCH_BENCHMARKS_BUCKET, sampleId, referenceBamFile, VmDirectories.INPUT));
+            }
         }
 
-        if(runTumorNormal || runGermline)
-        {
-            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
-                    BATCH_BENCHMARKS_BUCKET, sampleId, referenceBamFile, VmDirectories.INPUT));
-        }
+        RefGenomeVersion refGenomeVersion = inputData.length >= 6 ? RefGenomeVersion.valueOf(inputData[5]) : RefGenomeVersion.V37;
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(refGenomeVersion);
 
         // run Sage
         final StringJoiner sageArgs = new StringJoiner(" ");
@@ -93,7 +105,7 @@ public class SageBenchmarks implements BatchOperation {
         }
         else if(runGermline)
         {
-            sageArgs.add(String.format("-tumor %s", sampleId));
+            sageArgs.add(String.format("-tumor %s", referenceId));
             sageArgs.add(String.format("-tumor_bam %s/%s", VmDirectories.INPUT, referenceBamFile));
         }
 
@@ -104,7 +116,7 @@ public class SageBenchmarks implements BatchOperation {
         }
         else if(runGermline)
         {
-            sageArgs.add(String.format("-reference %s", referenceId));
+            sageArgs.add(String.format("-reference %s", sampleId));
             sageArgs.add(String.format("-reference_bam %s/%s", VmDirectories.INPUT, tumorBamFile));
         }
 
@@ -147,33 +159,65 @@ public class SageBenchmarks implements BatchOperation {
             sageVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
         sageArgs.add(String.format("-out %s", sageVcf));
+        sageArgs.add("-write_bqr_data");
         sageArgs.add(String.format("-perf_warn_time 50"));
         sageArgs.add(String.format("-threads %s", Bash.allCpus()));
 
         startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
 
-        /*
         // annotate with Pave - PON and gene impacts
-        final StringJoiner paveArgs = new StringJoiner(" ");
-        String ponFilters = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
+        if(runTumorNormal || runTumorOnly)
+        {
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                    BATCH_TOOLS_BUCKET, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
 
-        final String paveVcf = String.format("%s/%s.sage.somatic.pon.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
+            String ponFile = refGenomeVersion == RefGenomeVersion.V37 ?
+                    "SageGermlinePon.1000x.37.tsv.gz" : "SageGermlinePon.98x.38.tsv.gz";
 
-        paveArgs.add(String.format("-sample %s", sampleId));
-        paveArgs.add(String.format("-vcf_file %s", sageVcf)); // ponFilterVcf from BCF Tools
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                    BATCH_RESOURCE_BUCKET, SAGE_DIR, ponFile, VmDirectories.INPUT));
 
-        paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        paveArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
-        paveArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
-        paveArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        paveArgs.add(String.format("-pon_file %s/%s", VmDirectories.INPUT, ponFile));
-        paveArgs.add(String.format("-pon_filters \"%s\"", ponFilters));
-        paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
+            if(runTumorOnly && refGenomeVersion == RefGenomeVersion.V38)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/38/* %s",
+                        BATCH_RESOURCE_BUCKET, GNOMAD_DIR, VmDirectories.INPUT));
+            }
 
-        String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
+            final StringJoiner paveArgs = new StringJoiner(" ");
 
-        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
-        */
+            String ponFilters = refGenomeVersion == RefGenomeVersion.V37 ?
+                    "HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0" : "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
+
+            paveArgs.add(String.format("-sample %s", sampleId));
+            paveArgs.add(String.format("-vcf_file %s", sageVcf)); // ponFilterVcf from BCF Tools
+
+            paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+            paveArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
+            paveArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+            paveArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+            paveArgs.add(String.format("-pon_file %s/%s", VmDirectories.INPUT, ponFile));
+            paveArgs.add(String.format("-pon_filters \"%s\"", ponFilters));
+
+            if(runTumorOnly && refGenomeVersion == RefGenomeVersion.V38)
+            {
+                paveArgs.add(String.format("-gnomad_freq_dir %s", VmDirectories.INPUT));
+                paveArgs.add("-gnomad_load_chr_on_demand");
+            }
+
+            paveArgs.add("-read_pass_only");
+
+            if(runTumorOnly)
+                paveArgs.add("-write_pass_only");
+
+            paveArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+
+            // final String paveVcf = String.format("%s/%s.sage.somatic.pon.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
+            // paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
+
+            String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
+
+            startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
+        }
 
         // upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
