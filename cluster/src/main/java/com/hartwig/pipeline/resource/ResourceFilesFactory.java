@@ -13,8 +13,8 @@ public class ResourceFilesFactory {
         if (arguments.refGenomeUrl().isPresent()) {
             resourceFiles = new OverriddenReferenceGenome(resourceFiles, arguments.refGenomeUrl().get());
         }
-        if (arguments.panelBedLocation().isPresent()) {
-            resourceFiles = new PanelEnabled(resourceFiles, arguments.panelBedLocation().get());
+        if (arguments.targetRegionsBedLocation().isPresent()) {
+            resourceFiles = new TargetRegionsEnabled(resourceFiles, arguments.targetRegionsBedLocation().get());
         }
         return resourceFiles;
     }
