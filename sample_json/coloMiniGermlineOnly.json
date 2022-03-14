@@ -1,0 +1,28 @@
+{
+  "reference": {
+    "type": "REFERENCE",
+    "name": "COLO829v003R",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "2",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L002_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L003_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829Mini/COLO829v003R_AHHKYHDSXX_S13_L004_R2_001.fastq.gz"
+      }
+    ]
+  }
+}
