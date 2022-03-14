@@ -187,8 +187,8 @@ public class SageCommandBuilder {
         arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
         arguments.add("-ref_genome_version").add(resourceFiles.version().toString());
         arguments.add("-ensembl_data_dir").add(resourceFiles.ensemblDataCache());
-        arguments.add("-write_bqr_data ");
-        arguments.add("-write_bqr_plot ");
+        arguments.add("-write_bqr_data");
+        arguments.add("-write_bqr_plot");
         arguments.add("-out").add(outputVcf);
         arguments.add("-threads").add(Bash.allCpus());
 

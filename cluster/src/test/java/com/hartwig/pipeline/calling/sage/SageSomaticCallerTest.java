@@ -49,6 +49,7 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                        + "-write_bqr_data -write_bqr_plot "
                         + "-out /data/output/tumor.sage.somatic.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)",
                 "(/opt/tools/bcftools/1.9/bcftools filter -i 'FILTER=\"PASS\"' /data/output/tumor.sage.somatic.vcf.gz -O z -o /data/output/tumor.sage.pass.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pass.vcf.gz -p vcf",
