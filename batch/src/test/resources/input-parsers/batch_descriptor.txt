@@ -1,4 +1,0 @@
-gs://some-bucket/some-file
-gs://some-bucket/some-other-file
-
-gs://some-bucket/some-other-file

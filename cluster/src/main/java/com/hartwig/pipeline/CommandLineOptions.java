@@ -79,8 +79,8 @@ public class CommandLineOptions {
     private static final String CONTEXT_FLAG = "context";
     private static final String COST_CENTER_LABEL_FLAG = "cost_center_label";
     private static final String USER_LABEL_FLAG = "user_label";
-    private static final String PANEL_BED_FLAG = "panel_bed_location";
-    private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_load_event";
+    private static final String TARGET_REGIONS_BED_FLAG = "target_regions_bed";
+    private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -145,13 +145,13 @@ public class CommandLineOptions {
                 .addOption(context())
                 .addOption(costCenterLabel())
                 .addOption(userLabel())
-                .addOption(panelBedLocation())
+                .addOption(targetRegionsBedLocation())
                 .addOption(publishDbLoadEvent());
     }
 
-    private static Option panelBedLocation() {
-        return optionWithArg(PANEL_BED_FLAG,
-                "Specify the location of the panel bed to enable panel mode. Both within image and gs:// urls are supported.");
+    private static Option targetRegionsBedLocation() {
+        return optionWithArg(TARGET_REGIONS_BED_FLAG,
+                "Specify the location of the target regions BED to enable targeted mode. Both within image and gs:// urls are supported.");
     }
 
     private static Option userLabel() {
@@ -385,7 +385,7 @@ public class CommandLineOptions {
                     .context(context(commandLine, defaults))
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))
-                    .panelBedLocation(panelBedLocation(commandLine, defaults))
+                    .targetRegionsBedLocation(targetRegionsBedLocation(commandLine, defaults))
                     .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .build();
         } catch (ParseException e) {
@@ -396,11 +396,11 @@ public class CommandLineOptions {
         }
     }
 
-    public static Optional<String> panelBedLocation(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PANEL_BED_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PANEL_BED_FLAG));
+    public static Optional<String> targetRegionsBedLocation(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(TARGET_REGIONS_BED_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(TARGET_REGIONS_BED_FLAG));
         }
-        return defaults.panelBedLocation();
+        return defaults.targetRegionsBedLocation();
     }
 
     public static Optional<String> userLabel(final CommandLine commandLine, final Arguments defaults) {
