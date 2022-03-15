@@ -117,9 +117,16 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlinePon() {
-        return decorated.sageGermlinePon();
-    }
+    public String sageGermlinePon() { return decorated.sageGermlinePon(); }
+
+    @Override
+    public String germlinePon() { return decorated.germlinePon(); }
+
+    @Override
+    public String somaticPonArtefacts() { return decorated.somaticPonArtefacts(); }
+
+    @Override
+    public String gnomadPonCache() { return decorated.gnomadPonCache(); }
 
     @Override
     public String giabHighConfidenceBed() {

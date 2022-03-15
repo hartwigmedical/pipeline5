@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
+import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+
 import java.util.Optional;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -126,6 +129,15 @@ public class TargetRegionsEnabled implements ResourceFiles {
     public String sageGermlinePon() {
         return decorated.sageGermlinePon();
     }
+
+    @Override
+    public String germlinePon() { return decorated.germlinePon(); }
+
+    @Override
+    public String somaticPonArtefacts() { return decorated.somaticPonArtefacts(); }
+
+    @Override
+    public String gnomadPonCache() { return decorated.gnomadPonCache(); }
 
     @Override
     public String giabHighConfidenceBed() {

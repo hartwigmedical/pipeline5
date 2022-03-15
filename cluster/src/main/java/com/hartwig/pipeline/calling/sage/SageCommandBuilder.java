@@ -17,7 +17,9 @@ public class SageCommandBuilder {
     private final List<String> tumorBam = Lists.newArrayList();
     private final List<String> referenceBam = Lists.newArrayList();
 
-    private String maxHeap = "60G";
+    private String wgsMaxHeap = "60G";
+    private String panelMaxHeap = "15G";
+
     private boolean coverage = false;
     private boolean panelOnly = false;
     private boolean somaticMode = true;
@@ -43,7 +45,7 @@ public class SageCommandBuilder {
         germlineMode = true;
         somaticMode = false;
         panelOnly();
-        maxHeap("15G");
+        maxHeap(panelMaxHeap);
         return this;
     }
 
@@ -71,7 +73,7 @@ public class SageCommandBuilder {
     }
 
     public SageCommandBuilder maxHeap(String maxHeap) {
-        this.maxHeap = maxHeap;
+        this.wgsMaxHeap = maxHeap;
         return this;
     }
 
@@ -192,7 +194,7 @@ public class SageCommandBuilder {
         arguments.add("-out").add(outputVcf);
         arguments.add("-threads").add(Bash.allCpus());
 
-        return new SageCommand("com.hartwig.hmftools.sage.SageApplication", maxHeap, arguments.toString());
+        return new SageCommand("com.hartwig.hmftools.sage.SageApplication", wgsMaxHeap, arguments.toString());
     }
 
 }

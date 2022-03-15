@@ -65,6 +65,12 @@ public interface ResourceFiles {
 
     String sageGermlinePon();
 
+    String germlinePon();
+
+    String somaticPonArtefacts();
+
+    String gnomadPonCache();
+
     String giabHighConfidenceBed();
 
     default String gridssPropertiesFile() {

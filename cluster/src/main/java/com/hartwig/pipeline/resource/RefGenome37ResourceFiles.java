@@ -8,6 +8,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
 import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
+import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
@@ -114,6 +115,15 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String sageGermlinePon() {
         return formPath(SAGE, "SageGermlinePon.1000x.37.vcf.gz");
     }
+
+    @Override
+    public String germlinePon() { return formPath(SAGE, "SageGermlinePon.1000x.37.tsv.gz"); }
+
+    @Override
+    public String somaticPonArtefacts() { return formPath(SAGE, "PanelArtefacts.37.tsv"); }
+
+    @Override
+    public String gnomadPonCache() { return formPath(GNOMAD, ""); }
 
     @Override
     public String giabHighConfidenceBed() {
