@@ -118,7 +118,7 @@ public interface ResourceFiles {
     }
 
     default String doidJson() {
-        return of(DISEASE_ONTOLOGY, "201015_doid.json");
+        return of(DISEASE_ONTOLOGY, "doid.json");
     }
 
     default String snvSignatures() {
