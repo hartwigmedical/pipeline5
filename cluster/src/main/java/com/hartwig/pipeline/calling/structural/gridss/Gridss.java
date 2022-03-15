@@ -160,11 +160,6 @@ public class Gridss extends TertiaryStage<GridssOutput> {
                 .build();
     }
 
-    @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return arguments.runStructuralCaller();
-    }
-
     private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
             String filename) {
         return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filename)));
