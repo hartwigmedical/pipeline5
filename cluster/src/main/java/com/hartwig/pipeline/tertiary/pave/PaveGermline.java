@@ -1,12 +1,17 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import java.util.List;
+
 import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Stage;
 
 public class PaveGermline extends Pave {
     public static final String NAMESPACE = "pave_germline";
@@ -21,10 +26,23 @@ public class PaveGermline extends Pave {
     }
 
     @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+
+        List<String> arguments = PaveArgumentBuilder.germline(
+                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.TUMOR_REFERENCE);
+
+        return paveCommand(metadata, arguments);
+    }
+
+    @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
         return String.format("%s.%s.%s.%s",
                 metadata.tumor().sampleName(),
                 SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_NAME,
                 FileTypes.GZIPPED_VCF);
     }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
 }

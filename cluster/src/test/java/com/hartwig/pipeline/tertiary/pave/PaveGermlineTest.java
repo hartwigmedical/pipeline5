@@ -34,10 +34,15 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx16G -jar /opt/tools/pave/1.1/pave.jar -sample tumor -vcf_file /data/input/tumor.germline.vcf.gz -output_dir "
-                        + "/data/output -ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -ref_genome "
-                        + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
+                "java -Xmx16G -jar /opt/tools/pave/1.2/pave.jar "
+                        + "-sample tumor "
+                        + "-vcf_file /data/input/tumor.germline.vcf.gz "
+                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "-ref_genome_version V37 "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                        + "-output_dir /data/output "
+                        + "-read_pass_only");
     }
 
     @Override

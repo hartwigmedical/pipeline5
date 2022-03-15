@@ -7,7 +7,10 @@ import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.tools.Versions;
 
 public class SageCommandBuilder {
 
@@ -41,10 +44,8 @@ public class SageCommandBuilder {
     }
 
     public SageCommandBuilder germlineMode() {
-        panelOnly = true;
         germlineMode = true;
         somaticMode = false;
-        panelOnly();
         maxHeap(panelMaxHeap);
         return this;
     }
@@ -80,7 +81,7 @@ public class SageCommandBuilder {
     public List<BashCommand> build(final String outputVcf) {
         List<BashCommand> result = Lists.newArrayList();
 
-        final StringJoiner arguments = new StringJoiner(" ");
+        final List<String> arguments = Lists.newArrayList();
 
         if (tumorSamples == 0) {
             throw new IllegalStateException("Must be at least one tumor");
@@ -90,66 +91,75 @@ public class SageCommandBuilder {
             throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
         }
 
+        final String tumorBamFiles = tumor.length() > 0 ? String.join(",", tumorBam) : "";
+        final String referenceBamFiles = reference.length() > 0 ? String.join(",", referenceBam) : "";
+
         if (somaticMode) {
-            final String tumorBamFiles = String.join(",", tumorBam);
-            arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
+
+            arguments.add(String.format("-tumor %s", tumor.toString()));
+            arguments.add(String.format("-tumor_bam %s", tumorBamFiles));
 
             if (reference.length() > 0) {
-                final String referenceBamFiles = String.join(",", referenceBam);
-                arguments.add("-reference").add(reference.toString()).add("-reference_bam").add(referenceBamFiles);
+
+                arguments.add(String.format("-reference %s", reference.toString()));
+                arguments.add(String.format("-reference_bam %s", referenceBamFiles));
             }
 
-            arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
-            arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+            arguments.add(String.format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
+            arguments.add(String.format("-panel_bed %s", resourceFiles.sageSomaticCodingPanel()));
 
             if (shallowSomaticMode) {
-                arguments.add("-hotspot_min_tumor_qual").add("40");
+                arguments.add("-hotspot_min_tumor_qual 40");
             }
 
         } else if (germlineMode) {
 
-            final String referenceBamFiles = String.join(",", referenceBam);
-            arguments.add("-tumor").add(reference.toString()).add("-tumor_bam").add(referenceBamFiles);
+            arguments.add(String.format("-tumor %s", reference.toString()));
+            arguments.add(String.format("-tumor_bam %s", referenceBamFiles));
 
             if (tumor.length() > 0) {
-                final String tumorBamFiles = String.join(",", tumorBam);
-                arguments.add("-reference").add(tumor.toString()).add("-reference_bam").add(tumorBamFiles);
+                arguments.add(String.format("-reference %s", tumor.toString()));
+                arguments.add(String.format("-reference_bam %s", tumorBamFiles));
             }
 
-            arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
-            arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
-            arguments.add("-hotspot_min_tumor_qual").add("50");
-            arguments.add("-panel_min_tumor_qual").add("75");
-            arguments.add("-hotspot_max_germline_vaf").add("100");
-            arguments.add("-hotspot_max_germline_rel_raw_base_qual").add("100");
-            arguments.add("-panel_max_germline_vaf").add("100");
-            arguments.add("-panel_max_germline_rel_raw_base_qual").add("100");
-            arguments.add("-mnv_filter_enabled").add("false");
-        }
-
-        if (panelOnly) {
+            arguments.add(String.format("-hotspots %s", resourceFiles.sageGermlineHotspots()));
+            arguments.add(String.format("-panel_bed %s", resourceFiles.sageGermlineCodingPanel()));
+            arguments.add("-hotspot_min_tumor_qual 50");
+            arguments.add("-panel_min_tumor_qual 75");
+            arguments.add("-hotspot_max_germline_vaf 100");
+            arguments.add("-hotspot_max_germline_rel_raw_base_qual 100");
+            arguments.add("-panel_max_germline_vaf 100");
+            arguments.add("-panel_max_germline_rel_raw_base_qual 100");
+            arguments.add("-mnv_filter_enabled false");
             arguments.add("-panel_only");
         }
 
         if (coverage) {
-            arguments.add("-coverage_bed");
             if (germlineMode) {
-                arguments.add(resourceFiles.sageGermlineCoveragePanel());
+                arguments.add(String.format("-coverage_bed %s", resourceFiles.sageGermlineCoveragePanel()));
             } else {
-                arguments.add(resourceFiles.sageSomaticCodingPanel());
+                arguments.add(String.format("-coverage_bed %s", resourceFiles.sageSomaticCodingPanel()));
             }
         }
 
-        arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
-        arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
-        arguments.add("-ref_genome_version").add(resourceFiles.version().toString());
-        arguments.add("-ensembl_data_dir").add(resourceFiles.ensemblDataCache());
+        if(panelOnly)
+        {
+            arguments.add("-hotspot_min_tumor_qual 100");
+            arguments.add("-panel_min_tumor_qual 200");
+            arguments.add("-high_confidence_min_tumor_qual 200");
+            arguments.add("-low_confidence_min_tumor_qual 300");
+        }
+
+        arguments.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
+        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
+        arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add("-write_bqr_data");
         arguments.add("-write_bqr_plot");
-        arguments.add("-out").add(outputVcf);
-        arguments.add("-threads").add(Bash.allCpus());
+        arguments.add(String.format("-out %s", outputVcf));
+        arguments.add(String.format("-threads %s", Bash.allCpus()));
 
-        result.add(new SageCommand("com.hartwig.hmftools.sage.SageApplication", wgsMaxHeap, arguments.toString()));
+        result.add(new JavaJarCommand("sage", Versions.SAGE, "sage.jar", wgsMaxHeap, arguments));
 
         return result;
     }

@@ -40,9 +40,9 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx60G -cp /opt/tools/sage/3.0/sage.jar com.hartwig.hmftools.sage.SageApplication "
-                        + "-tumor tumor "
-                        + "-tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam "
+                "java -Xmx60G -jar /opt/tools/sage/3.0/sage.jar "
+                        + "-tumor tumor -tumor_bam /data/input/tumor.bam "
+                        + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
                         + "-panel_bed /opt/resources/sage/37/ActionableCodingPanel.somatic.37.bed.gz "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "

@@ -15,8 +15,10 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -28,18 +30,19 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     static final String PAVE_FILE_NAME = "pave";
 
-    private final ResourceFiles resourceFiles;
-    private final InputDownload vcfDownload;
+    protected final ResourceFiles resourceFiles;
+    protected final InputDownload vcfDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
-    public Pave(final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset,
-            final DataType vcfDatatype) {
+    public Pave(
+            final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset, final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownload(sageOutput.variants());
         this.persistedDataset = persistedDataset;
@@ -48,9 +51,33 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
+    /*
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new PaveCommand(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath()));
+    }
+     */
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        List<String> arguments = PaveArgumentBuilder.somatic(
+                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.TUMOR_ONLY);
+
+        return paveCommand(metadata, arguments);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
+    {
+        List<String> arguments = PaveArgumentBuilder.germline(
+                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.REFERENCE_ONLY);
+
+        return paveCommand(metadata, arguments);
+    }
+
+    protected List<BashCommand> paveCommand(final SomaticRunMetadata metadata, final List<String> arguments)
+    {
+        return Collections.singletonList(new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "16G", arguments));
     }
 
     @Override
