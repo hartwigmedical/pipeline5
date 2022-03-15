@@ -47,26 +47,6 @@ public class SageCommandBuilderTest {
         assertEquals(bash.get(0), REFERENCE_SAGE_COMMAND);
     }
 
-    @Test
-    public void runsOnGermlineCram() {
-        SageCommandBuilder victim = new SageCommandBuilder(TestInputs.REF_GENOME_37_RESOURCE_FILES);
-        victim.germlineMode()
-                .addReference(REFERENCE, REFERENCE_BAM.replace(".bam", ".cram"))
-                .addTumor(TUMOR, TUMOR_BAM.replace(".bam", ".cram"));
-        List<String> bash = victim.build(REFERENCE_OUT).stream().map(BashCommand::asBash).collect(Collectors.toList());
-        assertEquals(5, bash.size());
-
-        assertEquals(bash.get(0),
-                "/opt/tools/samtools/1.14/samtools view -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -L "
-                        + "/opt/resources/sage/37/SlicePanel.germline.37.bed.gz -o /data/input/COLO829v003R.bam -u -@ $(grep -c '^processor' /proc/cpuinfo) -M /data/input/COLO829v003R.cram");
-        assertEquals(bash.get(1), "/opt/tools/samtools/1.14/samtools index /data/input/COLO829v003R.bam");
-        assertEquals(bash.get(2),
-                "/opt/tools/samtools/1.14/samtools view -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -L "
-                        + "/opt/resources/sage/37/SlicePanel.germline.37.bed.gz -o /data/input/COLO829v003T.bam -u -@ $(grep -c '^processor' /proc/cpuinfo) -M /data/input/COLO829v003T.cram");
-        assertEquals(bash.get(3), "/opt/tools/samtools/1.14/samtools index /data/input/COLO829v003T.bam");
-        assertEquals(bash.get(4), REFERENCE_SAGE_COMMAND);
-    }
-
     @Test(expected = IllegalStateException.class)
     public void throwsExceptionOnNoTumorSet() {
         new SageCommandBuilder(TestInputs.REF_GENOME_37_RESOURCE_FILES).build(Strings.EMPTY);

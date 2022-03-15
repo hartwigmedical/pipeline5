@@ -77,54 +77,9 @@ public class SageCommandBuilder {
         return this;
     }
 
-    private List<BashCommand> sliceAndConvertToBam(String oldFile, String newFile) {
-        List<BashCommand> result = Lists.newArrayList();
-        result.add(SamtoolsCommand.sliceToUncompressedBam(resourceFiles, resourceFiles.sageGermlineSlicePanel(), oldFile, newFile));
-        result.add(SamtoolsCommand.index(newFile));
-        return result;
-    }
-
-    private List<BashCommand> convertToBam(String oldFile, String newFile) {
-        List<BashCommand> result = Lists.newArrayList();
-        result.add(SamtoolsCommand.toUncompressedBam(resourceFiles, oldFile, newFile));
-        result.add(SamtoolsCommand.index(newFile));
-        return result;
-    }
-
     public List<BashCommand> build(final String outputVcf) {
         List<BashCommand> result = Lists.newArrayList();
 
-        for (int i = 0; i < referenceBam.size(); i++) {
-            String currentAlignmentFile = referenceBam.get(i);
-            if (currentAlignmentFile.endsWith(".cram")) {
-                String newBamFile = currentAlignmentFile.substring(0, currentAlignmentFile.length() - 5) + ".bam";
-                if (germlineMode && panelOnly) {
-                    result.addAll(sliceAndConvertToBam(currentAlignmentFile, newBamFile));
-                } else {
-                    result.addAll(convertToBam(currentAlignmentFile, newBamFile));
-                }
-                referenceBam.set(i, newBamFile);
-            }
-        }
-
-        for (int i = 0; i < tumorBam.size(); i++) {
-            String currentAlignmentFile = tumorBam.get(i);
-            if (currentAlignmentFile.endsWith(".cram")) {
-                String newBamFile = currentAlignmentFile.substring(0, currentAlignmentFile.length() - 5) + ".bam";
-                if (germlineMode && panelOnly) {
-                    result.addAll(sliceAndConvertToBam(currentAlignmentFile, newBamFile));
-                } else {
-                    result.addAll(convertToBam(currentAlignmentFile, newBamFile));
-                }
-                tumorBam.set(i, newBamFile);
-            }
-        }
-
-        result.add(buildSageCommand(outputVcf));
-        return result;
-    }
-
-    private SageCommand buildSageCommand(String outputVcf) {
         final StringJoiner arguments = new StringJoiner(" ");
 
         if (tumorSamples == 0) {
@@ -194,7 +149,8 @@ public class SageCommandBuilder {
         arguments.add("-out").add(outputVcf);
         arguments.add("-threads").add(Bash.allCpus());
 
-        return new SageCommand("com.hartwig.hmftools.sage.SageApplication", wgsMaxHeap, arguments.toString());
-    }
+        result.add(new SageCommand("com.hartwig.hmftools.sage.SageApplication", wgsMaxHeap, arguments.toString()));
 
+        return result;
+    }
 }
