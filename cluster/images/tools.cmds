@@ -53,7 +53,6 @@ sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
-sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
