@@ -27,22 +27,26 @@ public class SageSomaticPostProcess extends SubStage {
         final List<BashCommand> result = Lists.newArrayList();
 
         SubStage passFilter = new PassFilter();
+
         SubStage mappabilityAnnotation =
                 new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
-        SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
-        SubStage ponFilter = new PonFilter(resourceFiles.version());
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
-        OutputFile mappabilityAnnotationFile = mappabilityAnnotation.apply(tumorSampleName).outputFile();
-
-
-        OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
-        OutputFile ponFilterFile = ponFilter.apply(tumorSampleName).outputFile();
-
         result.addAll(passFilter.bash(input, passFilterFile));
-        result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
+
+        OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
+        result.addAll(mappabilityAnnotation.bash(passFilterFile, finalOutputFile));
+
+        /*
+        //result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
+        SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
+        OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
         result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));
-        result.addAll(ponFilter.bash(ponAnnotationFile, ponFilterFile));
+        SubStage ponFilter = new PonFilter(resourceFiles.version());
+        OutputFile ponFilterFile = ponFilter.apply(tumorSampleName).outputFile();
+        result.addAll(ponFilter.bash(mappabilityAnnotationFile, ponFilterFile));
+        */
+
         return result;
     }
 }
