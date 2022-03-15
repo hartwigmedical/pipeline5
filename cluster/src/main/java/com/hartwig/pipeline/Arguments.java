@@ -35,8 +35,6 @@ public interface Arguments extends CommonArguments {
 
     boolean runGermlineCaller();
 
-    boolean runStructuralCaller();
-
     boolean runTertiary();
 
     boolean shallow();
@@ -144,7 +142,6 @@ public interface Arguments extends CommonArguments {
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
-                    .runStructuralCaller(true)
                     .runTertiary(true)
                     .shallow(false)
                     .setId(EMPTY)
@@ -175,7 +172,6 @@ public interface Arguments extends CommonArguments {
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runTertiary(true)
-                    .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
@@ -212,7 +208,6 @@ public interface Arguments extends CommonArguments {
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runTertiary(true)
-                    .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
@@ -247,7 +242,6 @@ public interface Arguments extends CommonArguments {
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runTertiary(true)
-                    .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
