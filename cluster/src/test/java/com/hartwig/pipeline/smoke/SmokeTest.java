@@ -68,9 +68,9 @@ public class SmokeTest {
     }
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
-        PipelineMain victim = new PipelineMain();
-        String version = version();
-        String setName = noDots(inputMode + "-" + version);
+        final PipelineMain victim = new PipelineMain();
+        final String version = version();
+        final String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
@@ -101,6 +101,13 @@ public class SmokeTest {
         final String outputDir = setName + "-" + randomRunId;
         List<String> actualFiles = listOutput(outputDir, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
+
+        if (inputMode.equals("tumor-reference")) {
+            ComparAssert.assertThat(storage, arguments.outputBucket(), outputDir)
+                    .isEqualToTruthset(Resources.testResource(fixtureDir + "/truthset"))
+                    .cleanup();
+        }
+
         cleanupBucket(outputDir, arguments.outputBucket(), storage);
     }
 

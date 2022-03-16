@@ -1,0 +1,20 @@
+## htsjdk.samtools.metrics.StringHeader
+# CollectGridssMetrics GRIDSS_PROGRAM=[CollectCigarMetrics, CollectMapqMetrics, CollectTagMetrics, CollectIdsvMetrics, ReportThresholdCoverage] THRESHOLD_COVERAGE=50000 INPUT=/data/output/COLO829v003T.assembly.bam OUTPUT=/data/output/COLO829v003T.assembly.bam.gridss.working//COLO829v003T.assembly.bam FILE_EXTENSION=null PROGRAM=[QualityScoreDistribution] TMP_DIR=[/data/output] REFERENCE_SEQUENCE=/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta    ASSUME_SORTED=true STOP_AFTER=0 METRIC_ACCUMULATION_LEVEL=[ALL_READS] INCLUDE_UNPAIRED=false VERBOSITY=INFO QUIET=false VALIDATION_STRINGENCY=STRICT COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false GA4GH_CLIENT_SECRETS=client_secrets.json USE_JDK_DEFLATER=false USE_JDK_INFLATER=false
+## htsjdk.samtools.metrics.StringHeader
+# Started on: Tue Mar 15 19:53:12 UTC 2022
+
+## METRICS CLASS	gridss.analysis.MapqMetrics
+MAX_MAPQ	MIN_MAPQ	MAPPED_READS	UNKNOWN_MAPQ	ZERO_MAPQ	SAMPLE	LIBRARY	READ_GROUP
+60	27	86	0	0			
+
+## HISTOGRAM	java.lang.Integer
+mapq	All_Reads.
+27	1
+31	2
+32	1
+33	1
+36	2
+46	2
+59	2
+60	75
+
