@@ -31,6 +31,12 @@ public interface ResourceFiles {
 
     String refGenomeFile();
 
+    default Optional<String> targetRegionsBed() {
+        return Optional.empty();
+    }
+
+    default void setTargetRegionsBed(final String targetRegionsBed) {}
+
     String gcProfileFile();
 
     String diploidRegionsBed();
@@ -114,10 +120,6 @@ public interface ResourceFiles {
     String peachFilterBed();
 
     String purpleCohortGermlineDeletions();
-
-    default Optional<String> targetRegionsBed() {
-        return Optional.empty();
-    }
 
     default String cuppaRefData() {
         return of(CUPPA);

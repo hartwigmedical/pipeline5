@@ -38,6 +38,8 @@ public class PaveArgumentBuilder
             arguments.add("-write_pass_only");
         }
 
+        // arguments.add("-log_debug");
+
         return arguments;
     }
 

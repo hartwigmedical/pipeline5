@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 public class TargetRegionsCommand {
@@ -20,4 +21,11 @@ public class TargetRegionsCommand {
     private static BashCommand copyDownTargetRegionsBed(final String p) {
         return () -> String.format("gsutil -qm cp -n %s %s", p, RESOURCES_OVERRIDE);
     }
+
+    public static String parseTargetRegionsBedInput(final String targetRegionsBed) {
+        return targetRegionsBed.startsWith("gs://")
+                ? TargetRegionsCommand.RESOURCES_OVERRIDE + targetRegionsBed.substring(targetRegionsBed.lastIndexOf("/"))
+                : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsBed;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.TargetRegionsCommand.parseTargetRegionsBedInput;
+
 import com.hartwig.pipeline.CommonArguments;
 
 public class ResourceFilesFactory {
@@ -9,12 +11,17 @@ public class ResourceFilesFactory {
     }
 
     public static ResourceFiles buildResourceFiles(final CommonArguments arguments) {
+
         ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+
         if (arguments.refGenomeUrl().isPresent()) {
             resourceFiles = new OverriddenReferenceGenome(resourceFiles, arguments.refGenomeUrl().get());
         }
+
         if (arguments.targetRegionsBedLocation().isPresent()) {
-            resourceFiles = new TargetRegionsEnabled(resourceFiles, arguments.targetRegionsBedLocation().get());
+            String targetRegionsBed = parseTargetRegionsBedInput(arguments.targetRegionsBedLocation().get());
+            // resourceFiles = new TargetRegionsEnabled(resourceFiles, arguments.targetRegionsBedLocation().get());
+            resourceFiles.setTargetRegionsBed(targetRegionsBed);
         }
         return resourceFiles;
     }

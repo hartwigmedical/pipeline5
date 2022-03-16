@@ -24,7 +24,6 @@ public class SageCommandBuilder {
     private String panelMaxHeap = "15G";
 
     private boolean coverage = false;
-    private boolean panelOnly = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
@@ -36,11 +35,6 @@ public class SageCommandBuilder {
 
     public boolean isSomatic() {
         return somaticMode;
-    }
-
-    public SageCommandBuilder panelOnly() {
-        panelOnly = true;
-        return this;
     }
 
     public SageCommandBuilder germlineMode() {
@@ -142,7 +136,7 @@ public class SageCommandBuilder {
             }
         }
 
-        if(panelOnly)
+        if(resourceFiles.targetRegionsBed().isPresent())
         {
             arguments.add("-hotspot_min_tumor_qual 100");
             arguments.add("-panel_min_tumor_qual 200");

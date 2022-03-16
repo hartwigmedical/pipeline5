@@ -75,7 +75,7 @@ public interface SageConfiguration {
                         FileTypes.GZIPPED_VCF))
                 .unfilteredTemplate(m -> String.format("%s.%s.%s", m.tumor().sampleName(), "sage.somatic", FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
-                .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(shallow))
+                .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(shallow).addCoverage())
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName(), resourceFiles))
                 .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
                 .build();

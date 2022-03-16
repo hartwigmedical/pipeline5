@@ -17,7 +17,11 @@ import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
+import java.util.Optional;
+
 public class RefGenome38ResourceFiles implements ResourceFiles {
+
+    private String targetRegionsBed = null;
 
     public RefGenomeVersion version() {
         return RefGenomeVersion.V38;
@@ -32,6 +36,14 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String refGenomeFile() {
         return formPath(REFERENCE_GENOME, "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna");
     }
+
+    @Override
+    public void setTargetRegionsBed(final String targetRegionsBed) {
+        this.targetRegionsBed = targetRegionsBed;
+    }
+
+    @Override
+    public Optional<String> targetRegionsBed() { return Optional.ofNullable(targetRegionsBed) ; }
 
     @Override
     public String gcProfileFile() {

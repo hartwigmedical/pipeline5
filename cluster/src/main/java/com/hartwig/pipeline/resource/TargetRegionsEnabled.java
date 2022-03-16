@@ -1,11 +1,8 @@
 package com.hartwig.pipeline.resource;
 
-import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
-import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.TargetRegionsCommand.parseTargetRegionsBedInput;
 
 import java.util.Optional;
-
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class TargetRegionsEnabled implements ResourceFiles {
 
@@ -14,10 +11,7 @@ public class TargetRegionsEnabled implements ResourceFiles {
 
     public TargetRegionsEnabled(final ResourceFiles decorated, final String targetRegionsBed) {
         this.decorated = decorated;
-        this.targetRegionsBed =
-                targetRegionsBed.startsWith("gs://")
-                        ? TargetRegionsCommand.RESOURCES_OVERRIDE + targetRegionsBed.substring(targetRegionsBed.lastIndexOf("/"))
-                        : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsBed;
+        this.targetRegionsBed = parseTargetRegionsBedInput(targetRegionsBed);
     }
 
     @Override

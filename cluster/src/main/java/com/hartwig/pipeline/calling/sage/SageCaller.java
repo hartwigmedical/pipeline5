@@ -35,8 +35,8 @@ public class SageCaller extends TertiaryStage<SageOutput> {
     public static final String SAGE_GENE_COVERAGE_TSV = "sage.gene.coverage.tsv";
     public static final String SAGE_BQR_PNG = "sage.bqr.png";
 
-    private final PersistedDataset persistedDataset;
-    private final SageConfiguration sageConfiguration;
+    protected final PersistedDataset persistedDataset;
+    protected final SageConfiguration sageConfiguration;
 
     public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,
             final SageConfiguration sageConfiguration) {
