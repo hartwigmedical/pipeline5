@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
@@ -51,13 +48,6 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
-    /*
-    @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new PaveCommand(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath()));
-    }
-     */
-
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = PaveArgumentBuilder.somatic(
@@ -92,13 +82,8 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(2, 10))
-                .workingDiskSpaceGb(375)
-                .build();
+
+        return VirtualMachineJobDefinition.pave(namespace().replace("_", "-"), bash, resultsDirectory);
     }
 
     @Override

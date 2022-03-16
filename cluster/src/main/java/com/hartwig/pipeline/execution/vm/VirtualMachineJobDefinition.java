@@ -30,6 +30,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return 1200L;
     }
 
+    int LOCAL_SSD_DISK_SPACE_GB = 375;
+
     BashStartupScript startupCommand();
 
     ResultsDirectory namespacedResults();
@@ -41,7 +43,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Derived
     default int localSsdCount() {
-        int localSsdDeviceSizeGb = 375;
+        int localSsdDeviceSizeGb = LOCAL_SSD_DISK_SPACE_GB;
 
         int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGb);
         long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGb;
@@ -121,7 +123,17 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(4, 16))
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition pave(String name, BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name(name)
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(4, 24))
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
 
@@ -203,7 +215,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(4, 12))
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
 
@@ -213,7 +225,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(4, 12))
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
 }

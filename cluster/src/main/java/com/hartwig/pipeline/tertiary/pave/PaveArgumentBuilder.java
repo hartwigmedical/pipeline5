@@ -1,10 +1,8 @@
 package com.hartwig.pipeline.tertiary.pave;
 
 import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
 
 import java.util.List;
-import java.util.StringJoiner;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -33,7 +31,7 @@ public class PaveArgumentBuilder
         if(resourceFiles.version() == RefGenomeVersion.V38)
         {
             arguments.add(String.format("-gnomad_freq_dir %s", resourceFiles.gnomadPonCache()));
-            arguments.add(String.format("-gnomad_load_chr_on_demand", resourceFiles.gnomadPonCache()));
+            arguments.add("-gnomad_load_chr_on_demand");
         }
 
         if(inputMode == TUMOR_ONLY) {
