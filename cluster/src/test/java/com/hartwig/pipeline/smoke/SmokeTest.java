@@ -155,7 +155,7 @@ public class SmokeTest {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }
         } catch (Exception e) {
-            System.err.println("Unable to deduce path to Cloud SDK, will use default");
+            // Fall through to using the default
         }
         return String.format("/Users/%s/google-cloud-sdk/bin", whoami);
     }
