@@ -21,11 +21,11 @@ public interface Versions {
     String LILAC = "1.1";
     String LINX = "1.18";
     String ORANGE = "1.6";
-    String PAVE = "1.2";
+    String PAVE = "1.2"; // pilot
     String PEACH = "1.5";
     String PROTECT = "2.0";
-    String PURPLE = "3.3";
-    String SAGE = "3.0";
+    String PURPLE = "3.4";
+    String SAGE = "3.0"; // pilot
     String SIGS = "1.0";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
