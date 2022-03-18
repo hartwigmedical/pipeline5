@@ -1,0 +1,5 @@
+hs10	1	1	1	color=(251,154,153,1.0),glyph=square,glyph_size=20,frame=1
+hs10	1	1	1	color=white,glyph=square,glyph_size=14,frame=0
+hs10	520	520	1	color=(251,154,153,1.0),glyph=circle,glyph_size=20,frame=1
+hs10	641	641	2	color=(251,154,153,1.0),glyph=circle,glyph_size=20,frame=3
+hs10	954	954	2	color=(251,154,153,1.0),glyph=square,glyph_size=20,frame=3
