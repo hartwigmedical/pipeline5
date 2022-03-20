@@ -13,12 +13,12 @@ import org.junit.Test;
 public class TargetRegionsCommandTest {
 
     @Test
-    public void createsEmptyListIfNoReferenceGenomeUrl() {
+    public void createsEmptyListIfNoTargetRegionsOverrideUrl() {
         assertThat(TargetRegionsCommand.overrides(Arguments.testDefaultsBuilder().targetRegionsBedLocation(Optional.empty()).build())).isEmpty();
     }
 
     @Test
-    public void mksDirAndCopiesDownReferenceGenome() {
+    public void mksDirAndCopiesDownTargetRegionOverrides() {
         List<BashCommand> commands = TargetRegionsCommand.overrides(Arguments.testDefaultsBuilder()
                 .targetRegionsBedLocation(Optional.of("gs://bucket/path/target_regions.bed"))
                 .build());

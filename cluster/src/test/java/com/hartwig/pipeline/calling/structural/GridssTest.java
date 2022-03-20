@@ -34,7 +34,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runStructuralCaller(false).build();
+        return Arguments.testDefaultsBuilder().runTertiary(false).build();
     }
 
     @Override

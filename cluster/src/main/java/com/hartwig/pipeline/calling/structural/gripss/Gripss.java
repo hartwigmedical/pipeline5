@@ -155,6 +155,6 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runStructuralCaller();
+        return arguments.runTertiary();
     }
 }

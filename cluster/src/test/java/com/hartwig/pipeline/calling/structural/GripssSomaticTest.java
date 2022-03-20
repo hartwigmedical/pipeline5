@@ -33,7 +33,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runStructuralCaller(false).build();
+        return Arguments.testDefaultsBuilder().runTertiary(false).build();
     }
 
     @Override

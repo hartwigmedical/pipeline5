@@ -55,7 +55,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 "java -Xmx8G -jar /opt/tools/protect/2.0/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
                         + "-primary_tumor_doids \"01;02\" -output_dir /data/output "
                         + "-serve_actionability_dir /opt/resources/serve/37/ -ref_genome_version 37 "
-                        + "-doid_json /opt/resources/disease_ontology/201015_doid.json "
+                        + "-doid_json /opt/resources/disease_ontology/doid.json "
                         + "-purple_purity_tsv /data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
                         + "-purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv "
                         + "-purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv "

@@ -1,0 +1,66 @@
+## htsjdk.samtools.metrics.StringHeader
+# CollectGridssMetricsAndExtractSVReads MIN_CLIP_LENGTH=5 READ_PAIR_CONCORDANT_PERCENT=0.995 INSERT_SIZE_METRICS=/data/output/COLO829v003R.bam.gridss.working/tmp.COLO829v003R.bam.insert_size_metrics UNMAPPED_READS=false INCLUDE_DUPLICATES=true SV_OUTPUT=/dev/stdout GRIDSS_PROGRAM=[CollectCigarMetrics, CollectMapqMetrics, CollectTagMetrics, CollectIdsvMetrics, ReportThresholdCoverage] THRESHOLD_COVERAGE=50000 INPUT=/data/input/COLO829v003R.bam ASSUME_SORTED=true OUTPUT=/data/output/COLO829v003R.bam.gridss.working/COLO829v003R.bam FILE_EXTENSION=null PROGRAM=[CollectInsertSizeMetrics] TMP_DIR=[/data/output/COLO829v003R.bam.gridss.working] COMPRESSION_LEVEL=0 REFERENCE_SEQUENCE=/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta    MIN_INDEL_SIZE=1 CLIPPED=true INDELS=true SPLIT=true SINGLE_MAPPED_PAIRED=true DISCORDANT_READ_PAIRS=true STOP_AFTER=0 METRIC_ACCUMULATION_LEVEL=[ALL_READS] INCLUDE_UNPAIRED=false VERBOSITY=INFO QUIET=false VALIDATION_STRINGENCY=STRICT MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false GA4GH_CLIENT_SECRETS=client_secrets.json USE_JDK_DEFLATER=false USE_JDK_INFLATER=false
+## htsjdk.samtools.metrics.StringHeader
+# Started on: Tue Mar 15 19:50:37 UTC 2022
+
+## METRICS CLASS	gridss.analysis.MapqMetrics
+MAX_MAPQ	MIN_MAPQ	MAPPED_READS	UNKNOWN_MAPQ	ZERO_MAPQ	SAMPLE	LIBRARY	READ_GROUP
+60	0	19164	0	64			
+
+## HISTOGRAM	java.lang.Integer
+mapq	All_Reads.
+0	64
+1	4
+3	6
+4	1
+6	1
+7	6
+8	2
+9	10
+11	2
+12	1
+13	2
+14	1
+15	4
+18	2
+19	2
+20	2
+21	3
+22	1
+23	2
+24	3
+25	8
+27	7
+28	2
+29	1
+30	6
+31	4
+32	3
+33	8
+34	2
+35	2
+36	1
+37	2
+39	22
+40	170
+41	4
+42	10
+43	9
+44	3
+45	19
+46	17
+47	19
+48	35
+49	6
+50	10
+51	1
+52	21
+53	1
+54	9
+55	13
+56	7
+57	13
+58	30
+59	20
+60	18560
+
