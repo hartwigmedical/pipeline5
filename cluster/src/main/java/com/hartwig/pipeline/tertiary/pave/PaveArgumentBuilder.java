@@ -44,7 +44,7 @@ public class PaveArgumentBuilder
     }
 
     public static List<String> germline(
-            final ResourceFiles resourceFiles, final String tumorSampleName, final String vcfFile, final InputMode inputMode) {
+            final ResourceFiles resourceFiles, final String tumorSampleName, final String vcfFile) {
 
         List<String> arguments = Lists.newArrayList();
 

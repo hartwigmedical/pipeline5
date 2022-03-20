@@ -48,23 +48,6 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
-    @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = PaveArgumentBuilder.somatic(
-                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.TUMOR_ONLY);
-
-        return paveCommand(metadata, arguments);
-    }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
-        List<String> arguments = PaveArgumentBuilder.germline(
-                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.REFERENCE_ONLY);
-
-        return paveCommand(metadata, arguments);
-    }
-
     protected List<BashCommand> paveCommand(final SomaticRunMetadata metadata, final List<String> arguments)
     {
         return Collections.singletonList(new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "16G", arguments));

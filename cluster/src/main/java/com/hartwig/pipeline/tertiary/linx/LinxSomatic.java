@@ -1,9 +1,13 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -13,8 +17,10 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -25,8 +31,10 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.pave.PaveArgumentBuilder;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -64,17 +72,34 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return List.of(new LinxCommand(metadata.tumor().sampleName(),
-                        purpleStructuralVariantsDownload.getLocalTargetPath(),
-                        purpleOutputDirDownload.getLocalTargetPath(),
-                        resourceFiles.version(),
-                        VmDirectories.OUTPUT,
-                        resourceFiles.fragileSites(),
-                        resourceFiles.lineElements(),
-                        resourceFiles.ensemblDataCache(),
-                        resourceFiles.knownFusionData(),
-                        resourceFiles.driverGenePanel()),
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
+
+        List<String> arguments = Lists.newArrayList();
+
+        arguments.add(String.format("-sample %s", metadata.tumor().sampleName()));
+        arguments.add(String.format("-sv_vcf %s", purpleStructuralVariantsDownload.getLocalTargetPath()));
+        arguments.add(String.format("-purple_dir %s", purpleOutputDirDownload.getLocalTargetPath()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
+        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(String.format("-fragile_site_file %s", resourceFiles.fragileSites()));
+        arguments.add(String.format("-line_element_file %s", resourceFiles.lineElements()));
+        arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        arguments.add("-check_fusions");
+        arguments.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
+        arguments.add("-check_drivers");
+        arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        arguments.add("-write_vis_data");
+
+        return List.of(
+                new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments),
                 new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 

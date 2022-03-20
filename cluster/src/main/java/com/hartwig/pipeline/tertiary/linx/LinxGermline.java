@@ -1,9 +1,15 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.metadata.InputMode.REFERENCE_ONLY;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.api.client.util.Lists;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
@@ -14,8 +20,10 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -26,6 +34,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,16 +65,32 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
-                gripssGermlineVariantsDownload.getLocalTargetPath(),
-                resourceFiles.version(),
-                VmDirectories.OUTPUT,
-                resourceFiles.lineElements(),
-                resourceFiles.ensemblDataCache(),
-                resourceFiles.driverGenePanel(),
-                resourceFiles.gridssBreakpointPon(),
-                resourceFiles.gridssBreakendPon()));
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommand(metadata, TUMOR_REFERENCE); }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return buildCommand(metadata, REFERENCE_ONLY); }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
+
+        List<String> arguments = Lists.newArrayList();
+
+        arguments.add(String.format("-sample %s",
+                inputMode == REFERENCE_ONLY ? metadata.reference().sampleName() : metadata.tumor().sampleName()));
+
+        arguments.add("-germline");
+        arguments.add(String.format("-sv_vcf %s", gripssGermlineVariantsDownload.getLocalTargetPath()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
+        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(String.format("-line_element_file %s", resourceFiles.lineElements()));
+        arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        arguments.add(String.format("-germine_pon_sv_file %s", resourceFiles.gridssBreakpointPon()));
+        arguments.add(String.format("-germine_pon_sgl_file %s", resourceFiles.gridssBreakendPon()));
+
+        return Collections.singletonList(new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments));
     }
 
     @Override

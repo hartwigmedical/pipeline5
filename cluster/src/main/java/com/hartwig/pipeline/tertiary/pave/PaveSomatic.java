@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
+
 import java.util.List;
 
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -26,13 +29,21 @@ public class PaveSomatic extends Pave {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return somaticCommand(metadata, TUMOR_REFERENCE); }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return somaticCommand(metadata, TUMOR_ONLY); }
+
+    private List<BashCommand> somaticCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
 
         List<String> arguments = PaveArgumentBuilder.somatic(
-                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), InputMode.TUMOR_REFERENCE);
+                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), inputMode);
 
         return paveCommand(metadata, arguments);
     }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
@@ -42,8 +53,4 @@ public class PaveSomatic extends Pave {
                 PAVE_FILE_NAME,
                 FileTypes.GZIPPED_VCF);
     }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
-
 }
