@@ -31,19 +31,11 @@ public interface ResourceFiles {
 
     String refGenomeFile();
 
-    default Optional<String> targetRegionsBed() {
-        return Optional.empty();
-    }
-
-    default void setTargetRegionsBed(final String targetRegionsBed) {}
-
     String gcProfileFile();
 
     String diploidRegionsBed();
 
     String amberHeterozygousLoci();
-
-    String amberSnpcheck();
 
     String sageSomaticHotspots();
 
@@ -121,6 +113,12 @@ public interface ResourceFiles {
 
     String purpleCohortGermlineDeletions();
 
+    default void setTargetRegionsDir(final String targetRegionsDir) {}
+
+    default Optional<String> targetRegionsBed() { return Optional.empty(); }
+
+    default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }
+
     default String cuppaRefData() {
         return of(CUPPA);
     }
@@ -149,9 +147,7 @@ public interface ResourceFiles {
         return of(ORANGE, "cohort_percentiles.tsv");
     }
 
-    default String lilacResources() {
-        return of(LILAC);
-    }
+    default String lilacResources() { return of(LILAC); }
 
     default String formPath(String name, String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);

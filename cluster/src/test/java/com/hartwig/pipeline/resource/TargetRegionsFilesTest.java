@@ -10,20 +10,24 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import org.junit.Test;
 
-public class TargetRegionsCommandTest {
+public class TargetRegionsFilesTest
+{
 
     @Test
     public void createsEmptyListIfNoTargetRegionsOverrideUrl() {
-        assertThat(TargetRegionsCommand.overrides(Arguments.testDefaultsBuilder().targetRegionsBedLocation(Optional.empty()).build())).isEmpty();
+        assertThat(TargetRegionsFiles.overrides(
+                Arguments.testDefaultsBuilder()
+                        .targetRegionsDir(Optional.empty())
+                        .build())).isEmpty();
     }
 
     @Test
     public void mksDirAndCopiesDownTargetRegionOverrides() {
-        List<BashCommand> commands = TargetRegionsCommand.overrides(Arguments.testDefaultsBuilder()
-                .targetRegionsBedLocation(Optional.of("gs://bucket/path/target_regions.bed"))
+        List<BashCommand> commands = TargetRegionsFiles.overrides(Arguments.testDefaultsBuilder()
+                .targetRegionsDir(Optional.of("gs://bucket/target_regions_path"))
                 .build());
         assertThat(commands).hasSize(2);
         assertThat(commands.stream().map(BashCommand::asBash)).containsExactly("mkdir -p /opt/resources/target_regions/override",
-                "gsutil -qm cp -n gs://bucket/path/target_regions.bed /opt/resources/target_regions/override");
+                "gsutil -qm cp -n gs://bucket/target_regions_path/* /opt/resources/target_regions/override");
     }
 }

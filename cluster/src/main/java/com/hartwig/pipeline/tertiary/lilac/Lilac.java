@@ -82,7 +82,7 @@ public class Lilac extends TertiaryStage<LilacOutput> {
         arguments.add(String.format("-gene_copy_number_file %s", purpleGeneCopyNumber.getLocalTargetPath()));
         arguments.add(String.format("-somatic_variants_file %s", purpleSomaticVariants.getLocalTargetPath()));
 
-        commands.add(new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments));
+        commands.add(formCommand(arguments));
 
         return commands;
     }
@@ -98,7 +98,7 @@ public class Lilac extends TertiaryStage<LilacOutput> {
 
         List<String> arguments = Lists.newArrayList();
         arguments.addAll(commonArguments(metadata.reference().sampleName(), slicedRefBam));
-        commands.add(new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments));
+        commands.add(formCommand(arguments));
 
         return commands;
     }
@@ -114,7 +114,7 @@ public class Lilac extends TertiaryStage<LilacOutput> {
 
         List<String> arguments = Lists.newArrayList();
         arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedTumorBam));
-        commands.add(new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments));
+        commands.add(formCommand(arguments));
 
         return commands;
     }
@@ -132,6 +132,11 @@ public class Lilac extends TertiaryStage<LilacOutput> {
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
         return arguments;
+    }
+
+    private JavaJarCommand formCommand(final List<String> arguments)
+    {
+        return new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments);
     }
 
     private void addSliceCommands(

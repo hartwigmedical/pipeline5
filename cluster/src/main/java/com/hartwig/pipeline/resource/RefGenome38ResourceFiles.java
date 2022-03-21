@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
-    private String targetRegionsBed = null;
+    private String targetRegionsDir = null;
 
     public RefGenomeVersion version() {
         return RefGenomeVersion.V38;
@@ -38,14 +38,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public void setTargetRegionsBed(final String targetRegionsBed) {
-        this.targetRegionsBed = targetRegionsBed;
-    }
-
-    @Override
-    public Optional<String> targetRegionsBed() { return Optional.ofNullable(targetRegionsBed) ; }
-
-    @Override
     public String gcProfileFile() {
         return formPath(GC_PROFILES, "GC_profile.1000bp.38.cnp");
     }
@@ -58,11 +50,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String amberHeterozygousLoci() {
         return formPath(AMBER, "GermlineHetPon.38.vcf.gz");
-    }
-
-    @Override
-    public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.38.vcf");
     }
 
     @Override
@@ -208,4 +195,24 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.38.csv"); }
 
+    @Override
+    public void setTargetRegionsDir(final String targetRegionsDir) {
+        this.targetRegionsDir = targetRegionsDir;
+    }
+
+    @Override
+    public Optional<String> targetRegionsBed() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.bed"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsNormalisation() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_normalisation.38.tsv"));
+    }
 }

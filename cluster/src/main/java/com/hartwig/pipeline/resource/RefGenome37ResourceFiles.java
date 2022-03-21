@@ -57,11 +57,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.37.vcf");
-    }
-
-    @Override
     public String sageSomaticHotspots() {
         return formPath(SAGE, "KnownHotspots.somatic.37.vcf.gz");
     }
