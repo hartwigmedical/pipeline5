@@ -44,10 +44,14 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
                 "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla.37.bed -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam",
                 "java -Xmx15G -jar /opt/tools/lilac/1.1/lilac.jar "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-sample tumor -reference_bam /data/output/reference.hla.bam -tumor_bam /data/output/tumor.hla.bam "
-                        + "-output_dir /data/output -resource_dir /opt/resources/lilac/ -gene_copy_number_file /data/input/tumor.purple.cnv.gene.tsv "
-                        + "-somatic_variants_file /data/input/tumor.purple.somatic.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
+                        + "-sample tumor -reference_bam /data/output/reference.hla.bam "
+                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
+                        + "-resource_dir /opt/resources/lilac/ "
+                        + "-output_dir /data/output "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
+                        + "-tumor_bam /data/output/tumor.hla.bam "
+                        + "-gene_copy_number_file /data/input/tumor.purple.cnv.gene.tsv "
+                        + "-somatic_variants_file /data/input/tumor.purple.somatic.vcf.gz");
     }
 
     @Override
