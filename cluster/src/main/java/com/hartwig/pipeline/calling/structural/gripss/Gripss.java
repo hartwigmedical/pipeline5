@@ -7,12 +7,10 @@ import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.sage.OutputTemplate;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -61,21 +59,23 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
     @Override
     public String namespace() { return namespace; }
 
-    protected List<BashCommand> formCommand(final List<String> arguments)
-    {
+    protected List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
         commands.add(new JavaJarCommand("gripss", Versions.GRIPSS, "gripss.jar", "16G", arguments));
         return commands;
     }
 
     protected List<String> commonArguments() {
+
         List<String> arguments = Lists.newArrayList();
+
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
         arguments.add(String.format("-pon_sgl_file %s", resourceFiles.gridssBreakendPon()));
         arguments.add(String.format("-pon_sv_file %s", resourceFiles.gridssBreakpointPon()));
         arguments.add(String.format("-vcf %s", gridssVcf.getLocalTargetPath()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+
         return arguments;
     }
 

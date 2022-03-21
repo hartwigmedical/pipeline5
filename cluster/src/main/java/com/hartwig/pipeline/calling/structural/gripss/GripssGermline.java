@@ -40,6 +40,7 @@ public class GripssGermline extends Gripss {
     }
 
     private List<BashCommand> buildCommand(final SomaticRunMetadata metadata) {
+
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.reference().sampleName()));
@@ -55,14 +56,12 @@ public class GripssGermline extends Gripss {
     }
 
     @Override
-    public String filteredVcf(final SomaticRunMetadata metadata)
-    {
+    public String filteredVcf(final SomaticRunMetadata metadata) {
         return metadata.reference().sampleName() + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
     @Override
-    public String unfilteredVcf(final SomaticRunMetadata metadata)
-    {
+    public String unfilteredVcf(final SomaticRunMetadata metadata) {
         return metadata.reference().sampleName() + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
     }
 

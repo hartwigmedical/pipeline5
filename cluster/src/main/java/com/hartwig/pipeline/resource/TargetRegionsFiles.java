@@ -38,11 +38,4 @@ public class TargetRegionsFiles
             resourceFiles.setTargetRegionsDir(OVERRIDE_TARGETED_REGIONS_DIR);
         }
     }
-
-    private static String parseTargetRegionsDir(final String targetRegionsDir) {
-        return targetRegionsDir.startsWith("gs://")
-                ? TargetRegionsFiles.OVERRIDE_TARGETED_REGIONS_DIR + targetRegionsDir.substring(targetRegionsDir.lastIndexOf("/"))
-                : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsDir;
-    }
-
 }

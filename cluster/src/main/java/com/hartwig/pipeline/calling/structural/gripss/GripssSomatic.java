@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
 import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
 import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
 
@@ -39,17 +37,6 @@ public class GripssSomatic extends Gripss {
         arguments.addAll(commonArguments());
 
         return formCommand(arguments);
-
-        // java -Xmx16G -jar /opt/tools/gripss/2.0/gripss.jar
-        // -ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
-        // -known_hotspot_file /opt/resources/fusions/38/known_fusions.38.bedpe
-        // -pon_sgl_file /opt/resources/gridss_pon/38/gridss_pon_single_breakend.38.bed
-        // -pon_sv_file /opt/resources/gridss_pon/38/gridss_pon_breakpoint.38.bedpe
-        // -output_id somatic
-        // -sample COLO829v003T
-        // -reference COLO829v003R
-        // -vcf /data/input/COLO829v003T.gridss.unfiltered.vcf.gz
-        // -output_dir /data/output
     }
 
     @Override
