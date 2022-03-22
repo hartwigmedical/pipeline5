@@ -56,7 +56,16 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata);
+    }
+
+    public List<BashCommand> peachCommands(final SomaticRunMetadata metadata) {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
