@@ -31,7 +31,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     public static final String NAMESPACE = "bam_metrics";
 
-    final ResourceFiles resourceFiles;
+    private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final PersistedDataset persistedDataset;
 
@@ -58,7 +58,12 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
+        if (resourceFiles.targetRegionsBed().isPresent()){
+            return Collections.singletonList(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                    resourceFiles.refGenomeFile(),
+                    VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
+        }
+        return Collections.singletonList(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
                 VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
     }

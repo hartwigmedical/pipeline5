@@ -17,7 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BamMetricsCommandTest {
+public class WgsMetricsCommandTest {
     private static final String OPERATION = "CollectWgsMetrics";
     private String actual;
     private String reference;
@@ -34,7 +34,7 @@ public class BamMetricsCommandTest {
 
         when(sample.name()).thenReturn(sampleName);
 
-        actual = new BamMetricsCommand("input.bam", "referenceSampleName.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
+        actual = new WgsMetricsCommand("input.bam", "referenceSampleName.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
     }
 
     @Test

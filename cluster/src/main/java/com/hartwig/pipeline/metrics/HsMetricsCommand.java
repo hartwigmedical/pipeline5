@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
-class BamMetricsCommand extends JavaClassCommand {
-    BamMetricsCommand(String inputBam, String referenceFasta, final String outputFile) {
+class HsMetricsCommand extends JavaClassCommand {
+    HsMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile) {
         super("gridss",
                 Versions.GRIDSS,
                 "gridss.jar",
@@ -15,7 +15,7 @@ class BamMetricsCommand extends JavaClassCommand {
                         "-Dsamjdk.use_async_io_write_samtools=true",
                         "-Dsamjdk.use_async_io_write_tribble=true",
                         "-Dsamjdk.buffer_size=4194304"),
-                "CollectWgsMetrics",
+                "CollectHsMetrics",
                 "REFERENCE_SEQUENCE=" + referenceFasta,
                 "INPUT=" + inputBam,
                 "OUTPUT=" + outputFile,
