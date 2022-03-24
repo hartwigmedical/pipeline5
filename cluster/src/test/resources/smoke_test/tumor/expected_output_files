@@ -57,3 +57,7 @@ gripss_somatic/run.log
 gripss_somatic/run.sh
 metadata.json
 pipeline.version
+virusbreakend/COLO829v003T.virus.annotated.tsv
+virusbreakend/COLO829v003T.virusbreakend.vcf
+virusbreakend/COLO829v003T.virusbreakend.vcf.summary.tsv
+virusbreakend/run.log
