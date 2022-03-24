@@ -9,7 +9,8 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 public class TargetRegionsCommand {
 
-    static final String RESOURCES_OVERRIDE = "/opt/resources/" + ResourceNames.TARGET_REGIONS + "/override";
+    public static final String OVERRIDE_SUBDIR = "/override";
+    static final String RESOURCES_OVERRIDE = "/opt/resources/" + ResourceNames.TARGET_REGIONS + OVERRIDE_SUBDIR;
 
     public static List<BashCommand> overrides(final Arguments arguments) {
         return arguments.targetRegionsBedLocation()
