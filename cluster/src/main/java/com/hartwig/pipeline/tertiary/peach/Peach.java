@@ -56,16 +56,25 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata.reference().sampleName(), metadata.reference().sampleName());
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
+    }
+
+    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
                 List.of("--vcf",
                         purpleGermlineVariantsDownload.getLocalTargetPath(),
                         "--sample_t_id",
-                        metadata.tumor().sampleName(),
+                        filenameId,
                         "--sample_r_id",
-                        metadata.reference().sampleName(),
+                        referenceId,
                         "--tool_version",
                         Versions.PEACH,
                         "--outputdir",
