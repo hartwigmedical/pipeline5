@@ -62,7 +62,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return peachCommands(metadata.tumor().sampleName(), metadata.tumor().sampleName());
+        return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
     }
 
     public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
