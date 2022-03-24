@@ -113,6 +113,14 @@ public interface ResourceFiles {
         return Optional.empty();
     }
 
+    default Optional<String> targetRegionsInterval() {
+        return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+    }
+
+    default Optional<String> probeRegionsInterval() {
+        return Optional.empty();
+    }
+
     default String cuppaRefData() {
         return of(CUPPA);
     }

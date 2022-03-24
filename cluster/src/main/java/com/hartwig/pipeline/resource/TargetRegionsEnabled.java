@@ -11,10 +11,8 @@ public class TargetRegionsEnabled implements ResourceFiles {
 
     public TargetRegionsEnabled(final ResourceFiles decorated, final String targetRegionsBed) {
         this.decorated = decorated;
-        this.targetRegionsBed =
-                targetRegionsBed.startsWith("gs://")
-                        ? TargetRegionsCommand.RESOURCES_OVERRIDE + targetRegionsBed.substring(targetRegionsBed.lastIndexOf("/"))
-                        : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsBed;
+        this.targetRegionsBed = targetRegionsBed.startsWith("gs://") ? TargetRegionsCommand.RESOURCES_OVERRIDE + targetRegionsBed.substring(
+                targetRegionsBed.lastIndexOf("/")) : VmDirectories.RESOURCES + "/" + ResourceNames.TARGET_REGIONS + "/" + targetRegionsBed;
     }
 
     @Override
@@ -190,5 +188,10 @@ public class TargetRegionsEnabled implements ResourceFiles {
     @Override
     public Optional<String> targetRegionsBed() {
         return Optional.of(targetRegionsBed);
+    }
+
+    @Override
+    public Optional<String> probeRegionsInterval() {
+        return Optional.of(formPath(ResourceNames.TARGET_REGIONS, "probes.interval_list"));
     }
 }

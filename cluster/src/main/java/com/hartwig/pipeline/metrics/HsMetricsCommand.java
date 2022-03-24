@@ -5,22 +5,18 @@ import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class HsMetricsCommand extends JavaClassCommand {
-    HsMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile) {
+    HsMetricsCommand(final String inputBam, final String referenceFasta, final String baitIntervalsList, final String targetIntervalsList,
+            final String outputFile) {
         super("gridss",
                 Versions.GRIDSS,
                 "gridss.jar",
                 "picard.cmdline.PicardCommandLine",
                 "24G",
-                Lists.newArrayList("-Dsamjdk.use_async_io_read_samtools=true",
-                        "-Dsamjdk.use_async_io_write_samtools=true",
-                        "-Dsamjdk.use_async_io_write_tribble=true",
-                        "-Dsamjdk.buffer_size=4194304"),
                 "CollectHsMetrics",
                 "REFERENCE_SEQUENCE=" + referenceFasta,
                 "INPUT=" + inputBam,
                 "OUTPUT=" + outputFile,
-                "MINIMUM_MAPPING_QUALITY=20",
-                "MINIMUM_BASE_QUALITY=10",
-                "COVERAGE_CAP=250");
+                "BAIT_INTERVALS=" + baitIntervalsList,
+                "TARGET_INTERVALS=" + targetIntervalsList);
     }
 }
