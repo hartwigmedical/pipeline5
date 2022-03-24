@@ -55,10 +55,13 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-    @Override
+
+   /*
+     pwolfe: Disabled until DEV-2593 has been merged with Purple reference-only
+     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return peachCommands(metadata.reference().sampleName(), metadata.reference().sampleName());
-    }
+    }*/
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
