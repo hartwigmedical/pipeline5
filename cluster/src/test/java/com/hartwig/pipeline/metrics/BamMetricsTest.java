@@ -69,16 +69,17 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     }
 
     @Test
-    public void usesHsMetricsWhenTargetRegionsEnabled() {
+    public void usesIntervalsInMetricsWhenTargetRegionsEnabled() {
         BamMetrics victim = new BamMetrics(new TargetRegionsEnabled(TestInputs.REF_GENOME_38_RESOURCE_FILES, "target_regions.bed"),
                 TestInputs.tumorAlignmentOutput(),
                 persistedDataset);
         assertThat(victim.commands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
-                "java -Xmx24G -cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectHsMetrics "
+                "java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 "
+                        + "-cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectWgsMetrics "
                         + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
                         + "INPUT=/data/input/tumor.bam OUTPUT=/data/output/tumor.wgsmetrics "
-                        + "BAIT_INTERVALS=/opt/resources/target_regions/38/probes.interval_list "
-                        + "TARGET_INTERVALS=/opt/resources/target_regions/38/target_regions.intervals_list");
+                        + "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 "
+                        + "INTERVALS=/opt/resources/target_regions/38/target_regions.intervals_list");
     }
 
     @Override

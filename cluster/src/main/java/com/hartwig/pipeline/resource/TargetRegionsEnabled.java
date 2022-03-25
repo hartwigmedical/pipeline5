@@ -189,9 +189,4 @@ public class TargetRegionsEnabled implements ResourceFiles {
     public Optional<String> targetRegionsBed() {
         return Optional.of(formPath(ResourceNames.TARGET_REGIONS, targetRegionsBed));
     }
-
-    @Override
-    public Optional<String> probeRegionsInterval() {
-        return Optional.of(formPath(ResourceNames.TARGET_REGIONS, "probes.interval_list"));
-    }
 }

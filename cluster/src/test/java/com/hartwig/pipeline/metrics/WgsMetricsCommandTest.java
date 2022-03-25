@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -34,7 +35,10 @@ public class WgsMetricsCommandTest {
 
         when(sample.name()).thenReturn(sampleName);
 
-        actual = new WgsMetricsCommand("input.bam", "referenceSampleName.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
+        actual = new WgsMetricsCommand("input.bam",
+                "referenceSampleName.fasta",
+                format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name()),
+                Optional.empty()).asBash();
     }
 
     @Test
@@ -61,7 +65,7 @@ public class WgsMetricsCommandTest {
         options.put("COVERAGE_CAP", "250");
 
         assertThat(secondHalf.size()).isEqualTo(options.size());
-        for (String key: options.keySet()) {
+        for (String key : options.keySet()) {
             assertThat(secondHalf.contains(format("%s=%s", key, options.get(key)))).isTrue();
         }
     }

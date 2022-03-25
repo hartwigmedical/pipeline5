@@ -1,11 +1,14 @@
 package com.hartwig.pipeline.metrics;
 
+import java.util.Optional;
+
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class WgsMetricsCommand extends JavaClassCommand {
-    WgsMetricsCommand(String inputBam, String referenceFasta, final String outputFile) {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    WgsMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile, final Optional<String> maybeIntervals) {
         super("gridss",
                 Versions.GRIDSS,
                 "gridss.jar",
@@ -21,6 +24,7 @@ class WgsMetricsCommand extends JavaClassCommand {
                 "OUTPUT=" + outputFile,
                 "MINIMUM_MAPPING_QUALITY=20",
                 "MINIMUM_BASE_QUALITY=10",
-                "COVERAGE_CAP=250");
+                "COVERAGE_CAP=250",
+                maybeIntervals.map(i -> "INTERVALS=" + i).orElse(""));
     }
 }

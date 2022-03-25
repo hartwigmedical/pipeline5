@@ -58,16 +58,10 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        if (resourceFiles.targetRegionsBed().isPresent()) {
-            return Collections.singletonList(new HsMetricsCommand(bamDownload.getLocalTargetPath(),
-                    resourceFiles.refGenomeFile(),
-                    resourceFiles.probeRegionsInterval().orElseThrow(),
-                    resourceFiles.targetRegionsInterval().orElseThrow(),
-                    VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
-        }
         return Collections.singletonList(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
-                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
+                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
+                resourceFiles.targetRegionsInterval()));
     }
 
     @Override
