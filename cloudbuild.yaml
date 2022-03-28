@@ -15,6 +15,7 @@ steps:
     timeout: 2400s
     args:
       - 'deploy'
+      - '-Drelease'
       - '--batch-mode'
     env:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
