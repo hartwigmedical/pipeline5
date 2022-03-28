@@ -149,7 +149,7 @@ public interface ResourceFiles {
         return of(LILAC);
     }
 
-    default String formPath(String name, String file) {
+    default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }
 }

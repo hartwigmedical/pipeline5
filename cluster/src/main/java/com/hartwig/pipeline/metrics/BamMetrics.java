@@ -2,7 +2,10 @@ package com.hartwig.pipeline.metrics;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.collect.Streams;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -57,11 +60,14 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        return Collections.singletonList(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
-                resourceFiles.refGenomeFile(),
-                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
-                resourceFiles.targetRegionsInterval()));
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+        return Streams.concat(resourceFiles.targetRegionsBed()
+                        .stream()
+                        .map(r -> new BedToIntervalsCommand(r, resourceFiles.targetRegionsInterval().orElseThrow(), resourceFiles.refGenomeFile())),
+                Stream.<BashCommand>of(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                        resourceFiles.refGenomeFile(),
+                        VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
+                        resourceFiles.targetRegionsInterval()))).collect(Collectors.toList());
     }
 
     @Override
