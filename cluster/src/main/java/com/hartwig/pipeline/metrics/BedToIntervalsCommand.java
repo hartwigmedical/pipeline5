@@ -12,6 +12,7 @@ class BedToIntervalsCommand extends JavaClassCommand {
                 "picard.cmdline.PicardCommandLine",
                 "1G",
                 "BedToIntervalList",
+                "SORT=true",
                 "SEQUENCE_DICTIONARY=" + referenceFasta.replace("fna", "dict"),
                 "INPUT=" + inputBed,
                 "OUTPUT=" + outputIntervals);
