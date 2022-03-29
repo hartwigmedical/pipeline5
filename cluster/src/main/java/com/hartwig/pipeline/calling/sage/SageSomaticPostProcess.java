@@ -13,13 +13,11 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 public class SageSomaticPostProcess extends SubStage {
 
     public static final String SAGE_SOMATIC_FILTERED = "sage.somatic.filtered";
-    private final ResourceFiles resourceFiles;
     private final SubStageInputOutput tumorSampleName;
 
-    public SageSomaticPostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SageSomaticPostProcess(final String tumorSampleName) {
         super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
-        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -28,17 +26,13 @@ public class SageSomaticPostProcess extends SubStage {
 
         SubStage passFilter = new PassFilter();
 
-        SubStage mappabilityAnnotation =
-                new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
-
-        OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
-        result.addAll(passFilter.bash(input, passFilterFile));
-
         OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
-        result.addAll(mappabilityAnnotation.bash(passFilterFile, finalOutputFile));
+        result.addAll(passFilter.bash(input, finalOutputFile));
 
         /*
-        //result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
+        // OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
+        result.addAll(mappabilityAnnotation.bash(passFilterFile, finalOutputFile));
+        result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
         SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
         OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
         result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));

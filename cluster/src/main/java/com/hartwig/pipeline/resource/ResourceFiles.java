@@ -49,17 +49,13 @@ public interface ResourceFiles {
 
     String sageGermlineSlicePanel();
 
-    String sageGermlineBlacklistVcf();
+    String germlineBlacklistVcf();
 
-    String sageGermlineBlacklistBed();
+    String germlineBlacklistBed();
 
     String clinvarVcf();
 
-    String out150Mappability();
-
-    default String mappabilityHDR() {
-        return of(MAPPABILITY, "mappability.hdr");
-    }
+    String mappabilityBed();
 
     String sageGermlinePon();
 
@@ -77,9 +73,7 @@ public interface ResourceFiles {
 
     String gridssRepeatMaskerDb();
 
-    default String gridssRepeatMaskerDbBed() {
-        return gridssRepeatMaskerDb() + ".bed";
-    }
+    default String gridssRepeatMaskerDbBed() { return gridssRepeatMaskerDb() + ".bed"; }
 
     default String gridssVirusRefGenomeFile() {
         return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
@@ -87,9 +81,9 @@ public interface ResourceFiles {
 
     String gridssBlacklistBed();
 
-    String gridssBreakendPon();
+    String svBreakendPon();
 
-    String gridssBreakpointPon();
+    String svBreakpointPon();
 
     String fragileSites();
 

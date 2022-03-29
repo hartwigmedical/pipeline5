@@ -79,6 +79,11 @@ public class PurpleCommandBuilder {
             }
         }
 
+        /* target regions
+        	- min_diploid_tumor_ratio_count = 0
+        	- min_diploid_tumor_ratio_count_centromere = 0
+        */
+
         arguments.addAll(commonArguments());
 
         if (isShallow) {

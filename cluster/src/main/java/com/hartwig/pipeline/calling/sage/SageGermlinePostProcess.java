@@ -13,16 +13,11 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 public class SageGermlinePostProcess extends SubStage {
 
     public static final String SAGE_GERMLINE_FILTERED = "sage.germline.filtered";
-    private final ResourceFiles resourceFiles;
     private final SubStageInputOutput tumorSampleName;
-    private final SubStage selectSamples;
 
-
-    public SageGermlinePostProcess(final String referenceSampleName, final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SageGermlinePostProcess(final String referenceSampleName, final String tumorSampleName) {
         super(SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
-        this.resourceFiles = resourceFiles;
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
-        this.selectSamples = new SelectSamples(referenceSampleName, tumorSampleName);
     }
 
     @Override
@@ -30,8 +25,13 @@ public class SageGermlinePostProcess extends SubStage {
         final List<BashCommand> result = Lists.newArrayList();
 
         SubStage passFilter = new PassFilter();
+
+        OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
+        result.addAll(passFilter.bash(input, finalOutputFile));
+
+        /*
         SubStage mappabilityAnnotation =
-                new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
+                new MappabilityAnnotation(resourceFiles.mappabilityBed(), resourceFiles.mappabilityHDR());
 
         SubStage clinvarAnnotation = new ClinvarAnnotation(resourceFiles);
         SubStage blacklistBedAnnotation = new BlacklistBedAnnotation(resourceFiles);
@@ -50,6 +50,7 @@ public class SageGermlinePostProcess extends SubStage {
         result.addAll(clinvarAnnotation.bash(mappabilityAnnotationFile, clinvarFile));
         result.addAll(blacklistBedAnnotation.bash(clinvarFile, blacklistBedFile));
         result.addAll(blacklistVcfAnnotation.bash(blacklistBedFile, blacklistVcfFile));
+        */
         return result;
     }
 }

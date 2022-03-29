@@ -83,13 +83,13 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineBlacklistVcf() {
+    public String germlineBlacklistVcf() {
         return formPath(SAGE, "KnownBlacklist.germline.38.vcf.gz");
     }
 
     @Override
-    public String sageGermlineBlacklistBed() {
-        return formPath(SAGE, "KnownBlacklist.germline.38.bed.gz");
+    public String germlineBlacklistBed() {
+        return formPath(SAGE, "KnownBlacklist.germline.38.bed");
     }
 
     @Override
@@ -98,8 +98,8 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150.mappability.38.bed.gz");
+    public String mappabilityBed() {
+        return formPath(MAPPABILITY, "mappability_150.38.bed.gz");
     }
 
     @Override
@@ -133,12 +133,12 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String gridssBreakendPon() {
+    public String svBreakendPon() {
         return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed");
     }
 
     @Override
-    public String gridssBreakpointPon() {
+    public String svBreakpointPon() {
         return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe");
     }
 

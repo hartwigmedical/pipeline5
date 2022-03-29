@@ -52,13 +52,13 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String gridssBreakendPon() {
-        return decorated.gridssBreakendPon();
+    public String svBreakendPon() {
+        return decorated.svBreakendPon();
     }
 
     @Override
-    public String gridssBreakpointPon() {
-        return decorated.gridssBreakpointPon();
+    public String svBreakpointPon() {
+        return decorated.svBreakpointPon();
     }
 
     @Override
@@ -92,13 +92,13 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineBlacklistVcf() {
-        return decorated.sageGermlineBlacklistVcf();
+    public String germlineBlacklistVcf() {
+        return decorated.germlineBlacklistVcf();
     }
 
     @Override
-    public String sageGermlineBlacklistBed() {
-        return decorated.sageGermlineBlacklistBed();
+    public String germlineBlacklistBed() {
+        return decorated.germlineBlacklistBed();
     }
 
     @Override
@@ -107,8 +107,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String out150Mappability() {
-        return decorated.out150Mappability();
+    public String mappabilityBed() {
+        return decorated.mappabilityBed();
     }
 
     @Override

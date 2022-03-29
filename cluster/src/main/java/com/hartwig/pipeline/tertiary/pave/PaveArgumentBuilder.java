@@ -49,6 +49,9 @@ public class PaveArgumentBuilder
         List<String> arguments = Lists.newArrayList();
 
         addCommonArguments(arguments, resourceFiles, tumorSampleName, vcfFile);
+        arguments.add(String.format("-clinvar_vcf %s", resourceFiles.clinvarVcf()));
+        arguments.add(String.format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()));
+        arguments.add(String.format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
 
         return arguments;
     }
@@ -63,6 +66,7 @@ public class PaveArgumentBuilder
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        arguments.add(String.format("-mappability_bed %s", resourceFiles.mappabilityBed()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add("-read_pass_only");
     }
