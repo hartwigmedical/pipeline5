@@ -46,5 +46,7 @@ gripss_germline/COLO829v003R.gripss.germline.vcf.gz
 gripss_germline/COLO829v003R.gripss.germline.vcf.gz.tbi
 gripss_germline/run.log
 gripss_germline/run.sh
+health_checker/COLO829v003R.HealthCheckFailed
+health_checker/run.log
 metadata.json
 pipeline.version
