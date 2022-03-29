@@ -24,7 +24,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -71,15 +70,25 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return ImmutableList.of(new HealthCheckerApplicationCommand(metadata.reference().sampleName(),
-                metadata.tumor().sampleName(),
-                referenceMetricsDownload.getLocalTargetPath(),
-                tumorMetricsDownload.getLocalTargetPath(),
-                referenceFlagstatDownload.getLocalTargetPath(),
-                tumorFlagstatDownload.getLocalTargetPath(),
-                LOCAL_PURPLE_DIR,
-                VmDirectories.OUTPUT));
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
+                .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorMetricsDownload.getLocalTargetPath()).build());
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withReference(metadata.reference()
+                .sampleName(), referenceMetricsDownload.getLocalTargetPath(), referenceMetricsDownload.getLocalTargetPath()).build());
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
+                        .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorMetricsDownload.getLocalTargetPath())
+                .withReference(metadata.reference().sampleName(),
+                        referenceMetricsDownload.getLocalTargetPath(),
+                        referenceMetricsDownload.getLocalTargetPath())
+                .build());
     }
 
     @Override
