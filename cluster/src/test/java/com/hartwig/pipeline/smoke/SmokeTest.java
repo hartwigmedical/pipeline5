@@ -90,6 +90,7 @@ public class SmokeTest {
         final String version = version();
         final String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
+        @SuppressWarnings("deprecation")
         final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
@@ -134,7 +135,7 @@ public class SmokeTest {
     @NotNull
     private String version() {
         String version = System.getProperty("version");
-        if (version.equals("local-SNAPSHOT")) {
+        if (version == null || version.equals("local-SNAPSHOT")) {
             version = System.getProperty("user.name");
         }
         return version;
