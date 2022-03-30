@@ -22,6 +22,12 @@ public class TargetRegionsFilesTest
     }
 
     @Test
+    public void createsEmptyListIfNoTargetRegionsInImage() {
+        assertThat(TargetRegionsCommand.overrides(Arguments.testDefaultsBuilder().targetRegionsBedLocation(Optional.of("target_regions"
+                + ".bed")).build())).isEmpty();
+    }
+
+    @Test
     public void mksDirAndCopiesDownTargetRegionOverrides() {
         List<BashCommand> commands = TargetRegionsFiles.overrides(Arguments.testDefaultsBuilder()
                 .targetRegionsDir(Optional.of("gs://bucket/target_regions_path"))

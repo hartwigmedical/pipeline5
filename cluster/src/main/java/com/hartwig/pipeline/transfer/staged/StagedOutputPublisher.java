@@ -52,8 +52,9 @@ public class StagedOutputPublisher {
     private final boolean stageCrams;
     private final boolean useOnlyDBSets;
 
-    public StagedOutputPublisher(final SetResolver setResolver, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
-            final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
+    public StagedOutputPublisher(final SetResolver setResolver, final Bucket sourceBucket, final Publisher publisher,
+            final ObjectMapper objectMapper, final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams,
+            final boolean useOnlyDBSets) {
         this.setResolver = setResolver;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
@@ -90,7 +91,7 @@ public class StagedOutputPublisher {
             }, sourceBucket).iterate(metadata);
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
-                            .sample(tumorSampleName.orElse(refSampleName.orElseThrow()))
+                            .sample(tumorSampleName.orElseGet(() -> refSampleName.orElseThrow()))
                             .bucket(sourceBucket.getName())
                             .runId(run.get().getId())
                             .setId(set.getId())
