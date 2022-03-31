@@ -75,11 +75,6 @@
                 <version>${java-client.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>compar</artifactId>
-                <version>${compar.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-bom</artifactId>
                 <version>0.145.0</version>
@@ -207,6 +202,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>compar</artifactId>
+                <version>${compar.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

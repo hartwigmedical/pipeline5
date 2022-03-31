@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -17,6 +18,7 @@ import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -25,6 +27,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -52,6 +55,7 @@ public class SmokeTest {
         FileUtils.deleteDirectory(resultsDir);
     }
 
+    /*
     @Test
     public void tumorReference() throws Exception {
         runFullPipelineAndCheckFinalStatus("tumor-reference", PipelineStatus.QC_FAILED);
@@ -66,8 +70,24 @@ public class SmokeTest {
     public void referenceOnly() throws Exception {
         runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.SUCCESS);
     }
+    */
+
+    @Ignore
+    @Test
+    public void tumorOnlyWithTargetedRegions() throws Exception {
+        runFullPipelineAndCheckFinalStatus("tumor",
+                PipelineStatus.SUCCESS,
+                Optional.of("target_regions_definition.38.bed"),
+                RefGenomeVersion.V38);
+    }
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
+        runFullPipelineAndCheckFinalStatus(inputMode, expectedStatus, Optional.empty(), RefGenomeVersion.V37);
+    }
+
+    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
+            final RefGenomeVersion refGenomeVersion) throws Exception {
         final PipelineMain victim = new PipelineMain();
         final String version = version();
         final String setName = noDots(inputMode + "-" + version);
@@ -81,7 +101,9 @@ public class SmokeTest {
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
-                .context(Context.DIAGNOSTIC);
+                .context(Context.DIAGNOSTIC)
+                .useTargetRegions(true)
+                .refGenomeVersion(refGenomeVersion);
 
         if (whoami.equals("root")) {
             String privateKeyPath = workingDir() + "/google-key.json";
@@ -150,7 +172,7 @@ public class SmokeTest {
             return CLOUD_SDK_PATH;
         }
         try {
-            Process process = Runtime.getRuntime().exec(new String[] {"/usr/bin/which", "gcloud"});
+            Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }

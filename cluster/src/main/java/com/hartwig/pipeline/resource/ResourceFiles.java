@@ -115,6 +115,10 @@ public interface ResourceFiles {
 
     default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }
 
+    default Optional<String> targetRegionsInterval() {
+        return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+    }
+
     default String cuppaRefData() {
         return of(CUPPA);
     }
@@ -145,7 +149,7 @@ public interface ResourceFiles {
 
     default String lilacResources() { return of(LILAC); }
 
-    default String formPath(String name, String file) {
+    default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }
 }

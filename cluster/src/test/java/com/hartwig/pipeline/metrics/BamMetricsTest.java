@@ -11,12 +11,14 @@ import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
@@ -65,6 +67,28 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
                 + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
     }
+
+    /*
+    @Test
+    public void usesIntervalsInMetricsWhenTargetRegionsEnabled() {
+        ResourceFiles resourceFiles = TestInputs.REF_GENOME_38_RESOURCE_FILES;
+        resourceFiles.setTargetRegionsDir("/opt/resources/target_regions/38/");
+
+        BamMetrics victim = new BamMetrics(resourceFiles, TestInputs.tumorAlignmentOutput(), persistedDataset);
+        assertThat(victim.commands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
+                "java -Xmx1G -cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine "
+                        + "BedToIntervalList SORT=true SEQUENCE_DICTIONARY=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.dict "
+                        + "INPUT=/opt/resources/target_regions/38/target_regions.bed "
+                        + "OUTPUT=/opt/resources/target_regions/38/target_regions.intervals_list");
+        assertThat(victim.commands(TestInputs.tumorRunMetadata()).get(1).asBash()).isEqualTo(
+                "java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 "
+                        + "-cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectWgsMetrics "
+                        + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
+                        + "INPUT=/data/input/tumor.bam OUTPUT=/data/output/tumor.wgsmetrics "
+                        + "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 "
+                        + "INTERVALS=/opt/resources/target_regions/38/target_regions.intervals_list");
+    }
+    */
 
     @Override
     protected void validateOutput(final BamMetricsOutput output) {

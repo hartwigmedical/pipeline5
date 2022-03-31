@@ -6,6 +6,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
 import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
 import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
+import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
@@ -169,7 +170,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String genotypeSnpsDB() {
-        throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid 38 version.");
+        return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
     }
 
     @Override
@@ -193,7 +194,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.38.csv"); }
+    public String purpleCohortGermlineDeletions() {
+        return formPath(PURPLE, "cohort_germline_del_freq.38.csv");
+    }
 
     @Override
     public void setTargetRegionsDir(final String targetRegionsDir) {

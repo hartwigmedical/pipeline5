@@ -58,7 +58,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-    @Override
+
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
 
         if(metadata.mode() != InputMode.TUMOR_REFERENCE)
@@ -95,24 +95,23 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     @Override
     public PeachOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        final String genotypeTsv = genotypeTsv(metadata);
         return PeachOutput.builder()
                 .status(jobStatus)
-                .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
+                .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv(metadata.sampleName()))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_CALLS_TSV)),
+                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + PEACH_CALLS_TSV)),
                         new AddDatatype(DataType.PEACH_GENOTYPE,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_GENOTYPE_TSV)))
+                                new ArchivePath(Folder.root(), namespace(), genotypeTsv(metadata.sampleName()))))
                 .build();
     }
 
     @NotNull
-    protected String genotypeTsv(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + ".peach.genotype.tsv";
+    protected String genotypeTsv(final String sampleName) {
+        return sampleName + PEACH_GENOTYPE_TSV;
     }
 
     @Override
@@ -122,7 +121,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public PeachOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String genotypeTsv = genotypeTsv(metadata);
+        String genotypeTsv = genotypeTsv(metadata.sampleName());
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeGenotypes(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)

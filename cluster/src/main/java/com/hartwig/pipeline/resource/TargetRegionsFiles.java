@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.resource;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
