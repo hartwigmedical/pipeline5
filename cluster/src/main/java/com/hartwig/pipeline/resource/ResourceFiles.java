@@ -109,6 +109,8 @@ public interface ResourceFiles {
 
     default void setTargetRegionsDir(final String targetRegionsDir) {}
 
+    default boolean targetRegionsEnabled() { return false; }
+
     default Optional<String> targetRegionsBed() { return Optional.empty(); }
 
     default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }

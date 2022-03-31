@@ -1,7 +1,11 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
-import java.util.List;
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -15,6 +19,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -34,7 +39,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     private final ResourceFiles resourceFiles;
 
     public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
-        purpleSomaticVariantsDownload = new InputDownload(purpleOutput.outputLocations().somaticVariants());
+        purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
         this.resourceFiles = resourceFiles;
     }
 
@@ -50,6 +55,10 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+
+        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
+            return Stage.disabled();
+
         return List.of(new JavaJarCommand("sigs",
                 Versions.SIGS,
                 "sigs.jar",

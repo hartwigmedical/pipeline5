@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.peach;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -15,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -40,7 +43,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
 
     public Peach(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleGermlineVariantsDownload = new InputDownload(purpleOutput.outputLocations().germlineVariants());
+        purpleGermlineVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().germlineVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -57,6 +60,10 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+
+        if(metadata.mode() != InputMode.TUMOR_REFERENCE)
+            return Stage.disabled();
+
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,15 +41,13 @@ public class Lilac extends TertiaryStage<LilacOutput> {
     private final ResourceFiles resourceFiles;
     private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticVariants;
-    private final InputDownload purpleSomaticVcfIndex;
 
     public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleGeneCopyNumber = new InputDownload(purpleOutputLocations.geneCopyNumber());
-        this.purpleSomaticVariants = new InputDownload(purpleOutputLocations.somaticVariants());
-        this.purpleSomaticVcfIndex = new InputDownload(purpleOutputLocations.somaticVariants().transform(x -> x + ".tbi"));
+        this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
     }
 
     @Override
@@ -60,7 +60,6 @@ public class Lilac extends TertiaryStage<LilacOutput> {
         List<BashCommand> result = new ArrayList<>(super.inputs());
         result.add(purpleGeneCopyNumber);
         result.add(purpleSomaticVariants);
-        result.add(purpleSomaticVcfIndex);
         return result;
     }
 

@@ -14,8 +14,8 @@ import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
-public class PurpleCommandBuilder {
-
+public class PurpleCommandBuilder
+{
     private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
     private static final String CIRCOS_PATH = VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos";
@@ -78,11 +78,6 @@ public class PurpleCommandBuilder {
                 arguments.add(resourceFiles.purpleCohortGermlineDeletions());
             }
         }
-
-        /* target regions
-        	- min_diploid_tumor_ratio_count = 0
-        	- min_diploid_tumor_ratio_count_centromere = 0
-        */
 
         arguments.addAll(commonArguments());
 

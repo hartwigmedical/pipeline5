@@ -1,8 +1,5 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +17,6 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -31,7 +27,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.pave.PaveArgumentBuilder;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
@@ -56,7 +51,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public LinxSomatic(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants());
+        purpleStructuralVariantsDownload = purpleOutputLocations.structuralVariants().isPresent() ?
+                new InputDownload(purpleOutputLocations.structuralVariants().get()) : null;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }

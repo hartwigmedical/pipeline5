@@ -23,6 +23,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -98,6 +99,16 @@ public class TestInputs {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
         return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).maybeReference(reference).bucket(BUCKET).build();
+    }
+
+    public static SomaticRunMetadata defaultGermlineRunMetadata() {
+        final SingleSampleRunMetadata reference = referenceRunMetadata();
+
+        return SomaticRunMetadata.builder()
+                .set(SET)
+                .maybeReference(reference)
+                .mode(InputMode.REFERENCE_ONLY)
+                .bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {

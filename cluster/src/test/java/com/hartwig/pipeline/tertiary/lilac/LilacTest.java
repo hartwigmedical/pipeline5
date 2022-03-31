@@ -32,8 +32,7 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
                 input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
                 input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"),
                 input("run-reference-tumor-test/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
-                input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"),
-                input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz.tbi", "tumor.purple.somatic.vcf.gz.tbi"));
+                input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
     }
 
     @Override

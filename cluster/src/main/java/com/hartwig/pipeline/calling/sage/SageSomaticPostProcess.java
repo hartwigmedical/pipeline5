@@ -29,18 +29,6 @@ public class SageSomaticPostProcess extends SubStage {
         OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
         result.addAll(passFilter.bash(input, finalOutputFile));
 
-        /*
-        // OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
-        result.addAll(mappabilityAnnotation.bash(passFilterFile, finalOutputFile));
-        result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
-        SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
-        OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
-        result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));
-        SubStage ponFilter = new PonFilter(resourceFiles.version());
-        OutputFile ponFilterFile = ponFilter.apply(tumorSampleName).outputFile();
-        result.addAll(ponFilter.bash(mappabilityAnnotationFile, ponFilterFile));
-        */
-
         return result;
     }
 }

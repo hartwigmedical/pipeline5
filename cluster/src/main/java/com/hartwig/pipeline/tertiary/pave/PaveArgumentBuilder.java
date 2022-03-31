@@ -70,5 +70,4 @@ public class PaveArgumentBuilder
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add("-read_pass_only");
     }
-
 }

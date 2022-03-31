@@ -201,6 +201,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public boolean targetRegionsEnabled() { return targetRegionsDir != null; }
+
+    @Override
     public Optional<String> targetRegionsBed() {
         if(targetRegionsDir == null)
             return Optional.empty();
