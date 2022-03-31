@@ -16,6 +16,8 @@ import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
     public RefGenomeVersion version() {
@@ -175,7 +177,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String peachFilterBed() {
-        throw new UnsupportedOperationException("[PEACH filter BED] does not yet have a valid 38 version.");
+        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, "peach", RefGenomeVersion.V37.resources(), "min_DPYD.json");
     }
 
     @Override
@@ -184,6 +186,8 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.38.csv"); }
+    public String purpleCohortGermlineDeletions() {
+        return formPath(PURPLE, "cohort_germline_del_freq.38.csv");
+    }
 
 }
