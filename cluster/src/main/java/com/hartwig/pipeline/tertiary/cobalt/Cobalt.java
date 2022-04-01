@@ -50,12 +50,10 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
-        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
-        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
-        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
-
-        arguments.addAll(commonArguments());
+        addTumor(arguments, metadata);
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
 
         return formCommand(arguments);
     }
@@ -65,12 +63,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
-        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
+        addTumor(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
 
-        // -tumor_only_diploid_bed", resourceFiles.diploidRegionsBed()
-
-        arguments.addAll(commonArguments());
+        arguments.add(String.format("-tumor_only_diploid_bed %s", resourceFiles.diploidRegionsBed()));
 
         return formCommand(arguments);
     }
@@ -80,10 +77,8 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
-        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
-
-        arguments.addAll(commonArguments());
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
 
         return formCommand(arguments);
     }
@@ -95,13 +90,27 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return commands;
     }
 
-    private List<String> commonArguments() {
-        List<String> arguments = Lists.newArrayList();
+    private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
+        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
+    }
+
+    private void addReference(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
+        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
+    }
+
+    private void addCommonArguments(final List<String> arguments) {
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-gc_profile %s", resourceFiles.gcProfileFile()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
-        return arguments;
+    }
+
+    private void addTargetRegionsArguments(final List<String> arguments)
+    {
+        if(resourceFiles.targetRegionsEnabled())
+            arguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation()));
     }
 
     @Override

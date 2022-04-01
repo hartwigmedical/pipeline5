@@ -51,12 +51,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
-        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
-        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
-        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
-
-        arguments.addAll(commonArguments());
+        addTumor(arguments, metadata);
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
 
         return formCommand(arguments);
     }
@@ -66,9 +64,9 @@ public class Amber extends TertiaryStage<AmberOutput> {
     {
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
-        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
-        arguments.addAll(commonArguments());
+        addTumor(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
 
         return formCommand(arguments);
     }
@@ -78,9 +76,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
     {
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
-        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
-        arguments.addAll(commonArguments());
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
 
         return formCommand(arguments);
     }
@@ -92,14 +89,28 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return commands;
     }
 
-    private List<String> commonArguments() {
-        List<String> arguments = Lists.newArrayList();
+    private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
+        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
+    }
+
+    private void addReference(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
+        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
+    }
+
+    private void addCommonArguments(final List<String> arguments) {
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-loci %s", resourceFiles.amberHeterozygousLoci()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
-        return arguments;
+    }
+
+    private void addTargetRegionsArguments(final List<String> arguments)
+    {
+        if(resourceFiles.targetRegionsEnabled())
+            arguments.add("-tumor_only_min_depth 80");
     }
 
     @Override

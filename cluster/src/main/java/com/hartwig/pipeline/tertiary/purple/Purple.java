@@ -90,7 +90,23 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommand(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
+    {
+        return buildCommand(metadata);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return buildCommand(metadata);
+    }
+
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata) {
 
         List<String> arguments = PurpleArgumentBuilder.buildArguments(this, metadata, resourceFiles);
 
