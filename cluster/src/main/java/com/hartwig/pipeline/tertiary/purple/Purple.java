@@ -109,19 +109,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVariantsDownload.getLocalTargetPath());
     }
 
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new PurpleCommandBuilder(resourceFiles,
-                amberOutputDownload.getLocalTargetPath(),
-                cobaltOutputDownload.getLocalTargetPath(),
-                metadata.tumor().sampleName(),
-                structuralVariantsDownload.getLocalTargetPath(),
-                svRecoveryVariantsDownload.getLocalTargetPath(),
-                somaticVariantsDownload.getLocalTargetPath()).setShallow(shallow)
-                .setReferenceSample(metadata.reference().sampleName())
-                .addGermline(germlineVariantsDownload.getLocalTargetPath())
-                .build());
-    }
-
     @Override
     public List<BashCommand> inputs() {
         return List.of(somaticVariantsDownload,
