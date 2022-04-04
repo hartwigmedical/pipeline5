@@ -25,7 +25,6 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
-import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.VmExecutionLogSummary;
 import com.hartwig.pipeline.reruns.ApiPersistedDataset;
@@ -91,9 +90,7 @@ public class PipelineMain {
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,
-                    referenceEventListener,
-                    isSingleSample,
-                    somaticRunMetadata,
+                    referenceEventListener, somaticRunMetadata,
                     referenceBamMetricsOutputQueue,
                     germlineCallerOutputQueue,
                     referenceFlagstatOutputQueue,
@@ -102,9 +99,7 @@ public class PipelineMain {
                     singleSamplePipeline(arguments,
                             credentials,
                             storage,
-                            tumorEventListener,
-                            isSingleSample,
-                            somaticRunMetadata,
+                            tumorEventListener, somaticRunMetadata,
                             tumorBamMetricsOutputQueue,
                             germlineCallerOutputQueue,
                             tumorFlagstatOutputQueue,
@@ -124,7 +119,6 @@ public class PipelineMain {
                     referenceEventListener,
                     tumorEventListener,
                     somaticMetadataApi,
-                    new FullSomaticResults(storage, arguments),
                     CleanupProvider.from(arguments, storage).get()).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
@@ -173,8 +167,7 @@ public class PipelineMain {
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone,
-            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final Storage storage, final SingleSampleEventListener eventListener, final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
             final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
@@ -187,9 +180,7 @@ public class PipelineMain {
                         labels),
                 AlignerProvider.from(credentials, storage, arguments, labels).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                Executors.newCachedThreadPool(),
-                isStandalone,
-                arguments,
+                Executors.newCachedThreadPool(), arguments,
                 persistedDataset,
                 metricsOutputQueue,
                 flagstatOutputQueue,

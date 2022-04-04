@@ -40,7 +40,6 @@ public class SingleSamplePipeline {
     private final Aligner aligner;
     private final PipelineResults report;
     private final ExecutorService executorService;
-    private final Boolean isStandalone;
     private final Arguments arguments;
     private final PersistedDataset persistedDataset;
     private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
@@ -48,15 +47,14 @@ public class SingleSamplePipeline {
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-            final Arguments arguments, final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Arguments arguments,
+            final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
             final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
         this.report = report;
         this.executorService = executorService;
-        this.isStandalone = isStandalone;
         this.arguments = arguments;
         this.persistedDataset = persistedDataset;
         this.metricsOutputQueue = metricsOutputQueue;
@@ -74,7 +72,6 @@ public class SingleSamplePipeline {
         AlignmentOutput alignmentOutput = convertCramsIfNecessary(arguments, metadata, state);
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
-            report.clearOldState(arguments, metadata);
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> stageRunner.run(metadata,
                     new BamMetrics(resourceFiles, alignmentOutput, persistedDataset)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
@@ -100,7 +97,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(flagstatOutput));
             report.add(state.add(futurePayload(cramOutputFuture)));
-            report.compose(metadata, isStandalone, state);
+            report.compose(metadata);
             eventListener.complete(state);
         }
         return state;
@@ -110,9 +107,8 @@ public class SingleSamplePipeline {
             final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         alignmentOutput =
-                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM)
-                        ? state.add(stageRunner.run(metadata, new Cram2Bam(alignmentOutput.alignments(), metadata.type())))
-                        : alignmentOutput;
+                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM) ? state.add(
+                        stageRunner.run(metadata, new Cram2Bam(alignmentOutput.alignments(), metadata.type()))) : alignmentOutput;
         return alignmentOutput;
     }
 
