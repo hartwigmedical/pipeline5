@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.sage;
 
 import static java.lang.String.format;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -82,19 +80,19 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         final ImmutableSageOutput.Builder builder = SageOutput.builder(namespace()).status(jobStatus);
         somaticRefSampleBqrPlot.ifPresent(s -> builder.maybeSomaticRefSampleBqrPlot(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(s)))
-                .addReportComponents(bqrComponent(metadata.reference(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory)));
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.reference().sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.reference().sampleName())));
         somaticTumorSampleBqrPlot.ifPresent(s -> builder.maybeSomaticTumorSampleBqrPlot(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(s)))
-                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory)));
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.tumor().sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.tumor().sampleName())));
         return builder.addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeGermlineGeneCoverage(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(geneCoverageFile)))
                 .maybeSomaticTumorSampleBqrPlot(somaticTumorSampleBqrPlot.map(t -> GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(t))))
                 .maybeVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile)))
-                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.sampleName()))
                 .addReportComponents(vcfComponent(unfilteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory))
@@ -162,9 +160,9 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 
-    private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
-        String filename = format("%s.sage.bqr.%s", metadata.sampleName(), extension);
+    private ReportComponent bqrComponent(final String extension, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
+            final String sampleName) {
+        String filename = format("%s.sage.bqr.%s", sampleName, extension);
         return singleFileComponent(filename, bucket, resultsDirectory);
     }
 
