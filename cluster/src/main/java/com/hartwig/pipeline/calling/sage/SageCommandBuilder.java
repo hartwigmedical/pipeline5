@@ -77,10 +77,6 @@ public class SageCommandBuilder {
 
         final List<String> arguments = Lists.newArrayList();
 
-        if (tumorSamples == 0) {
-            throw new IllegalStateException("Must be at least one tumor");
-        }
-
         if (shallowSomaticMode && !somaticMode) {
             throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
         }

@@ -20,9 +20,9 @@ public class SageGermlineCaller extends SageCaller {
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
-                .addTumor(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath()))
-                .andThen(sageConfiguration.postProcess().apply(metadata))
-                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .addReference(metadata.reference().sampleName(),
+                        getReferenceBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess().apply(metadata))
+                .apply(SubStageInputOutput.empty(metadata.reference().sampleName()))
                 .bash();
     }
 
