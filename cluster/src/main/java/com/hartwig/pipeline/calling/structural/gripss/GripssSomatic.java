@@ -63,6 +63,7 @@ public class GripssSomatic extends Gripss {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.tumor().sampleName()));
+        arguments.add("-filter_sgls");
         arguments.add("-output_id somatic");
         arguments.addAll(commonArguments());
 

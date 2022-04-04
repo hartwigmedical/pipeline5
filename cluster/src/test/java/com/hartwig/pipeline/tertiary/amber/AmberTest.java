@@ -59,7 +59,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx32G -jar /opt/tools/amber/3.6/amber.jar "
+        return List.of("java -Xmx32G -jar /opt/tools/amber/pilot/amber.jar "
                 + "-tumor tumor -tumor_bam /data/input/tumor.bam "
                 + "-reference reference -reference_bam /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

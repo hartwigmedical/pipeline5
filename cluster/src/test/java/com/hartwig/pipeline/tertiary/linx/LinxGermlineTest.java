@@ -45,8 +45,8 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                + "-germine_pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe "
-                + "-germine_pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed");
+                + "-germine_pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe.gz "
+                + "-germine_pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed.gz");
 
         return commands;
     }

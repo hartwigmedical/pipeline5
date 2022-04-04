@@ -37,6 +37,7 @@ public class StartingPoint {
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
+        GRIDSS_COMPLETE(concat(CRAM_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE, Gridss.NAMESPACE))),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,

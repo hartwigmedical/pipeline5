@@ -135,12 +135,12 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String svBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed");
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed.gz");
     }
 
     @Override
     public String svBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe");
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe.gz");
     }
 
     @Override
