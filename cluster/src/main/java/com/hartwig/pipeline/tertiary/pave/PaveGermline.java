@@ -50,7 +50,7 @@ public class PaveGermline extends Pave {
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
         return String.format("%s.%s.%s.%s",
-                metadata.tumor().sampleName(),
+                metadata.sampleName(),
                 SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_NAME,
                 FileTypes.GZIPPED_VCF);
     }
