@@ -51,13 +51,13 @@ public interface SageConfiguration {
                 .tumorSampleBqrPlot(DataType.GERMLINE_TUMOR_SAMPLE_BQR_PLOT)
                 .refSampleBqrPlot(DataType.GERMLINE_REF_SAMPLE_BQR_PLOT)
                 .filteredTemplate(m -> String.format("%s.%s.%s",
-                        m.reference().sampleName(),
+                        m.sampleName(),
                         SageGermlinePostProcess.SAGE_GERMLINE_FILTERED,
                         FileTypes.GZIPPED_VCF))
-                .unfilteredTemplate(m -> String.format("%s.%s.%s", m.reference().sampleName(), "sage.germline", FileTypes.GZIPPED_VCF))
-                .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
+                .unfilteredTemplate(m -> String.format("%s.%s.%s", m.sampleName(), "sage.germline", FileTypes.GZIPPED_VCF))
+                .geneCoverageTemplate(m -> String.format("%s.%s", m.sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode().addCoverage().maxHeap("15G"))
-                .postProcess(m -> new SageGermlinePostProcess(m.reference().sampleName(), m.reference().sampleName()))
+                .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
                 .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
                 .build();
     }

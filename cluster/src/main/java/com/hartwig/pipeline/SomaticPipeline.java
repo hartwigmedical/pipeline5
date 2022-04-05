@@ -140,7 +140,7 @@ public class SomaticPipeline {
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
-                                    gripssSomaticProcessOutput,
+                                    metadata.mode().runTumor() ? gripssSomaticProcessOutput : gripssGermlineProcessOutput,
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,

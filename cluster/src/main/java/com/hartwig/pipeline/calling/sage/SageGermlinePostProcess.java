@@ -6,18 +6,17 @@ import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
 public class SageGermlinePostProcess extends SubStage {
 
     public static final String SAGE_GERMLINE_FILTERED = "sage.germline.filtered";
-    private final SubStageInputOutput tumorSampleName;
+    private final SubStageInputOutput sampleName;
 
-    public SageGermlinePostProcess(final String referenceSampleName, final String tumorSampleName) {
+    public SageGermlinePostProcess(final String sampleName) {
         super(SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
-        this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
+        this.sampleName = SubStageInputOutput.empty(sampleName);
     }
 
     @Override
@@ -26,7 +25,7 @@ public class SageGermlinePostProcess extends SubStage {
 
         SubStage passFilter = new PassFilter();
 
-        OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
+        OutputFile finalOutputFile = OutputFile.of(sampleName.sampleName(), SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
         result.addAll(passFilter.bash(input, finalOutputFile));
         return result;
     }

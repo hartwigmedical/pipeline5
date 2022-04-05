@@ -16,8 +16,6 @@ sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
-sudo gzip -d /opt/resources/gridss_pon/37/*
-sudo gzip -d /opt/resources/gridss_pon/38/*
 sudo gzip -d /opt/resources/gridss_repeatmasker_db/37/*
 sudo gzip -d /opt/resources/gridss_repeatmasker_db/38/*
 

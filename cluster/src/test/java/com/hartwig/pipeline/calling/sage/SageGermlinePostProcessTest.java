@@ -18,7 +18,7 @@ public class SageGermlinePostProcessTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SageGermlinePostProcess("reference", "tumor");
+        return new SageGermlinePostProcess("tumor");
     }
 
     @Override

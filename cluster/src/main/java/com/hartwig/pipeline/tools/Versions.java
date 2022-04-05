@@ -22,7 +22,8 @@ public interface Versions {
     String GRIPSS = "pilot";
     String HEALTH_CHECKER = "3.3";
     String LILAC = "1.1";
-    String LINX = "1.18";
+    String LINX = "pilot";
+    // String LINX = "1.19";
     String ORANGE = "1.6";
     // String PAVE = "1.2";
     String PAVE = "pilot";

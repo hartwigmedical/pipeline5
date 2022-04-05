@@ -164,10 +164,10 @@ public class Lilac extends TertiaryStage<LilacOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".lilac.csv")),
+                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".lilac.csv")),
                         new AddDatatype(DataType.LILAC_QC_METRICS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".lilac.qc.csv")))
+                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".lilac.qc.csv")))
                 .build();
     }
 

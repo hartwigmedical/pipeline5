@@ -27,7 +27,6 @@ public class SageCommandBuilder {
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
-    private int tumorSamples = 0;
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -45,7 +44,6 @@ public class SageCommandBuilder {
     }
 
     public SageCommandBuilder addTumor(String sample, String bamFile) {
-        tumorSamples++;
         tumor.add(sample);
         tumorBam.add(bamFile);
         return this;
@@ -75,11 +73,15 @@ public class SageCommandBuilder {
     public List<BashCommand> build(final String outputVcf) {
         List<BashCommand> result = Lists.newArrayList();
 
-        final List<String> arguments = Lists.newArrayList();
-
         if (shallowSomaticMode && !somaticMode) {
             throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
         }
+
+        if (tumorBam.isEmpty() && referenceBam.isEmpty()) {
+            throw new IllegalStateException("Must be at least one tumor or reference");
+        }
+
+        final List<String> arguments = Lists.newArrayList();
 
         final String tumorBamFiles = tumor.length() > 0 ? String.join(",", tumorBam) : "";
         final String referenceBamFiles = reference.length() > 0 ? String.join(",", referenceBam) : "";

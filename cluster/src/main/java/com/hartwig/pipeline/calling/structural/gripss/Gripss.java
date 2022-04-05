@@ -135,11 +135,11 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
         String unfilteredVcfFile = unfilteredVcf(metadata);
 
         GoogleStorageLocation filteredLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), filteredDatatype())
+                persistedDataset.path(metadata.sampleName(), filteredDatatype())
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcfFile)));
         GoogleStorageLocation unfilteredLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), unfilteredDatatype())
+                persistedDataset.path(metadata.sampleName(), unfilteredDatatype())
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
 

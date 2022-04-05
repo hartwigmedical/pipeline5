@@ -69,12 +69,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     protected final PersistedDataset persistedDataset;
     protected final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput germlineCallerOutput,
+    public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
             final GripssOutput gripssOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
-        this.germlineVariantsDownload = new InputDownload(germlineCallerOutput.annotatedVariants());
+        this.germlineVariantsDownload = new InputDownload(paveGermlineOutput.annotatedVariants());
         this.structuralVariantsDownload = new InputDownload(gripssOutput.filteredVariants());
         this.structuralVariantsIndexDownload = new InputDownload(gripssOutput.filteredVariants().transform(FileTypes::tabixIndex));
         this.svRecoveryVariantsDownload = new InputDownload(gripssOutput.unfilteredVariants());

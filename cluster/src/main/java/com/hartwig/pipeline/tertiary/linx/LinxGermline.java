@@ -75,8 +75,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
         List<String> arguments = Lists.newArrayList();
 
-        arguments.add(String.format("-sample %s",
-                inputMode == REFERENCE_ONLY ? metadata.reference().sampleName() : metadata.tumor().sampleName()));
+        arguments.add(String.format("-sample %s", metadata.sampleName()));
 
         arguments.add("-germline");
         arguments.add(String.format("-sv_vcf %s", gripssGermlineVariantsDownload.getLocalTargetPath()));
@@ -100,8 +99,8 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     public LinxGermlineOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
 
-        String disruptionsTsv = metadata.tumor().sampleName() + GERMLINE_DISRUPTION_TSV;
-        String driverCatalogTsv = metadata.tumor().sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
+        String disruptionsTsv = metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
+        String driverCatalogTsv = metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
 
         return LinxGermlineOutput.builder()
                 .status(jobStatus)
@@ -134,8 +133,8 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     @Override
     public LinxGermlineOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String disruptionsTsv = metadata.tumor().sampleName() + GERMLINE_DISRUPTION_TSV;
-        String driverCatalogTsv = metadata.tumor().sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
+        String disruptionsTsv = metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
+        String driverCatalogTsv = metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
 
         return LinxGermlineOutput.builder()
                 .status(PipelineStatus.PERSISTED)
@@ -151,7 +150,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @NotNull
     public GoogleStorageLocation persistedOrDefault(final SomaticRunMetadata metadata, final DataType dataType, final String path) {
-        return persistedDataset.path(metadata.tumor().sampleName(), dataType)
+        return persistedDataset.path(metadata.sampleName(), dataType)
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), path)));
     }
 }
