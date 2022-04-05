@@ -62,6 +62,7 @@ public class PipelineMain {
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
+            LOGGER.info("Starting pipeline in [{}] mode", mode);
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
