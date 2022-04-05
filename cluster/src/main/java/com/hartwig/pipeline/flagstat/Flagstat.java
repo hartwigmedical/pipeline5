@@ -49,7 +49,21 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return flagstatCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return flagstatCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return flagstatCommands(metadata);
+    }
+
+    public List<BashCommand> flagstatCommands(final SingleSampleRunMetadata metadata) {
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return Collections.singletonList(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
                 VmDirectories.OUTPUT + "/" + outputFile)));
