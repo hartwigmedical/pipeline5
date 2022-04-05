@@ -13,8 +13,6 @@ COLO829v003T/cram/run.sh
 COLO829v003T/flagstat/COLO829v003T.flagstat
 COLO829v003T/flagstat/run.log
 COLO829v003T/flagstat/run.sh
-COLO829v003T/metadata.json
-COLO829v003T/pipeline.version
 COLO829v003T/snp_genotype/run.log
 COLO829v003T/snp_genotype/run.sh
 COLO829v003T/snp_genotype/snp_genotype_output.vcf
