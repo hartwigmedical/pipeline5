@@ -15,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.resource.TargetRegionsCommand;
@@ -33,19 +34,21 @@ public class StageRunner<M extends RunMetadata> {
     private final ResultsDirectory resultsDirectory;
     private final StartingPoint startingPoint;
     private final Labels labels;
+    private final InputMode mode;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels) {
+            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels, final InputMode mode) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.resultsDirectory = resultsDirectory;
         this.startingPoint = startingPoint;
         this.labels = labels;
+        this.mode = mode;
     }
 
     public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
-        final List<BashCommand> commands = commands(metadata, stage);
+        final List<BashCommand> commands = commands(mode, metadata, stage);
         if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.name(), StageTrace.ExecutorType.COMPUTE_ENGINE);
@@ -68,8 +71,8 @@ public class StageRunner<M extends RunMetadata> {
         return stage.skippedOutput(metadata);
     }
 
-    private <T extends StageOutput> List<BashCommand> commands(final M metadata, final Stage<T, M> stage) {
-        switch (metadata.mode()) {
+    private <T extends StageOutput> List<BashCommand> commands(final InputMode mode, M metadata, final Stage<T, M> stage) {
+        switch (mode) {
             case TUMOR_REFERENCE:
                 return stage.tumorReferenceCommands(metadata);
             case TUMOR_ONLY:
