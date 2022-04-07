@@ -20,7 +20,6 @@ import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -39,7 +38,6 @@ public class FullPipelineTest {
     private FullPipeline victim;
     private SingleSampleEventListener referenceListener;
     private SingleSampleEventListener tumorListener;
-    private FullSomaticResults results;
     private Cleanup cleanup;
 
     @Before
@@ -48,7 +46,6 @@ public class FullPipelineTest {
         tumor = mock(SingleSamplePipeline.class);
         somatic = mock(SomaticPipeline.class);
         cleanup = mock(Cleanup.class);
-        results = mock(FullSomaticResults.class);
 
         api = mock(SomaticMetadataApi.class);
         when(api.get()).thenReturn(METADATA);
@@ -61,9 +58,7 @@ public class FullPipelineTest {
                 Executors.newCachedThreadPool(),
                 referenceListener,
                 tumorListener,
-                api,
-                results,
-                cleanup);
+                api, cleanup);
     }
 
     @Test
@@ -130,9 +125,7 @@ public class FullPipelineTest {
                 Executors.newCachedThreadPool(),
                 referenceListener,
                 tumorListener,
-                api,
-                results,
-                cleanup);
+                api, cleanup);
         when(reference.run(metadata.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
         when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
