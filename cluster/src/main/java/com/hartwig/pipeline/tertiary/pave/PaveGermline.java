@@ -29,18 +29,14 @@ public class PaveGermline extends Pave {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata, TUMOR_REFERENCE); }
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata); }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata, REFERENCE_ONLY); }
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata); }
 
-    private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
+    private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArgumentBuilder.germline(
-                resourceFiles,
-                inputMode == REFERENCE_ONLY ? metadata.reference().sampleName() : metadata.tumor().sampleName(),
-                vcfDownload.getLocalTargetPath());
-
+        List<String> arguments = PaveArgumentBuilder.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath());
         return paveCommand(metadata, arguments);
     }
 

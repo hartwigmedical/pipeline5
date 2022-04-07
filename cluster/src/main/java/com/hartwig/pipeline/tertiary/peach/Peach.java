@@ -58,10 +58,9 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
 
-        if(metadata.mode() != InputMode.TUMOR_REFERENCE)
+        if(metadata.mode() != InputMode.TUMOR_REFERENCE) // won't be called in any other mode anyway
             return Stage.disabled();
 
         return List.of(new Python3Command("peach",

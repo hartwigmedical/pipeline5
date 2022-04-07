@@ -161,10 +161,15 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
 
-        if(metadata.mode() == InputMode.REFERENCE_ONLY)
-            return Stage.disabled();
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
 
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();

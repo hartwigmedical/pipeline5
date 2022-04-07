@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
+import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,9 +56,17 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
 
-        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
+
+        if(resourceFiles.targetRegionsEnabled())
             return Stage.disabled();
 
         return List.of(new JavaJarCommand("sigs",

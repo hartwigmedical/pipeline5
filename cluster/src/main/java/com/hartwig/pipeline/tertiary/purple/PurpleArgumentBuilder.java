@@ -45,8 +45,6 @@ public final class PurpleArgumentBuilder
             // arguments.add(String.format("-target_regions_ratios %s", resourceFiles.sageSomaticHotspots())); // may not be used
             arguments.add("-min_diploid_tumor_ratio_count 0");
             arguments.add("-min_diploid_tumor_ratio_count_centromere 0");
-
-
         }
 
         // no plots for germline-only mode
