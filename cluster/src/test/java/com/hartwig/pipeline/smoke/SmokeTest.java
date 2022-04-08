@@ -55,7 +55,6 @@ public class SmokeTest {
         FileUtils.deleteDirectory(resultsDir);
     }
 
-    /*
     @Test
     public void tumorReference() throws Exception {
         runFullPipelineAndCheckFinalStatus("tumor-reference", PipelineStatus.QC_FAILED);
@@ -70,7 +69,7 @@ public class SmokeTest {
     public void referenceOnly() throws Exception {
         runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.SUCCESS);
     }
-    */
+
 
     @Ignore
     @Test
