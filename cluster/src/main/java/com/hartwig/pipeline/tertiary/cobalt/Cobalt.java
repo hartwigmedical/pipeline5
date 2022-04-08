@@ -110,7 +110,10 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     private void addTargetRegionsArguments(final List<String> arguments)
     {
         if(resourceFiles.targetRegionsEnabled())
-            arguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation()));
+        {
+            arguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation().get()));
+            arguments.add("-pcf_gamma 15");
+        }
     }
 
     @Override

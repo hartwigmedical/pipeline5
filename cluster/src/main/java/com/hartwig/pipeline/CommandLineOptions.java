@@ -154,9 +154,7 @@ public class CommandLineOptions {
                 "Specify the location of the target regions files and enable target-regions mode. Both within image and gs:// urls are supported.");
     }
 
-    private static Option useTargetRegions() {
-        return optionWithArg(USE_TARGET_REGIONS, "Enable target-regions mode");
-    }
+    private static Option useTargetRegions() { return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode"); }
 
     private static Option userLabel() {
         return optionWithArg(USER_LABEL_FLAG,

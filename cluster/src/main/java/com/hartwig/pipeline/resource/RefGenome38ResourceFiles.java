@@ -221,4 +221,28 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
         return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_normalisation.38.tsv"));
     }
+
+    @Override
+    public Optional<String> targetRegionsRatios() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_ratios.38.csv"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsInterval() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.interval_list"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsMsiIndels() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_msi_indels.38.tsv"));
+    }
 }

@@ -41,8 +41,9 @@ public final class PurpleArgumentBuilder
         addCommonArguments(arguments, resourceFiles);
 
         if(resourceFiles.targetRegionsEnabled()) {
-            arguments.add(String.format("-target_regions_bed %s", resourceFiles.targetRegionsBed()));
-            // arguments.add(String.format("-target_regions_ratios %s", resourceFiles.sageSomaticHotspots())); // may not be used
+            arguments.add(String.format("-target_regions_bed %s", resourceFiles.targetRegionsBed().get()));
+            arguments.add(String.format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios().get()));
+            arguments.add(String.format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels().get()));
             arguments.add("-min_diploid_tumor_ratio_count 0");
             arguments.add("-min_diploid_tumor_ratio_count_centromere 0");
         }

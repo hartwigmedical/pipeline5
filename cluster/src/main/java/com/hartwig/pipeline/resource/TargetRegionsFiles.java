@@ -11,9 +11,8 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 public class TargetRegionsFiles
 {
-    private static final String TARGETED_REGIONS_DIR = String.format("%s/%s", VmDirectories.RESOURCES, ResourceNames.TARGET_REGIONS);
-
-    private static final String OVERRIDE_TARGETED_REGIONS_DIR = String.format("%s/override", TARGETED_REGIONS_DIR);
+    private static final String OVERRIDE_TARGETED_REGIONS_DIR = String.format(
+            "%s/%s/override", VmDirectories.RESOURCES, ResourceNames.TARGET_REGIONS);
 
     public static List<BashCommand> overrides(final Arguments arguments) {
 
@@ -30,8 +29,12 @@ public class TargetRegionsFiles
     }
 
     public static void parseArguments(final ResourceFiles resourceFiles, final CommonArguments arguments) {
+
+        String targetResourcesDir = String.format("%s/%s/%s",
+                VmDirectories.RESOURCES, ResourceNames.TARGET_REGIONS, resourceFiles.versionDirectory());
+
         if (arguments.useTargetRegions()) {
-            resourceFiles.setTargetRegionsDir(TARGETED_REGIONS_DIR);
+            resourceFiles.setTargetRegionsDir(targetResourcesDir);
         }
         else if(arguments.targetRegionsDir().isPresent()) {
             resourceFiles.setTargetRegionsDir(OVERRIDE_TARGETED_REGIONS_DIR);

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -61,6 +62,16 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+
+        if(resourceFiles.targetRegionsEnabled())
+            return Lists.newArrayList();
+
+        return Collections.singletonList(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                resourceFiles.refGenomeFile(),
+                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
+                resourceFiles.targetRegionsInterval()));
+
+        /*
         return Stream.concat(resourceFiles.targetRegionsBed()
                         .stream()
                         .map(r -> new BedToIntervalsCommand(r, resourceFiles.targetRegionsInterval().orElseThrow(), resourceFiles.refGenomeFile())),
@@ -68,6 +79,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         resourceFiles.refGenomeFile(),
                         VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
                         resourceFiles.targetRegionsInterval()))).collect(Collectors.toList());
+        */
     }
 
     @Override

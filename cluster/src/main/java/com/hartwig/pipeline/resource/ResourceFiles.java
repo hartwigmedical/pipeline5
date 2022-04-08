@@ -115,8 +115,13 @@ public interface ResourceFiles {
 
     default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }
 
+    default Optional<String> targetRegionsRatios() { return Optional.empty(); }
+
+    default Optional<String> targetRegionsMsiIndels() { return Optional.empty(); }
+
     default Optional<String> targetRegionsInterval() {
-        return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+        // return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+        return Optional.empty();
     }
 
     default String cuppaRefData() {
