@@ -190,7 +190,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String hlaRegionBed() {
-        return formPath(LILAC, "hla.v38.bed");
+        return formPath(LILAC, "hla.38.bed");
     }
 
     @Override
