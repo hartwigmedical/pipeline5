@@ -58,20 +58,26 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata.reference().sampleName(), metadata.reference().sampleName());
+    }
 
-        if(metadata.mode() != InputMode.TUMOR_REFERENCE) // won't be called in any other mode anyway
-            return Stage.disabled();
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
+    }
 
+    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
                 List.of("--vcf",
                         purpleGermlineVariantsDownload.getLocalTargetPath(),
                         "--sample_t_id",
-                        metadata.tumor().sampleName(),
+                        filenameId,
                         "--sample_r_id",
-                        metadata.reference().sampleName(),
+                        referenceId,
                         "--tool_version",
                         Versions.PEACH,
                         "--outputdir",
@@ -123,7 +129,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         String genotypeTsv = genotypeTsv(metadata.sampleName());
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeGenotypes(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
+                .maybeGenotypes(persistedDataset.path(metadata.sampleName(), DataType.PEACH_GENOTYPE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), genotypeTsv))))
                 .addDatatypes(new AddDatatype(DataType.PEACH_GENOTYPE,
