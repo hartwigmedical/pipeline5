@@ -72,22 +72,22 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
-                .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorMetricsDownload.getLocalTargetPath()).build());
+                .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorFlagstatDownload.getLocalTargetPath()).build());
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withReference(metadata.reference()
-                .sampleName(), referenceMetricsDownload.getLocalTargetPath(), referenceMetricsDownload.getLocalTargetPath()).build());
+                .sampleName(), referenceMetricsDownload.getLocalTargetPath(), referenceFlagstatDownload.getLocalTargetPath()).build());
     }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return List.of(new HealthCheckerApplicationCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
-                        .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorMetricsDownload.getLocalTargetPath())
+                        .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorFlagstatDownload.getLocalTargetPath())
                 .withReference(metadata.reference().sampleName(),
                         referenceMetricsDownload.getLocalTargetPath(),
-                        referenceMetricsDownload.getLocalTargetPath())
+                        referenceFlagstatDownload.getLocalTargetPath())
                 .build());
     }
 
