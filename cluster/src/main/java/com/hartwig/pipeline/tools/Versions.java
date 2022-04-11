@@ -11,11 +11,9 @@ import org.slf4j.LoggerFactory;
 public interface Versions {
 
     // HMF tools
-    // String AMBER = "3.6";
-    String AMBER = "pilot";
+    String AMBER = "3.9";
     String CHORD = "2.00_1.14";
-    String COBALT = "pilot";
-    // String COBALT = "1.11";
+    String COBALT = "1.13";
     String CUPPA = "1.6";
     String GRIDSS = "2.13.2";
     String GRIPSS = "2.1";
