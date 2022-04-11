@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.metrics;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,11 +38,14 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final PersistedDataset persistedDataset;
+    private final Arguments arguments;
 
-    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
+    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset,
+            final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.alignments());
         this.persistedDataset = persistedDataset;
+        this.arguments = arguments;
     }
 
     @Override
@@ -74,13 +79,17 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
-        return Stream.concat(resourceFiles.targetRegionsBed()
-                        .stream()
-                        .map(r -> new BedToIntervalsCommand(r, resourceFiles.targetRegionsInterval().orElseThrow(), resourceFiles.refGenomeFile())),
-                Stream.<BashCommand>of(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
-                        resourceFiles.refGenomeFile(),
-                        VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
-                        resourceFiles.targetRegionsInterval()))).collect(Collectors.toList());
+        final String outputFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName());
+        if (arguments.useTargetRegions()) {
+            return List.of(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
+                            resourceFiles.targetRegionsInterval(),
+                            resourceFiles.targetRegionsInterval()),
+                    new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                            resourceFiles.refGenomeFile(),
+                            outputFile,
+                            Optional.of(resourceFiles.targetRegionsInterval())));
+        }
+        return List.of(new WgsMetricsCommand(bamDownload.getLocalTargetPath(), resourceFiles.refGenomeFile(), outputFile));
     }
 
     @Override

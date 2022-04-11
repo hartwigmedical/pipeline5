@@ -16,8 +16,6 @@ public class ResourceFilesFactory {
             resourceFiles = new OverriddenReferenceGenome(resourceFiles, arguments.refGenomeUrl().get());
         }
 
-        TargetRegionsFiles.parseArguments(resourceFiles, arguments);
-
         return resourceFiles;
     }
 }

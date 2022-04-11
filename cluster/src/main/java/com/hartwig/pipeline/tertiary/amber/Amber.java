@@ -34,11 +34,14 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
+    private final Arguments arguments;
 
-    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
+            final Arguments arguments) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+        this.arguments = arguments;
     }
 
     @Override
@@ -60,8 +63,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = Lists.newArrayList();
 
         addTumor(arguments, metadata);
@@ -72,8 +74,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = Lists.newArrayList();
 
         addReference(arguments, metadata);
@@ -82,8 +83,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return formCommand(arguments);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
+    private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
         commands.add(new JavaJarCommand("amber", Versions.AMBER, "amber.jar", "32G", arguments));
         return commands;
@@ -107,10 +107,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
         arguments.add(String.format("-threads %s", Bash.allCpus()));
     }
 
-    private void addTargetRegionsArguments(final List<String> arguments)
-    {
-        if(resourceFiles.targetRegionsEnabled())
-            arguments.add("-tumor_only_min_depth 80");
+    private void addTargetRegionsArguments(final List<String> amberArguments) {
+        if (arguments.useTargetRegions()) {
+            amberArguments.add("-tumor_only_min_depth 80");
+        }
     }
 
     @Override
@@ -127,8 +127,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.AMBER,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))))
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))))
                 .build();
     }
 

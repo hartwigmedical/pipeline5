@@ -103,9 +103,9 @@ public class SomaticPipeline {
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         try {
             Future<AmberOutput> amberOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset)));
+                    executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset, arguments)));
             Future<CobaltOutput> cobaltOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
+                    executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset, arguments)));
             Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                     new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments.shallow())));
             Future<SageOutput> sageGermlineOutputFuture =
@@ -143,11 +143,11 @@ public class SomaticPipeline {
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
-                                    mode == InputMode.TUMOR_REFERENCE || mode == InputMode.TUMOR_ONLY ? gripssSomaticProcessOutput : gripssGermlineProcessOutput,
+                                    metadata.maybeTumor().map(t -> gripssSomaticProcessOutput).orElse(gripssGermlineProcessOutput),
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
-                                    arguments.shallow())))));
+                                    arguments)))));
 
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
 

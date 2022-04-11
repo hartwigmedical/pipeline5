@@ -73,7 +73,9 @@ public interface ResourceFiles {
 
     String gridssRepeatMaskerDb();
 
-    default String gridssRepeatMaskerDbBed() { return gridssRepeatMaskerDb() + ".bed"; }
+    default String gridssRepeatMaskerDbBed() {
+        return gridssRepeatMaskerDb() + ".bed";
+    }
 
     default String gridssVirusRefGenomeFile() {
         return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
@@ -107,21 +109,16 @@ public interface ResourceFiles {
 
     String purpleCohortGermlineDeletions();
 
-    default void setTargetRegionsDir(final String targetRegionsDir) {}
+    String targetRegionsBed();
 
-    default boolean targetRegionsEnabled() { return false; }
+    String targetRegionsNormalisation();
 
-    default Optional<String> targetRegionsBed() { return Optional.empty(); }
+    String targetRegionsRatios();
 
-    default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }
+    String targetRegionsMsiIndels();
 
-    default Optional<String> targetRegionsRatios() { return Optional.empty(); }
-
-    default Optional<String> targetRegionsMsiIndels() { return Optional.empty(); }
-
-    default Optional<String> targetRegionsInterval() {
-        // return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
-        return Optional.empty();
+    default String targetRegionsInterval() {
+        return targetRegionsBed().replace("bed", "intervals_list");
     }
 
     default String cuppaRefData() {
@@ -152,7 +149,9 @@ public interface ResourceFiles {
         return of(ORANGE, "cohort_percentiles.tsv");
     }
 
-    default String lilacResources() { return of(LILAC); }
+    default String lilacResources() {
+        return of(LILAC);
+    }
 
     default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);

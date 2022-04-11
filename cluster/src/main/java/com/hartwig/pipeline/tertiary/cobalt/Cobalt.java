@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.cobalt;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -33,11 +34,14 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
+    private final Arguments arguments;
 
-    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
+            final Arguments arguments) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+        this.arguments = arguments;
     }
 
     @Override
@@ -83,8 +87,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return formCommand(arguments);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
+    private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
         commands.add(new JavaJarCommand("cobalt", Versions.COBALT, "cobalt.jar", "8G", arguments));
         return commands;
@@ -107,12 +110,10 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         arguments.add(String.format("-threads %s", Bash.allCpus()));
     }
 
-    private void addTargetRegionsArguments(final List<String> arguments)
-    {
-        if(resourceFiles.targetRegionsEnabled())
-        {
-            arguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation().get()));
-            arguments.add("-pcf_gamma 15");
+    private void addTargetRegionsArguments(final List<String> cobaltArguments) {
+        if (arguments.useTargetRegions()) {
+            cobaltArguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation()));
+            cobaltArguments.add("-pcf_gamma 15");
         }
     }
 

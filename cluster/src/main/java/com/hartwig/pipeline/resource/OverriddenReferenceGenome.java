@@ -112,16 +112,24 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlinePon() { return decorated.sageGermlinePon(); }
+    public String sageGermlinePon() {
+        return decorated.sageGermlinePon();
+    }
 
     @Override
-    public String germlinePon() { return decorated.germlinePon(); }
+    public String germlinePon() {
+        return decorated.germlinePon();
+    }
 
     @Override
-    public String somaticPonArtefacts() { return decorated.somaticPonArtefacts(); }
+    public String somaticPonArtefacts() {
+        return decorated.somaticPonArtefacts();
+    }
 
     @Override
-    public String gnomadPonCache() { return decorated.gnomadPonCache(); }
+    public String gnomadPonCache() {
+        return decorated.gnomadPonCache();
+    }
 
     @Override
     public String giabHighConfidenceBed() {
@@ -183,4 +191,23 @@ public class OverriddenReferenceGenome implements ResourceFiles {
         return decorated.purpleCohortGermlineDeletions();
     }
 
+    @Override
+    public String targetRegionsBed() {
+        return decorated.targetRegionsBed();
+    }
+
+    @Override
+    public String targetRegionsNormalisation() {
+        return decorated.targetRegionsNormalisation();
+    }
+
+    @Override
+    public String targetRegionsRatios() {
+        return decorated.targetRegionsRatios();
+    }
+
+    @Override
+    public String targetRegionsMsiIndels() {
+        return decorated.targetRegionsMsiIndels();
+    }
 }
