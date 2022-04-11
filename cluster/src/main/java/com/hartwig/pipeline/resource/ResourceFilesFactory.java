@@ -9,13 +9,15 @@ public class ResourceFilesFactory {
     }
 
     public static ResourceFiles buildResourceFiles(final CommonArguments arguments) {
+
         ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+
         if (arguments.refGenomeUrl().isPresent()) {
             resourceFiles = new OverriddenReferenceGenome(resourceFiles, arguments.refGenomeUrl().get());
         }
-        if (arguments.targetRegionsBedLocation().isPresent()) {
-            resourceFiles = new TargetRegionsEnabled(resourceFiles, arguments.targetRegionsBedLocation().get());
-        }
+
+        TargetRegionsFiles.parseArguments(resourceFiles, arguments);
+
         return resourceFiles;
     }
 }

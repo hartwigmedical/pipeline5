@@ -34,10 +34,19 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx8G -jar /opt/tools/pave/1.1/pave.jar -sample tumor -vcf_file /data/input/tumor.somatic.vcf.gz -output_dir "
-                        + "/data/output -ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -ref_genome "
-                        + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
+                "java -Xmx16G -jar /opt/tools/pave/1.2/pave.jar "
+                        + "-sample tumor "
+                        + "-vcf_file /data/input/tumor.somatic.vcf.gz "
+                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "-ref_genome_version V37 "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                        + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
+                        + "-output_dir /data/output "
+                        + "-read_pass_only "
+                        + "-pon_file /opt/resources/sage/37/SageGermlinePon.1000x.37.tsv.gz "
+                        + "-pon_artefact_file /opt/resources/sage/37/PanelArtefacts.37.tsv "
+                        + "-pon_filters \"HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0\"");
     }
 
     @Override

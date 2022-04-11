@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.protect;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -16,6 +18,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -60,11 +63,11 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purplePurity = new InputDownload(purpleOutputLocations.purity());
         this.purpleQCFile = new InputDownload(purpleOutputLocations.qcFile());
-        this.purpleGeneCopyNumber = new InputDownload(purpleOutputLocations.geneCopyNumber());
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutputLocations.somaticDriverCatalog());
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutputLocations.germlineDriverCatalog());
-        this.purpleSomaticVariants = new InputDownload(purpleOutputLocations.somaticVariants());
-        this.purpleGermlineVariants = new InputDownload(purpleOutputLocations.germlineVariants());
+        this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.somaticDriverCatalog());
+        this.purpleGermlineDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.germlineDriverCatalog());
+        this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
+        this.purpleGermlineVariants = initialiseOptionalLocation(purpleOutputLocations.germlineVariants());
         LinxSomaticOutputLocations linxSomaticOutputLocations = linxOutput.linxOutputLocations();
         this.linxFusions = new InputDownload(linxSomaticOutputLocations.fusions());
         this.linxBreakends = new InputDownload(linxSomaticOutputLocations.breakends());

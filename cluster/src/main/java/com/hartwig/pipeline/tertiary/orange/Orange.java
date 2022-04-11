@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -19,6 +21,7 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -92,13 +95,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
         this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleGermlineVcf = new InputDownload(purpleOutputLocations.germlineVariants());
-        this.purpleSomaticVcf = new InputDownload(purpleOutputLocations.somaticVariants());
+        this.purpleGermlineVcf = initialiseOptionalLocation(purpleOutputLocations.germlineVariants());
+        this.purpleSomaticVcf = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
         this.purplePurityTsv = new InputDownload(purpleOutputLocations.purity());
         this.purpleQCFile = new InputDownload(purpleOutputLocations.qcFile());
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutputLocations.geneCopyNumber());
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutputLocations.somaticDriverCatalog());
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutputLocations.germlineDriverCatalog());
+        this.purpleGeneCopyNumberTsv = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.somaticDriverCatalog());
+        this.purpleGermlineDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.germlineDriverCatalog());
         this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
@@ -158,7 +161,16 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+
+    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
+
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();

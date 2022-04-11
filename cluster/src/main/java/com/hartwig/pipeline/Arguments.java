@@ -156,6 +156,7 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
+                    .useTargetRegions(false)
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
@@ -190,6 +191,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .useLocalSsds(true)
                     .useCrams(false)
+                    .useTargetRegions(false)
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT)
                     .userLabel(System.getProperty("user.name"));
@@ -225,6 +227,7 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
+                    .useTargetRegions(false)
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
@@ -259,6 +262,7 @@ public interface Arguments extends CommonArguments {
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
                     .useCrams(false)
+                    .useTargetRegions(false)
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT);
         }

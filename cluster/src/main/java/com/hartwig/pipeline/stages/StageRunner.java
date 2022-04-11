@@ -18,7 +18,7 @@ import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.reruns.StartingPoint;
-import com.hartwig.pipeline.resource.TargetRegionsCommand;
+import com.hartwig.pipeline.resource.TargetRegionsFiles;
 import com.hartwig.pipeline.resource.OverrideReferenceGenomeCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -56,7 +56,7 @@ public class StageRunner<M extends RunMetadata> {
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(OverrideReferenceGenomeCommand.overrides(arguments))
-                        .addCommands(TargetRegionsCommand.overrides(arguments))
+                        .addCommands(TargetRegionsFiles.overrides(arguments))
                         .addCommands(commands)
                         .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));

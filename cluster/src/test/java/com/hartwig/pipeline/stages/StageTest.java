@@ -71,8 +71,18 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void declaredExpectedCommands() {
-        assertThat(victim.tumorReferenceCommands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
-                expectedCommands()));
+        assertThat(victim.tumorReferenceCommands(input())
+                .stream()
+                .map(BashCommand::asBash)
+                .collect(Collectors.toList())).isEqualTo(commands(expectedCommands()));
+    }
+
+    @Test
+    public void declaredExpectedGermlineOnlyCommands() {
+        if (!expectedReferenceOnlyCommands().isEmpty()) {
+            assertThat(victim.referenceOnlyCommands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(
+                    commands(expectedReferenceOnlyCommands()));
+        }
     }
 
     @Test
@@ -162,6 +172,10 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected abstract String expectedRuntimeBucketName();
 
     protected abstract List<String> expectedCommands();
+
+    protected List<String> expectedReferenceOnlyCommands() {
+        return Collections.emptyList();
+    }
 
     protected abstract void validateOutput(final S output);
 
