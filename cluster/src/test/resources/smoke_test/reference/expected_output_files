@@ -63,6 +63,7 @@ linx_germline/run.log
 metadata.json
 pave_germline/COLO829v003R.sage.germline.filtered.pave.vcf.gz
 pave_germline/COLO829v003R.sage.germline.filtered.pave.vcf.gz.tbi
+pave_germline/run.log
 peach/COLO829v003R.peach.calls.tsv
 peach/COLO829v003R.peach.genotype.tsv
 peach/run.log

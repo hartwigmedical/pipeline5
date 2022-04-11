@@ -166,8 +166,10 @@ orange/COLO829v003T.orange.pdf
 orange/run.log
 pave_germline/COLO829v003T.sage.germline.filtered.pave.vcf.gz
 pave_germline/COLO829v003T.sage.germline.filtered.pave.vcf.gz.tbi
+pave_germline/run.log
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz.tbi
+pave_somatic/run.log
 peach/COLO829v003T.peach.calls.tsv
 peach/COLO829v003T.peach.genotype.tsv
 peach/run.log

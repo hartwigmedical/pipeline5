@@ -126,6 +126,7 @@ linx/run.log
 metadata.json
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz.tbi
+pave_somatic/run.log
 pipeline.version
 purple/COLO829v003T.driver.catalog.somatic.tsv
 purple/COLO829v003T.purple.cnv.gene.tsv
