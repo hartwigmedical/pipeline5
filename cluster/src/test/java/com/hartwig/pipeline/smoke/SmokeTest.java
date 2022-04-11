@@ -62,14 +62,13 @@ public class SmokeTest {
 
     @Test
     public void tumorOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus("tumor", PipelineStatus.SUCCESS);
+        runFullPipelineAndCheckFinalStatus("tumor", PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void referenceOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.SUCCESS);
+        runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.QC_FAILED);
     }
-
 
     @Ignore
     @Test
