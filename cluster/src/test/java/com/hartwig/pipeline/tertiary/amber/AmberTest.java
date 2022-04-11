@@ -32,7 +32,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.AMBER,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv")));
+                        new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv.gz")));
     }
 
     @Override
