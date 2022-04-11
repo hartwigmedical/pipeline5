@@ -1,16 +1,3 @@
-amber/COLO829v003R.amber.baf.tsv.gz
-amber/COLO829v003R.amber.homozygousregion.tsv
-amber/COLO829v003R.amber.qc
-amber/COLO829v003R.amber.snp.vcf.gz
-amber/COLO829v003R.amber.snp.vcf.gz.tbi
-amber/amber.version
-amber/run.log
-cobalt/COLO829v003R.cobalt.gc.median.tsv
-cobalt/COLO829v003R.cobalt.ratio.median.tsv
-cobalt/COLO829v003R.cobalt.ratio.pcf
-cobalt/COLO829v003R.cobalt.ratio.tsv.gz
-cobalt/cobalt.version
-cobalt/run.log
 COLO829v003R/aligner/NA-1/run.log
 COLO829v003R/aligner/NA-2/run.log
 COLO829v003R/aligner/NA-3/run.log
@@ -94,5 +81,7 @@ sage_germline/COLO829v003R.sage.germline.vcf.gz
 sage_germline/COLO829v003R.sage.germline.vcf.gz.tbi
 sage_germline/run.log
 sage_germline/run.sh
+health_checker/COLO829v003R.HealthCheckFailed
+health_checker/run.log
 metadata.json
 pipeline.version

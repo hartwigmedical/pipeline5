@@ -242,6 +242,8 @@ gripss_somatic/COLO829v003T.gripss.somatic.vcf.gz
 gripss_somatic/COLO829v003T.gripss.somatic.vcf.gz.tbi
 gripss_somatic/run.log
 gripss_somatic/run.sh
+health_checker/COLO829v003T.HealthCheckFailed
+health_checker/run.log
 virusbreakend/COLO829v003T.virus.annotated.tsv
 virusbreakend/COLO829v003T.virusbreakend.vcf
 virusbreakend/COLO829v003T.virusbreakend.vcf.summary.tsv
