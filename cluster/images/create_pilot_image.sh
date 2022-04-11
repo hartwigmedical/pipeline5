@@ -35,8 +35,8 @@ dest_image="${source_image}-$(date +%Y%m%d%H%M)-pilot"
 gcloud compute images describe $dest_image --project=$IMAGE_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $IMAGE_PROJECT!" && exit 1
 
-image_family="$(echo $json | jq -r '.family')"
-imager_vm="${image_family}-$(whoami)-pilot-imager"
+image_family="$(echo $json | jq -r '.family')-pilot"
+imager_vm="${image_family}-$(whoami)-imager"
 
 cat << EOM
 Ready to create VM [${imager_vm}] in project [${IMAGE_PROJECT}].
