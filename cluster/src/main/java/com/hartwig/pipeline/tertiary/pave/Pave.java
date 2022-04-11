@@ -83,6 +83,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeAnnotatedVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(vcfComponent(outputFile, bucket, resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), ResultsDirectory.defaultDirectory()))
                 .addDatatypes(new AddDatatype(vcfDatatype, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), outputFile)))
                 .build();
     }
