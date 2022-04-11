@@ -83,7 +83,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
         if (arguments.useTargetRegions()) {
             return List.of(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
                             resourceFiles.targetRegionsInterval(),
-                            resourceFiles.targetRegionsInterval()),
+                            resourceFiles.refGenomeFile()),
                     new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
                             resourceFiles.refGenomeFile(),
                             outputFile,

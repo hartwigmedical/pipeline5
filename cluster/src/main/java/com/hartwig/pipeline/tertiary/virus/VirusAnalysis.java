@@ -165,6 +165,6 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && arguments.targetRegionsDir().isEmpty();
+        return arguments.runTertiary() && !arguments.useTargetRegions();
     }
 }
