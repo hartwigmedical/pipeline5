@@ -131,7 +131,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.COBALT,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv")))
+                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv.gz")))
                 .build();
     }
 

@@ -128,7 +128,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.AMBER,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.sampleName()))))
+                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))))
                 .build();
     }
 
