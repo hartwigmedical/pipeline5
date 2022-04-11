@@ -48,12 +48,8 @@ public class InputDownload implements BashCommand {
         return format("gs://%s/%s", sourceLocation.bucket(), sourceLocation.path());
     }
 
-    public static Optional<InputDownload> initialiseMaybeLocationAsOptional(final Optional<GoogleStorageLocation> sourceLocation) {
-        return sourceLocation.isPresent() ? Optional.of(new InputDownload(sourceLocation.get())) : Optional.empty();
-    }
-
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static InputDownload initialiseOptionalLocation(final Optional<GoogleStorageLocation> sourceLocation) {
         return new InputDownload(sourceLocation.orElse(GoogleStorageLocation.empty()));
     }
-
 }

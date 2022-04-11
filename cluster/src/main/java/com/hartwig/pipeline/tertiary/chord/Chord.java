@@ -16,7 +16,6 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -39,17 +38,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleSomaticVcfDownload;
     private final PersistedDataset persistedDataset;
-    private final ResourceFiles resourceFiles;
 
-    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset,
-            final ResourceFiles resourceFiles) {
+    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
         this.refGenomeVersion = refGenomeVersion;
-
-        purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
-        purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
-
+        this.purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
+        this.purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
         this.persistedDataset = persistedDataset;
-        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -63,8 +57,16 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return chordCommands(metadata);
+    }
 
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return chordCommands(metadata);
+    }
+
+    public List<BashCommand> chordCommands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
                 purpleSomaticVcfDownload.getLocalTargetPath(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),
