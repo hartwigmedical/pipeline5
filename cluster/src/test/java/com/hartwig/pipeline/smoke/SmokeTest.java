@@ -101,7 +101,7 @@ public class SmokeTest {
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .context(Context.DIAGNOSTIC)
-                .useTargetRegions(true)
+                .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion);
 
         if (whoami.equals("root")) {
