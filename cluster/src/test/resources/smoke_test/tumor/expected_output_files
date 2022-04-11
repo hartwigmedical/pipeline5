@@ -123,6 +123,10 @@ linx/plot/COLO829v003T.cluster1.DEL.sv1.003.png
 linx/run.log
 metadata.json
 pipeline.version
+virusbreakend/COLO829v003T.virus.annotated.tsv
+virusbreakend/COLO829v003T.virusbreakend.vcf
+virusbreakend/COLO829v003T.virusbreakend.vcf.summary.tsv
+virusbreakend/run.log
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz
 pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz.tbi
 purple/COLO829v003T.driver.catalog.somatic.tsv

@@ -70,7 +70,16 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return virusAnalysisCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return virusAnalysisCommands(metadata);
+    }
+
+    public List<BashCommand> virusAnalysisCommands(final SomaticRunMetadata metadata) {
         String tumorSample = metadata.tumor().sampleName();
         return new VirusBreakend(tumorSample, getTumorBamDownload().getLocalTargetPath(), resourceFiles).andThen(new VirusInterpreter(
                 tumorSample,
@@ -156,6 +165,6 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary();
+        return arguments.runTertiary() && arguments.targetRegionsBedLocation().isEmpty();
     }
 }
