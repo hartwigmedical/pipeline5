@@ -22,6 +22,8 @@ import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
 import java.util.Optional;
 
+import org.jetbrains.annotations.NotNull;
+
 public class RefGenome37ResourceFiles implements ResourceFiles {
 
     private static final String REF_GENOME_FASTA_37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
@@ -112,13 +114,19 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String germlinePon() { return formPath(SAGE, "SageGermlinePon.1000x.37.tsv.gz"); }
+    public String germlinePon() {
+        return formPath(SAGE, "SageGermlinePon.1000x.37.tsv.gz");
+    }
 
     @Override
-    public String somaticPonArtefacts() { return formPath(SAGE, "PanelArtefacts.37.tsv"); }
+    public String somaticPonArtefacts() {
+        return formPath(SAGE, "PanelArtefacts.37.tsv");
+    }
 
     @Override
-    public String gnomadPonCache() { return formPath(GNOMAD, ""); }
+    public String gnomadPonCache() {
+        return formPath(GNOMAD, "");
+    }
 
     @Override
     public String giabHighConfidenceBed() {
@@ -198,5 +206,29 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String purpleCohortGermlineDeletions() {
         return formPath(PURPLE, "cohort_germline_del_freq.37.csv");
+    }
+
+    @Override
+    public String targetRegionsBed() {
+        throw targetRegionsNotSupported();
+    }
+
+    @Override
+    public String targetRegionsNormalisation() {
+        throw targetRegionsNotSupported();
+    }
+
+    @Override
+    public String targetRegionsRatios() {
+        throw targetRegionsNotSupported();
+    }
+
+    @Override
+    public String targetRegionsMsiIndels() {
+        throw targetRegionsNotSupported();
+    }
+
+    private static UnsupportedOperationException targetRegionsNotSupported() {
+        return new UnsupportedOperationException("Target regions are not supported in HG37");
     }
 }

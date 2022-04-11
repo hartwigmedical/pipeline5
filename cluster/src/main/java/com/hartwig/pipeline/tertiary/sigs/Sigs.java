@@ -56,19 +56,21 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return Stage.disabled();
+    }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
-
-        if(resourceFiles.targetRegionsEnabled())
-            return Stage.disabled();
-
         return List.of(new JavaJarCommand("sigs",
                 Versions.SIGS,
                 "sigs.jar",
@@ -119,6 +121,6 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary();
+        return !arguments.shallow() && arguments.runTertiary() && !arguments.useTargetRegions();
     }
 }

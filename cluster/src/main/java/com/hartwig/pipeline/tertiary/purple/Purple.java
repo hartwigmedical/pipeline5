@@ -2,10 +2,6 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.metadata.InputMode.REFERENCE_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +20,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -65,11 +60,11 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload amberOutputDownload;
     private final InputDownload cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
-    private final boolean shallow;
+    private final Arguments arguments;
 
     public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
             final GripssOutput gripssOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
-            final PersistedDataset persistedDataset, final boolean shallow) {
+            final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
         this.germlineVariantsDownload = new InputDownload(paveGermlineOutput.annotatedVariants());
@@ -80,7 +75,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
-        this.shallow = shallow;
+        this.arguments = arguments;
     }
 
     @Override
@@ -90,45 +85,45 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = new ArrayList<>();
-        arguments.addAll(PurpleArguments.addCommonArguments(amberOutputDownload.getLocalTargetPath(),
+        List<String> purpleArguments = new ArrayList<>();
+        purpleArguments.addAll(PurpleArguments.addCommonArguments(amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
-        arguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
+        purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVariantsDownload.getLocalTargetPath(),
                 structuralVariantsDownload.getLocalTargetPath(),
                 svRecoveryVariantsDownload.getLocalTargetPath(),
                 resourceFiles));
-        arguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
+        purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
                 germlineVariantsDownload.getLocalTargetPath(),
                 resourceFiles));
-        if (resourceFiles.targetRegionsEnabled()) {
-            arguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
+        if (arguments.useTargetRegions()) {
+            purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
-        if (shallow) {
-            PurpleArguments.addShallowArguments(arguments);
+        if (arguments.shallow()) {
+            PurpleArguments.addShallowArguments(purpleArguments);
         }
-        return buildCommand(arguments);
+        return buildCommand(purpleArguments);
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = new ArrayList<>();
-        arguments.addAll(PurpleArguments.addCommonArguments(amberOutputDownload.getLocalTargetPath(),
+        List<String> purpleArguments = new ArrayList<>();
+        purpleArguments.addAll(PurpleArguments.addCommonArguments(amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
-        arguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
+        purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVariantsDownload.getLocalTargetPath(),
                 structuralVariantsDownload.getLocalTargetPath(),
                 svRecoveryVariantsDownload.getLocalTargetPath(),
                 resourceFiles));
-        if (resourceFiles.targetRegionsEnabled()) {
-            arguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
+        if (arguments.useTargetRegions()) {
+            purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
-        if (shallow) {
-            PurpleArguments.addShallowArguments(arguments);
+        if (arguments.shallow()) {
+            PurpleArguments.addShallowArguments(purpleArguments);
         }
-        return buildCommand(arguments);
+        return buildCommand(purpleArguments);
     }
 
     @Override

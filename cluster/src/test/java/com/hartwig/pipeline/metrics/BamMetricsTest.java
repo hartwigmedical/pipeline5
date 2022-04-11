@@ -40,7 +40,10 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
+        return new BamMetrics(TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                TestInputs.referenceAlignmentOutput(),
+                persistedDataset,
+                Arguments.testDefaults());
     }
 
     @Override
@@ -71,21 +74,22 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Test
     public void usesIntervalsInMetricsWhenTargetRegionsEnabled() {
         ResourceFiles resourceFiles = TestInputs.REF_GENOME_38_RESOURCE_FILES;
-        resourceFiles.setTargetRegionsDir("/opt/resources/target_regions/38/");
-
-        BamMetrics victim = new BamMetrics(resourceFiles, TestInputs.tumorAlignmentOutput(), persistedDataset);
+        BamMetrics victim = new BamMetrics(resourceFiles,
+                TestInputs.tumorAlignmentOutput(),
+                persistedDataset,
+                Arguments.testDefaultsBuilder().useTargetRegions(true).build());
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
                 "java -Xmx1G -cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine "
                         + "BedToIntervalList SORT=true SEQUENCE_DICTIONARY=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.dict "
-                        + "INPUT=/opt/resources/target_regions/38//target_regions_definition.38.bed "
-                        + "OUTPUT=/opt/resources/target_regions/38//target_regions_definition.38.interval_list");
+                        + "INPUT=/opt/resources/target_regions/38/target_regions_definition.38.bed "
+                        + "OUTPUT=/opt/resources/target_regions/38/target_regions_definition.38.interval_list");
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(1).asBash()).isEqualTo(
                 "java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 "
                         + "-cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectWgsMetrics "
                         + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
                         + "INPUT=/data/input/tumor.bam OUTPUT=/data/output/tumor.wgsmetrics "
                         + "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 "
-                        + "INTERVALS=/opt/resources/target_regions/38//target_regions_definition.38.interval_list");
+                        + "INTERVALS=/opt/resources/target_regions/38/target_regions_definition.38.interval_list");
     }
 
     @Override

@@ -22,8 +22,6 @@ import java.util.Optional;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
-    private String targetRegionsDir = null;
-
     public RefGenomeVersion version() {
         return RefGenomeVersion.V38;
     }
@@ -109,13 +107,19 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String germlinePon() { return formPath(SAGE, "SageGermlinePon.98x.38.tsv.gz"); }
+    public String germlinePon() {
+        return formPath(SAGE, "SageGermlinePon.98x.38.tsv.gz");
+    }
 
     @Override
-    public String somaticPonArtefacts() { return formPath(SAGE, "PanelArtefacts.38.tsv"); }
+    public String somaticPonArtefacts() {
+        return formPath(SAGE, "PanelArtefacts.38.tsv");
+    }
 
     @Override
-    public String gnomadPonCache() { return formPath(GNOMAD, ""); }
+    public String gnomadPonCache() {
+        return formPath(GNOMAD, "");
+    }
 
     @Override
     public String giabHighConfidenceBed() {
@@ -199,50 +203,27 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public void setTargetRegionsDir(final String targetRegionsDir) {
-        this.targetRegionsDir = targetRegionsDir;
+    public String targetRegionsBed() {
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_definition.38.bed");
     }
 
     @Override
-    public boolean targetRegionsEnabled() { return targetRegionsDir != null; }
-
-    @Override
-    public Optional<String> targetRegionsBed() {
-        if(targetRegionsDir == null)
-            return Optional.empty();
-
-        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.bed"));
+    public String targetRegionsNormalisation() {
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_normalisation.38.tsv");
     }
 
     @Override
-    public Optional<String> targetRegionsNormalisation() {
-        if(targetRegionsDir == null)
-            return Optional.empty();
-
-        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_normalisation.38.tsv"));
+    public String targetRegionsRatios() {
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_ratios.38.csv");
     }
 
     @Override
-    public Optional<String> targetRegionsRatios() {
-        if(targetRegionsDir == null)
-            return Optional.empty();
-
-        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_ratios.38.csv"));
+    public String targetRegionsInterval() {
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_definition.38.interval_list");
     }
 
     @Override
-    public Optional<String> targetRegionsInterval() {
-        if(targetRegionsDir == null)
-            return Optional.empty();
-
-        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.interval_list"));
-    }
-
-    @Override
-    public Optional<String> targetRegionsMsiIndels() {
-        if(targetRegionsDir == null)
-            return Optional.empty();
-
-        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_msi_indels.38.tsv"));
+    public String targetRegionsMsiIndels() {
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_msi_indels.38.tsv");
     }
 }

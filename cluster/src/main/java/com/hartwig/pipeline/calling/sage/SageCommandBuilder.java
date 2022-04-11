@@ -27,6 +27,7 @@ public class SageCommandBuilder {
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
+    private boolean targetRegions = false;
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -62,6 +63,11 @@ public class SageCommandBuilder {
 
     public SageCommandBuilder shallowMode(final boolean enabled) {
         this.shallowSomaticMode = enabled;
+        return this;
+    }
+
+    public SageCommandBuilder targetRegionsMode(final boolean enabled) {
+        this.targetRegions = enabled;
         return this;
     }
 
@@ -134,8 +140,7 @@ public class SageCommandBuilder {
             }
         }
 
-        if(resourceFiles.targetRegionsBed().isPresent())
-        {
+        if (targetRegions) {
             arguments.add("-hotspot_min_tumor_qual 100");
             arguments.add("-panel_min_tumor_qual 200");
             arguments.add("-high_confidence_min_tumor_qual 200");

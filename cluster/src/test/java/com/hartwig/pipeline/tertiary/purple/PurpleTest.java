@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -48,7 +49,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
-                false);
+                Arguments.testDefaults());
     }
 
     @Override
@@ -101,7 +102,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),
-                true);
+                Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains(
                 "-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
     }

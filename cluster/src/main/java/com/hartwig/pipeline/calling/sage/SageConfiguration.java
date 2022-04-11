@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.sage;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -62,7 +63,7 @@ public interface SageConfiguration {
                 .build();
     }
 
-    static SageConfiguration somatic(final ResourceFiles resourceFiles, final boolean shallow) {
+    static SageConfiguration somatic(final ResourceFiles resourceFiles, final Arguments arguments) {
         return ImmutableSageConfiguration.builder()
                 .namespace(SAGE_SOMATIC_NAMESPACE)
                 .vcfDatatype(DataType.SOMATIC_VARIANTS_SAGE)
@@ -75,7 +76,9 @@ public interface SageConfiguration {
                         FileTypes.GZIPPED_VCF))
                 .unfilteredTemplate(m -> String.format("%s.%s.%s", m.tumor().sampleName(), "sage.somatic", FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
-                .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(shallow).addCoverage())
+                .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
+                        .targetRegionsMode(arguments.useTargetRegions())
+                        .addCoverage())
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName()))
                 .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
                 .build();

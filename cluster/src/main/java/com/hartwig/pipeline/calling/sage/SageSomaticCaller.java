@@ -2,6 +2,7 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -13,8 +14,8 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 public class SageSomaticCaller extends SageCaller {
 
     public SageSomaticCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-            final boolean isShallow) {
-        super(alignmentPair, persistedDataset, SageConfiguration.somatic(resourceFiles, isShallow));
+            final Arguments arguments) {
+        super(alignmentPair, persistedDataset, SageConfiguration.somatic(resourceFiles, arguments));
     }
 
     @Override

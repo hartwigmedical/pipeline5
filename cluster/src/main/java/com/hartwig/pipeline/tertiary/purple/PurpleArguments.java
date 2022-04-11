@@ -38,9 +38,9 @@ final class PurpleArguments {
 
 
     public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
-        return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed().orElseThrow()),
-                format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios().orElseThrow()),
-                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels().orElseThrow()),
+        return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()),
+                format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios()),
+                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()),
                 "-min_diploid_tumor_ratio_count 0",
                 "-min_diploid_tumor_ratio_count_centromere 0");
     }

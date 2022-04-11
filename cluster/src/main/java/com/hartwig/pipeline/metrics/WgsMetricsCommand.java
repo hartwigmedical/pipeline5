@@ -7,6 +7,11 @@ import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class WgsMetricsCommand extends JavaClassCommand {
+
+    WgsMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile) {
+        this(inputBam, referenceFasta, outputFile, Optional.empty());
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     WgsMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile, final Optional<String> maybeIntervals) {
         super("gridss",

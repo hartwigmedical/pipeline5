@@ -73,7 +73,7 @@ public class SingleSamplePipeline {
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new BamMetrics(resourceFiles, alignmentOutput, persistedDataset)));
+                    new BamMetrics(resourceFiles, alignmentOutput, persistedDataset, arguments)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
