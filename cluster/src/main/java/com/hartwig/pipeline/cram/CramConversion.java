@@ -57,7 +57,21 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return cramCommands();
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return cramCommands();
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return cramCommands();
+    }
+
+    public List<BashCommand> cramCommands() {
         return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram, resourceFiles).commands();
     }
 

@@ -79,7 +79,16 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return germlineCallerCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return germlineCallerCommands(metadata);
+    }
+
+    public List<BashCommand> germlineCallerCommands(final SingleSampleRunMetadata metadata) {
 
         String referenceFasta = resourceFiles.refGenomeFile();
 

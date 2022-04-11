@@ -19,7 +19,7 @@ class LinxVisualisationsCommand extends JavaClassCommand {
                 "-sample",
                 sample,
                 "-ref_genome_version",
-                refGenomeVersion.linx(),
+                refGenomeVersion.toString(),
                 "-circos",
                 CIRCOS_PATH,
                 "-vis_file_dir",

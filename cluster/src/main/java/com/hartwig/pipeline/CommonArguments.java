@@ -77,7 +77,9 @@ public interface CommonArguments {
 
     Optional<String> userLabel();
 
-    Optional<String> targetRegionsBedLocation();
+    Optional<String> targetRegionsDir();
+
+    boolean useTargetRegions();
 
     static Optional<String> privateKey(final CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

@@ -21,6 +21,7 @@ sudo /root/.pyenv/bin/pyenv install 3.6.10
 sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
 sudo chmod a+x /tmp/mk_python_venv
 sudo /tmp/mk_python_venv peach 1.5 3.6.10
+sudo /tmp/mk_python_venv peach 1.6 3.6.10
 sudo mkdir -p /opt/tools/cuppa-chart/1.4
 sudo unzip /opt/tools/cuppa/1.4/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.4
 sudo mv /tmp/cuppa-chart-1.4/cuppa-chart/* /opt/tools/cuppa-chart/1.4/
@@ -53,7 +54,6 @@ sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
-sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba

@@ -17,7 +17,8 @@ import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.metadata.ModeAwareMetadataApi;
+import com.hartwig.pipeline.metadata.InputMode;
+import com.hartwig.pipeline.metadata.ModeResolver;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -56,12 +57,12 @@ public class PipelineMain {
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineComplete.TOPIC);
-            SomaticMetadataApi somaticMetadataApi =
-                    ModeAwareMetadataApi.of(SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get());
+            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
-            boolean isSingleSample = somaticRunMetadata.isSingleSample();
+            InputMode mode = new ModeResolver().apply(somaticRunMetadata);
+            LOGGER.info("Starting pipeline in [{}] mode", mode);
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
@@ -90,21 +91,25 @@ public class PipelineMain {
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,
-                    referenceEventListener, somaticRunMetadata,
+                    referenceEventListener,
+                    somaticRunMetadata,
                     referenceBamMetricsOutputQueue,
                     germlineCallerOutputQueue,
                     referenceFlagstatOutputQueue,
                     startingPoint,
-                    persistedDataset),
+                    persistedDataset,
+                    mode),
                     singleSamplePipeline(arguments,
                             credentials,
                             storage,
-                            tumorEventListener, somaticRunMetadata,
+                            tumorEventListener,
+                            somaticRunMetadata,
                             tumorBamMetricsOutputQueue,
                             germlineCallerOutputQueue,
                             tumorFlagstatOutputQueue,
                             startingPoint,
-                            persistedDataset),
+                            persistedDataset,
+                            mode),
                     somaticPipeline(arguments,
                             credentials,
                             storage,
@@ -114,7 +119,8 @@ public class PipelineMain {
                             referenceFlagstatOutputQueue,
                             tumorFlagstatOutputQueue,
                             startingPoint,
-                            persistedDataset),
+                            persistedDataset,
+                            mode),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
@@ -147,7 +153,7 @@ public class PipelineMain {
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset) throws Exception {
+            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
@@ -155,7 +161,8 @@ public class PipelineMain {
                         GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
-                        labels),
+                        labels,
+                        mode),
                 referenceBamMetricsOutputQueue,
                 tumourBamMetricsOutputQueue,
                 referenceFlagstatOutputQueue,
@@ -163,13 +170,14 @@ public class PipelineMain {
                 metadata,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
-                persistedDataset);
+                persistedDataset, mode);
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener, final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset) throws Exception {
+            final Storage storage, final SingleSampleEventListener eventListener, final SomaticRunMetadata metadata,
+            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
+            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
@@ -177,10 +185,12 @@ public class PipelineMain {
                         GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
-                        labels),
+                        labels,
+                        mode),
                 AlignerProvider.from(credentials, storage, arguments, labels).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                Executors.newCachedThreadPool(), arguments,
+                Executors.newCachedThreadPool(),
+                arguments,
                 persistedDataset,
                 metricsOutputQueue,
                 flagstatOutputQueue,

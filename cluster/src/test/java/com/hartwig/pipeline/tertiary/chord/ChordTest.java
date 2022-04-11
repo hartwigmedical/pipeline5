@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.REF_GENOME_37_RESOURCE_FILES;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
-        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput(), persistedDataset);
+        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput(), persistedDataset, REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override

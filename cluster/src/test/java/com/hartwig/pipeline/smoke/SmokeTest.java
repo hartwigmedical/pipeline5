@@ -70,6 +70,7 @@ public class SmokeTest {
         runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.SUCCESS);
     }
 
+
     @Ignore
     @Test
     public void tumorOnlyWithTargetedRegions() throws Exception {
@@ -100,7 +101,7 @@ public class SmokeTest {
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .context(Context.DIAGNOSTIC)
-                .targetRegionsBedLocation(targetedRegionsBed)
+                .useTargetRegions(true)
                 .refGenomeVersion(refGenomeVersion);
 
         if (whoami.equals("root")) {
