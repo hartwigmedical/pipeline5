@@ -2,6 +2,8 @@ package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class InputDownload implements BashCommand {
@@ -45,4 +47,13 @@ public class InputDownload implements BashCommand {
     String getRemoteSourcePath() {
         return format("gs://%s/%s", sourceLocation.bucket(), sourceLocation.path());
     }
+
+    public static Optional<InputDownload> initialiseMaybeLocationAsOptional(final Optional<GoogleStorageLocation> sourceLocation) {
+        return sourceLocation.isPresent() ? Optional.of(new InputDownload(sourceLocation.get())) : Optional.empty();
+    }
+
+    public static InputDownload initialiseOptionalLocation(final Optional<GoogleStorageLocation> sourceLocation) {
+        return new InputDownload(sourceLocation.orElse(GoogleStorageLocation.empty()));
+    }
+
 }

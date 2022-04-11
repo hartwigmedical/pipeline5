@@ -1,11 +1,11 @@
 QCStatus	PASS
 Method	NORMAL
-CopyNumberSegments	46
+CopyNumberSegments	48
 UnsupportedCopyNumberSegments	0
-Purity	0.9900
+Purity	1.0000
 AmberGender	MALE
 CobaltGender	MALE
-DeletedGenes	2
+DeletedGenes	0
 Contamination	0.0
 GermlineAberrations	NONE
 AmberMeanDepth	129

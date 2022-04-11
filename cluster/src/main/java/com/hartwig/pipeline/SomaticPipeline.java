@@ -19,6 +19,7 @@ import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
@@ -74,13 +75,14 @@ public class SomaticPipeline {
     private final PipelineResults pipelineResults;
     private final ExecutorService executorService;
     private final PersistedDataset persistedDataset;
+    private final InputMode mode;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final SomaticRunMetadata metadata, final PipelineResults pipelineResults, final ExecutorService executorService,
-            final PersistedDataset persistedDataset) {
+            final PersistedDataset persistedDataset, final InputMode mode) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
@@ -91,9 +93,10 @@ public class SomaticPipeline {
         this.pipelineResults = pipelineResults;
         this.executorService = executorService;
         this.persistedDataset = persistedDataset;
+        this.mode = mode;
     }
 
-    public PipelineState run(AlignmentPair pair) {
+    public PipelineState run(final AlignmentPair pair) {
         PipelineState state = new PipelineState();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 
@@ -140,7 +143,7 @@ public class SomaticPipeline {
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
-                                    gripssSomaticProcessOutput,
+                                    mode == InputMode.TUMOR_REFERENCE || mode == InputMode.TUMOR_ONLY ? gripssSomaticProcessOutput : gripssGermlineProcessOutput,
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
@@ -176,7 +179,7 @@ public class SomaticPipeline {
                         Future<SigsOutput> signatureOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
+                                new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset, resourceFiles)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = pipelineResults.add(state.add(linxSomaticOutputFuture.get()));
                         pipelineResults.add(state.add(linxGermlineOutputFuture.get()));

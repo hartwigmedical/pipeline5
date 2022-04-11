@@ -1,12 +1,9 @@
 amber/amber.version
-amber/Amber.snpcheck.37.vcf
 amber/COLO829v003R.amber.snp.vcf.gz
 amber/COLO829v003R.amber.snp.vcf.gz.tbi
 amber/COLO829v003R.amber.homozygousregion.tsv
 amber/COLO829v003T.amber.baf.pcf
-amber/COLO829v003T.amber.baf.tsv
-amber/COLO829v003T.amber.baf.vcf.gz
-amber/COLO829v003T.amber.baf.vcf.gz.tbi
+amber/COLO829v003T.amber.baf.tsv.gz
 amber/COLO829v003T.amber.contamination.tsv
 amber/COLO829v003T.amber.contamination.vcf.gz
 amber/COLO829v003T.amber.contamination.vcf.gz.tbi
@@ -19,10 +16,9 @@ cobalt/cobalt.version
 cobalt/COLO829v003R.cobalt.gc.median.tsv
 cobalt/COLO829v003R.cobalt.ratio.median.tsv
 cobalt/COLO829v003R.cobalt.ratio.pcf
-cobalt/COLO829v003T.chr.len
 cobalt/COLO829v003T.cobalt.gc.median.tsv
 cobalt/COLO829v003T.cobalt.ratio.pcf
-cobalt/COLO829v003T.cobalt.ratio.tsv
+cobalt/COLO829v003T.cobalt.ratio.tsv.gz
 cobalt/run.log
 COLO829v003R/cram/COLO829v003R.cram
 COLO829v003R/cram/COLO829v003R.cram.crai
@@ -44,8 +40,6 @@ COLO829v003R/bam_metrics/run.sh
 COLO829v003R/flagstat/COLO829v003R.flagstat
 COLO829v003R/flagstat/run.log
 COLO829v003R/flagstat/run.sh
-COLO829v003R/metadata.json
-COLO829v003R/pipeline.version
 COLO829v003R/snp_genotype/run.log
 COLO829v003R/snp_genotype/run.sh
 COLO829v003R/snp_genotype/snp_genotype_output.vcf
@@ -59,8 +53,6 @@ COLO829v003T/bam_metrics/run.sh
 COLO829v003T/flagstat/COLO829v003T.flagstat
 COLO829v003T/flagstat/run.log
 COLO829v003T/flagstat/run.sh
-COLO829v003T/metadata.json
-COLO829v003T/pipeline.version
 COLO829v003T/snp_genotype/run.log
 COLO829v003T/snp_genotype/run.sh
 COLO829v003T/snp_genotype/snp_genotype_output.vcf

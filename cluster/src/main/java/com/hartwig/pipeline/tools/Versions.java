@@ -11,21 +11,21 @@ import org.slf4j.LoggerFactory;
 public interface Versions {
 
     // HMF tools
-    String AMBER = "3.6";
+    String AMBER = "3.9";
     String CHORD = "2.00_1.14";
-    String COBALT = "1.11";
+    String COBALT = "1.13";
     String CUPPA = "1.6";
     String GRIDSS = "2.13.2";
-    String GRIPSS = "2.0";
+    String GRIPSS = "2.1";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.1";
-    String LINX = "1.18";
+    String LINX = "1.19";
     String ORANGE = "1.6";
-    String PAVE = "1.1";
-    String PEACH = "1.5";
+    String PAVE = "1.2";
+    String PEACH = "1.6";
     String PROTECT = "2.0";
-    String PURPLE = "3.3";
-    String SAGE = "2.8";
+    String PURPLE = "3.4";
+    String SAGE = "3.0";
     String SIGS = "1.0";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";

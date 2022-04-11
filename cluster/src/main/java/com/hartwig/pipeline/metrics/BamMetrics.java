@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -60,7 +59,21 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
         return Stream.concat(resourceFiles.targetRegionsBed()
                         .stream()
                         .map(r -> new BedToIntervalsCommand(r, resourceFiles.targetRegionsInterval().orElseThrow(), resourceFiles.refGenomeFile())),

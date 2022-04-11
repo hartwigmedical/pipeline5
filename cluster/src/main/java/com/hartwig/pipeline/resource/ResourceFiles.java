@@ -37,8 +37,6 @@ public interface ResourceFiles {
 
     String amberHeterozygousLoci();
 
-    String amberSnpcheck();
-
     String sageSomaticHotspots();
 
     String sageSomaticCodingPanel();
@@ -51,19 +49,21 @@ public interface ResourceFiles {
 
     String sageGermlineSlicePanel();
 
-    String sageGermlineBlacklistVcf();
+    String germlineBlacklistVcf();
 
-    String sageGermlineBlacklistBed();
+    String germlineBlacklistBed();
 
     String clinvarVcf();
 
-    String out150Mappability();
-
-    default String mappabilityHDR() {
-        return of(MAPPABILITY, "mappability.hdr");
-    }
+    String mappabilityBed();
 
     String sageGermlinePon();
+
+    String germlinePon();
+
+    String somaticPonArtefacts();
+
+    String gnomadPonCache();
 
     String giabHighConfidenceBed();
 
@@ -73,9 +73,7 @@ public interface ResourceFiles {
 
     String gridssRepeatMaskerDb();
 
-    default String gridssRepeatMaskerDbBed() {
-        return gridssRepeatMaskerDb() + ".bed";
-    }
+    default String gridssRepeatMaskerDbBed() { return gridssRepeatMaskerDb() + ".bed"; }
 
     default String gridssVirusRefGenomeFile() {
         return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
@@ -83,9 +81,9 @@ public interface ResourceFiles {
 
     String gridssBlacklistBed();
 
-    String gridssBreakendPon();
+    String svBreakendPon();
 
-    String gridssBreakpointPon();
+    String svBreakpointPon();
 
     String fragileSites();
 
@@ -109,12 +107,21 @@ public interface ResourceFiles {
 
     String purpleCohortGermlineDeletions();
 
-    default Optional<String> targetRegionsBed() {
-        return Optional.empty();
-    }
+    default void setTargetRegionsDir(final String targetRegionsDir) {}
+
+    default boolean targetRegionsEnabled() { return false; }
+
+    default Optional<String> targetRegionsBed() { return Optional.empty(); }
+
+    default Optional<String> targetRegionsNormalisation() { return Optional.empty(); }
+
+    default Optional<String> targetRegionsRatios() { return Optional.empty(); }
+
+    default Optional<String> targetRegionsMsiIndels() { return Optional.empty(); }
 
     default Optional<String> targetRegionsInterval() {
-        return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+        // return targetRegionsBed().map(r -> r.replace("bed", "intervals_list"));
+        return Optional.empty();
     }
 
     default String cuppaRefData() {
@@ -145,9 +152,7 @@ public interface ResourceFiles {
         return of(ORANGE, "cohort_percentiles.tsv");
     }
 
-    default String lilacResources() {
-        return of(LILAC);
-    }
+    default String lilacResources() { return of(LILAC); }
 
     default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
