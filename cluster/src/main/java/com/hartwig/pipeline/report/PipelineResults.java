@@ -15,6 +15,7 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
@@ -24,19 +25,16 @@ import org.slf4j.LoggerFactory;
 public class PipelineResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
-    public static final String STAGING_COMPLETE = "STAGED";
 
     private final String version;
     private final Storage storage;
     private final Bucket reportBucket;
-    private final Arguments arguments;
     private final List<ReportComponent> components = new ArrayList<>();
 
-    PipelineResults(final String version, final Storage storage, final Bucket reportBucket, final Arguments arguments) {
+    PipelineResults(final String version, final Storage storage, final Bucket reportBucket) {
         this.version = version;
         this.storage = storage;
         this.reportBucket = reportBucket;
-        this.arguments = arguments;
     }
 
     public <T extends StageOutput> T add(T stageOutput) {
@@ -46,22 +44,11 @@ public class PipelineResults {
         return stageOutput;
     }
 
-    public void compose(SomaticRunMetadata metadata) {
+    public void compose(final RunMetadata metadata) {
         String name = metadata.set();
         Folder folder = Folder.root();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
-        writeComplete(name);
-    }
-
-    public void compose(SingleSampleRunMetadata metadata,  Boolean isSingleSample, PipelineState state) {
-        String name = RunTag.apply(arguments, metadata.barcode());
-        if (state.shouldProceed()) {
-            Folder folder = isSingleSample ? Folder.root() : Folder.from(metadata);
-            writeMetadata(metadata, name, folder);
-            compose(name, folder);
-        }
-        writeComplete(name);
     }
 
     private void compose(String name, Folder folder) {
@@ -90,19 +77,7 @@ public class PipelineResults {
         }
     }
 
-    private void writeComplete(final String name) {
-        reportBucket.create(String.format("%s/%s", name, STAGING_COMPLETE), new byte[] {});
-    }
-
     private String path(final String name, final Folder folder, final String fileName) {
         return String.format("%s/%s%s", name, folder.name(), fileName);
-    }
-
-    public void clearOldState(final Arguments arguments, final SingleSampleRunMetadata metadata) {
-        String name = RunTag.apply(arguments, metadata.barcode());
-        boolean deleted = storage.delete(reportBucket.getName(), format("%s/%s", name, STAGING_COMPLETE));
-        if (deleted) {
-            LOGGER.info("Deleted existing staging complete flag");
-        }
     }
 }

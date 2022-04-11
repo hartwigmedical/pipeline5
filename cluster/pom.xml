@@ -139,10 +139,10 @@
 
     <profiles>
         <profile>
-            <id>docker</id>
+            <id>release</id>
             <activation>
                 <property>
-                    <name>!skipDocker</name>
+                    <name>release</name>
                 </property>
             </activation>
             <build>

@@ -42,14 +42,14 @@ public class PipelineResultsTest {
         storage = mock(Storage.class);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
-        victim = new PipelineResults("test", storage, outputBucket, Arguments.testDefaultsBuilder().runId("tag").build());
+        victim = new PipelineResults("test", storage, outputBucket);
     }
 
     @Test
     public void composesAllAddedComponents() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
                 (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata(), false, success());
+        victim.compose(TestInputs.referenceRunMetadata());
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
@@ -59,53 +59,16 @@ public class PipelineResultsTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata(), false, success());
-    }
-
-    @Test
-    public void copiesMetadataRunVersionAndCompletionToRootOfSingleSampleFolderWhenNotRunStandalone() {
-        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        victim.compose(TestInputs.referenceRunMetadata(), false, success());
-        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
-        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
-        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
-        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
-    }
-
-    @Test
-    public void copiesMetadataVersionAndCompletionToRootOfBucketSingleSampleWhenRunStandalone() {
-        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        victim.compose(TestInputs.referenceRunMetadata(), true, success());
-        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
-        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/metadata.json");
-        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/pipeline.version");
-        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
+        victim.compose(TestInputs.referenceRunMetadata());
     }
 
     @Test
     public void copiesMetadataRunVersionAndCompletionToRootOfBucketSomatic() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("set/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("set/pipeline.version");
-        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("set/STAGED");
-    }
-
-    @Test
-    public void onlyWritesStagedFileWhenPipelineFailsSingleSample() {
-        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        PipelineState state = new PipelineState();
-        state.add(BamMetricsOutput.builder().sample("reference").status(PipelineStatus.FAILED).build());
-        victim.compose(TestInputs.referenceRunMetadata(), false, state);
-        verify(outputBucket, times(1)).create(createBlobCaptor.capture(), (byte[]) any());
-        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/STAGED");
-    }
-
-    @Test
-    public void initialisationClearsOutStagedFlag() {
-        victim.clearOldState(Arguments.testDefaults(), TestInputs.referenceRunMetadata());
-        verify(storage).delete(outputBucket.getName(), "reference-test/STAGED");
     }
 
     @NotNull

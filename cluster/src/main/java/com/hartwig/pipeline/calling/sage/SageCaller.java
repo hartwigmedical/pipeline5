@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.sage;
 
 import static java.lang.String.format;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -35,8 +33,8 @@ public class SageCaller extends TertiaryStage<SageOutput> {
     public static final String SAGE_GENE_COVERAGE_TSV = "sage.gene.coverage.tsv";
     public static final String SAGE_BQR_PNG = "sage.bqr.png";
 
-    private final PersistedDataset persistedDataset;
-    private final SageConfiguration sageConfiguration;
+    protected final PersistedDataset persistedDataset;
+    protected final SageConfiguration sageConfiguration;
 
     public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,
             final SageConfiguration sageConfiguration) {
@@ -77,24 +75,24 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
         final String unfilteredOutputFile = sageConfiguration.unfilteredTemplate().apply(metadata);
         final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
-        final Optional<String> somaticRefSampleBqrPlot = somaticRefSampleBqrPlot(metadata);
-        final Optional<String> somaticTumorSampleBqrPlot = somaticTumorSampleBqrPlot(metadata);
+        final Optional<String> somaticRefSampleBqrPlot = referenceSampleBqrPlot(metadata);
+        final Optional<String> somaticTumorSampleBqrPlot = tumorSampleBqrPlot(metadata);
         final ImmutableSageOutput.Builder builder = SageOutput.builder(namespace()).status(jobStatus);
         somaticRefSampleBqrPlot.ifPresent(s -> builder.maybeSomaticRefSampleBqrPlot(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(s)))
-                .addReportComponents(bqrComponent(metadata.reference(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory)));
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.reference().sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.reference().sampleName())));
         somaticTumorSampleBqrPlot.ifPresent(s -> builder.maybeSomaticTumorSampleBqrPlot(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(s)))
-                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory)));
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.tumor().sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.tumor().sampleName())));
         return builder.addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeGermlineGeneCoverage(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(geneCoverageFile)))
                 .maybeSomaticTumorSampleBqrPlot(somaticTumorSampleBqrPlot.map(t -> GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(t))))
                 .maybeVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile)))
-                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
-                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.sampleName()))
+                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.sampleName()))
                 .addReportComponents(vcfComponent(unfilteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory))
@@ -118,18 +116,6 @@ public class SageCaller extends TertiaryStage<SageOutput> {
                         .collect(Collectors.toList()));
     }
 
-    private Optional<String> somaticTumorSampleBqrPlot(final SomaticRunMetadata metadata) {
-        return metadata.maybeTumor().map(t -> String.format("%s.%s", t.sampleName(), SAGE_BQR_PNG));
-    }
-
-    private Optional<String> somaticRefSampleBqrPlot(final SomaticRunMetadata metadata) {
-        return metadata.maybeReference().map(r -> String.format("%s.%s", r.sampleName(), SAGE_BQR_PNG));
-    }
-
-    private String geneCoverageFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
-    }
-
     @Override
     public SageOutput skippedOutput(final SomaticRunMetadata metadata) {
         return SageOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
@@ -138,9 +124,9 @@ public class SageCaller extends TertiaryStage<SageOutput> {
     @Override
     public final SageOutput persistedOutput(final SomaticRunMetadata metadata) {
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
-        final String geneCoverageFile = geneCoverageFile(metadata);
-        final Optional<String> somaticRefSampleBqrPlot = somaticRefSampleBqrPlot(metadata);
-        final Optional<String> somaticTumorSampleBqrPlot = somaticTumorSampleBqrPlot(metadata);
+        final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
+        final Optional<String> somaticRefSampleBqrPlot = referenceSampleBqrPlot(metadata);
+        final Optional<String> somaticTumorSampleBqrPlot = tumorSampleBqrPlot(metadata);
         final ImmutableSageOutput.Builder builder = SageOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
                 .maybeVariants(persistedDataset.path(metadata.tumor().sampleName(), sageConfiguration.vcfDatatype())
@@ -162,9 +148,17 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 
-    private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
-        String filename = format("%s.sage.bqr.%s", metadata.sampleName(), extension);
+    private Optional<String> tumorSampleBqrPlot(final SomaticRunMetadata metadata) {
+        return metadata.maybeTumor().map(t -> String.format("%s.%s", t.sampleName(), SAGE_BQR_PNG));
+    }
+
+    private Optional<String> referenceSampleBqrPlot(final SomaticRunMetadata metadata) {
+        return metadata.maybeReference().map(r -> String.format("%s.%s", r.sampleName(), SAGE_BQR_PNG));
+    }
+
+    private ReportComponent bqrComponent(final String extension, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
+            final String sampleName) {
+        String filename = format("%s.sage.bqr.%s", sampleName, extension);
         return singleFileComponent(filename, bucket, resultsDirectory);
     }
 

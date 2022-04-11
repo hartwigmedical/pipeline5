@@ -16,14 +16,6 @@ BRAF	p.Val600Glu	HOTSPOT_MUTATION		false	true	Selumetinib	false	B	RESPONSIVE	vic
 BRAF	p.Val600Glu	HOTSPOT_MUTATION		false	true	Sorafenib	false	B	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/18682506,http://www.ncbi.nlm.nih.gov/pubmed/21882184
 BRAF	p.Val600Glu	CODON_MUTATION	600	false	true	Panitumumab	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/23325582
 BRAF	p.Val600Glu	CODON_MUTATION	600	false	true	RO4987655	false	B	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/24947927
-PTEN	partial loss	INACTIVATION		false	true	Anti-EGFR monoclonal antibody	false	B	RESISTANT	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/19398573,http://www.ncbi.nlm.nih.gov/pubmed/21163703
-PTEN	partial loss	DELETION		false	true	Anti-EGFR monoclonal antibody	false	B	RESISTANT	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/19398573,http://www.ncbi.nlm.nih.gov/pubmed/21163703
-PTEN	partial loss	DELETION		false	true	Buparlisib + Carboplatin + Paclitaxel	false	B	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25672916
-PTEN	partial loss	DELETION		false	true	Cetuximab	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/21163703
-PTEN	partial loss	DELETION		false	false	Chemotherapy	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/15900596
-PTEN	partial loss	DELETION		false	true	Everolimus	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/23989949
-PTEN	partial loss	DELETION		false	true	Lapatinib + Trastuzumab	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25300346
-PTEN	partial loss	DELETION		false	true	Trastuzumab	false	B	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/20813970,http://www.ncbi.nlm.nih.gov/pubmed/24387334
 BRAF	p.Val600Glu	ACTIVATION		false	false	Cetuximab	false	D	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/22586653
 BRAF	p.Val600Glu	ACTIVATION		false	false	Trametinib	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/22169769
 BRAF	p.Val600Glu	HOTSPOT_MUTATION		false	false	Cobimetinib + Vemurafenib	false	B	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25265494
@@ -87,38 +79,3 @@ BRAF	p.Val600Glu	CODON_MUTATION	600	false	false	Mab	false	C	RESPONSIVE	vicc_cgi	
 CDKN2A	p.Ala68fs	INACTIVATION		false	false	Cdk4	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=ASCO 2013 (abstr 2500)
 CDKN2A	p.Ala68fs	INACTIVATION		false	false	Ilorasertib	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=NCT02478320
 CDKN2A	p.Ala68fs	INACTIVATION		false	false	Cdk4	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/22471707,http://www.ncbi.nlm.nih.gov/pubmed/22586120,http://www.ncbi.nlm.nih.gov/pubmed/22711607
-PTEN	partial loss	INACTIVATION		false	false	1-tert-butyl-3-[6-(3 + 3-d]pyrimidin-7-yl]-urea + 5-dimethoxy-phenyl)-2-(4-diethylamino-butylamino)-pyrido[2	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/26645196
-PTEN	partial loss	INACTIVATION		false	false	10-decarboxymethylaclacinomycin t (dcmat)	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/22025163
-PTEN	partial loss	INACTIVATION		false	false	Byl-719	false	C	RESISTANT	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/25409150
-PTEN	partial loss	INACTIVATION		false	false	Cetuximab + Mab	false	C	RESISTANT	vicc_cgi	https://www.google.com/#q=Caris molecular intelligence
-PTEN	partial loss	INACTIVATION		false	false	Everolimus	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/23582881
-PTEN	partial loss	INACTIVATION		false	false	Mab + Panitumumab	false	C	RESISTANT	vicc_cgi	https://www.google.com/#q=Caris molecular intelligence
-PTEN	partial loss	INACTIVATION		false	false	Parp inhibitors	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/20944090,http://www.ncbi.nlm.nih.gov/pubmed/21468130
-PTEN	partial loss	INACTIVATION		false	false	Pik3cb	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=ASCO 2014 (abstr 2514)
-PTEN	partial loss	INACTIVATION		false	false	Sirolimus	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=ASCO 2013 (abstr 2532)
-PTEN	partial loss	INACTIVATION		false	false	2-butanone	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/21632463
-PTEN	partial loss	INACTIVATION		false	false	3'-azido-3'-deoxythymidine-5'-monophosphate	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/27397505
-PTEN	partial loss	INACTIVATION		false	false	Alpelisib + Azd8186 + Enzalutamide	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25544636
-PTEN	partial loss	INACTIVATION		false	false	Gdc + Taselisib	false	D	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/26589432
-PTEN	partial loss	INACTIVATION		false	false	Ipatasertib	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/23287563
-PTEN	partial loss	INACTIVATION		false	false	Pi3k pathway inhibitor + ar antagonists	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/21575859
-PTEN	partial loss	INACTIVATION		false	false	Pi3k pathway inhibitors	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/17804702,http://www.ncbi.nlm.nih.gov/pubmed/21191045,http://www.ncbi.nlm.nih.gov/pubmed/21289267,http://www.ncbi.nlm.nih.gov/pubmed/21325073,http://www.ncbi.nlm.nih.gov/pubmed/21632463,http://www.ncbi.nlm.nih.gov/pubmed/21673091,http://www.ncbi.nlm.nih.gov/pubmed/21998291,http://www.ncbi.nlm.nih.gov/pubmed/22662154,http://www.ncbi.nlm.nih.gov/pubmed/22932669,http://www.ncbi.nlm.nih.gov/pubmed/23085766,http://www.ncbi.nlm.nih.gov/pubmed/23136191,http://www.ncbi.nlm.nih.gov/pubmed/23287563
-PTEN	partial loss	DELETION		false	false	1-tert-butyl-3-[6-(3 + 3-d]pyrimidin-7-yl]-urea + 5-dimethoxy-phenyl)-2-(4-diethylamino-butylamino)-pyrido[2	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/26645196
-PTEN	partial loss	DELETION		false	false	10-decarboxymethylaclacinomycin t (dcmat)	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/22025163
-PTEN	partial loss	DELETION		false	false	2206	false	C	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/22025163
-PTEN	partial loss	DELETION		false	false	Everolimus	false	C	RESPONSIVE	vicc_cgi,vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/23582881,http://www.ncbi.nlm.nih.gov/pubmed/27091708
-PTEN	partial loss	DELETION		false	false	Parp inhibitors	false	C	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/20944090,http://www.ncbi.nlm.nih.gov/pubmed/21468130
-PTEN	partial loss	DELETION		false	false	Pik3cb	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=ASCO 2014 (abstr 2514)
-PTEN	partial loss	DELETION		false	false	Sirolimus	false	C	RESPONSIVE	vicc_cgi	https://www.google.com/#q=ASCO 2013 (abstr 2532)
-PTEN	partial loss	DELETION		false	false	154447-36-6 + Trastuzumab	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/15324695
-PTEN	partial loss	DELETION		false	false	2-butanone	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/21632463
-PTEN	partial loss	DELETION		false	false	Alpelisib	false	D	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25409150
-PTEN	partial loss	DELETION		false	false	Azd5363	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/22294718
-PTEN	partial loss	DELETION		false	false	Azd5363 + Docetaxel	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/24088382
-PTEN	partial loss	DELETION		false	false	Azd8186	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/25398829
-PTEN	partial loss	DELETION		false	false	Cisplatin	false	D	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/15790433
-PTEN	partial loss	DELETION		false	false	Pi3k pathway inhibitor + ar antagonists	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/21575859
-PTEN	partial loss	DELETION		false	false	Pi3k pathway inhibitors	false	D	RESPONSIVE	vicc_cgi	http://www.ncbi.nlm.nih.gov/pubmed/17804702,http://www.ncbi.nlm.nih.gov/pubmed/21191045,http://www.ncbi.nlm.nih.gov/pubmed/21289267,http://www.ncbi.nlm.nih.gov/pubmed/21325073,http://www.ncbi.nlm.nih.gov/pubmed/21632463,http://www.ncbi.nlm.nih.gov/pubmed/21673091,http://www.ncbi.nlm.nih.gov/pubmed/21998291,http://www.ncbi.nlm.nih.gov/pubmed/22662154,http://www.ncbi.nlm.nih.gov/pubmed/22932669,http://www.ncbi.nlm.nih.gov/pubmed/23085766,http://www.ncbi.nlm.nih.gov/pubmed/23136191,http://www.ncbi.nlm.nih.gov/pubmed/23287563
-PTEN	partial loss	DELETION		false	false	Temsirolimus	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/11504908,http://www.ncbi.nlm.nih.gov/pubmed/23674493
-PTEN	partial loss	DELETION		false	false	Trastuzumab	false	D	RESISTANT	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/17936563
-PTEN	partial loss	DELETION		false	false	Uprosertib	false	D	RESPONSIVE	vicc_civic	http://www.ncbi.nlm.nih.gov/pubmed/24735930

@@ -2,6 +2,8 @@ package com.hartwig.pipeline.metrics;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -31,7 +33,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     public static final String NAMESPACE = "bam_metrics";
 
-    final ResourceFiles resourceFiles;
+    private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final PersistedDataset persistedDataset;
 
@@ -57,10 +59,28 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
-                resourceFiles.refGenomeFile(),
-                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
+    public List<BashCommand> tumorOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return bamMetricsCommands(metadata);
+    }
+
+    public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
+        return Stream.concat(resourceFiles.targetRegionsBed()
+                        .stream()
+                        .map(r -> new BedToIntervalsCommand(r, resourceFiles.targetRegionsInterval().orElseThrow(), resourceFiles.refGenomeFile())),
+                Stream.<BashCommand>of(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                        resourceFiles.refGenomeFile(),
+                        VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName()),
+                        resourceFiles.targetRegionsInterval()))).collect(Collectors.toList());
     }
 
     @Override

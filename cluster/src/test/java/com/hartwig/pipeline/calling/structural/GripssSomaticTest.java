@@ -6,8 +6,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.calling.structural.gripss.Gripss;
-import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -56,13 +54,15 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.0/gripss.jar -ref_genome "
-                + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.1/gripss.jar "
+                + "-sample tumor -reference reference "
+                + "-output_id somatic "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
-                + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
-                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe "
-                + "-output_id somatic -sample tumor -reference reference "
-                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output");
+                + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed.gz "
+                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe.gz "
+                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz "
+                + "-output_dir /data/output");
     }
 
     @Override

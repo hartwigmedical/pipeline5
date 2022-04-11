@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.reruns;
 
+import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GERMLINE_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.SOMATIC_NAMESPACE;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -12,7 +15,6 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
-import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -35,6 +37,12 @@ public class StartingPoint {
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
+        SKIP_GRIDSS(List.of(BamMetrics.NAMESPACE,
+                GermlineCaller.NAMESPACE,
+                Flagstat.NAMESPACE,
+                SnpGenotype.NAMESPACE,
+                Gridss.NAMESPACE,
+                CramConversion.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -43,7 +51,7 @@ public class StartingPoint {
                         Amber.NAMESPACE,
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces,
-                List.of(GripssConfiguration.SOMATIC_NAMESPACE, GripssConfiguration.GERMLINE_NAMESPACE))),
+                List.of(SOMATIC_NAMESPACE, GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
 
         private final List<String> namespaces;

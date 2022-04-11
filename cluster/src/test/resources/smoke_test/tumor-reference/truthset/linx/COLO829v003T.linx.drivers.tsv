@@ -1,3 +1,2 @@
 clusterId	gene	eventType
--1	CDKN2A	LOH_ARM
-1	PTEN	LOH
+-1	CDKN2A	LOH_CHR
