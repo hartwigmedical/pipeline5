@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -21,6 +24,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -35,16 +39,17 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleSomaticVcfDownload;
     private final PersistedDataset persistedDataset;
+    private final ResourceFiles resourceFiles;
 
-    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
+    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset,
+            final ResourceFiles resourceFiles) {
         this.refGenomeVersion = refGenomeVersion;
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::structuralVariants)
-                .orElse(GoogleStorageLocation.empty()));
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::somaticVariants)
-                .orElse(GoogleStorageLocation.empty()));
+
+        purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
+        purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
+
         this.persistedDataset = persistedDataset;
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -59,6 +64,10 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+
+        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
+            return Stage.disabled();
+
         return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
                 purpleSomaticVcfDownload.getLocalTargetPath(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),

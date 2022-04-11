@@ -8,6 +8,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
 import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
+import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
@@ -56,11 +57,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.37.vcf");
-    }
-
-    @Override
     public String sageSomaticHotspots() {
         return formPath(SAGE, "KnownHotspots.somatic.37.vcf.gz");
     }
@@ -91,13 +87,13 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineBlacklistVcf() {
+    public String germlineBlacklistVcf() {
         return formPath(SAGE, "KnownBlacklist.germline.37.vcf.gz");
     }
 
     @Override
-    public String sageGermlineBlacklistBed() {
-        return formPath(SAGE, "KnownBlacklist.germline.37.bed.gz");
+    public String germlineBlacklistBed() {
+        return formPath(SAGE, "KnownBlacklist.germline.37.bed");
     }
 
     @Override
@@ -106,14 +102,23 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150.mappability.37.bed.gz");
+    public String mappabilityBed() {
+        return formPath(MAPPABILITY, "mappability_150.37.bed.gz");
     }
 
     @Override
     public String sageGermlinePon() {
         return formPath(SAGE, "SageGermlinePon.1000x.37.vcf.gz");
     }
+
+    @Override
+    public String germlinePon() { return formPath(SAGE, "SageGermlinePon.1000x.37.tsv.gz"); }
+
+    @Override
+    public String somaticPonArtefacts() { return formPath(SAGE, "PanelArtefacts.37.tsv"); }
+
+    @Override
+    public String gnomadPonCache() { return formPath(GNOMAD, ""); }
 
     @Override
     public String giabHighConfidenceBed() {
@@ -131,13 +136,13 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.37.bed");
+    public String svBreakendPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.37.bed.gz");
     }
 
     @Override
-    public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.37.bedpe");
+    public String svBreakpointPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.37.bedpe.gz");
     }
 
     @Override

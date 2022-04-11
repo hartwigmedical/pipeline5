@@ -140,7 +140,7 @@ public class SomaticPipeline {
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
-                                    gripssSomaticProcessOutput,
+                                    metadata.mode().runTumor() ? gripssSomaticProcessOutput : gripssGermlineProcessOutput,
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
@@ -176,7 +176,7 @@ public class SomaticPipeline {
                         Future<SigsOutput> signatureOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
+                                new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset, resourceFiles)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = pipelineResults.add(state.add(linxSomaticOutputFuture.get()));
                         pipelineResults.add(state.add(linxGermlineOutputFuture.get()));

@@ -1,32 +1,30 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface PurpleOutputLocations {
-    GoogleStorageLocation circosPlot();
-
-    GoogleStorageLocation outputDirectory();
-
-    GoogleStorageLocation somaticVariants();
-
-    GoogleStorageLocation germlineVariants();
-
-    GoogleStorageLocation structuralVariants();
 
     GoogleStorageLocation purity();
-
     GoogleStorageLocation qcFile();
+    GoogleStorageLocation outputDirectory();
 
-    GoogleStorageLocation geneCopyNumber();
+    // somatic
+    Optional<GoogleStorageLocation> somaticVariants();
+    Optional<GoogleStorageLocation> structuralVariants();
+    Optional<GoogleStorageLocation> geneCopyNumber();
+    Optional<GoogleStorageLocation> somaticDriverCatalog();
+    Optional<GoogleStorageLocation> somaticCopyNumber();
+    Optional<GoogleStorageLocation> circosPlot();
 
-    GoogleStorageLocation somaticDriverCatalog();
-
-    GoogleStorageLocation somaticCopyNumber();
-
-    GoogleStorageLocation germlineDriverCatalog();
+    // germline
+    Optional<GoogleStorageLocation> germlineVariants();
+    Optional<GoogleStorageLocation> germlineDriverCatalog();
+    Optional<GoogleStorageLocation> germlineDeletions();
 
     static ImmutablePurpleOutputLocations.Builder builder() {
         return ImmutablePurpleOutputLocations.builder();

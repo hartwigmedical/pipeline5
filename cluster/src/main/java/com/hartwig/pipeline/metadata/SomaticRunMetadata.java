@@ -52,11 +52,12 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     default SingleSampleRunMetadata tumor() {
         return maybeTumor().orElseThrow(() -> new IllegalStateException(
-                "No tumor is present in this run/set. Somatic algorithms should not be called."));
+                "No tumor is present in this run/set - somatic routines should not be called"));
     }
 
     default SingleSampleRunMetadata reference() {
-        return maybeReference().orElseThrow();
+        return maybeReference().orElseThrow(() -> new IllegalStateException(
+                "No reference is present in this run/set - germline routines should not be called"));
     }
 
     static ImmutableSomaticRunMetadata.Builder builder() {

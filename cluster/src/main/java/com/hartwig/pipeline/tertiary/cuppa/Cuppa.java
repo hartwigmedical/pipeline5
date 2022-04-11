@@ -2,6 +2,8 @@ package com.hartwig.pipeline.tertiary.cuppa;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.execution.vm.r.RscriptCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -54,8 +57,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleSomaticVariantsDownload = new InputDownload(purpleOutputLocations.somaticVariants());
-        this.purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants());
+        this.purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
+        this.purpleStructuralVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.structuralVariants());
         this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
@@ -74,6 +77,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+
+        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
+            return Stage.disabled();
+
         final List<String> r_script_arguments = Arrays.asList(metadata.tumor().sampleName(), VmDirectories.OUTPUT + "/");
         return List.of(new JavaJarCommand("cuppa",
                         Versions.CUPPA,
