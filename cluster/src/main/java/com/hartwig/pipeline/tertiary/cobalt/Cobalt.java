@@ -1,16 +1,18 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
-import static java.util.Collections.*;
-
 import java.util.List;
 
+import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -23,6 +25,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tools.Versions;
 
 public class Cobalt extends TertiaryStage<CobaltOutput> {
 
@@ -43,24 +46,74 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(CobaltCommandBuilder.newBuilder(resourceFiles)
-                .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
-                .addArguments("-tumor_only", "true", "-tumor_only_diploid_bed", resourceFiles.diploidRegionsBed())
-                .build());
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+
+        List<String> arguments = Lists.newArrayList();
+
+        addTumor(arguments, metadata);
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
+
+        return formCommand(arguments);
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
-                .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
-                .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
-                .build());
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+
+        List<String> arguments = Lists.newArrayList();
+
+        addTumor(arguments, metadata);
+        addCommonArguments(arguments);
+        addTargetRegionsArguments(arguments);
+
+        arguments.add(String.format("-tumor_only_diploid_bed %s", resourceFiles.diploidRegionsBed()));
+
+        return formCommand(arguments);
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return super.referenceOnlyCommands(metadata);
+
+        List<String> arguments = Lists.newArrayList();
+
+        addReference(arguments, metadata);
+        addCommonArguments(arguments);
+
+        return formCommand(arguments);
+    }
+
+    private List<BashCommand> formCommand(final List<String> arguments)
+    {
+        List<BashCommand> commands = Lists.newArrayList();
+        commands.add(new JavaJarCommand("cobalt", Versions.COBALT, "cobalt.jar", "8G", arguments));
+        return commands;
+    }
+
+    private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
+        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
+    }
+
+    private void addReference(final List<String> arguments, final SomaticRunMetadata metadata) {
+        arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
+        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
+    }
+
+    private void addCommonArguments(final List<String> arguments) {
+        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(String.format("-gc_profile %s", resourceFiles.gcProfileFile()));
+        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(String.format("-threads %s", Bash.allCpus()));
+    }
+
+    private void addTargetRegionsArguments(final List<String> arguments)
+    {
+        if(resourceFiles.targetRegionsEnabled())
+        {
+            arguments.add(String.format("-target_region %s", resourceFiles.targetRegionsNormalisation().get()));
+            arguments.add("-pcf_gamma 15");
+        }
     }
 
     @Override
@@ -78,7 +131,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.COBALT,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv")))
+                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv.gz")))
                 .build();
     }
 

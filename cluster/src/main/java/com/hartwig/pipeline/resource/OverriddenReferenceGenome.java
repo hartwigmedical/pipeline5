@@ -42,11 +42,6 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String amberSnpcheck() {
-        return decorated.amberSnpcheck();
-    }
-
-    @Override
     public String gridssRepeatMaskerDb() {
         return decorated.gridssRepeatMaskerDb();
     }
@@ -57,13 +52,13 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String gridssBreakendPon() {
-        return decorated.gridssBreakendPon();
+    public String svBreakendPon() {
+        return decorated.svBreakendPon();
     }
 
     @Override
-    public String gridssBreakpointPon() {
-        return decorated.gridssBreakpointPon();
+    public String svBreakpointPon() {
+        return decorated.svBreakpointPon();
     }
 
     @Override
@@ -97,13 +92,13 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineBlacklistVcf() {
-        return decorated.sageGermlineBlacklistVcf();
+    public String germlineBlacklistVcf() {
+        return decorated.germlineBlacklistVcf();
     }
 
     @Override
-    public String sageGermlineBlacklistBed() {
-        return decorated.sageGermlineBlacklistBed();
+    public String germlineBlacklistBed() {
+        return decorated.germlineBlacklistBed();
     }
 
     @Override
@@ -112,14 +107,21 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String out150Mappability() {
-        return decorated.out150Mappability();
+    public String mappabilityBed() {
+        return decorated.mappabilityBed();
     }
 
     @Override
-    public String sageGermlinePon() {
-        return decorated.sageGermlinePon();
-    }
+    public String sageGermlinePon() { return decorated.sageGermlinePon(); }
+
+    @Override
+    public String germlinePon() { return decorated.germlinePon(); }
+
+    @Override
+    public String somaticPonArtefacts() { return decorated.somaticPonArtefacts(); }
+
+    @Override
+    public String gnomadPonCache() { return decorated.gnomadPonCache(); }
 
     @Override
     public String giabHighConfidenceBed() {

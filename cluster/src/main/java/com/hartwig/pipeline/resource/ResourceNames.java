@@ -8,6 +8,7 @@ public interface ResourceNames {
     String COBALT = "cobalt";
     String AMBER = "amber";
     String SAGE = "sage";
+    String GNOMAD = "gnomad";
     String MAPPABILITY = "mappability";
     String GIAB_HIGH_CONF = "giab_high_conf";
     String GRIDSS_CONFIG = "gridss_config";

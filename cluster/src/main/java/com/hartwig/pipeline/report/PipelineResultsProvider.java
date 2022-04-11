@@ -30,6 +30,6 @@ public class PipelineResultsProvider {
             arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
             storage.create(builder.build());
         }
-        return new PipelineResults(version, storage, reportBucket, arguments);
+        return new PipelineResults(version, storage, reportBucket);
     }
 }

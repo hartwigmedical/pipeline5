@@ -2,6 +2,9 @@ package com.hartwig.pipeline.testsupport;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GERMLINE_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.SOMATIC_NAMESPACE;
+
 import java.util.List;
 
 import com.hartwig.pipeline.alignment.Aligner;
@@ -14,13 +17,13 @@ import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -96,6 +99,15 @@ public class TestInputs {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
         return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).maybeReference(reference).bucket(BUCKET).build();
+    }
+
+    public static SomaticRunMetadata defaultGermlineRunMetadata() {
+        final SingleSampleRunMetadata reference = referenceRunMetadata();
+
+        return SomaticRunMetadata.builder()
+                .set(SET)
+                .maybeReference(reference)
+                .bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
@@ -254,11 +266,11 @@ public class TestInputs {
     public static GripssOutput gripssSomaticProcessOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder(GripssConfiguration.SOMATIC_NAMESPACE)
+        return GripssOutput.builder(SOMATIC_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GripssConfiguration.SOMATIC_NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssConfiguration.SOMATIC_NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
@@ -266,11 +278,11 @@ public class TestInputs {
     public static GripssOutput gripssGermlineOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder(GripssConfiguration.GERMLINE_NAMESPACE)
+        return GripssOutput.builder(GERMLINE_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GripssConfiguration.GERMLINE_NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssConfiguration.GERMLINE_NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }

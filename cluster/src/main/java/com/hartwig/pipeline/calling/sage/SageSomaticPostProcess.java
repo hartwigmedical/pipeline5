@@ -13,13 +13,11 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 public class SageSomaticPostProcess extends SubStage {
 
     public static final String SAGE_SOMATIC_FILTERED = "sage.somatic.filtered";
-    private final ResourceFiles resourceFiles;
     private final SubStageInputOutput tumorSampleName;
 
-    public SageSomaticPostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SageSomaticPostProcess(final String tumorSampleName) {
         super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
-        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -27,20 +25,10 @@ public class SageSomaticPostProcess extends SubStage {
         final List<BashCommand> result = Lists.newArrayList();
 
         SubStage passFilter = new PassFilter();
-        SubStage mappabilityAnnotation =
-                new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
-        SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
-        SubStage ponFilter = new PonFilter(resourceFiles.version());
 
-        OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
-        OutputFile mappabilityAnnotationFile = mappabilityAnnotation.apply(tumorSampleName).outputFile();
-        OutputFile ponAnnotationFile = ponAnnotation.apply(tumorSampleName).outputFile();
-        OutputFile ponFilterFile = ponFilter.apply(tumorSampleName).outputFile();
+        OutputFile finalOutputFile = OutputFile.of(tumorSampleName.sampleName(), SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
+        result.addAll(passFilter.bash(input, finalOutputFile));
 
-        result.addAll(passFilter.bash(input, passFilterFile));
-        result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
-        result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));
-        result.addAll(ponFilter.bash(ponAnnotationFile, ponFilterFile));
         return result;
     }
 }

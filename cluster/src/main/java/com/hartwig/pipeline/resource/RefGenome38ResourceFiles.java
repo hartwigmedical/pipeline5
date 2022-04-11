@@ -6,7 +6,9 @@ import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
 import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
 import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
+import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
+import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
@@ -16,7 +18,11 @@ import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
+import java.util.Optional;
+
 public class RefGenome38ResourceFiles implements ResourceFiles {
+
+    private String targetRegionsDir = null;
 
     public RefGenomeVersion version() {
         return RefGenomeVersion.V38;
@@ -45,11 +51,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String amberHeterozygousLoci() {
         return formPath(AMBER, "GermlineHetPon.38.vcf.gz");
-    }
-
-    @Override
-    public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.38.vcf");
     }
 
     @Override
@@ -83,13 +84,13 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineBlacklistVcf() {
+    public String germlineBlacklistVcf() {
         return formPath(SAGE, "KnownBlacklist.germline.38.vcf.gz");
     }
 
     @Override
-    public String sageGermlineBlacklistBed() {
-        return formPath(SAGE, "KnownBlacklist.germline.38.bed.gz");
+    public String germlineBlacklistBed() {
+        return formPath(SAGE, "KnownBlacklist.germline.38.bed");
     }
 
     @Override
@@ -98,14 +99,23 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150.mappability.38.bed.gz");
+    public String mappabilityBed() {
+        return formPath(MAPPABILITY, "mappability_150.38.bed.gz");
     }
 
     @Override
     public String sageGermlinePon() {
         return formPath(SAGE, "SageGermlinePon.98x.38.vcf.gz");
     }
+
+    @Override
+    public String germlinePon() { return formPath(SAGE, "SageGermlinePon.98x.38.tsv.gz"); }
+
+    @Override
+    public String somaticPonArtefacts() { return formPath(SAGE, "PanelArtefacts.38.tsv"); }
+
+    @Override
+    public String gnomadPonCache() { return formPath(GNOMAD, ""); }
 
     @Override
     public String giabHighConfidenceBed() {
@@ -124,13 +134,13 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed");
+    public String svBreakendPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed.gz");
     }
 
     @Override
-    public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe");
+    public String svBreakpointPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe.gz");
     }
 
     @Override
@@ -160,7 +170,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String genotypeSnpsDB() {
-        throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid 38 version.");
+        return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
     }
 
     @Override
@@ -180,10 +190,59 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String hlaRegionBed() {
-        return formPath(LILAC, "hla.v38.bed");
+        return formPath(LILAC, "hla.38.bed");
     }
 
     @Override
-    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.38.csv"); }
+    public String purpleCohortGermlineDeletions() {
+        return formPath(PURPLE, "cohort_germline_del_freq.38.csv");
+    }
 
+    @Override
+    public void setTargetRegionsDir(final String targetRegionsDir) {
+        this.targetRegionsDir = targetRegionsDir;
+    }
+
+    @Override
+    public boolean targetRegionsEnabled() { return targetRegionsDir != null; }
+
+    @Override
+    public Optional<String> targetRegionsBed() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.bed"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsNormalisation() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_normalisation.38.tsv"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsRatios() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_ratios.38.csv"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsInterval() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_definition.38.interval_list"));
+    }
+
+    @Override
+    public Optional<String> targetRegionsMsiIndels() {
+        if(targetRegionsDir == null)
+            return Optional.empty();
+
+        return Optional.of(String.format("%s/%s", targetRegionsDir, "target_regions_msi_indels.38.tsv"));
+    }
 }

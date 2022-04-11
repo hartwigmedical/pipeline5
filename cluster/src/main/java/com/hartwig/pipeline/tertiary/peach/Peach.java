@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.peach;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -15,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -40,7 +43,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
 
     public Peach(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        this.purpleGermlineVariantsDownload = new InputDownload(purpleOutput.outputLocations().germlineVariants());
+        purpleGermlineVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().germlineVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -65,7 +68,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
     }
 
-    private List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
+    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
@@ -126,7 +129,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         String genotypeTsv = genotypeTsv(metadata.sampleName());
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeGenotypes(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
+                .maybeGenotypes(persistedDataset.path(metadata.sampleName(), DataType.PEACH_GENOTYPE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), genotypeTsv))))
                 .addDatatypes(new AddDatatype(DataType.PEACH_GENOTYPE,

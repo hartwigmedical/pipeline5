@@ -28,6 +28,7 @@ public interface PurpleOutput extends StageOutput {
                 .circosPlot(GoogleStorageLocation.empty())
                 .somaticCopyNumber(GoogleStorageLocation.empty())
                 .geneCopyNumber(GoogleStorageLocation.empty())
+                .germlineDeletions(GoogleStorageLocation.empty())
                 .outputDirectory(GoogleStorageLocation.empty())
                 .somaticDriverCatalog(GoogleStorageLocation.empty())
                 .build());
