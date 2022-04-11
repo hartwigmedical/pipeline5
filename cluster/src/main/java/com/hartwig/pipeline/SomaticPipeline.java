@@ -75,7 +75,6 @@ public class SomaticPipeline {
     private final PipelineResults pipelineResults;
     private final ExecutorService executorService;
     private final PersistedDataset persistedDataset;
-    private final InputMode mode;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
@@ -93,7 +92,6 @@ public class SomaticPipeline {
         this.pipelineResults = pipelineResults;
         this.executorService = executorService;
         this.persistedDataset = persistedDataset;
-        this.mode = mode;
     }
 
     public PipelineState run(final AlignmentPair pair) {
@@ -107,7 +105,7 @@ public class SomaticPipeline {
             Future<CobaltOutput> cobaltOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset, arguments)));
             Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments.shallow())));
+                    new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments)));
             Future<SageOutput> sageGermlineOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, persistedDataset, resourceFiles)));
             Future<GridssOutput> structuralCallerOutputFuture =
