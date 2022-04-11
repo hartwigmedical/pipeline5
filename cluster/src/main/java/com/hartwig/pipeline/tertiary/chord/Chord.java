@@ -65,9 +65,6 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
 
-        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
-            return Stage.disabled();
-
         return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
                 purpleSomaticVcfDownload.getLocalTargetPath(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),

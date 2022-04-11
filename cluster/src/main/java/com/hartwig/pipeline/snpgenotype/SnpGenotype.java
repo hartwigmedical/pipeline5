@@ -54,7 +54,21 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return snpGenotypeCommands();
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SingleSampleRunMetadata metadata) {
+        return snpGenotypeCommands();
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
+        return snpGenotypeCommands();
+    }
+
+    public List<BashCommand> snpGenotypeCommands() {
         return Collections.singletonList(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
                 resourceFiles.genotypeSnpsDB(),

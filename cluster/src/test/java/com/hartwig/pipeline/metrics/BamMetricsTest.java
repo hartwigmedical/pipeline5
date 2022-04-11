@@ -74,12 +74,12 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         resourceFiles.setTargetRegionsDir("/opt/resources/target_regions/38/");
 
         BamMetrics victim = new BamMetrics(resourceFiles, TestInputs.tumorAlignmentOutput(), persistedDataset);
-        assertThat(victim.commands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
+        assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
                 "java -Xmx1G -cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine "
                         + "BedToIntervalList SORT=true SEQUENCE_DICTIONARY=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.dict "
                         + "INPUT=/opt/resources/target_regions/38//target_regions_definition.38.bed "
                         + "OUTPUT=/opt/resources/target_regions/38//target_regions_definition.38.interval_list");
-        assertThat(victim.commands(TestInputs.tumorRunMetadata()).get(1).asBash()).isEqualTo(
+        assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(1).asBash()).isEqualTo(
                 "java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 "
                         + "-cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectWgsMetrics "
                         + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "

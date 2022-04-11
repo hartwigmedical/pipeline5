@@ -107,7 +107,6 @@ public class TestInputs {
         return SomaticRunMetadata.builder()
                 .set(SET)
                 .maybeReference(reference)
-                .mode(InputMode.REFERENCE_ONLY)
                 .bucket(BUCKET).build();
     }
 

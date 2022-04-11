@@ -101,9 +101,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        if(metadata.mode() == InputMode.REFERENCE_ONLY)
-            return Stage.disabled();
-
         return List.of(new ProtectCommand(metadata.tumor().sampleName(),
                 metadata.reference().sampleName(),
                 metadata.tumor().primaryTumorDoids(),

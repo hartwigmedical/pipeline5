@@ -38,6 +38,8 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
@@ -76,11 +78,17 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return cuppaCommands(metadata);
+    }
 
-        if(metadata.mode() == InputMode.REFERENCE_ONLY || resourceFiles.targetRegionsEnabled())
-            return Stage.disabled();
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return cuppaCommands(metadata);
+    }
 
+    @NotNull
+    private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
         final List<String> r_script_arguments = Arrays.asList(metadata.tumor().sampleName(), VmDirectories.OUTPUT + "/");
         return List.of(new JavaJarCommand("cuppa",
                         Versions.CUPPA,

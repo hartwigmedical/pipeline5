@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.pave;
 
 import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -29,21 +27,22 @@ public class PaveSomatic extends Pave {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return somaticCommand(metadata); }
-
-    @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return somaticCommand(metadata); }
-
-    private List<BashCommand> somaticCommand(final SomaticRunMetadata metadata) {
-
-        List<String> arguments = PaveArgumentBuilder.somatic(
-                resourceFiles,  metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), metadata.mode());
-
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        List<String> arguments = PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath());
         return paveCommand(metadata, arguments);
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        List<String> arguments = PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath());
+        arguments.add("-write_pass_only");
+        return paveCommand(metadata, arguments);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return Stage.disabled();
+    }
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {

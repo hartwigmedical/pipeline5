@@ -1,8 +1,5 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.metadata.InputMode.REFERENCE_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
-
 import java.util.List;
 
 import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
@@ -10,7 +7,6 @@ import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -36,7 +32,7 @@ public class PaveGermline extends Pave {
 
     private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArgumentBuilder.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath());
+        List<String> arguments = PaveArguments.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath());
         return paveCommand(metadata, arguments);
     }
 
