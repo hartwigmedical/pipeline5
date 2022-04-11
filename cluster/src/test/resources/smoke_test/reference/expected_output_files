@@ -46,6 +46,8 @@ gripss_germline/COLO829v003R.gripss.germline.vcf.gz
 gripss_germline/COLO829v003R.gripss.germline.vcf.gz.tbi
 gripss_germline/run.log
 gripss_germline/run.sh
+health_checker/COLO829v003R.HealthCheckFailed
+health_checker/run.log
 lilac/COLO829v003R.candidates.coverage.csv
 lilac/COLO829v003R.hla.bam
 lilac/COLO829v003R.hla.bam.bai
@@ -58,11 +60,13 @@ linx_germline/COLO829v003R.linx.germline.driver.catalog.tsv
 linx_germline/COLO829v003R.linx.svs.tsv
 linx_germline/linx.version
 linx_germline/run.log
+metadata.json
 pave_germline/COLO829v003R.sage.germline.filtered.pave.vcf.gz
 pave_germline/COLO829v003R.sage.germline.filtered.pave.vcf.gz.tbi
 peach/COLO829v003R.peach.calls.tsv
 peach/COLO829v003R.peach.genotype.tsv
 peach/run.log
+pipeline.version
 purple/COLO829v003R.driver.catalog.germline.tsv
 purple/COLO829v003R.purple.germline.deletion.tsv
 purple/COLO829v003R.purple.germline.vcf.gz
@@ -81,7 +85,3 @@ sage_germline/COLO829v003R.sage.germline.vcf.gz
 sage_germline/COLO829v003R.sage.germline.vcf.gz.tbi
 sage_germline/run.log
 sage_germline/run.sh
-health_checker/COLO829v003R.HealthCheckFailed
-health_checker/run.log
-metadata.json
-pipeline.version
