@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
@@ -21,7 +19,7 @@ public class SageCommandBuilder {
     private final List<String> referenceBam = Lists.newArrayList();
 
     private String wgsMaxHeap = "60G";
-    private String panelMaxHeap = "15G";
+    private String germlineMaxHeap = "31G";
 
     private boolean coverage = false;
     private boolean somaticMode = true;
@@ -40,7 +38,7 @@ public class SageCommandBuilder {
     public SageCommandBuilder germlineMode() {
         germlineMode = true;
         somaticMode = false;
-        maxHeap(panelMaxHeap);
+        maxHeap(germlineMaxHeap);
         return this;
     }
 

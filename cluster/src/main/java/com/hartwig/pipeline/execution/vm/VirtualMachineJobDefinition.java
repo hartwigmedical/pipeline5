@@ -93,7 +93,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition sageGermlineCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage-germline")
-                .performanceProfile(custom(4, 16))
+                .performanceProfile(custom(8, 32))
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();
