@@ -9,6 +9,17 @@ steps:
     id: 'Setting version for Maven'
     entrypoint: mvn
     args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: Priming Maven cache
+    args:
+      - '-m'
+      - 'rsync'
+      - '-r'
+      - 'gs://hmf-build-caches/pipeline5/.m2'
+      - '/cache/.m2'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
     id: Deploy artifacts to Maven repository
     entrypoint: mvn
@@ -19,6 +30,20 @@ steps:
       - '--batch-mode'
     env:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: Updating Maven cache after dependency resolution
+    args:
+      - '-m'
+      - 'rsync'
+      - '-r'
+      - '/cache/.m2'
+      - 'gs://hmf-build-caches/pipeline5/.m2/'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building pipeline image'
     args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
