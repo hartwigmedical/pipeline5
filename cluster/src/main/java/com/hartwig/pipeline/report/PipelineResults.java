@@ -44,15 +44,19 @@ public class PipelineResults {
         return stageOutput;
     }
 
-    public void compose(final RunMetadata metadata) {
+    public void compose(final RunMetadata metadata, final String qualifier) {
         String name = metadata.set();
         Folder folder = Folder.root();
         writeMetadata(metadata, name, folder);
-        compose(name, folder);
+        compose(name, folder, qualifier);
     }
 
-    private void compose(String name, Folder folder) {
-        LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{}", name, reportBucket.getName(), name);
+    private void compose(final String name, final Folder folder, final String qualifier) {
+        LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{} with qualifier {}",
+                name,
+                reportBucket.getName(),
+                name,
+                qualifier);
         reportBucket.create(path(name, folder, "pipeline.version"), version.getBytes());
         try {
             reportBucket.create(path(name, folder, "run.log"), new FileInputStream("run.log"));
@@ -67,6 +71,7 @@ public class PipelineResults {
                         component.getClass().getSimpleName()), e);
             }
         });
+        LOGGER.info("Composition complete for {} in bucket gs://{}/{} with qualifier {}", name, reportBucket.getName(), name, qualifier);
     }
 
     private void writeMetadata(final Object metadata, final String name, final Folder folder) {

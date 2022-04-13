@@ -49,7 +49,7 @@ public class PipelineResultsTest {
     public void composesAllAddedComponents() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
                 (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), "test");
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
@@ -59,13 +59,13 @@ public class PipelineResultsTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), "test");
     }
 
     @Test
     public void copiesMetadataRunVersionAndCompletionToRootOfBucketSomatic() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        victim.compose(TestInputs.defaultSomaticRunMetadata());
+        victim.compose(TestInputs.defaultSomaticRunMetadata(), "test");
         verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("set/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("set/pipeline.version");
