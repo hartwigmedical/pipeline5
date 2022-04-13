@@ -6,11 +6,11 @@ steps:
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
   - name: 'maven:3-jdk-11'
-    id: 'Setting version for Maven'
+    id: 'Set version for Maven'
     entrypoint: mvn
     args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: Priming Maven cache
+    id: 'Prime Maven cache'
     args:
       - '-m'
       - 'rsync'
@@ -21,7 +21,7 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
-    id: Deploy artifacts to Maven repository
+    id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
     timeout: 2400s
     args:
@@ -34,7 +34,7 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: Updating Maven cache after dependency resolution
+    id: 'Update Maven cache after dependency resolution'
     args:
       - '-m'
       - 'rsync'
@@ -45,7 +45,7 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'Building pipeline image'
+    id: 'Build pipeline image'
     args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push pipeline image'
