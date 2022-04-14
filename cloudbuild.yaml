@@ -30,6 +30,7 @@ steps:
       - '--batch-mode'
     env:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
+        MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
