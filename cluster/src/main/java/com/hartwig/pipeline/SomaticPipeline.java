@@ -211,7 +211,7 @@ public class SomaticPipeline {
                                         resourceFiles)));
                         pipelineResults.add(state.add(signatureOutputFuture.get()));
                         pipelineResults.add(state.add(orangeOutputFuture.get()));
-                        pipelineResults.compose(metadata);
+                        pipelineResults.compose(metadata, "Somatic");
                     }
                 }
             }
