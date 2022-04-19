@@ -123,11 +123,11 @@ public class SmokeTest {
         List<String> actualFiles = listOutput(outputDir, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
-        /*if (inputMode.equals("tumor-reference")) {
+        if (inputMode.equals("tumor-reference")) {
             ComparAssert.assertThat(storage, arguments.outputBucket(), outputDir)
                     .isEqualToTruthset(Resources.testResource(fixtureDir + "/truthset"))
                     .cleanup();
-        }*/
+        }
 
         cleanupBucket(outputDir, arguments.outputBucket(), storage);
     }
