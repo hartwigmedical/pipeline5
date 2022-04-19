@@ -34,7 +34,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx16G -jar /opt/tools/pave/1.2/pave.jar "
+                "java -Xmx16G -jar /opt/tools/pave/1.2.1/pave.jar "
                         + "-sample tumor "
                         + "-vcf_file /data/input/tumor.somatic.vcf.gz "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
