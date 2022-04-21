@@ -199,11 +199,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String peachFilterBed() {
-        return formPath(PEACH, "min_DPYD.json");
-    }
-
-    @Override
     public String purpleCohortGermlineDeletions() {
         return formPath(PURPLE, "cohort_germline_del_freq.37.csv");
     }

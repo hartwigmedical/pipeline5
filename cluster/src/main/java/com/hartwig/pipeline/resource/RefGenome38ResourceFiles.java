@@ -188,11 +188,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String peachFilterBed() {
-        throw new UnsupportedOperationException("[PEACH filter BED] does not yet have a valid 38 version.");
-    }
-
-    @Override
     public String hlaRegionBed() {
         return formPath(LILAC, "hla.38.bed");
     }

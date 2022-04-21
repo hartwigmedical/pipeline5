@@ -91,14 +91,14 @@ public class SmokeTest {
         final String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
-        final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
+        final String randomRunId = "maeiu"; //noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(findCloudSdk())
                 .setId(setName)
                 .runId(randomRunId)
                 .runGermlineCaller(false)
-                .cleanup(true)
+                .cleanup(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .context(Context.DIAGNOSTIC)
                 .useTargetRegions(false)
