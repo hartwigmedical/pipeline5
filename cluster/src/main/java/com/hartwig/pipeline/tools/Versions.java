@@ -14,7 +14,7 @@ public interface Versions {
     String AMBER = "3.9";
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.6";
+    String CUPPA = "1.6.1";
     String GRIDSS = "2.13.2";
     String GRIPSS = "2.1";
     String HEALTH_CHECKER = "3.4";
