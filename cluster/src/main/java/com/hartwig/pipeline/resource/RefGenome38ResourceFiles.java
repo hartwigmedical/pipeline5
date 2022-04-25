@@ -17,6 +17,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
 import java.util.Optional;
 
@@ -184,7 +185,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String actionabilityDir() {
-        throw new UnsupportedOperationException("Running PROTECT is not yet supported on 38 as we do not have the SERVE input.");
+        return formPath(SERVE, "");
     }
 
     @Override
