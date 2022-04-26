@@ -46,7 +46,7 @@ public class StageRunner<M extends RunMetadata> {
         this.mode = mode;
     }
 
-    public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
+    public <T extends StageOutput> T run(final M metadata, final Stage<T, M> stage) {
         final List<BashCommand> commands = commands(mode, metadata, stage);
         if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {
@@ -69,7 +69,7 @@ public class StageRunner<M extends RunMetadata> {
         return stage.skippedOutput(metadata);
     }
 
-    private <T extends StageOutput> List<BashCommand> commands(final InputMode mode, M metadata, final Stage<T, M> stage) {
+    private <T extends StageOutput> List<BashCommand> commands(final InputMode mode, final M metadata, final Stage<T, M> stage) {
         switch (mode) {
             case TUMOR_REFERENCE:
                 return stage.tumorReferenceCommands(metadata);

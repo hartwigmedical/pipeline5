@@ -46,7 +46,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public LinxGermline(GripssOutput gripssOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public LinxGermline(final GripssOutput gripssOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         gripssGermlineVariantsDownload = new InputDownload(gripssOutput.filteredVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;

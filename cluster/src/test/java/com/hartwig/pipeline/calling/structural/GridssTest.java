@@ -50,7 +50,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 inputDownload(TUMOR_BUCKET, "tumor.bam.bai"));
     }
 
-    private String inputDownload(String bucket, String basename) {
+    private String inputDownload(final String bucket, final String basename) {
         return input(format("%s/aligner/results/%s", bucket, basename), basename);
     }
 

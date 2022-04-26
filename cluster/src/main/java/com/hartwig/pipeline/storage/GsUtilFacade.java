@@ -7,13 +7,13 @@ public class GsUtilFacade {
     private final String privateKeyPath;
     private String userProject;
 
-    public GsUtilFacade(String cloudSdkPath, String userProject, String privateKeyPath) {
+    public GsUtilFacade(final String cloudSdkPath, final String userProject, final String privateKeyPath) {
         this.cloudSdkPath = cloudSdkPath;
         this.userProject = userProject;
         this.privateKeyPath = privateKeyPath;
     }
 
-    public void copy(String source, String destination, GsCopyOption... copyOptions) {
+    public void copy(final String source, final String destination, final GsCopyOption... copyOptions) {
         try {
             GSUtil.auth(cloudSdkPath, privateKeyPath);
             GSUtil.cp(cloudSdkPath, source, destination, userProject,
@@ -28,7 +28,7 @@ public class GsUtilFacade {
 
         private String option;
 
-        GsCopyOption(String option) {
+        GsCopyOption(final String option) {
             this.option = option;
         }
     }

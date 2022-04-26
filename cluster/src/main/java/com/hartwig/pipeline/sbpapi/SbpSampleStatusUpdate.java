@@ -11,7 +11,7 @@ public interface SbpSampleStatusUpdate {
     @Value.Parameter
     String status();
 
-    static SbpSampleStatusUpdate of(String status){
+    static SbpSampleStatusUpdate of(final String status){
         return ImmutableSbpSampleStatusUpdate.of(status);
     }
 }

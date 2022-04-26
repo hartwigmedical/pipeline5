@@ -13,9 +13,7 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class SigsTest extends TertiaryStageTest<SigsOutput> {

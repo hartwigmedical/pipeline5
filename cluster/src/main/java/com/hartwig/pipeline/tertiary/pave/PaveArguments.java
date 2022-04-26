@@ -1,12 +1,9 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-
 import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 

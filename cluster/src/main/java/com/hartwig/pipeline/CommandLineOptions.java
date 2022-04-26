@@ -324,7 +324,7 @@ public class CommandLineOptions {
         return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
     }
 
-    public static Arguments from(String[] args) throws ParseException {
+    public static Arguments from(final String[] args) throws ParseException {
         try {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);
@@ -533,7 +533,7 @@ public class CommandLineOptions {
         return Boolean.parseBoolean(value);
     }
 
-    private static Optional<String> runId(CommandLine commandLine) {
+    private static Optional<String> runId(final CommandLine commandLine) {
         if (commandLine.hasOption(RUN_ID_FLAG)) {
             return Optional.of(commandLine.getOptionValue(RUN_ID_FLAG));
         }

@@ -79,7 +79,7 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
         return arguments;
     }
 
-    private static String basename(String filename) {
+    private static String basename(final String filename) {
         return new File(filename).getName();
     }
 

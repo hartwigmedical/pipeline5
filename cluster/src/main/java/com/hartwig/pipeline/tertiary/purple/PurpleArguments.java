@@ -2,17 +2,10 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.*;
 
-import static com.hartwig.pipeline.metadata.InputMode.REFERENCE_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
-
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.InputMode;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 

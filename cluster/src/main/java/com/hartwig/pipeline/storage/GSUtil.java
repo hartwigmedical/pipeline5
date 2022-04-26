@@ -11,27 +11,27 @@ public class GSUtil {
     private static boolean VERBOSE = false;
     private static int TIMEOUT_HOURS;
 
-    public static void configure(boolean verbose, int timeoutHours) {
+    public static void configure(final boolean verbose, final int timeoutHours) {
         VERBOSE = verbose;
         TIMEOUT_HOURS = timeoutHours;
     }
 
-    public static void auth(String gsdkPath, String keyFile) throws IOException, InterruptedException {
+    public static void auth(final String gsdkPath, final String keyFile) throws IOException, InterruptedException {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(gsdkPath + "/gcloud", "auth", "activate-service-account", String.format("--key-file=%s", keyFile));
         Processes.run(processBuilder, VERBOSE);
     }
 
-    public static void cp(String gsdkPath, String sourceUrl, String targetUrl) throws IOException, InterruptedException {
+    public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl) throws IOException, InterruptedException {
         cp(gsdkPath, sourceUrl, targetUrl, null, false);
     }
 
-    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, String... switches)
+    public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final String... switches)
             throws IOException, InterruptedException {
         cp(gsdkPath, sourceUrl, targetUrl, userProject, false, switches);
     }
 
-    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse, String... switches)
+    public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final boolean recurse, final String... switches)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsutil(gsdkPath));
@@ -51,12 +51,12 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 
-    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
+    public static void rsync(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final boolean recurse)
             throws IOException, InterruptedException {
         rsync(gsdkPath, sourceUrl, targetUrl, userProject, null, recurse);
     }
 
-    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, String exclusions, boolean recurse)
+    public static void rsync(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final String exclusions, final boolean recurse)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsutil(gsdkPath));
@@ -79,7 +79,7 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 
-    public static void rm(String gsdkPath, String path) {
+    public static void rm(final String gsdkPath, final String path) {
         List<String> command = new ArrayList<>();
         command.add(gsutil(gsdkPath));
         command.add("-qm");

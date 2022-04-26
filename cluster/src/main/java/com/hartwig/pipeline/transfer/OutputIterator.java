@@ -22,11 +22,11 @@ public class OutputIterator {
         return new OutputIterator(action, sourceBucket);
     }
 
-    public void iterate(SomaticRunMetadata metadata) {
+    public void iterate(final SomaticRunMetadata metadata) {
         find(sourceBucket, metadata.set()).forEach(action);
     }
 
-    private List<Blob> find(Bucket bucket, String prefix) {
+    private List<Blob> find(final Bucket bucket, final String prefix) {
         return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(prefix + "/")).iterateAll());
     }
 }

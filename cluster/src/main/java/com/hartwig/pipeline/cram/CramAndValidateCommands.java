@@ -20,7 +20,7 @@ public class CramAndValidateCommands {
 
     private final ResourceFiles resourceFiles;
 
-    public CramAndValidateCommands(String inputBam, String outputCram, ResourceFiles resourceFiles) {
+    public CramAndValidateCommands(final String inputBam, final String outputCram, final ResourceFiles resourceFiles) {
         this.inputBam = inputBam;
         this.outputCram = outputCram;
         this.resourceFiles = resourceFiles;

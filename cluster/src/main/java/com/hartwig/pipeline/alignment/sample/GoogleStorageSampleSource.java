@@ -51,11 +51,11 @@ public class GoogleStorageSampleSource implements SampleSource {
         return Sample.builder(sampleNameWithPostfix).addAllLanes(lanes).build();
     }
 
-    private static boolean isGZipped(Blob blob) {
+    private static boolean isGZipped(final Blob blob) {
         return blob.getName().endsWith(GZ_EXTENSION);
     }
 
-    private static boolean isNotZipped(Blob blob) {
+    private static boolean isNotZipped(final Blob blob) {
         return !isGZipped(blob);
     }
 }

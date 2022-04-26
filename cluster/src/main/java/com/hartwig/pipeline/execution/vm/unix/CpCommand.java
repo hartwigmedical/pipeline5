@@ -8,7 +8,7 @@ public class CpCommand implements BashCommand {
     private final String source;
     private final String destination;
 
-    public CpCommand(String source, String destination) {
+    public CpCommand(final String source, final String destination) {
         this.source = source;
         this.destination = destination;
     }

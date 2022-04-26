@@ -19,7 +19,7 @@ public interface VirtualMachinePerformanceProfile extends PerformanceProfile {
         return ImmutableVirtualMachinePerformanceProfile.builder().machineType(MachineType.defaultVm()).build();
     }
 
-    static VirtualMachinePerformanceProfile custom(int cores, int memoryGb) {
+    static VirtualMachinePerformanceProfile custom(final int cores, final int memoryGb) {
 
         return ImmutableVirtualMachinePerformanceProfile.builder().machineType(MachineType.custom(memoryGb, cores)).build();
     }

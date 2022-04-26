@@ -44,15 +44,15 @@ public class SbpRestApi {
         return returnOrThrow(api().path(INIS).request().buildGet().invoke());
     }
 
-    public String getFastQ(long sampleId) {
+    public String getFastQ(final long sampleId) {
         return getBySampleId(sampleId, api().path(FASTQ));
     }
 
-    public String getSet(int sampleId) {
+    public String getSet(final int sampleId) {
         return getBySampleId(sampleId, api().path("sets"));
     }
 
-    public String getRun(int id) {
+    public String getRun(final int id) {
         Response response = runs().path(valueOf(id)).request().buildGet().invoke();
         return returnOrThrow(response);
     }
@@ -68,7 +68,7 @@ public class SbpRestApi {
         return api().path(RUNS);
     }
 
-    public String getSample(long sampleId) {
+    public String getSample(final long sampleId) {
         Response response = sample().path(valueOf(sampleId)).request().buildGet().invoke();
         return returnOrThrow(response);
     }
@@ -81,7 +81,7 @@ public class SbpRestApi {
         return api().path(SAMPLES);
     }
 
-    public String getSample(String setId) {
+    public String getSample(final String setId) {
         Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
         return returnOrThrow(response);
     }
@@ -115,7 +115,7 @@ public class SbpRestApi {
         }
     }
 
-    public void updateRunResult(String runID, SbpRunResultUpdate update) {
+    public void updateRunResult(final String runID, final SbpRunResultUpdate update) {
         LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, update);
         returnOrThrow(api().path(RUNS).path(runID).request().build("PATCH", jsonEntity(update)).invoke());
     }
@@ -144,7 +144,7 @@ public class SbpRestApi {
         }
     }
 
-    public static <T> Entity<String> jsonEntity(T payload) {
+    public static <T> Entity<String> jsonEntity(final T payload) {
         try {
             return Entity.entity(OBJECT_MAPPER.writeValueAsString(payload), MediaType.APPLICATION_JSON_TYPE);
         } catch (JsonProcessingException e) {

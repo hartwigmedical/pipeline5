@@ -18,7 +18,7 @@ public class MockRuntimeBucket {
     private final RuntimeBucket runtimeBucket;
     private final List<Blob> blobs = new ArrayList<>();
 
-    private MockRuntimeBucket(String name) {
+    private MockRuntimeBucket(final String name) {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn(name);
         when(runtimeBucket.getNamespace()).thenReturn(name);
@@ -27,7 +27,7 @@ public class MockRuntimeBucket {
         when(runtimeBucket.list()).thenReturn(blobs);
     }
 
-    public static MockRuntimeBucket of(String name) {
+    public static MockRuntimeBucket of(final String name) {
         return new MockRuntimeBucket(name);
     }
 
@@ -35,7 +35,7 @@ public class MockRuntimeBucket {
         return of("test");
     }
 
-    public MockRuntimeBucket with(String blob, long size) {
+    public MockRuntimeBucket with(final String blob, final long size) {
         try {
             Blob mockBlob = mock(Blob.class);
             ReadChannel mockReadChannel = mock(ReadChannel.class);

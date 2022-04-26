@@ -10,7 +10,7 @@ import com.hartwig.patient.Lane;
 
 class FastqFiles {
 
-    static List<Lane> toLanes(List<String> files, String directory, String sampleName) {
+    static List<Lane> toLanes(final List<String> files, final String directory, final String sampleName) {
         Map<String, ImmutableLane.Builder> builders = new HashMap<>();
         for (String filename : files) {
             if (!(filename.endsWith(".fastq") || filename.endsWith(".fastq.gz"))) {

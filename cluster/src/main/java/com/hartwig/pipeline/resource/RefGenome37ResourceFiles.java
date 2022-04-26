@@ -20,10 +20,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
-import java.util.Optional;
-
-import org.jetbrains.annotations.NotNull;
-
 public class RefGenome37ResourceFiles implements ResourceFiles {
 
     private static final String REF_GENOME_FASTA_37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";

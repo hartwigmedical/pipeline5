@@ -31,7 +31,7 @@ public class BashStartupScript {
         return new BashStartupScript(runtimeBucketName, RuntimeFiles.typical());
     }
 
-    public static BashStartupScript of(final String runtimeBucketName, RuntimeFiles flags) {
+    public static BashStartupScript of(final String runtimeBucketName, final RuntimeFiles flags) {
         return new BashStartupScript(runtimeBucketName, flags);
     }
 
@@ -40,7 +40,7 @@ public class BashStartupScript {
         });
     }
 
-    String asUnixString(StorageStrategy storageStrategy) {
+    String asUnixString(final StorageStrategy storageStrategy) {
         String localLogFile = format("%s/%s", LOCAL_LOG_DIR, runtimeFiles.log());
         String commandSuffix = format(" >>%s 2>&1 || die", localLogFile);
         String jobFailedFlag = "/tmp/" + runtimeFiles.failure();
@@ -62,12 +62,12 @@ public class BashStartupScript {
                 : commandSuffix);
     }
 
-    BashStartupScript addLine(String lineOne) {
+    BashStartupScript addLine(final String lineOne) {
         commands.add(lineOne);
         return this;
     }
 
-    public BashStartupScript addCommand(BashCommand command) {
+    public BashStartupScript addCommand(final BashCommand command) {
         return addLine(String.format("echo $(date \"+%%Y-%%m-%%d %%H:%%M:%%S\") \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
                 escapeQuotes(command.asBash()))).addLine(command.asBash());
@@ -77,7 +77,7 @@ public class BashStartupScript {
         return s.replace("\"", "\\\"");
     }
 
-    public BashStartupScript addCommands(List<? extends BashCommand> commands) {
+    public BashStartupScript addCommands(final List<? extends BashCommand> commands) {
         for (BashCommand command : commands) {
             addCommand(command);
         }

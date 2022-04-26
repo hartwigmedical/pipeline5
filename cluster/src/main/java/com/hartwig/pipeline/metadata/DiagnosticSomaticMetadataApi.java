@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
-import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.RunSet;
 import com.hartwig.api.model.Sample;

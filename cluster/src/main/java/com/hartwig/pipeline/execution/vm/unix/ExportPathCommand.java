@@ -16,7 +16,7 @@ public class ExportPathCommand extends ExportVariableCommand {
         this(dirname(command.asBash()));
     }
 
-    private static String dirname(String filename) {
+    private static String dirname(final String filename) {
         return new File(filename).getParent();
     }
 }

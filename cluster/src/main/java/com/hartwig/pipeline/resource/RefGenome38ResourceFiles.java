@@ -18,8 +18,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
-import java.util.Optional;
-
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
     public RefGenomeVersion version() {

@@ -16,7 +16,7 @@ class BucketCompletionWatcher {
         STILL_WAITING
     }
 
-    State waitForCompletion(RuntimeBucket bucket, RuntimeFiles flags) {
+    State waitForCompletion(final RuntimeBucket bucket, final RuntimeFiles flags) {
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
             State currentState = currentState(bucket, flags);
             if (currentState.equals(State.STILL_WAITING)) {
@@ -27,7 +27,7 @@ class BucketCompletionWatcher {
         });
     }
 
-    State currentState(RuntimeBucket bucket, RuntimeFiles flags) {
+    State currentState(final RuntimeBucket bucket, final RuntimeFiles flags) {
         if (bucketContainsFile(bucket, flags.failure())) {
             return State.FAILURE;
         } else if (bucketContainsFile(bucket, flags.success())) {
@@ -36,7 +36,7 @@ class BucketCompletionWatcher {
         return State.STILL_WAITING;
     }
 
-    private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
+    private boolean bucketContainsFile(final RuntimeBucket bucket, final String filename) {
         List<Blob> objects = bucket.list();
         for (Blob blob : objects) {
             String name = blob.getName();

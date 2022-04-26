@@ -21,7 +21,6 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -295,7 +294,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public OrangeOutput persistedOutput(SomaticRunMetadata metadata) {
+    public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
         return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 }

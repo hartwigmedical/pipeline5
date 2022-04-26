@@ -73,7 +73,7 @@ public interface Arguments extends CommonArguments {
         return ImmutableArguments.builder();
     }
 
-    static Arguments defaults(String profileString) {
+    static Arguments defaults(final String profileString) {
         return defaultsBuilder(profileString).build();
     }
 
@@ -121,7 +121,7 @@ public interface Arguments extends CommonArguments {
 
     Pipeline.Context DEFAULT_CONTEXT = Context.DIAGNOSTIC;
 
-    static ImmutableArguments.Builder defaultsBuilder(String profileString) {
+    static ImmutableArguments.Builder defaultsBuilder(final String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()

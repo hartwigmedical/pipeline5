@@ -77,7 +77,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     }
 
     @Override
-    protected void validateOutput(CramOutput output) {
+    protected void validateOutput(final CramOutput output) {
         // no additional validation
     }
 

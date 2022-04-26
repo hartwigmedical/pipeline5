@@ -12,7 +12,7 @@ class SelectSamples extends SubStage {
 
     private final String[] samples;
 
-    SelectSamples(String... samples) {
+    SelectSamples(final String... samples) {
         super("sage.sort", FileTypes.GZIPPED_VCF);
         this.samples = samples;
     }

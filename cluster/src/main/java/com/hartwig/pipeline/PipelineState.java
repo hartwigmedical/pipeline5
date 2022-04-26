@@ -29,7 +29,7 @@ public class PipelineState {
         return stageOutput;
     }
 
-    PipelineState combineWith(PipelineState state) {
+    PipelineState combineWith(final PipelineState state) {
         if (state != null) {
             state.stageOutputs().forEach(this::add);
         } else {

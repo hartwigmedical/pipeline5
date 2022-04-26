@@ -26,7 +26,7 @@ public interface FlagstatOutput extends StageOutput {
         return maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty());
     }
 
-    static String outputFile(String sample) {
+    static String outputFile(final String sample) {
         return String.format("%s.flagstat", sample);
     }
 

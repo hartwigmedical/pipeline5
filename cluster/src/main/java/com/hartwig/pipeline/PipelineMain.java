@@ -49,7 +49,7 @@ public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
-    public PipelineState start(Arguments arguments) {
+    public PipelineState start(final Arguments arguments) {
         LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {
@@ -141,11 +141,11 @@ public class PipelineMain {
         }
     }
 
-    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status, boolean publish) {
+    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status, final boolean publish) {
         publish(PipelineCompleted.builder().properties(properties).publisher(publisher).status(status).build(), publish);
     }
 
-    public void startedEvent(final PipelineProperties subjects, final Publisher publisher, boolean publish) {
+    public void startedEvent(final PipelineProperties subjects, final Publisher publisher, final boolean publish) {
         publish(PipelineStarted.builder().properties(subjects).publisher(publisher).build(), publish);
     }
 
@@ -197,7 +197,7 @@ public class PipelineMain {
                 germlineCallerOutputQueue);
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
             if (state.status() != PipelineStatus.FAILED) {

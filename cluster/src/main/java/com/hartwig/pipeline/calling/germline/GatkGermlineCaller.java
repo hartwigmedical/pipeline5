@@ -21,7 +21,7 @@ public class GatkGermlineCaller extends SubStage {
     }
 
     @Override
-    public List<BashCommand> bash(final OutputFile input, OutputFile output) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return Collections.singletonList(new GatkHaplotypeCallerCommand(inputBam, referenceFasta, output.path()));
     }
 }

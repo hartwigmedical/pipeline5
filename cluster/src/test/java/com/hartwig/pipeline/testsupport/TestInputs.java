@@ -23,7 +23,6 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.InputMode;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -83,7 +82,7 @@ public class TestInputs {
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
 
-    public static String inputDownload(String commands) {
+    public static String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
     }
 
@@ -295,7 +294,7 @@ public class TestInputs {
                 .build();
     }
 
-    private static String somaticBucket(String namespace) {
+    private static String somaticBucket(final String namespace) {
         return SOMATIC_BUCKET + "/" + namespace;
     }
 

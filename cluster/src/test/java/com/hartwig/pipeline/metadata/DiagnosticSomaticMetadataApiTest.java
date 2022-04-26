@@ -11,7 +11,6 @@ import java.util.List;
 
 import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
-import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.RunSet;

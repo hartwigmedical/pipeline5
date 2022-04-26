@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
@@ -29,7 +27,7 @@ public class SageCommandBuilder {
     private boolean shallowSomaticMode = false;
     private boolean targetRegions = false;
 
-    public SageCommandBuilder(ResourceFiles resourceFiles) {
+    public SageCommandBuilder(final ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
     }
 
@@ -44,13 +42,13 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder addTumor(String sample, String bamFile) {
+    public SageCommandBuilder addTumor(final String sample, final String bamFile) {
         tumor.add(sample);
         tumorBam.add(bamFile);
         return this;
     }
 
-    public SageCommandBuilder addReference(String sample, String bamFile) {
+    public SageCommandBuilder addReference(final String sample, final String bamFile) {
         reference.add(sample);
         referenceBam.add(bamFile);
         return this;
@@ -71,7 +69,7 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder maxHeap(String maxHeap) {
+    public SageCommandBuilder maxHeap(final String maxHeap) {
         this.wgsMaxHeap = maxHeap;
         return this;
     }

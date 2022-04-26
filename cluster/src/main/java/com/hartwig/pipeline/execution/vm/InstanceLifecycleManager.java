@@ -53,7 +53,7 @@ class InstanceLifecycleManager {
         return new Instance();
     }
 
-    Optional<Instance> findExistingInstance(String vmName) {
+    Optional<Instance> findExistingInstance(final String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
             InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), LIST_INSTANCES);
             if (instances.getItems() != null) {
@@ -67,7 +67,7 @@ class InstanceLifecycleManager {
         return Optional.empty();
     }
 
-    Operation deleteOldInstancesAndStart(Instance instance, String zone, String vmName) {
+    Operation deleteOldInstancesAndStart(final Instance instance, final String zone, final String vmName) {
         findExistingInstance(vmName).ifPresent(i -> {
             try {
                 String shortZone = new File(i.getZone()).getName();
@@ -88,19 +88,19 @@ class InstanceLifecycleManager {
         }
     }
 
-    void delete(String zone, String vm) {
+    void delete(final String zone, final String vm) {
         executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone, DELETE_VM);
     }
 
-    void stop(String zone, String vm) {
+    void stop(final String zone, final String vm) {
         executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone, STOP_VM);
     }
 
-    private String operationStatus(String jobName, String zoneName) {
+    private String operationStatus(final String jobName, final String zoneName) {
         return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), OPERATION_STATUS).getStatus();
     }
 
-    String instanceStatus(String vm, String zone) {
+    String instanceStatus(final String vm, final String zone) {
         try {
             Instance found = compute.instances().get(project, zone, vm).execute();
             if (found != null) {
@@ -125,7 +125,8 @@ class InstanceLifecycleManager {
                 .get(supplier);
     }
 
-    private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName, String opName) {
+    private Operation executeSynchronously(
+            final ComputeRequest<Operation> request, final String projectName, final String zoneName, final String opName) {
         Operation asyncOp = executeWithRetries(request::execute, opName);
         String logId = format("Operation [%s:%s]", asyncOp.getOperationType(), asyncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);

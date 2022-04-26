@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public interface RecordGroupId {
 
-    static String from(boolean strict, String fastq) {
+    static String from(final boolean strict, final String fastq) {
         String fastqNoExtension = removeFastqAndGz(getName(fastq));
         if (strict) {
             if (!Pattern.compile("^.*_.*_.*_L[0-9]{3}_R[1,2]_[0-9]{3}$").matcher(fastqNoExtension).matches()) {

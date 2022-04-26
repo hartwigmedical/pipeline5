@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_ONLY;
-
 import java.util.List;
 
 import com.hartwig.pipeline.calling.sage.SageOutput;

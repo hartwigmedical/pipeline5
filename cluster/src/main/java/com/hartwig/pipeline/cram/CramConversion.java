@@ -39,7 +39,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     private final SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
-    public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, ResourceFiles resourceFiles) {
+    public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, final ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.alignments());
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
@@ -76,7 +76,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public VirtualMachineJobDefinition vmDefinition(BashStartupScript bash, ResultsDirectory resultsDirectory) {
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("cram")
                 .startupCommand(bash)
@@ -87,8 +87,8 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket,
-            ResultsDirectory resultsDirectory) {
+    public CramOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
         String cram = new File(outputCram).getName();
         String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);
@@ -110,7 +110,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public CramOutput skippedOutput(SingleSampleRunMetadata metadata) {
+    public CramOutput skippedOutput(final SingleSampleRunMetadata metadata) {
         return CramOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
@@ -120,7 +120,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public boolean shouldRun(Arguments arguments) {
+    public boolean shouldRun(final Arguments arguments) {
         return arguments.outputCram();
     }
 }

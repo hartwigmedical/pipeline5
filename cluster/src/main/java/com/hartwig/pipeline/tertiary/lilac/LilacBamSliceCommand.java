@@ -4,7 +4,7 @@ import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class LilacBamSliceCommand extends SambambaCommand {
-    LilacBamSliceCommand(ResourceFiles resourceFiles, String inputBam, String outputBam) {
+    LilacBamSliceCommand(final ResourceFiles resourceFiles, final String inputBam, final String outputBam) {
         super("slice", "-L", resourceFiles.hlaRegionBed(), "-o", outputBam, inputBam);
     }
 }

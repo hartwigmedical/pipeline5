@@ -10,14 +10,9 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.metadata.RunMetadata;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +32,7 @@ public class PipelineResults {
         this.reportBucket = reportBucket;
     }
 
-    public <T extends StageOutput> T add(T stageOutput) {
+    public <T extends StageOutput> T add(final T stageOutput) {
         if (stageOutput != null) {
             components.addAll(stageOutput.reportComponents());
         }

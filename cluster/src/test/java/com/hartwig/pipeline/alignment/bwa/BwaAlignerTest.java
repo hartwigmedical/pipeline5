@@ -115,7 +115,7 @@ public class BwaAlignerTest {
         when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build());
     }
 
-    private static ImmutableLane lane(int index) {
+    private static ImmutableLane lane(final int index) {
         return Lanes.emptyBuilder().flowCellId("flowcell").laneNumber(String.format("L00%s", index)).build();
     }
 }

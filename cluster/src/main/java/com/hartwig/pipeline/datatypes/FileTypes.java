@@ -1,9 +1,5 @@
 package com.hartwig.pipeline.datatypes;
 
-import java.util.function.Function;
-
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-
 public class FileTypes {
 
     public static final String BAM = "bam";

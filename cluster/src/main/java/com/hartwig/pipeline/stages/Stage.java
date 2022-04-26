@@ -19,19 +19,19 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     String namespace();
 
-    default List<BashCommand> commands(M metadata) {
+    default List<BashCommand> commands(final M metadata) {
         return disabled();
     }
 
-    default List<BashCommand> tumorOnlyCommands(M metadata) {
+    default List<BashCommand> tumorOnlyCommands(final M metadata) {
         return disabled();
     }
 
-    default List<BashCommand> referenceOnlyCommands(M metadata) {
+    default List<BashCommand> referenceOnlyCommands(final M metadata) {
         return disabled();
     }
 
-    default List<BashCommand> tumorReferenceCommands(M metadata) {
+    default List<BashCommand> tumorReferenceCommands(final M metadata) {
         return commands(metadata);
     }
 
@@ -41,7 +41,7 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     S skippedOutput(M metadata);
 
-    default S persistedOutput(M metadata) {
+    default S persistedOutput(final M metadata) {
         throw new UnsupportedOperationException(String.format("Stage [%s] does not support using persisted output.", namespace()));
     }
 

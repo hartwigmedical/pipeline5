@@ -5,11 +5,11 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 
 public interface CompletionHandler {
 
-    default void handleAlignmentComplete(AlignmentOutput output){
+    default void handleAlignmentComplete(final AlignmentOutput output){
         // default
     }
 
-    default void handleSingleSampleComplete(PipelineState state){
+    default void handleSingleSampleComplete(final PipelineState state){
         // default
     }
 }

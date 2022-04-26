@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class TestJson {
 
     @NotNull
-    public static String get(String name) {
+    public static String get(final String name) {
         try {
             return new String(Files.readAllBytes(Paths.get(Resources.testResource("sbp_api/" + name + ".json"))));
         } catch (IOException e) {

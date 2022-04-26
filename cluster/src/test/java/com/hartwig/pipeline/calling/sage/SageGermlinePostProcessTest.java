@@ -10,7 +10,6 @@ import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 

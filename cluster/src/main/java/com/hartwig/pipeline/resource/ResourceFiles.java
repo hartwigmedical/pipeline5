@@ -4,24 +4,20 @@ import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
-import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
-
-import java.util.Optional;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public interface ResourceFiles {
 
-    static String of(String name, String file) {
+    static String of(final String name, final String file) {
         return String.format("%s/%s/%s", VmDirectories.RESOURCES, name, file);
     }
 
-    static String of(String name) {
+    static String of(final String name) {
         return of(name, "");
     }
 

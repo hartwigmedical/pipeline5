@@ -21,7 +21,7 @@ public interface SubStageInputOutput {
     @Value.Parameter
     List<BashCommand> bash();
 
-    default SubStageInputOutput combine(SubStageInputOutput subStageInputOutput) {
+    default SubStageInputOutput combine(final SubStageInputOutput subStageInputOutput) {
         List<BashCommand> commands = new ArrayList<>();
         commands.addAll(bash());
         commands.addAll(subStageInputOutput.bash());

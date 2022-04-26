@@ -16,7 +16,7 @@ public class SamtoolsCommand extends VersionedToolCommand {
         return new SamtoolsCommand("index", file);
     }
 
-    public static SamtoolsCommand toUncompressedBam(ResourceFiles resourceFiles, final String inputFile, final String outputFile) {
+    public static SamtoolsCommand toUncompressedBam(final ResourceFiles resourceFiles, final String inputFile, final String outputFile) {
         return new SamtoolsCommand("view",
                 "-T",
                 resourceFiles.refGenomeFile(),
@@ -29,7 +29,7 @@ public class SamtoolsCommand extends VersionedToolCommand {
                 inputFile);
     }
 
-    public static SamtoolsCommand sliceToUncompressedBam(ResourceFiles resourceFiles, final String bedFile, final String inputFile,
+    public static SamtoolsCommand sliceToUncompressedBam(final ResourceFiles resourceFiles, final String bedFile, final String inputFile,
             final String outputFile) {
         return new SamtoolsCommand("view",
                 "-T",

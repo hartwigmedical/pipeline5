@@ -144,7 +144,7 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         return builder.build();
     }
 
-    protected ReportComponent singleFileComponent(String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 

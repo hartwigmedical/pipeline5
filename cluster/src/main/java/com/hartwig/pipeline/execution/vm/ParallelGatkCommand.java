@@ -11,7 +11,7 @@ public class ParallelGatkCommand extends GatkCommand {
         super(maxHeapSize, analysisType, concat(Lists.newArrayList("-nct", Bash.allCpus()), arguments));
     }
 
-    private static String[] concat(List<String> first, String... rest) {
+    private static String[] concat(final List<String> first, final String... rest) {
         first.addAll(Arrays.asList(rest));
         return first.toArray(new String[first.size()]);
     }

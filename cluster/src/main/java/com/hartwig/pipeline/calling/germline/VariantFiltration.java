@@ -20,7 +20,7 @@ public class VariantFiltration extends SubStage {
     private final Map<String, String> filterExpressions;
     private final String referenceFasta;
 
-    VariantFiltration(final String variantType, Map<String, String> filterExpressions, final String referenceFasta) {
+    VariantFiltration(final String variantType, final Map<String, String> filterExpressions, final String referenceFasta) {
         super("filtered_" + variantType, FileTypes.VCF);
         this.filterExpressions = filterExpressions;
         this.referenceFasta = referenceFasta;

@@ -7,7 +7,7 @@ public class SambambaCommand extends VersionedToolCommand {
 
     public static final String SAMBAMBA = "sambamba";
 
-    public SambambaCommand(String... arguments) {
+    public SambambaCommand(final String... arguments) {
         super(SAMBAMBA, SAMBAMBA, Versions.SAMBAMBA, arguments);
     }
 }

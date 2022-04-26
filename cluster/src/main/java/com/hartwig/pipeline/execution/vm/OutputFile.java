@@ -16,15 +16,15 @@ public interface OutputFile {
         return VmDirectories.OUTPUT + "/" + fileName();
     }
 
-    default OutputFile index(String suffix) {
+    default OutputFile index(final String suffix) {
         return ImmutableOutputFile.builder().from(this).fileName(fileName() + suffix).build();
     }
 
-    static OutputFile of(String sample, String subStageName, String type) {
+    static OutputFile of(final String sample, final String subStageName, final String type) {
         return ImmutableOutputFile.of(String.format("%s.%s.%s", sample, subStageName, type));
     }
 
-    static OutputFile of(String sample, String type) {
+    static OutputFile of(final String sample, final String type) {
         return ImmutableOutputFile.of(String.format("%s.%s", sample, type));
     }
 

@@ -101,7 +101,7 @@ public class FullPipeline {
         };
     }
 
-    private PipelineState runPipeline(SingleSamplePipeline pipeline, SingleSampleRunMetadata metadata, CountDownLatch latch) {
+    private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata, final CountDownLatch latch) {
         try {
             return pipeline.run(metadata);
         } catch (Exception e) {

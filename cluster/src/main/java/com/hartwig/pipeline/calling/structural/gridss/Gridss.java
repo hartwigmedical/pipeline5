@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.command.BwaCommand;
@@ -99,7 +98,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         return commands;
     }
 
-    private static String basename(String filename) {
+    private static String basename(final String filename) {
         return new File(filename).getName();
     }
 
@@ -161,7 +160,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     }
 
     private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
-            String filename) {
+            final String filename) {
         return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filename)));
     }
 }

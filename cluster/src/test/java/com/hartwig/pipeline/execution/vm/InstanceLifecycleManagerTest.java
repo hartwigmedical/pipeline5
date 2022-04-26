@@ -201,7 +201,7 @@ public class InstanceLifecycleManagerTest {
         verify(stop).execute();
     }
 
-    private Zone zone(String name) {
+    private Zone zone(final String name) {
         Zone zone = mock(Zone.class);
         when(zone.getName()).thenReturn(name);
         when(zone.getRegion()).thenReturn("someregion-" + ARGUMENTS.region());
@@ -212,7 +212,7 @@ public class InstanceLifecycleManagerTest {
         return namedInstance(null);
     }
 
-    private Instance namedInstance(String providedName) {
+    private Instance namedInstance(final String providedName) {
         String name = providedName == null ? RandomStringUtils.random(10) : providedName;
         Instance instance = mock(Instance.class);
         when(instance.getName()).thenReturn(name);

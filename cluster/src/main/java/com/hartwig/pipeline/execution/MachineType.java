@@ -24,7 +24,7 @@ public interface MachineType {
         return custom(8, 8);
     }
 
-    static MachineType custom(int memoryGB, int cores) {
+    static MachineType custom(final int memoryGB, final int cores) {
         return ImmutableMachineType.builder().uri(format("custom-%d-%d", cores, memoryGB * 1024)).cpus(cores).memoryGB(memoryGB).build();
     }
 

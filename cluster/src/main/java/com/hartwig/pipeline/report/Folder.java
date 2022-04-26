@@ -10,7 +10,7 @@ public interface Folder {
         return () -> "";
     }
 
-    static Folder from(SingleSampleRunMetadata metadata) {
+    static Folder from(final SingleSampleRunMetadata metadata) {
         return () -> metadata.sampleName() + "/";
     }
 }
