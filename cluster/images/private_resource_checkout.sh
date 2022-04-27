@@ -8,7 +8,7 @@ USAGE: $0 [--project project] [--tag-as-version new-version || --checkout-tag ex
   --project [project]              Project in GCP containing the source repository
 Specify ONLY ONE of:
   --tag-as-version [new-version]   Create tag [new-version] in source repo after checking out HEAD
-  --checkout-tag [existing-tag]    Checkout tag [existing-tag] rather than HEAD and create no new tags
+  --checkout-commit [commit-sha]   Checkout [commit-sha] rather than HEAD and create no new tags
 EOM
 }
 
@@ -20,12 +20,12 @@ while true; do
     case "$1" in
         --project) project=$2 ; shift 2 ;;
         --tag-as-version) new_version=$2 ; shift 2 ;;
-        --checkout-tag) checkout_tag=$2 ; shift 2 ;;
+        --checkout-commit) commit_sha=$2 ; shift 2 ;;
         --) shift; break ;;
     esac
 done
 
-if [[ -z "$project" || ( -z "$new_version" && -z "$checkout_tag" ) || ( -n "$new_version" && -n "$checkout_tag" ) ]]; then
+if [[ -z "$project" || ( -z "$new_version" && -z "$commit_sha" ) || ( -n "$new_version" && -n "$commit_sha" ) ]]; then
     print_usage
     exit 1
 fi
@@ -38,8 +38,8 @@ if [[ -n $new_version ]]; then
     git tag "$new_version"
     git push origin "$new_version"
 else
-   "Checking out existing tag '$checkout_tag'"
-    git checkout tags/$checkout_tag
+   "Checking out commit '$commit_sha'"
+    git checkout $commit_sha
 fi
 
 rm -r .git/

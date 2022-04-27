@@ -11,9 +11,9 @@ DEST_SERVICE_ACCOUNT="649805142670-compute@developer.gserviceaccount.com"
 
 which jq >/dev/null || (echo Please install jq && exit 1)
 which gcloud >/dev/null || (echo Please install gcloud && exit 1)
-[[ $# -ne 1 && $# -ne 2 ]] && echo "USAGE: $0 [base image] [optional tag for resources instead of HEAD]" && exit 1
+[[ $# -ne 1 && $# -ne 2 ]] && echo "USAGE: $0 [base image] [optional SHA1 for resources instead of HEAD]" && exit 1
 source_image="$1"
-resource_tag="$2"
+commit_sha="$2"
 
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
@@ -51,8 +51,8 @@ echo "Instance running, continuing with imaging"
 set -e
 gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
 sleep 60
-if [[ -n $resource_tag ]]; then
-    additional_args="--checkout-tag $resource_tag"
+if [[ -n $commit_sha ]]; then
+    additional_args="--checkout-commit $commit_sha"
 else
     additional_args="--tag-as-version $dest_image"
 fi    
