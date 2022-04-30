@@ -5,8 +5,6 @@ set -x
 dmidecode -s system-product-name | grep -q "Google Compute Engine"
 IN_GCP=$?
 
-#set -e
-
 print_usage() {
     cat <<EOM
 USAGE: $0 [--project project] [--tag-as-version new-version || --checkout-tag existing-tag] [--result-code-url gs-url]
@@ -28,9 +26,7 @@ gsurl_exit_handler() {
 }
 
 metadata() {
-    #set +e
     curl -f -s http://metadata.google.internal/computeMetadata/v1/instance/attributes/$1 -H "Metadata-Flavor: Google" 2>/dev/null
-    #set -e
 }
 
 set -o pipefail
