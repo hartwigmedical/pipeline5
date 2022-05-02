@@ -1,33 +1,65 @@
 #!/usr/bin/env bash
 
-set -e
+set -x
+
+dmidecode -s system-product-name | grep -q "Google Compute Engine"
+IN_GCP=$?
 
 print_usage() {
     cat <<EOM
-USAGE: $0 [--project project] [--tag-as-version new-version || --checkout-tag existing-tag]
+USAGE: $0 [--project project] [--tag-as-version new-version || --checkout-tag existing-tag] [--result-code-url gs-url]
+
+Required:
   --project [project]              Project in GCP containing the source repository
+
 Specify ONLY ONE of:
   --tag-as-version [new-version]   Create tag [new-version] in source repo after checking out HEAD
   --checkout-commit [commit-sha]   Checkout [commit-sha] rather than HEAD and create no new tags
+
+Optional:
+  --result-code-url [gs-url]        GCS (eg "gs://bucket/path") URL to write exit code to (bucket must be writable).
 EOM
 }
 
-args=$(getopt -o "" --longoptions project:,tag-as-version:,checkout-tag: -- "$@")
-[[ $? != 0 ]] && print_usage && exit 1
-eval set -- "$args"
+gsurl_exit_handler() {
+    gsutil cp <(echo $?) $result_code_url
+}
 
-while true; do
-    case "$1" in
-        --project) project=$2 ; shift 2 ;;
-        --tag-as-version) new_version=$2 ; shift 2 ;;
-        --checkout-commit) commit_sha=$2 ; shift 2 ;;
-        --) shift; break ;;
-    esac
-done
+metadata() {
+    curl -f -s http://metadata.google.internal/computeMetadata/v1/instance/attributes/$1 -H "Metadata-Flavor: Google" 2>/dev/null
+}
+
+set -o pipefail
+
+if [[ $IN_GCP && $# -eq 0 ]]; then
+    project="$(metadata project)"
+    new_version="$(metadata tag-as-version)"
+    commit_sha="$(metadata checkout-commit)"
+    result_code_url="$(metadata result-code-url)"
+else
+    echo "Command line: $0 $@"
+    args=$(getopt -o "" --longoptions project:,tag-as-version:,checkout-commit:,result-code-url: -- "$@")
+    [[ $? != 0 ]] && print_usage && exit 1
+    eval set -- "$args"
+
+    while true; do
+        case "$1" in
+            --project) project=$2 ; shift 2 ;;
+            --tag-as-version) new_version=$2 ; shift 2 ;;
+            --checkout-commit) commit_sha=$2 ; shift 2 ;;
+            --result-code-url) result_code_url=$2 ; shift 2 ;;
+            --) shift; break ;;
+        esac
+    done
+fi
 
 if [[ -z "$project" || ( -z "$new_version" && -z "$commit_sha" ) || ( -n "$new_version" && -n "$commit_sha" ) ]]; then
     print_usage
     exit 1
+fi
+
+if [[ -n $result_code_url ]]; then
+    trap gsurl_exit_handler EXIT
 fi
 
 mkdir /tmp/resources
