@@ -51,14 +51,14 @@ public class SomaticMetadataApiProvider {
 
     public SomaticMetadataApi researchRun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
-        Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id)).or(() -> Optional.of(new Run().id(0L)));
+        Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id));
         return new ResearchMetadataApi(api.samples(),
                 api.sets(),
                 api.runs(),
                 run,
                 biopsyName,
                 arguments,
-                createPublisher(SetResolver.forApi(api.sets()), run, Context.RESEARCH, true),
+                createPublisher(SetResolver.forApi(api.sets()), run.or(() -> Optional.of(new Run().id(0L))), Context.RESEARCH, true),
                 new Anonymizer(arguments));
     }
 
