@@ -46,25 +46,19 @@ public class SomaticMetadataApiProvider {
                 arguments.sampleJson()
                         .map(JsonSampleSource::new)
                         .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")),
-                createPublisher(SetResolver.forLocal(),
-                        Optional.of(new Run().id(0L)),
-                        Context.PLATINUM, false));
+                createPublisher(SetResolver.forLocal(), Optional.of(new Run().id(0L)), Context.PLATINUM, false));
     }
-
 
     public SomaticMetadataApi researchRun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
-        Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id));
+        Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id)).or(() -> Optional.of(new Run().id(0L)));
         return new ResearchMetadataApi(api.samples(),
                 api.sets(),
                 api.runs(),
                 run,
                 biopsyName,
                 arguments,
-                createPublisher(SetResolver.forApi(api.sets()),
-                        run,
-                        Context.RESEARCH,
-                        true),
+                createPublisher(SetResolver.forApi(api.sets()), run, Context.RESEARCH, true),
                 new Anonymizer(arguments));
     }
 
@@ -74,17 +68,21 @@ public class SomaticMetadataApiProvider {
         return new DiagnosticSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
-                createPublisher(SetResolver.forApi(api.sets()),
-                        Optional.of(run),
-                        arguments.context(),
-                        false),
+                createPublisher(SetResolver.forApi(api.sets()), Optional.of(run), arguments.context(), false),
                 new Anonymizer(arguments));
     }
 
-    private StagedOutputPublisher createPublisher(
-            final SetResolver setResolver, final Optional<Run> run, final Context context, final boolean useOnlyDBSets) {
+    private StagedOutputPublisher createPublisher(final SetResolver setResolver, final Optional<Run> run, final Context context,
+            final boolean useOnlyDBSets) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
-        return new StagedOutputPublisher(setResolver, sourceBucket, publisher, objectMapper, run, context, arguments.outputCram(), useOnlyDBSets);
+        return new StagedOutputPublisher(setResolver,
+                sourceBucket,
+                publisher,
+                objectMapper,
+                run,
+                context,
+                arguments.outputCram(),
+                useOnlyDBSets);
     }
 }
