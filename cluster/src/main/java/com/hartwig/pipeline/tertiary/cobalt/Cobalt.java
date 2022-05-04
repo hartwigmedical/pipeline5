@@ -29,8 +29,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tools.Versions;
 
-import jdk.jfr.Name;
-
 @Namespace(Cobalt.NAMESPACE)
 public class Cobalt extends TertiaryStage<CobaltOutput> {
 
