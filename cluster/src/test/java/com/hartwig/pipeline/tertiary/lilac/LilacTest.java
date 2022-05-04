@@ -72,4 +72,14 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
     protected boolean isEnabledOnShallowSeq() {
         return false;
     }
+
+    @Override
+    protected void validatePersistedOutput(final LilacOutput output) {
+        // No extra validation as Lilac output isn't used anywhere
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final LilacOutput output) {
+        // No extra validation as Lilac output isn't used anywhere
+    }
 }

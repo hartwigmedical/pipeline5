@@ -166,11 +166,10 @@ public class Lilac extends TertiaryStage<LilacOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".lilac.csv")),
+                                new ArchivePath(Folder.root(), namespace(), lilacOutput(metadata.sampleName()))),
                         new AddDatatype(DataType.LILAC_QC_METRICS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".lilac.qc.csv")))
-                .build();
+                                new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName())))).build();
     }
 
     @Override
@@ -179,7 +178,28 @@ public class Lilac extends TertiaryStage<LilacOutput> {
     }
 
     @Override
+    public LilacOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return LilacOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), lilacOutput(metadata.sampleName()))),
+                        new AddDatatype(DataType.LILAC_QC_METRICS,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName()))))
+                .build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow();
+    }
+
+    private String lilacOutput(final String sampleName) {
+        return sampleName + ".lilac.csv";
+    }
+
+    private String lilacQcMetrics(final String sampleName) {
+        return sampleName + ".lilac.qc.csv";
     }
 }
