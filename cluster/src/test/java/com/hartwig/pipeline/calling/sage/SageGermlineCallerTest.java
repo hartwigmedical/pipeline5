@@ -23,9 +23,9 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Override
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
-        return new SageCaller(TestInputs.defaultPair(),
+        return new SageGermlineCaller(TestInputs.defaultPair(),
                 new NoopPersistedDataset(),
-                SageConfiguration.germline(TestInputs.REF_GENOME_37_RESOURCE_FILES));
+                TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -44,6 +45,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
+@Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
 

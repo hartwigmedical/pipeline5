@@ -23,10 +23,12 @@ import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+@Namespace(SnpGenotype.NAMESPACE)
 public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "snp_genotype";

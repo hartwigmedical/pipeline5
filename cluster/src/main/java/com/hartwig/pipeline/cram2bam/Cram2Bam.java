@@ -17,10 +17,12 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+@Namespace("cram2bam")
 public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata> {
 
     private final InputDownload bamDownload;

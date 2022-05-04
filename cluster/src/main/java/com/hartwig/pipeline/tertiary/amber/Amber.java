@@ -23,11 +23,13 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tools.Versions;
 
+@Namespace(Amber.NAMESPACE)
 public class Amber extends TertiaryStage<AmberOutput> {
 
     public static final String NAMESPACE = "amber";

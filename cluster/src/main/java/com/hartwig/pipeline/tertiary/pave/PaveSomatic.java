@@ -10,8 +10,10 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 
+@Namespace(PaveSomatic.NAMESPACE)
 public class PaveSomatic extends Pave {
     public static final String NAMESPACE = "pave_somatic";
 
