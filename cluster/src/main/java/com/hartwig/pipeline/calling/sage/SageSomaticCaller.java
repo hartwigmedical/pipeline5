@@ -8,9 +8,11 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
+@Namespace(SageConfiguration.SAGE_SOMATIC_NAMESPACE)
 public class SageSomaticCaller extends SageCaller {
 
     public SageSomaticCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,

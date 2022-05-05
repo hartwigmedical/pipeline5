@@ -7,9 +7,11 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
+@Namespace(SageConfiguration.SAGE_GERMLINE_NAMESPACE)
 public class SageGermlineCaller extends SageCaller {
 
     public SageGermlineCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,

@@ -27,10 +27,12 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+@Namespace(BamMetrics.NAMESPACE)
 public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "bam_metrics";

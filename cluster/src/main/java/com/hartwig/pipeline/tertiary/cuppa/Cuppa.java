@@ -30,6 +30,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -40,13 +41,14 @@ import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
+@Namespace(Cuppa.NAMESPACE)
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
     public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
-    public static String NAMESPACE = "cuppa";
+    public static final String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVariantsDownload;
     private final InputDownload purpleStructuralVariantsDownload;
     private final InputDownload purpleOutputDirectory;

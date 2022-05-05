@@ -26,10 +26,12 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+@Namespace(CramConversion.NAMESPACE)
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "cram";
     static final int NUMBER_OF_CORES = 6;

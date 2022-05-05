@@ -13,8 +13,10 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 
+@Namespace(GripssSomatic.SOMATIC_NAMESPACE)
 public class GripssSomatic extends Gripss {
 
     public static final String SOMATIC_NAMESPACE = "gripss_somatic";

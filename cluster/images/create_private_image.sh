@@ -9,10 +9,42 @@ SOURCE_REPO_PROJECT="hmf-pipeline-prod-e45b00f2"
 DEST_PROJECT="hmf-pipeline-prod-e45b00f2"
 DEST_SERVICE_ACCOUNT="649805142670-compute@developer.gserviceaccount.com"
 
+print_usage() {
+    cat <<EOM
+USAGE: $0 [source image] [optional arguments]
+
+[source image] is the name of an image that already exists in ${IMAGE_SOURCE_PROJECT}
+
+Optional arguments:
+
+  --resources-commit [sha1]     SHA1 in private resources repository to checkout instead of HEAD.
+                                No tagging will be done in the private resources repository.
+  --result-code-url [GCS url]   GCS (eg "gs://bucket/path") URL to write the exit code to (bucket must be writable).
+                                This script will interact with the bucket rather than with the imager instance over SSH.
+EOM
+}
+
+set -o pipefail
+
+[[ $# -eq 0 ]] && print_usage && exit 1
+source_image="$1"
+shift
+
+args=$(getopt -o "" --longoptions resources-commit:,result-code-url: -- "$@")
+[[ $? != 0 ]] && print_usage && exit 1
+eval set -- "$args"
+
+while true; do
+    case "$1" in
+        --resources-commit) resources_commit=$2; shift 2 ;;
+        --result-code-url) result_code_url=$2; shift 2 ;;
+        --) shift; break ;;
+    esac
+done
+
 which jq >/dev/null || (echo Please install jq && exit 1)
 which gcloud >/dev/null || (echo Please install gcloud && exit 1)
-[[ $# -ne 1 ]] && echo "Provide the source image" && exit 1
-source_image="$1"
+which gsutil >/dev/null || (echo Please install gsutil && exit 1)
 
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
@@ -24,33 +56,63 @@ gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>
 image_family="$(echo $json | jq -r '.family')"
 imager_vm="${image_family}-imager"
 
-echo Ready to create VM [${imager_vm}] in project [${DEST_PROJECT}]
-echo The VM will be used to create private image [${dest_image}] in family [${image_family}]
-echo You must have sufficient permissions in [${DEST_PROJECT}]
-echo
-echo 'If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!'
-echo
+cat <<EOM
+Ready to create VM [${imager_vm}] in project [${DEST_PROJECT}]
+The VM will be used to create private image [${dest_image}] in family [${image_family}]
+You must have sufficient permissions in [${DEST_PROJECT}]
+
+If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!
+
+EOM
 read -p "Continue [y|N]? " response
-[[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 1
+[[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
+
+if [[ -n $commit_sha ]]; then
+    additional_args="--checkout-commit $commit_sha"
+else
+    additional_args="--tag-as-version $dest_image"
+fi    
+
+if [[ -n $result_code_url ]]; then
+    gsutil -q stat $result_code_url && echo "Result code URL $result_code_url already exists!" && exit 1
+    more_args="--metadata-from-file=startup-script=$(dirname $0)/private_resource_checkout.sh"
+    more_args="$more_args --metadata=result-code-url=$result_code_url"
+    more_args="${more_args},project=$SOURCE_REPO_PROJECT"
+    more_args="${more_args},$(echo $additional_args | sed -e 's/^--//' -e 's/ /=/g')"
+fi
 
 gcloud compute instances create $imager_vm --description="Instance for private pipeline5 disk image creation" \
     --zone=${ZONE} --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-2 \
-    --image-project=$IMAGE_SOURCE_PROJECT --image=$source_image --scopes=default,cloud-source-repos-ro \
-    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT --network-interface=no-address || exit 1
+    --image-project=$IMAGE_SOURCE_PROJECT --image=$source_image --scopes=default,cloud-platform \
+    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT --network-interface=no-address $more_args || exit 1
 
-ssh="gcloud compute ssh $imager_vm --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap"
-echo "Polling for active instance"
-while true; do
-    sleep 1
-    $ssh --command="exit 0"
-    [[ $? -eq 0 ]] && break
-done
-echo "Instance running, continuing with imaging"
-
-set -e
-gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
-sleep 60
-$ssh --command="sudo /tmp/private_resource_checkout.sh $dest_image $SOURCE_REPO_PROJECT"
+if [[ -n $result_code_url ]]; then
+    echo "Waiting for the presence of ${result_code_url}."
+    echo "If this does not return after a reasonable time check /var/log/daemon.log on the $imager_vm instance."
+    while true; do
+        sleep 10
+        if gsutil -q stat $result_code_url; then
+            exit_code=$(gsutil cat $result_code_url)
+            echo "${result_code_url} present. Returning its contents as our exit code: $exit_code"
+            exit $exit_code
+        fi
+    done
+else
+    ssh="gcloud compute ssh $imager_vm --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap"
+    echo "Polling for active instance"
+    while true; do
+        sleep 1
+        $ssh --command="exit 0"
+        [[ $? -eq 0 ]] && break
+    done
+    echo "Instance running, continuing with imaging"
+    
+    set -e
+    gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
+    sleep 60
+    
+    $ssh --command="sudo /tmp/private_resource_checkout.sh --project $SOURCE_REPO_PROJECT $additional_args"
+fi
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \

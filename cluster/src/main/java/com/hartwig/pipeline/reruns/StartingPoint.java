@@ -20,9 +20,16 @@ import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
+import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
+import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
@@ -51,7 +58,15 @@ public class StartingPoint {
                         PaveGermline.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(SOMATIC_NAMESPACE, GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
-        VIRUS_ANALYSIS_COMPLETE(concat(PURPLE_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE)));
+        PROTECT_ONLY(concat(PURPLE_COMPLETE.namespaces,
+                List.of(LinxGermline.NAMESPACE,
+                        LinxSomatic.NAMESPACE,
+                        VirusAnalysis.NAMESPACE,
+                        Chord.NAMESPACE,
+                        Lilac.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Cuppa.NAMESPACE,
+                        Orange.NAMESPACE)));
 
         private final List<String> namespaces;
 

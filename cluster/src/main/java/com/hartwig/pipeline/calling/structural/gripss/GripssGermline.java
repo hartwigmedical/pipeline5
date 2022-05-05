@@ -13,8 +13,10 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 
+@Namespace(GripssGermline.GERMLINE_NAMESPACE)
 public class GripssGermline extends Gripss {
 
     public static final String GERMLINE_NAMESPACE = "gripss_germline";
