@@ -28,7 +28,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-public class SageCaller extends TertiaryStage<SageOutput> {
+public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
     public static final String SAGE_GENE_COVERAGE_TSV = "sage.gene.coverage.tsv";
     public static final String SAGE_BQR_PNG = "sage.bqr.png";

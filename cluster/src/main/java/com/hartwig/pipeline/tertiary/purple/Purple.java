@@ -27,6 +27,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -35,6 +36,7 @@ import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tools.Versions;
 
+@Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "purple";
@@ -255,10 +257,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         String geneCopyNumberTsv = geneCopyNumberTsv(tumorSampleName);
         String somaticCopyNumberTsv = somaticCopyNumberTsv(tumorSampleName);
 
-        final String refSampleName = metadata.reference().sampleName();
-        String germlineDriverCatalog = germlineDriverCatalog(refSampleName);
-        String germlineDeletionTsv = germlineDeletionTsv(refSampleName);
-        String germlineVcf = germlineVcf(refSampleName);
+        String germlineDriverCatalog = germlineDriverCatalog(metadata.sampleName());
+        String germlineDeletionTsv = germlineDeletionTsv(metadata.sampleName());
+        String germlineVcf = germlineVcf(metadata.sampleName());
 
         GoogleStorageLocation purityLocation =
                 persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.PURPLE_PURITY, purityTsv);
@@ -374,15 +375,15 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return tumorSampleName + PURPLE_GENE_COPY_NUMBER_TSV;
     }
 
-    private static String germlineVcf(final String refSampleName) {
-        return refSampleName + PURPLE_GERMLINE_VCF;
+    private static String germlineVcf(final String sample) {
+        return sample + PURPLE_GERMLINE_VCF;
     }
 
-    private static String germlineDriverCatalog(final String refSampleName) {
-        return refSampleName + PURPLE_GERMLINE_DRIVER_CATALOG;
+    private static String germlineDriverCatalog(final String sample) {
+        return sample + PURPLE_GERMLINE_DRIVER_CATALOG;
     }
 
-    private static String germlineDeletionTsv(final String refSampleName) {
-        return refSampleName + PURPLE_GERMLINE_DELETION_TSV;
+    private static String germlineDeletionTsv(final String sample) {
+        return sample + PURPLE_GERMLINE_DELETION_TSV;
     }
 }

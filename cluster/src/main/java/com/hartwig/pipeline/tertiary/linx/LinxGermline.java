@@ -29,6 +29,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -36,6 +37,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
+@Namespace(LinxGermline.NAMESPACE)
 public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx_germline";

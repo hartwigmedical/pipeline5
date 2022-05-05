@@ -22,14 +22,16 @@ import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
+@Namespace(Sigs.NAMESPACE)
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
-    public static String NAMESPACE = "sigs";
+    public static final String NAMESPACE = "sigs";
 
     private final InputDownload purpleSomaticVariantsDownload;
 

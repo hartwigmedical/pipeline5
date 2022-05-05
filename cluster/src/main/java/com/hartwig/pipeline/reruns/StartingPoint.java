@@ -20,8 +20,18 @@ import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
+import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.orange.Orange;
+import com.hartwig.pipeline.tertiary.pave.PaveGermline;
+import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
+import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,21 +48,27 @@ public class StartingPoint {
                 SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         SKIP_GRIDSS(List.of(BamMetrics.NAMESPACE,
-                GermlineCaller.NAMESPACE,
-                Flagstat.NAMESPACE,
-                SnpGenotype.NAMESPACE,
-                Gridss.NAMESPACE,
-                CramConversion.NAMESPACE)),
+                GermlineCaller.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE, Gridss.NAMESPACE, CramConversion.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
                         Gridss.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
-                        SageConfiguration.SAGE_GERMLINE_NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces,
-                List.of(SOMATIC_NAMESPACE, GERMLINE_NAMESPACE))),
-        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
+                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        PaveSomatic.NAMESPACE,
+                        PaveGermline.NAMESPACE))),
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(SOMATIC_NAMESPACE, GERMLINE_NAMESPACE))),
+        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
+        PROTECT_ONLY(concat(PURPLE_COMPLETE.namespaces,
+                List.of(LinxGermline.NAMESPACE,
+                        LinxSomatic.NAMESPACE,
+                        VirusAnalysis.NAMESPACE,
+                        Chord.NAMESPACE,
+                        Lilac.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Cuppa.NAMESPACE,
+                        Orange.NAMESPACE)));
 
         private final List<String> namespaces;
 

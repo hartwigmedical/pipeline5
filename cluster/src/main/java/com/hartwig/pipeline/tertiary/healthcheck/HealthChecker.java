@@ -20,6 +20,7 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Namespace(HealthChecker.NAMESPACE)
 public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HealthChecker.class);

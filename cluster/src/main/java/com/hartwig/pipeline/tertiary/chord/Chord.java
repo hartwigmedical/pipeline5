@@ -23,11 +23,13 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
+@Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "chord";
     public static final String PREDICTION_TXT = "_chord_prediction.txt";
