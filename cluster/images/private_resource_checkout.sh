@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
-
 dmidecode -s system-product-name | grep -q "Google Compute Engine"
 IN_GCP=$?
 
@@ -25,6 +23,12 @@ gsurl_exit_handler() {
     gsutil cp <(echo $?) $result_code_url
 }
 
+local_exit_handler() {
+    exit_code=$?
+    [[ $? -ne 0 ]] && echo "ERROR: Non-zero exit code from previous command: $exit_code"
+    exit $exit_code
+}
+
 metadata() {
     curl -f -s http://metadata.google.internal/computeMetadata/v1/instance/attributes/$1 -H "Metadata-Flavor: Google" 2>/dev/null
 }
@@ -32,12 +36,12 @@ metadata() {
 set -o pipefail
 
 if [[ $IN_GCP && $# -eq 0 ]]; then
+    echo "Running inside GCP, fetching arguments from metadata"
     project="$(metadata project)"
     new_version="$(metadata tag-as-version)"
     commit_sha="$(metadata checkout-commit)"
     result_code_url="$(metadata result-code-url)"
 else
-    echo "Command line: $0 $@"
     args=$(getopt -o "" --longoptions project:,tag-as-version:,checkout-commit:,result-code-url: -- "$@")
     [[ $? != 0 ]] && print_usage && exit 1
     eval set -- "$args"
@@ -60,17 +64,19 @@ fi
 
 if [[ -n $result_code_url ]]; then
     trap gsurl_exit_handler EXIT
+else
+    trap local_exit_handler EXIT
 fi
 
 mkdir /tmp/resources
 gcloud source repos clone common-resources-private /tmp/resources --project=$project
 cd /tmp/resources
 if [[ -n $new_version ]]; then
-    "Adding tag '$new_version'"
+    echo "Adding tag '$new_version'"
     git tag "$new_version"
     git push origin "$new_version"
 else
-   "Checking out commit '$commit_sha'"
+    echo "Checking out commit '$commit_sha'"
     git checkout $commit_sha
 fi
 
