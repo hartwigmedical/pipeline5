@@ -16,6 +16,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
+import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -66,7 +67,8 @@ public class StartingPoint {
                         Lilac.NAMESPACE,
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
-                        Orange.NAMESPACE)));
+                        Orange.NAMESPACE,
+                        Cram2Bam.NAMESPACE)));
 
         private final List<String> namespaces;
 
@@ -74,7 +76,7 @@ public class StartingPoint {
             this.namespaces = namespaces;
         }
 
-        static List<String> concat(List<String> first, List<String> second) {
+        static List<String> concat(final List<String> first, final List<String> second) {
             return ImmutableList.<String>builder().addAll(first).addAll(second).build();
         }
     }
@@ -96,7 +98,7 @@ public class StartingPoint {
         };
     }
 
-    public boolean usePersisted(String namespace) {
+    public boolean usePersisted(final String namespace) {
         return startingPoint.namespaces.contains(namespace);
     }
 }

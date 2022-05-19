@@ -22,8 +22,10 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-@Namespace("cram2bam")
+@Namespace(Cram2Bam.NAMESPACE)
 public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata> {
+
+    public static final String NAMESPACE = "cram2bam";
 
     private final InputDownload bamDownload;
     private final SingleSampleRunMetadata.SampleType sampleType;
@@ -40,7 +42,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
 
     @Override
     public String namespace() {
-        return "cram2bam";
+        return NAMESPACE;
     }
 
     @Override
