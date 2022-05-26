@@ -310,17 +310,17 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .circosPlot(circosPlot)
                 .somaticCopyNumber(somaticCopyNumberLocation);
 
-        GoogleStorageLocation germlineVariantsLocation = persistedOrDefault(metadata.reference().sampleName(),
+        GoogleStorageLocation germlineVariantsLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
                 DataType.GERMLINE_VARIANTS_PURPLE,
                 germlineVcf);
-        GoogleStorageLocation germlineDriverCatalogLocation = persistedOrDefault(metadata.reference().sampleName(),
+        GoogleStorageLocation germlineDriverCatalogLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
                 DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                 germlineDriverCatalog);
-        GoogleStorageLocation germlineDeletionLocation = persistedOrDefault(metadata.reference().sampleName(),
+        GoogleStorageLocation germlineDeletionLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
                 DataType.PURPLE_GERMLINE_DELETION,
