@@ -31,7 +31,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx15G -jar /opt/tools/sage/3.0/sage.jar "
+                "java -Xmx15G -jar /opt/tools/sage/pilot/sage.jar "
                         + "-tumor reference -tumor_bam /data/input/reference.bam "
                         + "-reference tumor -reference_bam /data/input/tumor.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
