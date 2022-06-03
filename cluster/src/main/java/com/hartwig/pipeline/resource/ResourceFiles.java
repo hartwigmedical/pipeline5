@@ -43,8 +43,6 @@ public interface ResourceFiles {
 
     String sageGermlineCoveragePanel();
 
-    String sageGermlineSlicePanel();
-
     String germlineBlacklistVcf();
 
     String germlineBlacklistBed();

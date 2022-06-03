@@ -86,8 +86,6 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
         arguments.add(String.format("-line_element_file %s", resourceFiles.lineElements()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
-        arguments.add(String.format("-germine_pon_sv_file %s", resourceFiles.svBreakpointPon()));
-        arguments.add(String.format("-germine_pon_sgl_file %s", resourceFiles.svBreakendPon()));
 
         return Collections.singletonList(new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments));
     }

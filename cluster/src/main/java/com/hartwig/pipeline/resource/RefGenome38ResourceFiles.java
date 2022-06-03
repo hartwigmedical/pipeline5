@@ -75,11 +75,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineSlicePanel() {
-        return formPath(SAGE, "SlicePanel.germline.38.bed.gz");
-    }
-
-    @Override
     public String germlineBlacklistVcf() {
         return formPath(SAGE, "KnownBlacklist.germline.38.vcf.gz");
     }
