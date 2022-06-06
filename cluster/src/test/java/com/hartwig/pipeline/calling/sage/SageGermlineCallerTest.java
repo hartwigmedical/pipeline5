@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
@@ -32,7 +31,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx31G -jar /opt/tools/sage/3.0.1/sage.jar "
+                "java -Xmx31G -jar /opt/tools/sage/3.0.2/sage.jar "
                         + "-tumor reference -tumor_bam /data/input/reference.bam "
                         + "-reference tumor -reference_bam /data/input/tumor.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
