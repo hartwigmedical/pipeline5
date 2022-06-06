@@ -19,7 +19,7 @@ public class SageCommandBuilder {
     private final List<String> referenceBam = Lists.newArrayList();
 
     private String wgsMaxHeap = "60G";
-    private String panelMaxHeap = "15G";
+    private String germlineMaxHeap = "31G";
 
     private boolean coverage = false;
     private boolean somaticMode = true;
@@ -38,7 +38,7 @@ public class SageCommandBuilder {
     public SageCommandBuilder germlineMode() {
         germlineMode = true;
         somaticMode = false;
-        maxHeap(panelMaxHeap);
+        maxHeap(germlineMaxHeap);
         return this;
     }
 

@@ -22,7 +22,7 @@ public class SageCommandBuilderTest {
 
     private static final String REFERENCE_OUT = VmDirectories.OUTPUT + "/" + REFERENCE + ".out.vcf.gz";
     private static final String REFERENCE_SAGE_COMMAND =
-            "java -Xmx15G -jar /opt/tools/sage/3.0/sage.jar "
+            "java -Xmx31G -jar /opt/tools/sage/3.0.1/sage.jar "
                     + "-tumor COLO829v003R -tumor_bam /data/input/COLO829v003R.bam "
                     + "-reference COLO829v003T -reference_bam /data/input/COLO829v003T.bam "
                     + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
@@ -44,7 +44,7 @@ public class SageCommandBuilderTest {
         victim.germlineMode().addReference(REFERENCE, REFERENCE_BAM).addTumor(TUMOR, TUMOR_BAM);
         List<String> bash = victim.build(REFERENCE_OUT).stream().map(BashCommand::asBash).collect(Collectors.toList());
         assertEquals(1, bash.size());
-        assertEquals(bash.get(0), REFERENCE_SAGE_COMMAND);
+        assertEquals(REFERENCE_SAGE_COMMAND, bash.get(0));
     }
 
     @Test(expected = IllegalStateException.class)

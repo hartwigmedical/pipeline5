@@ -2,7 +2,7 @@
   <configuration default="false" name="Tumor Reference COLO mini" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="com.hartwig.pipeline.PipelineMain" />
     <module name="cluster" />
-    <option name="PROGRAM_PARAMETERS" value="-profile development -set_id COLO829v003M -output_bucket pipeline-output-dev -sample_json sample_json/coloMini.json -run_germline_caller false -cloud_sdk $USER_HOME$/google-cloud-sdk/bin -run_id peach-16 -cleanup false" />
+    <option name="PROGRAM_PARAMETERS" value="-profile development -set_id COLO829v003M -output_bucket pipeline-output-dev -sample_json sample_json/coloMini.json -run_germline_caller false -cloud_sdk $USER_HOME$/google-cloud-sdk/bin -run_id hotfix -image_name pipeline5-5-28-202204281626-202204281749-hotfix-1-private -image_project hmf-pipeline-prod-e45b00f2" />
     <option name="VM_PARAMETERS" value="-Xmx32m" />
     <extension name="coverage">
       <pattern>
