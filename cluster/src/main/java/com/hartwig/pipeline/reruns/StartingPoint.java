@@ -72,17 +72,7 @@ public class StartingPoint {
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
                         Orange.NAMESPACE,
-                        Sigs.NAMESPACE))),
-        RERUN_528(concat(CRAM_COMPLETE.namespaces,
-                List.of(GermlineCaller.NAMESPACE,
-                        Gridss.NAMESPACE,
-                        Lilac.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        VirusAnalysis.NAMESPACE,
-                        SOMATIC_NAMESPACE,
-                        GERMLINE_NAMESPACE)));
+                        Sigs.NAMESPACE)));
 
         private final List<String> namespaces;
 
