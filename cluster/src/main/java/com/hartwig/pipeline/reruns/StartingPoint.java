@@ -24,6 +24,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.orange.Orange;
@@ -66,6 +67,7 @@ public class StartingPoint {
                         LinxSomatic.NAMESPACE,
                         VirusAnalysis.NAMESPACE,
                         Chord.NAMESPACE,
+                        LilacBamSlicer.NAMESPACE,
                         Lilac.NAMESPACE,
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,

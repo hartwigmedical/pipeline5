@@ -8,7 +8,6 @@ import java.util.List;
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -16,7 +15,6 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -29,27 +27,32 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Lilac.NAMESPACE)
-public class Lilac extends TertiaryStage<LilacOutput> {
+public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "lilac";
 
     private final ResourceFiles resourceFiles;
+    private final LilacBamSliceOutput slicedOutput;
     private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticVariants;
+    private final InputDownload referenceBam;
+    private final InputDownload tumorBam;
 
-    public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
-        super(alignmentPair);
+    public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
         this.resourceFiles = resourceFiles;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
         this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
+        this.slicedOutput = slicedOutput;
+        this.referenceBam = initialiseOptionalLocation(slicedOutput.reference());
+        this.tumorBam = initialiseOptionalLocation(slicedOutput.tumor());
     }
 
     @Override
@@ -59,69 +62,38 @@ public class Lilac extends TertiaryStage<LilacOutput> {
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> result = new ArrayList<>(super.inputs());
+        List<BashCommand> result = new ArrayList<>();
         result.add(purpleGeneCopyNumber);
         result.add(purpleSomaticVariants);
+        result.add(referenceBam);
+        result.add(tumorBam);
+        result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
+        result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
         return result;
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata)
-    {
-        String slicedRefBam = VmDirectories.outputFile(metadata.reference().sampleName() + ".hla.bam");
-        String slicedTumorBam = VmDirectories.outputFile(metadata.tumor().sampleName() + ".hla.bam");
-
-        List<BashCommand> commands = Lists.newArrayList();
-
-        addSliceCommands(commands, metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath(), slicedRefBam);
-        addSliceCommands(commands, metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath(), slicedTumorBam);
-
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedRefBam));
-
-        arguments.add(String.format("-tumor_bam %s", slicedTumorBam));
+        arguments.addAll(commonArguments(metadata.tumor().sampleName(), referenceBam.getLocalTargetPath()));
+        arguments.add(String.format("-tumor_bam %s", tumorBam.getLocalTargetPath()));
         arguments.add(String.format("-gene_copy_number_file %s", purpleGeneCopyNumber.getLocalTargetPath()));
         arguments.add(String.format("-somatic_variants_file %s", purpleSomaticVariants.getLocalTargetPath()));
 
-        commands.add(formCommand(arguments));
-
-        return commands;
+        return List.of(formCommand(arguments));
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
-        String slicedRefBam = VmDirectories.outputFile(metadata.reference().sampleName() + ".hla.bam");
-
-        List<BashCommand> commands = Lists.newArrayList();
-
-        addSliceCommands(commands, metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath(), slicedRefBam);
-
-        List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.reference().sampleName(), slicedRefBam));
-        commands.add(formCommand(arguments));
-
-        return commands;
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), referenceBam.getLocalTargetPath())));
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
-        String slicedTumorBam = VmDirectories.outputFile(metadata.tumor().sampleName() + ".hla.bam");
-
-        List<BashCommand> commands = Lists.newArrayList();
-
-        addSliceCommands(commands, metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath(), slicedTumorBam);
-
-        List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedTumorBam));
-        commands.add(formCommand(arguments));
-
-        return commands;
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), tumorBam.getLocalTargetPath())));
     }
 
-    private List<String> commonArguments(final String sampleName, final String bamFile)
-    {
+    private List<String> commonArguments(final String sampleName, final String bamFile) {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", sampleName));
@@ -135,16 +107,8 @@ public class Lilac extends TertiaryStage<LilacOutput> {
         return arguments;
     }
 
-    private JavaJarCommand formCommand(final List<String> arguments)
-    {
+    private JavaJarCommand formCommand(final List<String> arguments) {
         return new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments);
-    }
-
-    private void addSliceCommands(
-            final List<BashCommand> commands, final String sampleName, final String inputBamFile, final String slicedBamFile)
-    {
-        commands.add(new SambambaCommand("slice", "-L", resourceFiles.hlaRegionBed(), "-o", slicedBamFile, inputBamFile));
-        commands.add(new SambambaCommand("index", slicedBamFile));
     }
 
     @Override
@@ -169,7 +133,8 @@ public class Lilac extends TertiaryStage<LilacOutput> {
                                 new ArchivePath(Folder.root(), namespace(), lilacOutput(metadata.sampleName()))),
                         new AddDatatype(DataType.LILAC_QC_METRICS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName())))).build();
+                                new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName()))))
+                .build();
     }
 
     @Override
