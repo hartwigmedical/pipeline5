@@ -78,6 +78,18 @@ public class StartingPoint {
                         Amber.NAMESPACE,
                         VirusAnalysis.NAMESPACE,
                         SOMATIC_NAMESPACE,
+                        GERMLINE_NAMESPACE))),
+        RERUN_528_HOTFIX(concat(CRAM_COMPLETE.namespaces,
+                List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        GermlineCaller.NAMESPACE,
+                        Gridss.NAMESPACE,
+                        Lilac.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        VirusAnalysis.NAMESPACE,
+                        SOMATIC_NAMESPACE,
                         GERMLINE_NAMESPACE)));
 
         private final List<String> namespaces;
