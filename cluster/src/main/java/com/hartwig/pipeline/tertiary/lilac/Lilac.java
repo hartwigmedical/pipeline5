@@ -42,8 +42,8 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     private final LilacBamSliceOutput slicedOutput;
     private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticVariants;
-    private final InputDownload referenceBam;
-    private final InputDownload tumorBam;
+    private final InputDownload slicedReference;
+    private final InputDownload slicedTumor;
 
     public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
         this.resourceFiles = resourceFiles;
@@ -51,8 +51,8 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
         this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
         this.slicedOutput = slicedOutput;
-        this.referenceBam = initialiseOptionalLocation(slicedOutput.reference());
-        this.tumorBam = initialiseOptionalLocation(slicedOutput.tumor());
+        this.slicedReference = initialiseOptionalLocation(slicedOutput.reference());
+        this.slicedTumor = initialiseOptionalLocation(slicedOutput.tumor());
     }
 
     @Override
@@ -65,8 +65,8 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         List<BashCommand> result = new ArrayList<>();
         result.add(purpleGeneCopyNumber);
         result.add(purpleSomaticVariants);
-        result.add(referenceBam);
-        result.add(tumorBam);
+        result.add(slicedReference);
+        result.add(slicedTumor);
         result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
         result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
         return result;
@@ -75,8 +75,8 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.tumor().sampleName(), referenceBam.getLocalTargetPath()));
-        arguments.add(String.format("-tumor_bam %s", tumorBam.getLocalTargetPath()));
+        arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedReference.getLocalTargetPath()));
+        arguments.add(String.format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
         arguments.add(String.format("-gene_copy_number_file %s", purpleGeneCopyNumber.getLocalTargetPath()));
         arguments.add(String.format("-somatic_variants_file %s", purpleSomaticVariants.getLocalTargetPath()));
 
@@ -85,12 +85,12 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), referenceBam.getLocalTargetPath())));
+        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), slicedReference.getLocalTargetPath())));
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), tumorBam.getLocalTargetPath())));
+        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), slicedTumor.getLocalTargetPath())));
     }
 
     private List<String> commonArguments(final String sampleName, final String bamFile) {

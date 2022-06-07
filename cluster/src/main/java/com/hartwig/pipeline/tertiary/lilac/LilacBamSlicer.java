@@ -57,13 +57,13 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return buildCommands(getReferenceBamDownload().getLocalTargetPath(), metadata.sampleName());
+        return buildCommands(getReferenceBamDownload().getLocalTargetPath(), slicedBam(metadata.sampleName()));
 
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return buildCommands(getTumorBamDownload().getLocalTargetPath(), metadata.sampleName());
+        return buildCommands(getTumorBamDownload().getLocalTargetPath(), slicedBam(metadata.sampleName()));
     }
 
     @Override
@@ -117,14 +117,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     private AddDatatype[] datatypes(final SomaticRunMetadata metadata) {
         ArrayList<AddDatatype> datatypes = new ArrayList<>();
-        if (metadata.isSingleSample()) {
-            datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM,
-                    metadata.barcode(),
-                    new ArchivePath(Folder.root(), namespace(), slicedBam(metadata.sampleName()))));
-            datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM_INDEX,
-                    metadata.barcode(),
-                    new ArchivePath(Folder.root(), namespace(), bai(slicedBam(metadata.sampleName())))));
-        } else {
+        metadata.maybeReference().ifPresent(r -> {
             String referenceBam = new File(slicedBam(metadata.reference().sampleName())).getName();
             datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM,
                     metadata.reference().barcode(),
@@ -132,6 +125,8 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
             datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM_INDEX,
                     metadata.reference().barcode(),
                     new ArchivePath(Folder.root(), namespace(), bai(referenceBam))));
+        });
+        metadata.maybeTumor().ifPresent(t -> {
             String tumorBam = new File(slicedBam(metadata.tumor().sampleName())).getName();
             datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM,
                     metadata.tumor().barcode(),
@@ -139,8 +134,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
             datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM_INDEX,
                     metadata.tumor().barcode(),
                     new ArchivePath(Folder.root(), namespace(), bai(tumorBam))));
-
-        }
+        });
         return datatypes.toArray(new AddDatatype[] {});
     }
 }
