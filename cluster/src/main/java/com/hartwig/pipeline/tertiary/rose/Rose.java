@@ -48,7 +48,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
     private final InputDownload linxDriverCatalog;
     private final InputDownload virusAnnotations;
     private final InputDownload chordPredictions;
-    private final InputDownload molecularTissueOrigins;
+    private final InputDownload cuppaConclusion;
 
     public Rose(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, final LinxSomaticOutput linxSomaticOutput,
             final VirusOutput virusOutput, final ChordOutput chordOutput, final CuppaOutput cuppaOutput) {
@@ -67,7 +67,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
         this.linxDriverCatalog = new InputDownload(linx.driverCatalog());
         this.virusAnnotations = new InputDownload(virusOutput.virusAnnotations());
         this.chordPredictions = new InputDownload(chordOutput.predictions());
-        this.molecularTissueOrigins = new InputDownload(cuppaOutput.cuppaOutputLocations().conclusionTxt());
+        this.cuppaConclusion = new InputDownload(cuppaOutput.cuppaOutputLocations().conclusionTxt());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 linxDriverCatalog,
                 virusAnnotations,
                 chordPredictions,
-                molecularTissueOrigins);
+                cuppaConclusion);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
         List<String> arguments = List.of("-actionability_database_tsv",
                 resourceFiles.roseActionabilityDb(),
                 "-ref_genome_version",
-                resourceFiles.version().rose(),
+                resourceFiles.version().numeric(),
                 "-driver_gene_37_tsv",
                 resourceFiles.driverGenePanel(),
                 "-driver_gene_38_tsv",
@@ -148,7 +148,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-chord_prediction_txt",
                 chordPredictions.getLocalTargetPath(),
                 "-molecular_tissue_origin_txt",
-                molecularTissueOrigins.getLocalTargetPath(),
+                cuppaConclusion.getLocalTargetPath(),
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",

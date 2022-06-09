@@ -17,6 +17,6 @@ class ChordExtractSigPredictHRD extends VersionedToolCommand {
                 sampleName,
                 somaticVcfPath,
                 structuralVcfPath,
-                refGenomeVersion.chord());
+                refGenomeVersion.alphaNumeric());
     }
 }
