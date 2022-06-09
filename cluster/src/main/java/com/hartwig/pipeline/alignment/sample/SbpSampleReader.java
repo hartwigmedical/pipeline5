@@ -14,6 +14,7 @@ import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.sbpapi.SbpFastQ;
+import com.hartwig.pipeline.sbpapi.SbpLane;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 
@@ -74,7 +75,7 @@ public class SbpSampleReader {
     }
 
     private Sample sample(final String sampleName, final String barcode, final List<SbpFastQ> fastqJson) {
-        List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(SbpSampleReader::lane).collect(Collectors.toList());
+        List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(fq -> lane(fq)).collect(Collectors.toList());
         return Sample.builder(sampleName).barcode(barcode).addAllLanes(lanes).build();
     }
 
@@ -86,7 +87,7 @@ public class SbpSampleReader {
         return true;
     }
 
-    private static ImmutableLane lane(final SbpFastQ sbpFastQ) {
+    private ImmutableLane lane(final SbpFastQ sbpFastQ) {
 
         FastqNamingConvention.apply(sbpFastQ.name_r1());
 
@@ -96,10 +97,9 @@ public class SbpSampleReader {
                     sbpFastQ));
         }
         String[] tokens = sbpFastQ.name_r1().split("_");
-        String laneNumber = tokens[3];
         String flowCellId = tokens[1];
-        return Lane.builder()
-                .laneNumber(laneNumber)
+        String lane = parseLaneJson(sbpRestApi.getLane(sbpFastQ.lane_id())).name();
+        return Lane.builder().laneNumber(lane)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .flowCellId(flowCellId)
@@ -117,5 +117,13 @@ public class SbpSampleReader {
 
     private SbpSample parseSampleJson(final String json) throws IOException {
         return OBJECT_MAPPER.readValue(json, SbpSample.class);
+    }
+
+    private SbpLane parseLaneJson(final String json) {
+        try {
+            return OBJECT_MAPPER.readValue(json, SbpLane.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse lane response", e);
+        }
     }
 }
