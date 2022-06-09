@@ -6,6 +6,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
+import static com.hartwig.pipeline.resource.ResourceNames.ROSE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
@@ -150,6 +151,10 @@ public interface ResourceFiles {
 
     default String peachFilterBed() {
         return of(PEACH, "min_DPYD.json");
+    }
+
+    default String roseActionabilityDb() {
+        return of(ROSE, "actionability.tsv");
     }
 
     default String formPath(final String name, final String file) {

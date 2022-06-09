@@ -53,6 +53,8 @@ import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.rose.Rose;
+import com.hartwig.pipeline.tertiary.rose.RoseOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
@@ -209,8 +211,12 @@ public class SomaticPipeline {
                                         protectOutput,
                                         peachOutput,
                                         resourceFiles)));
+                        Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Rose(resourceFiles, purpleOutput, linxSomaticOutput, virusOutput, chordOutput, cuppaOutput)));
                         pipelineResults.add(state.add(signatureOutputFuture.get()));
                         pipelineResults.add(state.add(orangeOutputFuture.get()));
+                        pipelineResults.add(state.add(roseOutputFuture.get()));
+
                         pipelineResults.compose(metadata, "Somatic");
                     }
                 }
