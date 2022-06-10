@@ -30,7 +30,7 @@ public class ProtectCommand extends JavaJarCommand {
                         "-serve_actionability_dir",
                         actionabilityDir,
                         "-ref_genome_version",
-                        refGenomeVersion.protect(),
+                        refGenomeVersion.numeric(),
                         "-doid_json",
                         doidJsonPath,
                         "-purple_purity_tsv",

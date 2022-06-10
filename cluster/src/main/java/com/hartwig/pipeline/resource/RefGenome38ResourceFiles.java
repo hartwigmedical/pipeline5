@@ -27,7 +27,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String versionDirectory() {
-        return version().resources();
+        return version().numeric();
     }
 
     @Override

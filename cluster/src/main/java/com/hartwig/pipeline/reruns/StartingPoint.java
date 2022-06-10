@@ -32,6 +32,7 @@ import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.rose.Rose;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
@@ -76,7 +77,8 @@ public class StartingPoint {
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
                         Orange.NAMESPACE,
-                        Sigs.NAMESPACE)));
+                        Sigs.NAMESPACE,
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 
