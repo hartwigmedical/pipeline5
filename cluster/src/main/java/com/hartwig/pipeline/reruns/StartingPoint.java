@@ -24,6 +24,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.orange.Orange;
@@ -50,7 +51,12 @@ public class StartingPoint {
                 SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         SKIP_GRIDSS(List.of(BamMetrics.NAMESPACE,
-                GermlineCaller.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE, Gridss.NAMESPACE, CramConversion.NAMESPACE)),
+                GermlineCaller.NAMESPACE,
+                Flagstat.NAMESPACE,
+                SnpGenotype.NAMESPACE,
+                Gridss.NAMESPACE,
+                CramConversion.NAMESPACE,
+                LilacBamSlicer.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -72,17 +78,7 @@ public class StartingPoint {
                         Cuppa.NAMESPACE,
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
-                        Rose.NAMESPACE))),
-        RERUN_528(concat(CRAM_COMPLETE.namespaces,
-                List.of(GermlineCaller.NAMESPACE,
-                        Gridss.NAMESPACE,
-                        Lilac.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        VirusAnalysis.NAMESPACE,
-                        SOMATIC_NAMESPACE,
-                        GERMLINE_NAMESPACE)));
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 
