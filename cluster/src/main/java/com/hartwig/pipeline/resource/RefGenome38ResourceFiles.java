@@ -55,23 +55,18 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageSomaticCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.somatic.38.bed.gz");
-    }
-
-    @Override
     public String sageGermlineHotspots() {
         return formPath(SAGE, "KnownHotspots.germline.38.vcf.gz");
     }
 
     @Override
-    public String sageGermlineCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.germline.38.bed.gz");
+    public String sagePanelBed() {
+        return formPath(SAGE, "ActionableCodingPanel.38.bed.gz");
     }
 
     @Override
-    public String sageGermlineCoveragePanel() {
-        return formPath(SAGE, "CoverageCodingPanel.germline.38.bed.gz");
+    public String sageGeneCoverageBed() {
+        return formPath(SAGE, "CoverageCodingPanel.38.bed.gz");
     }
 
     @Override

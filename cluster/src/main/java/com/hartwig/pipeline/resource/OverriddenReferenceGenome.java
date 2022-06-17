@@ -67,8 +67,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageSomaticCodingPanel() {
-        return decorated.sageSomaticCodingPanel();
+    public String sagePanelBed() {
+        return decorated.sagePanelBed();
     }
 
     @Override
@@ -77,13 +77,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineCodingPanel() {
-        return decorated.sageGermlineCodingPanel();
-    }
-
-    @Override
-    public String sageGermlineCoveragePanel() {
-        return decorated.sageGermlineCoveragePanel();
+    public String sageGeneCoverageBed() {
+        return decorated.sageGeneCoverageBed();
     }
 
     @Override

@@ -35,13 +35,11 @@ public interface ResourceFiles {
 
     String sageSomaticHotspots();
 
-    String sageSomaticCodingPanel();
+    String sagePanelBed();
 
     String sageGermlineHotspots();
 
-    String sageGermlineCodingPanel();
-
-    String sageGermlineCoveragePanel();
+    String sageGeneCoverageBed();
 
     String germlineBlacklistVcf();
 
