@@ -36,7 +36,6 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
-import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.transfer.OutputIterator;
 
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +96,7 @@ public class StagedOutputPublisher {
                             .setId(set.getId())
                             .context(context)
                             .addAnalyses(alignedReadsAnalysis.build(), somaticAnalysis.build(), germlineAnalysis.build())
-                            .version(Versions.pipelineMajorMinorVersion())
+                            .version(run.get().getVersion())
                             .build())
                     .build());
         }
