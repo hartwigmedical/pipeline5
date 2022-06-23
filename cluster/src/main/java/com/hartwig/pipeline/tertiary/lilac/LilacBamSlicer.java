@@ -30,10 +30,11 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.lilac.ImmutableLilacBamSliceOutput.Builder;
 
 @Namespace(LilacBamSlicer.NAMESPACE)
 public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
-    public static final String NAMESPACE = "lilac_bam_slicer";
+    public static final String NAMESPACE = "lilac_slicer";
     private final ResourceFiles resourceFiles;
 
     public LilacBamSlicer(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
@@ -58,7 +59,6 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return buildCommands(getReferenceBamDownload().getLocalTargetPath(), slicedBam(metadata.sampleName()));
-
     }
 
     @Override
@@ -68,8 +68,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name(NAMESPACE)
+        return ImmutableVirtualMachineJobDefinition.builder().name(NAMESPACE.replaceAll("_", "-"))
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
                 .namespacedResults(resultsDirectory)
@@ -79,12 +78,22 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     @Override
     public LilacBamSliceOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return LilacBamSliceOutput.builder()
+        Builder output = LilacBamSliceOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(datatypes(metadata))
-                .build();
+                .addDatatypes(datatypes(metadata));
+        metadata.maybeTumor().ifPresent(tumor -> {
+            String tumorBam = new File(slicedBam(metadata.tumor().sampleName())).getName();
+            output.tumor(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(tumorBam)))
+                    .tumorIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(bai(tumorBam))));
+        });
+        metadata.maybeReference().ifPresent(reference -> {
+            String referenceBam = new File(slicedBam(metadata.reference().sampleName())).getName();
+            output.reference(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(referenceBam)))
+                    .referenceIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(bai(referenceBam))));
+        });
+        return output.build();
     }
 
     @Override

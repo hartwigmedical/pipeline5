@@ -158,7 +158,6 @@
                         <configuration combine.self="override">
                             <argLine>-Dversion=${project.version}</argLine>
                         </configuration>
-
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -201,5 +200,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

@@ -187,6 +187,7 @@ public class SomaticPipeline {
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = pipelineResults.add(state.add(linxSomaticOutputFuture.get()));
                         pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
+                        pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
                         pipelineResults.add(state.add(lilacOutputFuture.get()));
                         Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Cuppa(purpleOutput, linxSomaticOutput, resourceFiles, persistedDataset)));

@@ -67,9 +67,10 @@ gripss_somatic/run.log
 gripss_somatic/run.sh
 health_checker/COLO829v003T.HealthCheckFailed
 health_checker/run.log
+lilac_slicer/COLO829v003T.hla.bam
+lilac_slicer/COLO829v003T.hla.bam.bai
+lilac_slicer/run.log
 lilac/COLO829v003T.candidates.coverage.csv
-lilac/COLO829v003T.hla.bam
-lilac/COLO829v003T.hla.bam.bai
 lilac/COLO829v003T.lilac.csv
 lilac/COLO829v003T.lilac.qc.csv
 lilac/run.log
