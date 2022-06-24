@@ -10,15 +10,6 @@ public class AnnotateInsertedSequence extends GridssCommand {
         return new AnnotateInsertedSequence(inputVcf, outputVcf, viralReference, Alignment.APPEND, "");
     }
 
-    public static GridssCommand repeatMasker(final String inputVcf, final String outputVcf, final String referenceGenome,
-            final String repeatMaskerBed) {
-        return new AnnotateInsertedSequence(inputVcf,
-                outputVcf,
-                referenceGenome,
-                Alignment.REPLACE,
-                "REPEAT_MASKER_BED=" + repeatMaskerBed);
-    }
-
     private enum Alignment {
         APPEND,
         REPLACE
