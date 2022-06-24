@@ -30,4 +30,5 @@ public interface ResourceNames {
     String PURPLE = "purple";
     String LILAC = "lilac";
     String TARGET_REGIONS = "target_regions";
+    String ROSE = "rose";
 }

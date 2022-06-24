@@ -53,8 +53,9 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public LinxSomatic(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = purpleOutputLocations.structuralVariants().isPresent() ?
-                new InputDownload(purpleOutputLocations.structuralVariants().get()) : null;
+        purpleStructuralVariantsDownload = purpleOutputLocations.structuralVariants().isPresent()
+                ? new InputDownload(purpleOutputLocations.structuralVariants().get())
+                : null;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -130,15 +131,16 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_DRIVERS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
@@ -172,10 +174,10 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         return LinxSomaticOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
-                        .breakends(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, breakendTsv))
+                        .breakends(persistedOrDefault(metadata, DataType.LINX_BREAKENDS, breakendTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))
-                        .drivers(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driversTsv))
-                        .fusions(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, fusionsTsv))
+                        .drivers(persistedOrDefault(metadata, DataType.LINX_DRIVERS, driversTsv))
+                        .fusions(persistedOrDefault(metadata, DataType.LINX_FUSIONS, fusionsTsv))
                         .svAnnotations(persistedOrDefault(metadata, DataType.LINX_SV_ANNOTATIONS, svAnnotationsTsv))
                         .clusters(persistedOrDefault(metadata, DataType.LINX_CLUSTERS, clustersTsv))
                         .outputDirectory(persistedOrDefault(metadata,

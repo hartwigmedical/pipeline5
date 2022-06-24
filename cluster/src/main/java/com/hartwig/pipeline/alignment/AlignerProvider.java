@@ -56,7 +56,8 @@ public abstract class AlignerProvider {
                 sampleSource,
                 sampleUpload,
                 resultsDirectory,
-                Executors.newFixedThreadPool(arguments.maxConcurrentLanes()), labels);
+                Executors.newFixedThreadPool(arguments.maxConcurrentLanes()),
+                labels);
     }
 
     abstract Aligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory,

@@ -15,10 +15,11 @@ public interface SbpFastQ {
 
     String name_r2();
 
-    @Nullable
-    String bucket();
+    @Nullable String bucket();
 
     boolean qc_pass();
+
+    int lane_id();
 
     static ImmutableSbpFastQ.Builder builder() {
         return ImmutableSbpFastQ.builder();

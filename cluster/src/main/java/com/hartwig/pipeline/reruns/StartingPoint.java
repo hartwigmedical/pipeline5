@@ -24,6 +24,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.orange.Orange;
@@ -31,6 +32,8 @@ import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.rose.Rose;
+import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +51,12 @@ public class StartingPoint {
                 SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         SKIP_GRIDSS(List.of(BamMetrics.NAMESPACE,
-                GermlineCaller.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE, Gridss.NAMESPACE, CramConversion.NAMESPACE)),
+                GermlineCaller.NAMESPACE,
+                Flagstat.NAMESPACE,
+                SnpGenotype.NAMESPACE,
+                Gridss.NAMESPACE,
+                CramConversion.NAMESPACE,
+                LilacBamSlicer.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -68,7 +76,9 @@ public class StartingPoint {
                         Lilac.NAMESPACE,
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
-                        Orange.NAMESPACE)));
+                        Orange.NAMESPACE,
+                        Sigs.NAMESPACE,
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 

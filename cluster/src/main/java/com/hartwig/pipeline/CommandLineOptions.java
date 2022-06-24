@@ -310,7 +310,7 @@ public class CommandLineOptions {
     private static Option refGenomeVersion() {
         return optionWithArg(REF_GENOME_VERSION_FLAG,
                 format("Ref genome version, default [%s], values [%s]",
-                        RefGenomeVersion.V37.pipeline(),
+                        RefGenomeVersion.V37.numeric(),
                         refGenomeVersions().collect(Collectors.joining(","))));
     }
 
@@ -491,7 +491,7 @@ public class CommandLineOptions {
     private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(REF_GENOME_VERSION_FLAG)) {
             return Arrays.stream(RefGenomeVersion.values())
-                    .filter(version -> version.pipeline().equals(commandLine.getOptionValue(REF_GENOME_VERSION_FLAG)))
+                    .filter(version -> version.numeric().equals(commandLine.getOptionValue(REF_GENOME_VERSION_FLAG)))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(refGenomeVersions().collect(Collectors.joining(","))));
         }
@@ -499,7 +499,7 @@ public class CommandLineOptions {
     }
 
     private static Stream<String> refGenomeVersions() {
-        return Arrays.stream(RefGenomeVersion.values()).map(RefGenomeVersion::pipeline);
+        return Arrays.stream(RefGenomeVersion.values()).map(RefGenomeVersion::numeric);
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

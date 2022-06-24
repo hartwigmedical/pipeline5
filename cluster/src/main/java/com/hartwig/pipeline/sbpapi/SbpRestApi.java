@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,17 +21,12 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SbpRestApi {
 
     private final static ObjectMapper OBJECT_MAPPER = ObjectMappers.get();
-    private final static Logger LOGGER = LoggerFactory.getLogger(SbpRestApi.class);
     private static final String SAMPLES = "samples";
-    private static final String RUNS = "runs";
     private static final String FILES = "files";
-    private static final String INIS = "inis";
     private static final String FASTQ = "fastq";
     private final WebTarget target;
 
@@ -40,21 +34,8 @@ public class SbpRestApi {
         this.target = target;
     }
 
-    public String getInis() {
-        return returnOrThrow(api().path(INIS).request().buildGet().invoke());
-    }
-
     public String getFastQ(final long sampleId) {
         return getBySampleId(sampleId, api().path(FASTQ));
-    }
-
-    public String getSet(final int sampleId) {
-        return getBySampleId(sampleId, api().path("sets"));
-    }
-
-    public String getRun(final int id) {
-        Response response = runs().path(valueOf(id)).request().buildGet().invoke();
-        return returnOrThrow(response);
     }
 
     private String returnOrThrow(final Response response) {
@@ -62,10 +43,6 @@ public class SbpRestApi {
             return response.readEntity(String.class);
         }
         throw error(response);
-    }
-
-    private WebTarget runs() {
-        return api().path(RUNS);
     }
 
     public String getSample(final long sampleId) {
@@ -77,56 +54,12 @@ public class SbpRestApi {
         return returnOrThrow(api().path("datasets").path(biopsyName).queryParam("output", "condensed").request().get());
     }
 
+    public String getLane(final long lane_id) {
+        return returnOrThrow(api().path("lanes").path(valueOf(lane_id)).request().get());
+    }
+
     public WebTarget sample() {
         return api().path(SAMPLES);
-    }
-
-    public String getSample(final String setId) {
-        Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
-        return returnOrThrow(response);
-    }
-
-    public List<SbpSample> getSamplesByBiopsy(final String biopsyName) {
-        List<SbpSample> samples;
-        try {
-            samples = ObjectMappers.get()
-                    .readValue(returnOrThrow(sample().queryParam("biopsy", biopsyName).request().buildGet().invoke()),
-                            new TypeReference<List<SbpSample>>() {
-                            });
-            return samples.stream().<List<SbpSet>>map(s1 -> readValue(getSet(s1.id()), new TypeReference<>() {
-            })).flatMap(Collection::stream)
-                    .map(s -> Map.entry(s, readValue(getSample(s.id()), new TypeReference<List<SbpSample>>() {
-                    })))
-                    .filter(e -> e.getValue().size() == 2)
-                    .min((e1, e2) -> e2.getKey().createTime().compareTo(e1.getKey().createTime()))
-                    .map(Map.Entry::getValue)
-                    .orElseThrow(() -> new IllegalArgumentException("No set found for biopsy [%s] with both a "
-                            + "tumor and ref sample. Unable to rerun pipeline with this sample"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public <T> T readValue(final String json, final TypeReference<T> valueTypeRef) {
-        try {
-            return ObjectMappers.get().readValue(json, valueTypeRef);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void updateRunResult(final String runID, final SbpRunResultUpdate update) {
-        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, update);
-        returnOrThrow(api().path(RUNS).path(runID).request().build("PATCH", jsonEntity(update)).invoke());
-    }
-
-    public AddFileApiResponse postFile(final SbpFileMetadata metaData) {
-        try {
-            return ObjectMappers.get()
-                    .readValue(returnOrThrow(api().path(FILES).request().post(jsonEntity(metaData))), AddFileApiResponse.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void linkFileToSample(final int id, final String barcode) {

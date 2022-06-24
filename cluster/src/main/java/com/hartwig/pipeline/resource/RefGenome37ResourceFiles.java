@@ -14,7 +14,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_D
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
@@ -31,7 +30,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String versionDirectory() {
-        return version().resources();
+        return version().numeric();
     }
 
     @Override
@@ -182,11 +181,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String hlaRegionBed() {
         return formPath(LILAC, "hla.37.bed");
-    }
-
-    @Override
-    public String peachFilterBed() {
-        return formPath(PEACH, "min_DPYD.json");
     }
 
     @Override

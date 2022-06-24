@@ -22,7 +22,7 @@ public class Parallelized extends BlockJUnit4ClassRunner {
         public void finished() {
             executor.shutdown();
             try {
-                assertThat(executor.awaitTermination(30, TimeUnit.MINUTES)).isTrue();
+                assertThat(executor.awaitTermination(60, TimeUnit.MINUTES)).isTrue();
             } catch (InterruptedException exc) {
                 throw new RuntimeException(exc);
             }

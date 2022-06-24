@@ -46,8 +46,9 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
         File noDifferences = new File(Resources.testResource("smoke_test/compar_no_differences"));
         for (File expected: noDifferences.listFiles()) {
             File actual = Path.of(outputDir.getAbsolutePath(), expected.getName().replaceAll("^sample", "COLO829v003T")).toFile();
-            System.out.println(actual.getAbsolutePath());
-            Assertions.assertThat(readContents(actual)).isEqualTo(readContents(expected));
+            Assertions.assertThat(readContents(actual))
+                    .as(format("Actual contents do not match expectatation in [%s]", expected.getAbsolutePath()))
+                    .isEqualTo(readContents(expected));
         }
         return this;
     }

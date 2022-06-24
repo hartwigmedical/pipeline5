@@ -14,7 +14,7 @@ public interface Versions {
     String AMBER = "3.9";
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.6";
+    String CUPPA = "1.6.1";
     String GRIDSS = "2.13.2";
     String GRIPSS = "pilot"; // was 2.1, will be 2.2
     String HEALTH_CHECKER = "3.4";
@@ -25,6 +25,7 @@ public interface Versions {
     String PEACH = "1.6";
     String PROTECT = "2.1";
     String PURPLE = "pilot"; // was 3.4, will be 3.5
+    String ROSE = "1.0";
     String SAGE = "pilot"; // was 3.0, will be 3.1
     String SIGS = "1.0";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";

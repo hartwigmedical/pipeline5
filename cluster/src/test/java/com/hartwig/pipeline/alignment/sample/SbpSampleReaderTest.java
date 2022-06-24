@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.alignment.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +32,7 @@ public class SbpSampleReaderTest {
         sbpRestApi = mock(SbpRestApi.class);
         victim = new SbpSampleReader(sbpRestApi);
         when(sbpRestApi.getSample(EXISTS)).thenReturn(TestJson.get(SAMPLE_JSON));
+        when(sbpRestApi.getLane(any(Long.class))).thenReturn(TestJson.get("get_lane"));
     }
 
     @Test(expected = IllegalArgumentException.class)

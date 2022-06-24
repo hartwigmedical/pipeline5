@@ -56,7 +56,7 @@ public interface SageConfiguration {
                         FileTypes.GZIPPED_VCF))
                 .unfilteredTemplate(m -> String.format("%s.%s.%s", m.sampleName(), "sage.germline", FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
-                .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode().addCoverage().maxHeap("15G"))
+                .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode().addCoverage())
                 .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
                 .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
                 .build();

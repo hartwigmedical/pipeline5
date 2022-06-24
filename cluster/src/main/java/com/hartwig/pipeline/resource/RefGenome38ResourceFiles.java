@@ -17,6 +17,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
@@ -26,7 +27,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String versionDirectory() {
-        return version().resources();
+        return version().numeric();
     }
 
     @Override
@@ -172,12 +173,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String actionabilityDir() {
-        throw new UnsupportedOperationException("Running PROTECT is not yet supported on 38 as we do not have the SERVE input.");
-    }
-
-    @Override
-    public String peachFilterBed() {
-        throw new UnsupportedOperationException("[PEACH filter BED] does not yet have a valid 38 version.");
+        return formPath(SERVE, "");
     }
 
     @Override

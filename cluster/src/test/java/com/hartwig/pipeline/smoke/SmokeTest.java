@@ -98,7 +98,7 @@ public class SmokeTest {
                 .setId(setName)
                 .runId(randomRunId)
                 .runGermlineCaller(false)
-                .cleanup(true)
+                .cleanup(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .context(Context.DIAGNOSTIC)
                 .useTargetRegions(false)
