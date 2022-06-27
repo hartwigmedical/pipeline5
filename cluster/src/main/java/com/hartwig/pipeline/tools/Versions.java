@@ -25,7 +25,7 @@ public interface Versions {
     String PEACH = "1.6";
     String PROTECT = "2.1";
     String PURPLE = "3.4.2";
-    String SAGE = "3.0.2";
+    String SAGE = "3.0.3";
     String SIGS = "1.0";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";

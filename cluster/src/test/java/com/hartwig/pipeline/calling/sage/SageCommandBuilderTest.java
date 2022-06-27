@@ -22,7 +22,7 @@ public class SageCommandBuilderTest {
 
     private static final String REFERENCE_OUT = VmDirectories.OUTPUT + "/" + REFERENCE + ".out.vcf.gz";
     private static final String REFERENCE_SAGE_COMMAND =
-            "java -Xmx31G -jar /opt/tools/sage/3.0.2/sage.jar "
+            "java -Xmx31G -jar /opt/tools/sage/3.0.3/sage.jar "
                     + "-tumor COLO829v003R -tumor_bam /data/input/COLO829v003R.bam "
                     + "-reference COLO829v003T -reference_bam /data/input/COLO829v003T.bam "
                     + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
