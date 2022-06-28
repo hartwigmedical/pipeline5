@@ -19,7 +19,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
         return new Rose(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.purpleOutput(),
                 TestInputs.linxOutput(),
-                TestInputs.virusOutput(),
+                TestInputs.virusInterpreterOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.cuppaOutput());
     }
@@ -71,7 +71,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
-                input(expectedRuntimeBucketName() + "/virusbreakend/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
+                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.conclusion.txt", "tumor.cuppa.conclusion.txt"));
     }
