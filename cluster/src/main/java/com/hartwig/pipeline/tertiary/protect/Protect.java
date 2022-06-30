@@ -33,7 +33,7 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Protect(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusOutput virusOutput,
+    public Protect(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusOutput,
             final ChordOutput chordOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purplePurity = new InputDownload(purpleOutputLocations.purity());

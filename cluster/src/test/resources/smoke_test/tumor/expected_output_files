@@ -189,7 +189,8 @@ sage_somatic/run.sh
 sigs/COLO829v003T.sig.allocation.tsv
 sigs/COLO829v003T.sig.snv_counts.csv
 sigs/run.log
-virusbreakend/COLO829v003T.virus.annotated.tsv
 virusbreakend/COLO829v003T.virusbreakend.vcf
 virusbreakend/COLO829v003T.virusbreakend.vcf.summary.tsv
 virusbreakend/run.log
+virusintrprtr/COLO829v003T.virus.annotated.tsv
+virusintrprtr/run.log

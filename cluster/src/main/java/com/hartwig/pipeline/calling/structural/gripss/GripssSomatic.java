@@ -16,16 +16,16 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 
-@Namespace(GripssSomatic.SOMATIC_NAMESPACE)
+@Namespace(GripssSomatic.GRIPSS_SOMATIC_NAMESPACE)
 public class GripssSomatic extends Gripss {
 
-    public static final String SOMATIC_NAMESPACE = "gripss_somatic";
+    public static final String GRIPSS_SOMATIC_NAMESPACE = "gripss_somatic";
 
     private static final String GRIPSS_SOMATIC_FILTERED = ".gripss.filtered.somatic.";
     private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
     public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles) {
-        super(gridssOutput, persistedDataset, resourceFiles, SOMATIC_NAMESPACE);
+        super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
     }
 
     @Override
