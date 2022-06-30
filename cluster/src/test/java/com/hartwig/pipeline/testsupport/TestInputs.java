@@ -43,6 +43,7 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSliceOutput;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
@@ -342,6 +343,7 @@ public class TestInputs {
                                 format("plot/%s%s", TUMOR_SAMPLE, Purple.PURPLE_CIRCOS_PLOT)))
                         .somaticCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_COPY_NUMBER_TSV))
+                        .germlineDeletions(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DELETION_TSV))
                         .build())
                 .build();
     }
@@ -377,7 +379,7 @@ public class TestInputs {
         return "run-" + sample + "-test/" + namespace;
     }
 
-    public static LinxSomaticOutput linxOutput() {
+    public static LinxSomaticOutput linxSomaticOutput() {
         return LinxSomaticOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
@@ -400,11 +402,16 @@ public class TestInputs {
                         .driverCatalog(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
                                 TUMOR_SAMPLE + LinxGermline.GERMLINE_DRIVER_CATALOG_TSV))
                         .outputDirectory(gsLocation(somaticBucket(LinxGermline.NAMESPACE), RESULTS))
-                        .build()).build();
+                        .build())
+                .build();
     }
 
     public static LilacOutput lilacOutput() {
-        return LilacOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return LilacOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.csv"))
+                .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.csv"))
+                .build();
     }
 
     public static LilacBamSliceOutput lilacBamSliceOutput() {

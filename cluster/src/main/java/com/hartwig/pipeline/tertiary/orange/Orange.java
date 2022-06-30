@@ -34,6 +34,8 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
@@ -60,22 +62,28 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload tumMetrics;
     private final InputDownload refFlagstat;
     private final InputDownload tumFlagstat;
-    private final InputDownload purpleGermlineVcf;
-    private final InputDownload purpleSomaticVcf;
-    private final InputDownload purplePurityTsv;
-    private final InputDownload purpleQCFile;
     private final InputDownload purpleGeneCopyNumberTsv;
-    private final InputDownload purpleSomaticDriverCatalog;
+    private final InputDownload purpleGermlineVcf;
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleOutputDir;
+    private final InputDownload purplePurityTsv;
+    private final InputDownload purpleQCFile;
+    private final InputDownload purpleSomaticDriverCatalog;
+    private final InputDownload purpleSomaticCopyNumberTsv;
+    private final InputDownload purpleSomaticVcf;
+    private final InputDownload purpleGermlineDeletionTsv;
     private final InputDownload sageGermlineGeneCoverageTsv;
     private final InputDownload sageSomaticRefSampleBqrPlot;
     private final InputDownload sageSomaticTumorSampleBqrPlot;
-    private final InputDownload linxOutputDir;
-    private final InputDownload linxFusionTsv;
+    private final InputDownload lilacQc;
+    private final InputDownload lilacResult;
     private final InputDownload linxBreakEndTsv;
     private final InputDownload linxDriverCatalogTsv;
     private final InputDownload linxDriverTsv;
+    private final InputDownload linxFusionTsv;
+    private final InputDownload linxStructuralVariantsTsv;
+    private final InputDownload linxOutputDir;
+    private final InputDownload linxGermlineDisruptionsTsv;
     private final InputDownload chordPredictionTxt;
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
@@ -86,9 +94,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
-            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LinxSomaticOutput linxOutput,
-            final CuppaOutput cuppaOutput, final VirusInterpreterOutput virusOutput, final ProtectOutput protectOutput,
-            final PeachOutput peachOutput, final ResourceFiles resourceFiles) {
+            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
+            final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
+            final VirusInterpreterOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
+            final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
@@ -103,16 +112,20 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.purpleGeneCopyNumberTsv = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
         this.purpleSomaticDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = initialiseOptionalLocation(purpleOutputLocations.germlineDriverCatalog());
+        this.purpleSomaticCopyNumberTsv = initialiseOptionalLocation(purpleOutputLocations.somaticCopyNumber());
+        this.purpleGermlineDeletionTsv = initialiseOptionalLocation(purpleOutputLocations.germlineDeletions());
         this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        LinxSomaticOutputLocations linxSomaticOutputLocations = linxOutput.linxOutputLocations();
-        this.linxOutputDir = new InputDownload(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_DIR);
-        this.linxFusionTsv = new InputDownload(linxSomaticOutputLocations.fusions());
+        LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
         this.linxBreakEndTsv = new InputDownload(linxSomaticOutputLocations.breakends());
         this.linxDriverCatalogTsv = new InputDownload(linxSomaticOutputLocations.driverCatalog());
         this.linxDriverTsv = new InputDownload(linxSomaticOutputLocations.drivers());
+        this.linxFusionTsv = new InputDownload(linxSomaticOutputLocations.fusions());
+        this.linxStructuralVariantsTsv = new InputDownload(linxSomaticOutputLocations.svAnnotations());
+        this.linxOutputDir = new InputDownload(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_DIR);
+        this.linxGermlineDisruptionsTsv = new InputDownload(linxGermlineOutput.linxOutputLocations().disruptions());
         this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
@@ -121,6 +134,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
         this.protectEvidenceTsv = new InputDownload(protectOutput.evidence());
         this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
+        this.lilacQc = initialiseOptionalLocation(lilacOutput.qc());
+        this.lilacResult = initialiseOptionalLocation(lilacOutput.result());
     }
 
     @Override
@@ -142,11 +157,17 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 purpleGeneCopyNumberTsv,
                 purpleSomaticDriverCatalog,
                 purpleGermlineDriverCatalog,
+                purpleSomaticCopyNumberTsv,
+                purpleGermlineDeletionTsv,
+                lilacQc,
+                lilacResult,
                 linxOutputDir,
                 linxFusionTsv,
                 linxBreakEndTsv,
                 linxDriverCatalogTsv,
                 linxDriverTsv,
+                linxStructuralVariantsTsv,
+                linxGermlineDisruptionsTsv,
                 cuppaFeaturePlot,
                 cuppaResultCsv,
                 cuppaSummaryPlot,
@@ -184,16 +205,18 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                         "16G",
                         List.of("-output_dir",
                                 VmDirectories.OUTPUT,
+                                "-ref_genome_version",
+                                resourceFiles.version().numeric(),
+                                "-tumor_sample_id",
+                                metadata.tumor().sampleName(),
+                                "-reference_sample_id",
+                                metadata.reference().sampleName(),
                                 "-doid_json",
                                 resourceFiles.doidJson(),
                                 "-primary_tumor_doids",
                                 primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
                                 "-max_evidence_level",
                                 MAX_EVIDENCE_LEVEL,
-                                "-tumor_sample_id",
-                                metadata.tumor().sampleName(),
-                                "-reference_sample_id",
-                                metadata.reference().sampleName(),
                                 "-ref_sample_wgs_metrics_file",
                                 refMetrics.getLocalTargetPath(),
                                 "-tumor_sample_wgs_metrics_file",
@@ -212,6 +235,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 purpleGeneCopyNumberTsv.getLocalTargetPath(),
                                 "-purple_germline_driver_catalog_tsv",
                                 purpleGermlineDriverCatalog.getLocalTargetPath(),
+                                "-purple_germline_deletion_tsv",
+                                purpleGermlineDeletionTsv.getLocalTargetPath(),
                                 "-purple_germline_variant_vcf",
                                 purpleGermlineVcf.getLocalTargetPath(),
                                 "-purple_plot_directory",
@@ -220,20 +245,30 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 purplePurityTsv.getLocalTargetPath(),
                                 "-purple_qc_file",
                                 purpleQCFile.getLocalTargetPath(),
+                                "-purple_somatic_copy_number_tsv",
+                                purpleSomaticCopyNumberTsv.getLocalTargetPath(),
                                 "-purple_somatic_driver_catalog_tsv",
                                 purpleSomaticDriverCatalog.getLocalTargetPath(),
                                 "-purple_somatic_variant_vcf",
                                 purpleSomaticVcf.getLocalTargetPath(),
-                                "-linx_fusion_tsv",
-                                linxFusionTsv.getLocalTargetPath(),
+                                "-lilac_qc_csv",
+                                lilacQc.getLocalTargetPath(),
+                                "-lilac_result_csv",
+                                lilacResult.getLocalTargetPath(),
                                 "-linx_breakend_tsv",
                                 linxBreakEndTsv.getLocalTargetPath(),
                                 "-linx_driver_catalog_tsv",
                                 linxDriverCatalogTsv.getLocalTargetPath(),
                                 "-linx_driver_tsv",
                                 linxDriverTsv.getLocalTargetPath(),
+                                "-linx_fusion_tsv",
+                                linxFusionTsv.getLocalTargetPath(),
+                                "-linx_germline_disruption_tsv",
+                                linxGermlineDisruptionsTsv.getLocalTargetPath(),
                                 "-linx_plot_directory",
                                 linxPlotDir,
+                                "-linx_structural_variant_tsv",
+                                linxStructuralVariantsTsv.getLocalTargetPath(),
                                 "-cuppa_result_csv",
                                 cuppaResultCsv.getLocalTargetPath(),
                                 "-cuppa_summary_plot",
@@ -253,7 +288,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-cohort_mapping_tsv",
                                 resourceFiles.orangeCohortMapping(),
                                 "-cohort_percentiles_tsv",
-                                resourceFiles.orangeCohortPercentiles())));
+                                resourceFiles.orangeCohortPercentiles(),
+                                "-driver_gene_panel_tsv",
+                                resourceFiles.driverGenePanel(),
+                                "-known_fusion_file",
+                                resourceFiles.knownFusionData())));
     }
 
     @Override

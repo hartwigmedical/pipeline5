@@ -124,16 +124,18 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     @Override
     public LilacOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String results = lilacOutput(metadata.sampleName());
+        String qc = lilacQcMetrics(metadata.sampleName());
         return LilacOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .qc(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(qc)))
+                .result(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(results)))
                 .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacOutput(metadata.sampleName()))),
-                        new AddDatatype(DataType.LILAC_QC_METRICS,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName()))))
+                                new ArchivePath(Folder.root(), namespace(), results)),
+                        new AddDatatype(DataType.LILAC_QC_METRICS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qc)))
                 .build();
     }
 

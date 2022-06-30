@@ -26,7 +26,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     @Override
     protected Stage<ProtectOutput, SomaticRunMetadata> createVictim() {
         return new Protect(TestInputs.purpleOutput(),
-                TestInputs.linxOutput(),
+                TestInputs.linxSomaticOutput(),
                 TestInputs.virusInterpreterOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,

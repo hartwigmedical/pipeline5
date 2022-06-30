@@ -223,6 +223,8 @@ public class SomaticPipeline {
                                         sageGermlineOutput,
                                         purpleOutput,
                                         chordOutput,
+                                        lilacOutputFuture.get(),
+                                        linxGermlineOutputFuture.get(),
                                         linxSomaticOutput,
                                         cuppaOutput,
                                         virusInterpreterOutput,
