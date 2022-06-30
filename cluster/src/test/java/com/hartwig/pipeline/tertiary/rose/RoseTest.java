@@ -18,7 +18,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
     protected Stage<RoseOutput, SomaticRunMetadata> createVictim() {
         return new Rose(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.purpleOutput(),
-                TestInputs.linxOutput(),
+                TestInputs.linxSomaticOutput(),
                 TestInputs.virusOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.cuppaOutput());
