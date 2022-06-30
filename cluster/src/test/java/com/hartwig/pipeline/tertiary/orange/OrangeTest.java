@@ -116,7 +116,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
-                        + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
+                        + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv");
     }
 
     @Override

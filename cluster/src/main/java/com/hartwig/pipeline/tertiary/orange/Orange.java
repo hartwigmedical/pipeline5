@@ -290,7 +290,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-cohort_percentiles_tsv",
                                 resourceFiles.orangeCohortPercentiles(),
                                 "-driver_gene_panel_tsv",
-                                resourceFiles.driverGenePanel())));
+                                resourceFiles.driverGenePanel(),
+                                "-known_fusion_file",
+                                resourceFiles.knownFusionData())));
     }
 
     @Override
