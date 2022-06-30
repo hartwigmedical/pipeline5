@@ -3,7 +3,7 @@
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-VERSION=5-29
+VERSION=5-30
 
 TOOLS_ONLY=false
 while getopts ':tf:' flag; do
