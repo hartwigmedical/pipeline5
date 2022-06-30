@@ -44,7 +44,7 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Orange.NAMESPACE)
@@ -96,7 +96,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
-            final VirusOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
+            final VirusInterpreterOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
             final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;

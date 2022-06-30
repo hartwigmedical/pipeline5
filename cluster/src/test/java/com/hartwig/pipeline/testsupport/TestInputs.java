@@ -2,8 +2,8 @@ package com.hartwig.pipeline.testsupport;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GERMLINE_NAMESPACE;
-import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.SOMATIC_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GRIPSS_GERMLINE_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPSS_SOMATIC_NAMESPACE;
 
 import java.util.List;
 
@@ -65,8 +65,10 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
-import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
-import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
+import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -268,11 +270,11 @@ public class TestInputs {
     public static GripssOutput gripssSomaticProcessOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder(SOMATIC_NAMESPACE)
+        return GripssOutput.builder(GRIPSS_SOMATIC_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(SOMATIC_NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(SOMATIC_NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
@@ -280,20 +282,27 @@ public class TestInputs {
     public static GripssOutput gripssGermlineOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder(GERMLINE_NAMESPACE)
+        return GripssOutput.builder(GRIPSS_GERMLINE_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GERMLINE_NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GERMLINE_NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
-    public static VirusOutput virusOutput() {
-        return VirusOutput.builder()
+    public static VirusBreakendOutput virusBreakendOutput() {
+        return VirusBreakendOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeAnnotatedVirusFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
-                        TUMOR_SAMPLE + VirusAnalysis.ANNOTATED_VIRUS_TSV))
+                .maybeSummary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf.summary.tsv"))
+                .maybeVariants(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf"))
+                .build();
+    }
+
+    public static VirusInterpreterOutput virusInterpreterOutput() {
+        return VirusInterpreterOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeVirusAnnotations(gsLocation(somaticBucket(VirusInterpreter.NAMESPACE), TUMOR_SAMPLE + ".virus.annotated.tsv"))
                 .build();
     }
 

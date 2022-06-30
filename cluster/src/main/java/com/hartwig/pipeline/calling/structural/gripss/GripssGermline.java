@@ -16,17 +16,17 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 
-@Namespace(GripssGermline.GERMLINE_NAMESPACE)
+@Namespace(GripssGermline.GRIPSS_GERMLINE_NAMESPACE)
 public class GripssGermline extends Gripss {
 
-    public static final String GERMLINE_NAMESPACE = "gripss_germline";
+    public static final String GRIPSS_GERMLINE_NAMESPACE = "gripss_germline";
 
     private static final String GRIPSS_GERMLINE_FILTERED = ".gripss.filtered.germline.";
     private static final String GRIPSS_GERMLINE_UNFILTERED = ".gripss.germline.";
 
     public GripssGermline(final GridssOutput gridssOutput, final PersistedDataset persistedDataset,
             final ResourceFiles resourceFiles) {
-        super(gridssOutput, persistedDataset, resourceFiles, GERMLINE_NAMESPACE);
+        super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_GERMLINE_NAMESPACE);
     }
 
     @Override
