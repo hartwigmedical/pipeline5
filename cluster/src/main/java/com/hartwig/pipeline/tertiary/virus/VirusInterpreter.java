@@ -87,7 +87,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                 "virus-interpreter.jar",
                 "2G",
                 List.of("-sample_id",
-                        metadata.tumor().name(),
+                        metadata.tumor().sampleName(),
                         "-purple_purity_tsv",
                         purplePurity.getLocalTargetPath(),
                         "-purple_qc_file",
