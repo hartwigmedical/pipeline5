@@ -40,10 +40,6 @@ public class CommandLineOptions {
     private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
     private static final String DOWNLOAD_FLAG = "download";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
-    private static final String RCLONE_PATH_FLAG = "rclone_path";
-    private static final String RCLONE_GCP_REMOTE_FLAG = "rclone_gcp_remote";
-    private static final String RCLONE_S3_REMOTE_DOWNLOAD_FLAG = "rclone_s3_remote_download";
-    private static final String RCLONE_S3_REMOTE_UPLOAD_FLAG = "rclone_s3_remote_upload";
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
     private static final String PROFILE_FLAG = "profile";
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
@@ -104,10 +100,6 @@ public class CommandLineOptions {
                 .addOption(sbpS3Url())
                 .addOption(runId())
                 .addOption(gsutilPath())
-                .addOption(rclonePath())
-                .addOption(rcloneGcpRemote())
-                .addOption(rcloneS3RemoteDownload())
-                .addOption(rcloneS3RemoteUpload())
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple, cuppa, etc)"))
@@ -254,22 +246,6 @@ public class CommandLineOptions {
                         Arrays.stream(DefaultsProfile.values()).map(Enum::name).collect(Collectors.joining("|"))));
     }
 
-    private static Option rclonePath() {
-        return optionWithArg(RCLONE_PATH_FLAG, "Path to rclone binary directory");
-    }
-
-    private static Option rcloneGcpRemote() {
-        return optionWithArg(RCLONE_GCP_REMOTE_FLAG, "RClone remote to use for Google Storage (upload fastqs and download outputs)");
-    }
-
-    private static Option rcloneS3RemoteDownload() {
-        return optionWithArg(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, "RClone remote to use for AWS (download fastqs)");
-    }
-
-    private static Option rcloneS3RemoteUpload() {
-        return optionWithArg(RCLONE_S3_REMOTE_UPLOAD_FLAG, "RClone remote to use for AWS (upload outputs)");
-    }
-
     private static Option gsutilPath() {
         return optionWithArg(CLOUD_SDK_PATH_FLAG, "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
     }
@@ -342,10 +318,6 @@ public class CommandLineOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
-                    .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
-                    .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
-                    .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))
-                    .rcloneS3RemoteUpload(commandLine.getOptionValue(RCLONE_S3_REMOTE_UPLOAD_FLAG, defaults.rcloneS3RemoteUpload()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
