@@ -32,7 +32,7 @@ public interface SingleSampleRunMetadata extends RunMetadata {
     SampleType type();
 
     @Override
-    default String name() {
+    default String runName() {
         return barcode();
     }
 

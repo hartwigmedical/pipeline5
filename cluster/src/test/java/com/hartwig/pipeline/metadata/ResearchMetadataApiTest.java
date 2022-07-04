@@ -122,7 +122,7 @@ public class ResearchMetadataApiTest {
         when(sampleApi.list(null, null, null, SET_ID, SampleType.TUMOR, null)).thenReturn(List.of(tumor()));
         SomaticRunMetadata somaticRunMetadata = victim.get();
         assertThat(somaticRunMetadata.bucket()).isEqualTo(Arguments.testDefaults().outputBucket());
-        assertThat(somaticRunMetadata.name()).isEqualTo(REF_BARCODE + "-" + TUMOR_BARCODE);
+        assertThat(somaticRunMetadata.runName()).isEqualTo(REF_BARCODE + "-" + TUMOR_BARCODE);
         assertThat(somaticRunMetadata.tumor().sampleName()).isEqualTo(TUMOR_NAME);
         assertThat(somaticRunMetadata.tumor().barcode()).isEqualTo(TUMOR_BARCODE);
         assertThat(somaticRunMetadata.reference().sampleName()).isEqualTo(REF_NAME);
