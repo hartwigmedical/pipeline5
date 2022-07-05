@@ -80,4 +80,9 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
     protected void validateOutput(final RoseOutput output) {
         // Output is not used elsewhere yet
     }
+
+    @Override
+    protected void validatePersistedOutput(final RoseOutput output) {
+        // Persisted output not used elsewhere
+    }
 }

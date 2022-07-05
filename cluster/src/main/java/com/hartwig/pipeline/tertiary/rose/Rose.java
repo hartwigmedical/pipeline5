@@ -152,15 +152,18 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",
-                metadata.tumor().sampleName(),
-                "-ref_sample_id",
-                metadata.reference().sampleName());
+                metadata.tumor().sampleName(), "-ref_sample_id", metadata.reference().sampleName());
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 
     @Override
     public RoseOutput skippedOutput(final SomaticRunMetadata metadata) {
         return RoseOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public RoseOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return RoseOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override
