@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -70,10 +74,25 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     protected void validatePersistedOutput(final SageOutput output) {
         assertThat(output.variants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/sage_germline/tumor.sage.germline.filtered.vcf.gz"));
+        assertThat(output.somaticRefSampleBqrPlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/sage_germline/reference.sage.bqr.png"));
+        assertThat(output.somaticTumorSampleBqrPlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/sage_germline/tumor.sage.bqr.png"));
     }
 
     @Override
-    public void returnsExpectedFurtherOperations() {
-        // ignore for now
+    protected List<AddDatatype> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_SAGE,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_GERMLINE_NAMESPACE, "tumor.sage.germline.filtered.vcf.gz")),
+                new AddDatatype(DataType.GERMLINE_GENE_COVERAGE,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_GERMLINE_NAMESPACE, "reference.sage.gene.coverage.tsv")),
+                new AddDatatype(DataType.GERMLINE_REF_SAMPLE_BQR_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_GERMLINE_NAMESPACE, "reference.sage.bqr.png")),
+                new AddDatatype(DataType.GERMLINE_TUMOR_SAMPLE_BQR_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_GERMLINE_NAMESPACE, "tumor.sage.bqr.png")));
     }
 }
