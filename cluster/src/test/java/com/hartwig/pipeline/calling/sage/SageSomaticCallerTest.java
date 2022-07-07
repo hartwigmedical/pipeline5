@@ -6,11 +6,16 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -27,7 +32,8 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     public void shallowModeUsesHotspotQualOverride() {
         SageSomaticCaller victim = new SageSomaticCaller(TestInputs.defaultPair(),
                 new NoopPersistedDataset(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaultsBuilder().shallow(true).build());
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
     }
 
@@ -35,7 +41,8 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
         return new SageSomaticCaller(TestInputs.defaultPair(),
                 new NoopPersistedDataset(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaults());
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaults());
     }
 
     @Override
@@ -72,10 +79,25 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     protected void validatePersistedOutput(final SageOutput output) {
         assertThat(output.variants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/sage_somatic/tumor.sage.somatic.filtered.vcf.gz"));
+        assertThat(output.somaticRefSampleBqrPlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/sage_somatic/reference.sage.bqr.png"));
+        assertThat(output.somaticTumorSampleBqrPlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/sage_somatic/tumor.sage.bqr" + ".png"));
     }
 
     @Override
-    public void returnsExpectedFurtherOperations() {
-        // ignore for now
+    protected List<AddDatatype> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_SAGE,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_SOMATIC_NAMESPACE, "tumor.sage.somatic.filtered.vcf.gz")),
+                new AddDatatype(DataType.SOMATIC_GENE_COVERAGE,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_SOMATIC_NAMESPACE, "tumor.sage.gene.coverage.tsv")),
+                new AddDatatype(DataType.SOMATIC_REF_SAMPLE_BQR_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_SOMATIC_NAMESPACE, "reference.sage.bqr.png")),
+                new AddDatatype(DataType.SOMATIC_TUMOR_SAMPLE_BQR_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), SageConfiguration.SAGE_SOMATIC_NAMESPACE, "tumor.sage.bqr.png")));
     }
 }

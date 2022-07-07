@@ -105,12 +105,12 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), geneCoverageFile)))
                 .addAllDatatypes(somaticRefSampleBqrPlot.stream()
-                        .map(r -> new AddDatatype(sageConfiguration.tumorSampleBqrPlot(),
+                        .map(r -> new AddDatatype(sageConfiguration.refSampleBqrPlot(),
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), r)))
                         .collect(Collectors.toList()))
                 .addAllDatatypes(somaticTumorSampleBqrPlot.stream()
-                        .map(t -> new AddDatatype(sageConfiguration.refSampleBqrPlot(),
+                        .map(t -> new AddDatatype(sageConfiguration.tumorSampleBqrPlot(),
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), t)))
                         .collect(Collectors.toList()));
@@ -144,7 +144,8 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
         return builder.build();
     }
 
-    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 
