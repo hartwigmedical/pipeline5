@@ -53,7 +53,7 @@ dest_image="${source_image}-$(date +%Y%m%d%H%M)-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
-image_family="$(echo $json | jq -r '.family')"
+image_family="$(echo $json | jq -r '.family')${resources_commit:+"-unofficial"}"
 imager_vm="${image_family}-imager"
 
 cat <<EOM
