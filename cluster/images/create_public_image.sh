@@ -1,36 +1,58 @@
 #!/usr/bin/env bash
 
+set -o pipefail
+
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
 VERSION=5-30
 
-TOOLS_ONLY=false
-while getopts ':tf:' flag; do
-    case "${flag}" in
-        t) TOOLS_ONLY=true ;;
-        f) FLAVOUR=${OPTARG} ;;
-        *) ;;
+tools_only=false
+
+print_usage() {
+    cat <<EOM
+USAGE: $0 [--tools-only] [--flavour flavour] [--checkout-target target]
+
+Optional arguments:
+  --tools-only                 Only copy down tools, don't bother with resources
+  --flavour [flavour]          ...
+  --checkout-target [target]   Checkout [target] instead of the HEAD of "master" and do not create any new tags.
+                               May be anything accepted by "git checkout".
+EOM
+}
+
+args=$(getopt -o "" --longoptions tools-only,flavour:,checkout-target: -- "$@")
+[[ $? != 0 ]] && print_usage && exit 1
+eval set -- "$args"
+
+while true; do
+    case "$1" in
+        --tools-only) tools_only=true ; shift ;;
+        --flavour) flavour="$2"; shift 2 ;;
+        --checkout-target) checkout_target="$2"; shift 2 ;;
+        --) shift; break ;;
     esac
 done
-image_family="pipeline5-${VERSION}${FLAVOUR+"-$FLAVOUR"}"
+
+image_family="pipeline5-${VERSION}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
 source_instance="${image_family}-$(whoami)"
-imageName="${image_family}-$(date +%Y%m%d%H%M)"
+image_name="${image_family}-$(date +%Y%m%d%H%M)"
 source_project="debian-cloud"
 source_family="debian-9"
 base_image_cmds="$(dirname "$0")/base.cmds"
 tools_image_cmds="$(dirname "$0")/tools.cmds"
 all_cmds=$(echo $base_image_cmds $tools_image_cmds)
-if [ "$TOOLS_ONLY" = true ]; then
-  source_project="hmf-pipeline-development"
-  source_family=${image_family}
-  all_cmds=$tools_image_cmds
+if [ "$tools_only" = true ]; then
+    source_project="hmf-pipeline-development"
+    source_family=${image_family}
+    all_cmds=$tools_image_cmds
 fi
 
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
 set -e
 GCL="gcloud beta compute --project=${PROJECT}"
+SSH="$GCL ssh $source_instance --zone=${ZONE}"
 generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 
 (
@@ -45,22 +67,29 @@ echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZO
 echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
-    echo "$GCL ssh $source_instance --zone=${ZONE} --command=\"$cmd\""
+    echo "$SSH --command=\"$cmd\""
 done
 
-if [ -n "$FLAVOUR" ]; then
-    bucket="gs://common-resources-${FLAVOUR}-overrides"
+if [ -n "$flavour" ]; then
+    bucket="gs://common-resources-${flavour}-overrides"
     copy_overrides="sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r ${bucket}/* /opt/resources/"
-    echo "$GCL ssh ${source_instance} --zone=${ZONE} --command=\"$copy_overrides\""
+    echo "$SSH --command=\"$copy_overrides\""
 fi
 
-echo "$GCL ssh $source_instance --zone=${ZONE} --command=\"cd /opt/resources && sudo git tag ${imageName} && git push origin ${imageName}\""
-echo "$GCL ssh $source_instance --zone=${ZONE} --command=\"sudo rm -r /opt/resources/.git\""
+if [ -n "${checkout_target}" ]; then
+    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target}\""
+else
+    echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && git push origin ${image_name}\""
+fi
 
+echo "$SSH --command=\"sudo rm -r /opt/resources/.git\""
 echo "$GCL instances stop ${source_instance} --zone=${ZONE}"
-echo "$GCL images create ${imageName} --family=${image_family} --source-disk=${source_instance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
+echo "$GCL images create ${image_name} --family=${image_family} --source-disk=${source_instance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
 echo "$GCL instances -q delete ${source_instance} --zone=${ZONE}"
 ) > $generated_script
 chmod +x $generated_script
-$generated_script
-rm $generated_script
+#$generated_script
+#rm $generated_script
+
+cat $generated_script
+
