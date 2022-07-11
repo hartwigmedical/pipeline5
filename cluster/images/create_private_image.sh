@@ -67,8 +67,8 @@ EOM
 read -p "Continue [y|N]? " response
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
-if [[ -n $commit_sha ]]; then
-    additional_args="--checkout-commit $commit_sha"
+if [[ -n $resources_commit ]]; then
+    additional_args="--checkout-commit $resources_commit"
 else
     additional_args="--tag-as-version $dest_image"
 fi    
