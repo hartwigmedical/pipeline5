@@ -42,9 +42,11 @@ while true; do
     esac
 done
 
-which jq >/dev/null || (echo Please install jq && exit 1)
-which gcloud >/dev/null || (echo Please install gcloud && exit 1)
-which gsutil >/dev/null || (echo Please install gsutil && exit 1)
+[[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
+
+for dep in jq gcloud gsutil; do
+    which ${dep} >/dev/null || (echo Please install ${dep} && exit 1)
+done
 
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
