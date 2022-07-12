@@ -169,14 +169,17 @@ public class SomaticPipeline {
                         FlagstatOutput referenceFlagstat = metadata.maybeReference()
                                 .map(t -> pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat"))
                                 .orElse(skippedFlagstat(metadata.sampleName()));
+                        VirusBreakendOutput virusBreakendOutput = virusBreakendOutputFuture.get();
                         Future<VirusInterpreterOutput> virusInterpreterOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new VirusInterpreter(pair,
                                         resourceFiles,
                                         persistedDataset,
-                                        virusBreakendOutputFuture.get(),
+                                        virusBreakendOutput,
                                         purpleOutput,
                                         tumorMetrics)));
-                        VirusInterpreterOutput virusInterpreterOutput = pipelineResults.add(virusInterpreterOutputFuture.get());
+                        VirusInterpreterOutput virusInterpreterOutput = virusInterpreterOutputFuture.get();
+                        pipelineResults.add(state.add(virusBreakendOutput));
+                        pipelineResults.add(state.add(virusInterpreterOutput));
 
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
@@ -193,7 +196,6 @@ public class SomaticPipeline {
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
-                        pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                         pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
                         pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
                         pipelineResults.add(state.add(lilacOutputFuture.get()));
