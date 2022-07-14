@@ -42,8 +42,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String gridssRepeatMaskerDb() {
-        return decorated.gridssRepeatMaskerDb();
+    public String repeatMaskerDb() {
+        return decorated.repeatMaskerDb();
     }
 
     @Override

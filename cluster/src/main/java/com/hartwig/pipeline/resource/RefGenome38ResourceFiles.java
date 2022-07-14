@@ -117,7 +117,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String gridssRepeatMaskerDb() {
+    public String repeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "38.fa.out");
     }
 

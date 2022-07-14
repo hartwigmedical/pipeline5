@@ -27,7 +27,6 @@ import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -71,10 +70,11 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(String.format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
         arguments.add(String.format("-pon_sgl_file %s", resourceFiles.svBreakendPon()));
         arguments.add(String.format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
-        arguments.add(String.format("-repeat_mask_file %s", resourceFiles.gridssRepeatMaskerDb()));
+        arguments.add(String.format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
         arguments.add(String.format("-vcf %s", gridssVcf.getLocalTargetPath()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
 
