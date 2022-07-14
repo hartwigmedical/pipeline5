@@ -93,8 +93,6 @@ done
 gcloud compute scp $(dirname $0)/link_pilot_venvs.sh ${imager_vm}:/tmp --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap
 ssh "sudo /tmp/link_pilot_venvs.sh"
 
-exit 1
-
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$IMAGE_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
     --storage-location=$LOCATION --project=$IMAGE_PROJECT
