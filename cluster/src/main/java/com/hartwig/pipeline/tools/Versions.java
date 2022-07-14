@@ -20,10 +20,10 @@ public interface Versions {
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.1";
     String LINX = "pilot"; // was 1.19, will be 1.20
-    String ORANGE = "1.7";
+    String ORANGE = "1.10";
     String PAVE = "pilot"; // was 1.2, will be 1.3
     String PEACH = "1.6";
-    String PROTECT = "2.1";
+    String PROTECT = "2.2";
     String PURPLE = "pilot"; // was 3.4, will be 3.5
     String ROSE = "1.0";
     String SAGE = "pilot"; // was 3.0, will be 3.1
@@ -83,6 +83,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-29";
+        return "5-30";
     }
 }

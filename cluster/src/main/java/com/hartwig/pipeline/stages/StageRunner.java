@@ -50,7 +50,7 @@ public class StageRunner<M extends RunMetadata> {
         final List<BashCommand> commands = commands(mode, metadata, stage);
         if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {
-                StageTrace trace = new StageTrace(stage.namespace(), metadata.name(), StageTrace.ExecutorType.COMPUTE_ENGINE);
+                StageTrace trace = new StageTrace(stage.namespace(), metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE);
                 RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments, labels);
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
@@ -59,7 +59,7 @@ public class StageRunner<M extends RunMetadata> {
                         .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
                 PipelineStatus status =
-                        Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.name(), stage.namespace())))
+                        Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.runName(), stage.namespace())))
                                 .get(() -> computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)));
                 trace.stop();
                 return stage.output(metadata, status, bucket, resultsDirectory);

@@ -44,8 +44,7 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                + "-write_vis_data");
+                + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv " + "-write_vis_data");
 
         commands.add("java -Xmx8G -cp /opt/tools/linx/pilot/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
                 + "-sample tumor -ref_genome_version V37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "

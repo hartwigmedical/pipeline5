@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.storage.GoogleStorageLocation.empty;
+
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
@@ -19,4 +21,12 @@ public interface LinxGermlineOutput extends StageOutput {
     }
 
     Optional<LinxGermlineOutputLocations> maybeLinxGermlineOutputLocations();
+
+    default LinxGermlineOutputLocations linxOutputLocations() {
+        return maybeLinxGermlineOutputLocations().orElse(LinxGermlineOutputLocations.builder()
+                .disruptions(empty())
+                .driverCatalog(empty())
+                .outputDirectory(empty())
+                .build());
+    }
 }

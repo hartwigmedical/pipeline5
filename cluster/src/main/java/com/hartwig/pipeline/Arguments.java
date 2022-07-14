@@ -47,14 +47,6 @@ public interface Arguments extends CommonArguments {
 
     String sbpApiUrl();
 
-    String rclonePath();
-
-    String rcloneGcpRemote();
-
-    String rcloneS3RemoteDownload();
-
-    String rcloneS3RemoteUpload();
-
     String outputBucket();
 
     String uploadPrivateKeyPath();
@@ -99,9 +91,6 @@ public interface Arguments extends CommonArguments {
         return System.getProperty("user.dir");
     }
 
-    String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
-    String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
-    String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
@@ -126,10 +115,6 @@ public interface Arguments extends CommonArguments {
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
-                    .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
-                    .rcloneS3RemoteDownload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
-                    .rcloneS3RemoteUpload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
@@ -174,10 +159,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .rclonePath(NOT_APPLICABLE)
-                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
-                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
-                    .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
@@ -211,10 +192,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .rclonePath(NOT_APPLICABLE)
-                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
-                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
-                    .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
@@ -246,10 +223,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .rclonePath(NOT_APPLICABLE)
-                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
-                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
-                    .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)

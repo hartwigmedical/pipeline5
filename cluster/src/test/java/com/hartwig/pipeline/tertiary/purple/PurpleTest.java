@@ -103,10 +103,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -run_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
-                        + "-output_dir /data/output "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-reference reference "
+                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-reference reference "
                         + "-germline_vcf /data/input/tumor.germline.vcf.gz "
                         + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv -no_charts");

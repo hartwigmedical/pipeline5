@@ -15,6 +15,6 @@ public interface Run {
     String id();
 
     static Run from(final RunMetadata runMetadata, final CommonArguments arguments) {
-        return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, runMetadata.name().toLowerCase())).replace("_", "-"));
+        return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, runMetadata.runName().toLowerCase())).replace("_", "-"));
     }
 }

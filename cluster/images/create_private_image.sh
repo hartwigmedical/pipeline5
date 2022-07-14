@@ -42,9 +42,11 @@ while true; do
     esac
 done
 
-which jq >/dev/null || (echo Please install jq && exit 1)
-which gcloud >/dev/null || (echo Please install gcloud && exit 1)
-which gsutil >/dev/null || (echo Please install gsutil && exit 1)
+[[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
+
+for dep in jq gcloud gsutil; do
+    which ${dep} >/dev/null || (echo Please install ${dep} && exit 1)
+done
 
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
@@ -53,7 +55,7 @@ dest_image="${source_image}-$(date +%Y%m%d%H%M)-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
-image_family="$(echo $json | jq -r '.family')"
+image_family="$(echo $json | jq -r '.family')${resources_commit:+"-unofficial"}"
 imager_vm="${image_family}-imager"
 
 cat <<EOM
@@ -67,8 +69,8 @@ EOM
 read -p "Continue [y|N]? " response
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
-if [[ -n $commit_sha ]]; then
-    additional_args="--checkout-commit $commit_sha"
+if [[ -n $resources_commit ]]; then
+    additional_args="--checkout-commit $resources_commit"
 else
     additional_args="--tag-as-version $dest_image"
 fi    

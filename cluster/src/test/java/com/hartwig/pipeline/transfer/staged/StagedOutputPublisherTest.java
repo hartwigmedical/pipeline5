@@ -51,6 +51,7 @@ public class StagedOutputPublisherTest {
     private PipelineState state;
     private StagedOutputPublisher victim;
     private SetResolver setResolver;
+    private Run run;
 
     @Before
     public void setUp() throws Exception {
@@ -59,14 +60,9 @@ public class StagedOutputPublisherTest {
         publisher = mock(Publisher.class);
         state = mock(PipelineState.class);
         setResolver = mock(SetResolver.class);
-        victim = new StagedOutputPublisher(setResolver,
-                bucket,
-                publisher,
-                OBJECT_MAPPER,
-                Optional.of(new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L)),
-                Context.DIAGNOSTIC,
-                true,
-                false);
+        run = new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L).version("5.28.6");
+        victim =
+                new StagedOutputPublisher(setResolver, bucket, publisher, OBJECT_MAPPER, Optional.of(run), Context.DIAGNOSTIC, true, false);
     }
 
     @Test
@@ -82,7 +78,7 @@ public class StagedOutputPublisherTest {
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
-                Optional.of(new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L)),
+                Optional.of(run),
                 Context.DIAGNOSTIC,
                 false,
                 false);

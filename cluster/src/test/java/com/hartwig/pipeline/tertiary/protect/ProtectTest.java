@@ -26,8 +26,8 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     @Override
     protected Stage<ProtectOutput, SomaticRunMetadata> createVictim() {
         return new Protect(TestInputs.purpleOutput(),
-                TestInputs.linxOutput(),
-                TestInputs.virusOutput(),
+                TestInputs.linxSomaticOutput(),
+                TestInputs.virusInterpreterOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 persistedDataset);
@@ -45,14 +45,14 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
-                input(expectedRuntimeBucketName() + "/virusbreakend/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
+                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"));
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/protect/2.1/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
+                "java -Xmx8G -jar /opt/tools/protect/2.2/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
                         + "-primary_tumor_doids \"01;02\" -output_dir /data/output "
                         + "-serve_actionability_dir /opt/resources/serve/37/ -ref_genome_version 37 "
                         + "-doid_json /opt/resources/disease_ontology/doid.json "

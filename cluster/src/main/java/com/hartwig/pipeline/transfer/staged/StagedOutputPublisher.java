@@ -97,7 +97,7 @@ public class StagedOutputPublisher {
                             .setId(set.getId())
                             .context(context)
                             .addAnalyses(alignedReadsAnalysis.build(), somaticAnalysis.build(), germlineAnalysis.build())
-                            .version(Versions.pipelineMajorMinorVersion())
+                            .version(Optional.ofNullable(run.get().getVersion()).orElse(Versions.pipelineMajorMinorVersion()))
                             .build())
                     .build());
         }

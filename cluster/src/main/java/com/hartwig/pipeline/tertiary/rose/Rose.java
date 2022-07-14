@@ -29,7 +29,7 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Rose.NAMESPACE)
@@ -51,7 +51,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
     private final InputDownload cuppaConclusion;
 
     public Rose(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, final LinxSomaticOutput linxSomaticOutput,
-            final VirusOutput virusOutput, final ChordOutput chordOutput, final CuppaOutput cuppaOutput) {
+            final VirusInterpreterOutput virusOutput, final ChordOutput chordOutput, final CuppaOutput cuppaOutput) {
         this.resourceFiles = resourceFiles;
         PurpleOutputLocations purple = purpleOutput.outputLocations();
         this.purplePurity = new InputDownload(purple.purity());
@@ -152,15 +152,18 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",
-                metadata.tumor().sampleName(),
-                "-ref_sample_id",
-                metadata.reference().sampleName());
+                metadata.tumor().sampleName(), "-ref_sample_id", metadata.reference().sampleName());
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 
     @Override
     public RoseOutput skippedOutput(final SomaticRunMetadata metadata) {
         return RoseOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public RoseOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return RoseOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

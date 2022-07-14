@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.reruns;
 
-import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GERMLINE_NAMESPACE;
-import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.SOMATIC_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GRIPSS_GERMLINE_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPSS_SOMATIC_NAMESPACE;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +34,8 @@ import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.rose.Rose;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
-import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
+import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,9 +55,7 @@ public class StartingPoint {
                 GermlineCaller.NAMESPACE,
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE,
-                Gridss.NAMESPACE,
-                CramConversion.NAMESPACE,
-                LilacBamSlicer.NAMESPACE)),
+                Gridss.NAMESPACE, CramConversion.NAMESPACE, LilacBamSlicer.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -65,20 +64,22 @@ public class StartingPoint {
                         Amber.NAMESPACE,
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE,
                         PaveSomatic.NAMESPACE,
-                        PaveGermline.NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(SOMATIC_NAMESPACE, GERMLINE_NAMESPACE))),
+                        PaveGermline.NAMESPACE,
+                        VirusBreakend.NAMESPACE,
+                        LilacBamSlicer.NAMESPACE))),
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
         PROTECT_ONLY(concat(PURPLE_COMPLETE.namespaces,
                 List.of(LinxGermline.NAMESPACE,
                         LinxSomatic.NAMESPACE,
-                        VirusAnalysis.NAMESPACE,
                         Chord.NAMESPACE,
                         Lilac.NAMESPACE,
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
-                        Rose.NAMESPACE)));
+                        Rose.NAMESPACE,
+                        VirusInterpreter.NAMESPACE)));
 
         private final List<String> namespaces;
 

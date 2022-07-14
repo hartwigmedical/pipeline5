@@ -58,6 +58,7 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
                 + "-sample reference "
                 + "-output_id germline "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-ref_genome_version V37 "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
                 + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed.gz "
                 + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe.gz "
