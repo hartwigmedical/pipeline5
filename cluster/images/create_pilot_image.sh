@@ -3,6 +3,7 @@
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 IMAGE_PROJECT="hmf-pipeline-development"
+TOOLS="/opt/tools"
 
 which jq >/dev/null || (echo Please install jq && exit 1)
 which gcloud >/dev/null || (echo Please install gcloud && exit 1)
@@ -39,6 +40,8 @@ image_family="$(echo $json | jq -r '.family')-pilot"
 imager_vm="${image_family}-$(whoami)-imager"
 
 cat << EOM
+
+
 Ready to create VM [${imager_vm}] in project [${IMAGE_PROJECT}].
 The VM will be used to create pilot testing image [${dest_image}] 
 in family [${image_family}]. You must have sufficient permissions in
@@ -69,21 +72,28 @@ gcloud compute instances create $imager_vm --description="Instance for pilot pip
     --image-project=$IMAGE_PROJECT --image=$source_image --scopes=default --project=$IMAGE_PROJECT \
     --network-interface=no-address || exit 1
 
-ssh="gcloud compute ssh $imager_vm --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap"
+function ssh() {
+    gcloud compute ssh $imager_vm --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap --command="$@"
+}
+
 echo "Polling for active instance"
 while true; do
     sleep 1
-    $ssh --command="exit 0"
+    ssh "exit 0"
     [[ $? -eq 0 ]] && break
 done
 echo "Instance running, continuing with imaging"
 
 set -e
 for f in $(find ${pilot_dir} -maxdepth 1 -type f); do
-    toolName="$(echo $(basename $f) | sed 's/\..*//')"
-    $ssh --command="sudo mkdir -p /opt/tools/${toolName}/pilot && sudo chmod a+w /opt/tools/${toolName}/pilot"
-    gcloud compute scp ${f} ${imager_vm}:/opt/tools/${toolName}/pilot/$(basename $f) --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap 
+    toolDir="${TOOLS}/$(echo $(basename $f) | sed 's/\..*//')"
+    ssh "sudo mkdir -p ${toolDir}/pilot && sudo chmod a+w ${toolDir}/pilot"
+    gcloud compute scp ${f} ${imager_vm}:${toolDir}/pilot/$(basename $f) --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap 
 done
+gcloud compute scp $(dirname $0)/link_pilot_venvs.sh ${imager_vm}:/tmp --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap
+ssh "sudo /tmp/link_pilot_venvs.sh"
+
+exit 1
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$IMAGE_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
