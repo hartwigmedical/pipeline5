@@ -21,6 +21,7 @@ Optional arguments:
                                 No tagging will be done in the private resources repository.
   --result-code-url [GCS url]   GCS (eg "gs://bucket/path") URL to write the exit code to (bucket must be writable).
                                 This script will interact with the bucket rather than with the imager instance over SSH.
+  --non-interactive             Script is being run non-interactively so skip warnings and prompts when possible.
 EOM
 }
 
@@ -30,7 +31,7 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-commit:,result-code-url: -- "$@")
+args=$(getopt -o "" --longoptions resources-commit:,result-code-url:,non-interactive -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
@@ -38,6 +39,7 @@ while true; do
     case "$1" in
         --resources-commit) resources_commit=$2; shift 2 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
+        --non-interactive) non_interactive=true; shift 1 ;;
         --) shift; break ;;
     esac
 done
@@ -58,6 +60,7 @@ gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>
 image_family="$(echo $json | jq -r '.family')${resources_commit:+"-unofficial"}"
 imager_vm="${image_family}-imager"
 
+if [[ -z $non_interactive ]]; then
 cat <<EOM
 Ready to create VM [${imager_vm}] in project [${DEST_PROJECT}]
 The VM will be used to create private image [${dest_image}] in family [${image_family}]
@@ -66,7 +69,10 @@ You must have sufficient permissions in [${DEST_PROJECT}]
 If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!
 
 EOM
-read -p "Continue [y|N]? " response
+    read -p "Continue [y|N]? " response
+else
+    response=y
+fi
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
 if [[ -n $resources_commit ]]; then
