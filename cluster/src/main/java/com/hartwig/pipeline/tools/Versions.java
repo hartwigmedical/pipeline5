@@ -14,20 +14,20 @@ public interface Versions {
     String AMBER = "3.9";
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.6.1";
+    String CUPPA = "pilot"; // was 1.6.1, will be 1.7
     String GRIDSS = "2.13.2";
-    String GRIPSS = "pilot"; // was 2.1, will be 2.2
+    String GRIPSS = "2.2";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.1";
-    String LINX = "pilot"; // was 1.19, will be 1.20
+    String LINX = "1.20";
     String ORANGE = "1.10";
-    String PAVE = "pilot"; // was 1.2, will be 1.3
+    String PAVE = "1.3";
     String PEACH = "1.6";
     String PROTECT = "2.2";
-    String PURPLE = "pilot"; // was 3.4, will be 3.5
+    String PURPLE = "3.5";
     String ROSE = "1.0";
-    String SAGE = "pilot"; // was 3.0, will be 3.1
-    String SIGS = "1.0";
+    String SAGE = "3.1";
+    String SIGS = "1.1";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
 

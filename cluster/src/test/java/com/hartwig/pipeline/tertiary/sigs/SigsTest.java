@@ -35,7 +35,7 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx4G -jar /opt/tools/sigs/1.0/sigs.jar -sample tumor "
+        return List.of("java -Xmx4G -jar /opt/tools/sigs/1.1/sigs.jar -sample tumor "
                 + "-signatures_file /opt/resources/sigs/snv_cosmic_signatures.csv -somatic_vcf_file /data/input/tumor.purple.somatic.vcf.gz "
                 + "-output_dir /data/output");
     }

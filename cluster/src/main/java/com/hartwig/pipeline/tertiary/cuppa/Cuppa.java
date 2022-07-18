@@ -48,8 +48,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
     public static final String NAMESPACE = "cuppa";
-    private final InputDownload purpleSomaticVariantsDownload;
-    private final InputDownload purpleStructuralVariantsDownload;
     private final InputDownload purpleOutputDirectory;
     private final LinxSomaticOutput linxOutput;
 
@@ -60,8 +58,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
-        this.purpleStructuralVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.structuralVariants());
         this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
@@ -70,7 +66,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVariantsDownload, purpleStructuralVariantsDownload, purpleOutputDirectory, linxOutputDownload());
+        return List.of(purpleOutputDirectory, linxOutputDownload());
     }
 
     @Override
@@ -103,10 +99,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 metadata.tumor().sampleName(),
                                 "-sample_data_dir",
                                 linxOutputDownload().getLocalTargetPath(),
-                                "-sample_sv_file",
-                                purpleStructuralVariantsDownload.getLocalTargetPath(),
-                                "-sample_somatic_vcf",
-                                purpleSomaticVariantsDownload.getLocalTargetPath(),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
                 new Python3Command("cuppa-chart",
