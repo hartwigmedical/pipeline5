@@ -8,6 +8,8 @@ TOOLS="/opt/tools"
 which jq >/dev/null || (echo Please install jq && exit 1)
 which gcloud >/dev/null || (echo Please install gcloud && exit 1)
 
+pilot_dir=""
+source_image=""
 while getopts ':s:d:' flag; do
     case "${flag}" in
         s) source_image=${OPTARG} ;;
@@ -16,7 +18,7 @@ while getopts ':s:d:' flag; do
     esac
 done
 
-if [ -z $source_image -o -z $pilot_dir ]; then
+if [[ -z $source_image || -z $pilot_dir ]]; then
     echo
     echo "USAGE: $0 -s [source image in project $IMAGE_PROJECT] -d [local directory to sync to image as pilot tools]"
     echo
