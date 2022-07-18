@@ -88,8 +88,5 @@ echo "$GCL images create ${image_name} --family=${image_family} --source-disk=${
 echo "$GCL instances -q delete ${source_instance} --zone=${ZONE}"
 ) > $generated_script
 chmod +x $generated_script
-#$generated_script
-#rm $generated_script
-
-cat $generated_script
-
+$generated_script
+rm $generated_script
