@@ -19,6 +19,8 @@ Optional arguments:
 
   --resources-commit [sha1]     SHA1 in private resources repository to checkout instead of HEAD.
                                 No tagging will be done in the private resources repository.
+  --use-sha1-for-suffix         If using a particular commit instead of HEAD, make the final component of the name the
+                                SHA1 of the checked-out commit rather than the current date.
   --result-code-url [GCS url]   GCS (eg "gs://bucket/path") URL to write the exit code to (bucket must be writable).
                                 This script will interact with the bucket rather than with the imager instance over SSH.
   --non-interactive             Script is being run non-interactively so skip warnings and prompts when possible.
@@ -31,20 +33,32 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-commit:,result-code-url:,non-interactive -- "$@")
+args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
+use_sha1_for_suffix=""
 while true; do
     case "$1" in
         --resources-commit) resources_commit=$2; shift 2 ;;
+        --use-sha1-for-suffix) use_sha1_for_suffix=true; shift 1 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
         --non-interactive) non_interactive=true; shift 1 ;;
         --) shift; break ;;
     esac
 done
 
+suffix="$(date +%Y%m%d%H%M)"
 [[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
+if [[ -n $use_sha1_for_suffix ]]; then
+    if [[ -z $resources_commit ]]; then
+        echo "Must specify the resources commit if requesting a SHA1 be used in the name"
+        print_usage
+        exit 1
+    else
+        suffix="$resources_commit"
+    fi
+fi
 
 for dep in jq gcloud gsutil; do
     which ${dep} >/dev/null || (echo Please install ${dep} && exit 1)
@@ -53,7 +67,7 @@ done
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
 
-dest_image="${source_image}-$(date +%Y%m%d%H%M)-private"
+dest_image="${source_image}-${suffix}-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
