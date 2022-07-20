@@ -1,23 +1,20 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
-import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.InstanceList;
-import com.google.api.services.compute.model.Operation;
-import com.google.api.services.compute.model.Zone;
-import com.google.api.services.compute.model.ZoneList;
+import com.google.api.gax.longrunning.OperationFuture;
+import com.google.cloud.compute.v1.Instance;
+import com.google.cloud.compute.v1.InstancesClient;
+import com.google.cloud.compute.v1.Operation;
+import com.google.cloud.compute.v1.Zone;
+import com.google.cloud.compute.v1.ZoneOperationsClient;
+import com.google.cloud.compute.v1.ZonesClient;
 import com.hartwig.pipeline.Arguments;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,14 +22,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class InstanceLifecycleManagerTest {
-    private static final String DONE_STATUS = "DONE";
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
 
     private String zoneOne;
     private String zoneTwo;
     private String vmName;
-    private Compute compute;
-    private Compute.Instances instances;
+    private InstancesClient instances;
+    private ZonesClient zones;
+    private ZoneOperationsClient zoneOperations;
     private InstanceLifecycleManager victim;
 
     @Before
@@ -40,39 +37,30 @@ public class InstanceLifecycleManagerTest {
         zoneOne = "zone-a";
         zoneTwo = "zone-b";
         vmName = "vm-name";
-        compute = mock(Compute.class);
-        instances = mock(Compute.Instances.class);
-        victim = new InstanceLifecycleManager(ARGUMENTS, compute);
-
-        when(compute.instances()).thenReturn(instances);
+        instances = mock(InstancesClient.class);
+        zones = mock(ZonesClient.class);
+        zoneOperations = mock(ZoneOperationsClient.class);
+        victim = new InstanceLifecycleManager(ARGUMENTS, instances, zones, zoneOperations);
     }
 
     @Test
-    public void shouldReturnExistingInstance() throws Exception {
-        Compute.Instances.List zoneOneInstances = mock(Compute.Instances.List.class);
-        Compute.Instances.List zoneTwoInstances = mock(Compute.Instances.List.class);
+    public void shouldReturnExistingInstance() {
+        InstancesClient.ListPagedResponse zoneOneInstanceList = mock(InstancesClient.ListPagedResponse.class);
+        InstancesClient.ListPagedResponse zoneTwoInstanceList = mock(InstancesClient.ListPagedResponse.class);
 
-        InstanceList zoneOneInstanceList = mock(InstanceList.class);
-        InstanceList zoneTwoInstanceList = mock(InstanceList.class);
-
-        when(instances.list(ARGUMENTS.project(), zoneOne)).thenReturn(zoneOneInstances);
-        when(instances.list(ARGUMENTS.project(), zoneTwo)).thenReturn(zoneTwoInstances);
-
-        when(zoneOneInstances.execute()).thenReturn(zoneOneInstanceList);
-        when(zoneTwoInstances.execute()).thenReturn(zoneTwoInstanceList);
+        when(instances.list(ARGUMENTS.project(), zoneOne)).thenReturn(zoneOneInstanceList);
+        when(instances.list(ARGUMENTS.project(), zoneTwo)).thenReturn(zoneTwoInstanceList);
 
         Instance vmInstance = namedInstance(vmName);
         Instance someInstance = namedInstance();
         Instance someOtherInstance = namedInstance();
-        when(zoneOneInstanceList.getItems()).thenReturn(singletonList(someInstance));
-        when(zoneTwoInstanceList.getItems()).thenReturn(asList(someOtherInstance, vmInstance));
+        when(zoneOneInstanceList.iterateAll()).thenReturn(List.of(someInstance));
+        when(zoneTwoInstanceList.iterateAll()).thenReturn(List.of(someOtherInstance, vmInstance));
 
-        Compute.Zones zones = mock(Compute.Zones.class);
-        Compute.Zones.List zonesList = mock(Compute.Zones.List.class);
-        List<Zone> stubbedZones = asList(zone(zoneOne), zone(zoneTwo));
-        when(zonesList.execute()).thenReturn(new ZoneList().setItems(stubbedZones));
-        when(compute.zones()).thenReturn(zones);
-        when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
+        List<Zone> stubbedZones = List.of(zone(zoneOne), zone(zoneTwo));
+        ZonesClient.ListPagedResponse zoneListResponse = mock(ZonesClient.ListPagedResponse.class);
+        when(zoneListResponse.iterateAll()).thenReturn(stubbedZones);
+        when(zones.list(ARGUMENTS.project())).thenReturn(zoneListResponse);
 
         Optional<Instance> found = victim.findExistingInstance(vmName);
         assertThat(found).isNotEmpty();
@@ -80,30 +68,22 @@ public class InstanceLifecycleManagerTest {
     }
 
     @Test
-    public void shouldReturnEmptyOptionalIfNamedInstanceDoesNotExist() throws Exception {
-        Compute.Instances.List zoneOneInstances = mock(Compute.Instances.List.class);
-        Compute.Instances.List zoneTwoInstances = mock(Compute.Instances.List.class);
+    public void shouldReturnEmptyOptionalIfNamedInstanceDoesNotExist() {
+        InstancesClient.ListPagedResponse zoneOneInstanceList = mock(InstancesClient.ListPagedResponse.class);
+        InstancesClient.ListPagedResponse zoneTwoInstanceList = mock(InstancesClient.ListPagedResponse.class);
 
-        InstanceList zoneOneInstanceList = mock(InstanceList.class);
-        InstanceList zoneTwoInstanceList = mock(InstanceList.class);
+        when(instances.list(ARGUMENTS.project(), zoneOne)).thenReturn(zoneOneInstanceList);
+        when(instances.list(ARGUMENTS.project(), zoneTwo)).thenReturn(zoneTwoInstanceList);
 
-        when(instances.list(ARGUMENTS.project(), zoneOne)).thenReturn(zoneOneInstances);
-        when(instances.list(ARGUMENTS.project(), zoneTwo)).thenReturn(zoneTwoInstances);
+        List<Instance> zoneOneInstanceItems = List.of(namedInstance());
+        List<Instance> zoneTwoInstanceItems = List.of(namedInstance(), namedInstance());
+        when(zoneOneInstanceList.iterateAll()).thenReturn(zoneOneInstanceItems);
+        when(zoneTwoInstanceList.iterateAll()).thenReturn(zoneTwoInstanceItems);
 
-        when(zoneOneInstances.execute()).thenReturn(zoneOneInstanceList);
-        when(zoneTwoInstances.execute()).thenReturn(zoneTwoInstanceList);
-
-        List<Instance> zoneOneInstanceItems = singletonList(namedInstance());
-        List<Instance> zoneTwoInstanceItems = asList(namedInstance(), namedInstance());
-        when(zoneOneInstanceList.getItems()).thenReturn(zoneOneInstanceItems);
-        when(zoneTwoInstanceList.getItems()).thenReturn(zoneTwoInstanceItems);
-
-        Compute.Zones zones = mock(Compute.Zones.class);
-        Compute.Zones.List zonesList = mock(Compute.Zones.List.class);
-        List<Zone> stubbedZones = asList(zone(zoneOne), zone(zoneTwo));
-        when(zonesList.execute()).thenReturn(new ZoneList().setItems(stubbedZones));
-        when(compute.zones()).thenReturn(zones);
-        when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
+        List<Zone> stubbedZones = List.of(zone(zoneOne), zone(zoneTwo));
+        ZonesClient.ListPagedResponse zoneListResponse = mock(ZonesClient.ListPagedResponse.class);
+        when(zoneListResponse.iterateAll()).thenReturn(stubbedZones);
+        when(zones.list(ARGUMENTS.project())).thenReturn(zoneListResponse);
 
         Optional<Instance> found = victim.findExistingInstance(vmName);
         assertThat(found).isEmpty();
@@ -111,94 +91,54 @@ public class InstanceLifecycleManagerTest {
 
     @Test
     public void shouldDelete() throws Exception {
-        Compute.Instances.Delete delete = mock(Compute.Instances.Delete.class);
-        Operation deleteOperation = mock(Operation.class);
-        String deleteOperationName = "delete";
+        Operation deleteOperation = Operation.newBuilder().setName("delete").setStatus(Operation.Status.DONE).build();
+        OperationFuture<Operation, Operation> operationFuture = operationFuture();
+        when(operationFuture.get()).thenReturn(deleteOperation);
+        when(instances.deleteAsync(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(operationFuture);
 
-        when(instances.delete(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(delete);
-        when(delete.execute()).thenReturn(deleteOperation);
-        when(deleteOperation.getName()).thenReturn(deleteOperationName);
-        when(deleteOperation.getStatus()).thenReturn(DONE_STATUS);
-
-        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
-        Compute.ZoneOperations.Get zoneOpsGet = mock(Compute.ZoneOperations.Get.class);
-        Operation statusOperation = mock(Operation.class);
-        when(compute.zoneOperations()).thenReturn(zoneOperations);
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, deleteOperationName)).thenReturn(zoneOpsGet);
-        when(zoneOpsGet.execute()).thenReturn(statusOperation);
-        when(statusOperation.getStatus()).thenReturn(DONE_STATUS);
+        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "delete")).thenReturn(deleteOperation);
 
         victim.delete(zoneOne, vmName);
-        verify(delete).execute();
     }
 
     @Test
-    public void shouldRetryDeleteIfNotAtFirstSuccessful() throws IOException {
-        Compute.Instances.Delete delete = mock(Compute.Instances.Delete.class);
-        Operation deleteOperation = mock(Operation.class);
-        String deleteOperationName = "delete";
+    public void shouldRetryDeleteIfNotAtFirstSuccessful() throws ExecutionException, InterruptedException {
+        Operation deleteOperation = Operation.newBuilder().setName("delete").setStatus(Operation.Status.DONE).build();
+        OperationFuture<Operation, Operation> operationFuture = operationFuture();
+        when(operationFuture.get()).thenReturn(deleteOperation);
+        when(instances.deleteAsync(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new RuntimeException()).thenReturn(operationFuture);
 
-        when(instances.delete(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new IOException()).thenReturn(delete);
-        when(delete.execute()).thenReturn(deleteOperation);
-        when(deleteOperation.getName()).thenReturn(deleteOperationName);
-        when(deleteOperation.getStatus()).thenReturn(DONE_STATUS);
-
-        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
-        Compute.ZoneOperations.Get zoneOpsGet = mock(Compute.ZoneOperations.Get.class);
-        Operation statusOperation = mock(Operation.class);
-        when(compute.zoneOperations()).thenReturn(zoneOperations);
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, deleteOperationName)).thenReturn(zoneOpsGet);
-        when(zoneOpsGet.execute()).thenReturn(statusOperation);
-        when(statusOperation.getStatus()).thenReturn(DONE_STATUS);
+        Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
+        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "delete")).thenReturn(statusOperation);
 
         victim.delete(zoneOne, vmName);
-        verify(delete).execute();
     }
 
     @Test
     public void shouldStop() throws Exception {
-        Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
-        Operation stopOperation = mock(Operation.class);
-        String stopOperationName = "stoperation";
+        Operation stopOperation = Operation.newBuilder().setName("stop").setStatus(Operation.Status.DONE).build();
+        OperationFuture<Operation, Operation> operationFuture = operationFuture();
+        when(operationFuture.get()).thenReturn(stopOperation);
+        when(instances.stopAsync(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(operationFuture);
 
-        when(instances.stop(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(stop);
-        when(stop.execute()).thenReturn(stopOperation);
-        when(stopOperation.getName()).thenReturn(stopOperationName);
-        when(stopOperation.getStatus()).thenReturn(DONE_STATUS);
-
-        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
-        Compute.ZoneOperations.Get zoneOpsGet = mock(Compute.ZoneOperations.Get.class);
-        Operation statusOperation = mock(Operation.class);
-        when(compute.zoneOperations()).thenReturn(zoneOperations);
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, stopOperationName)).thenReturn(zoneOpsGet);
-        when(zoneOpsGet.execute()).thenReturn(statusOperation);
-        when(statusOperation.getStatus()).thenReturn(DONE_STATUS);
+        Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
+        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "stop")).thenReturn(statusOperation);
 
         victim.stop(zoneOne, vmName);
-        verify(stop).execute();
     }
 
     @Test
     public void shouldRetryStopIfNotAtFirstSuccessful() throws Exception {
-        Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
-        Operation stopOperation = mock(Operation.class);
-        String stopOperationName = "stoperation";
+        Operation stopOperation = Operation.newBuilder().setName("stop").setStatus(Operation.Status.DONE).build();
+        OperationFuture<Operation, Operation> operationFuture = operationFuture();
+        when(operationFuture.get()).thenReturn(stopOperation);
 
-        when(instances.stop(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new IOException()).thenReturn(stop);
-        when(stop.execute()).thenReturn(stopOperation);
-        when(stopOperation.getName()).thenReturn(stopOperationName);
-        when(stopOperation.getStatus()).thenReturn(DONE_STATUS);
+        when(instances.stopAsync(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new RuntimeException()).thenReturn(operationFuture);
 
-        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
-        Compute.ZoneOperations.Get zoneOpsGet = mock(Compute.ZoneOperations.Get.class);
-        Operation statusOperation = mock(Operation.class);
-        when(compute.zoneOperations()).thenReturn(zoneOperations);
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, stopOperationName)).thenReturn(zoneOpsGet);
-        when(zoneOpsGet.execute()).thenReturn(statusOperation);
-        when(statusOperation.getStatus()).thenReturn(DONE_STATUS);
+        Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
+        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "stop")).thenReturn(statusOperation);
 
         victim.stop(zoneOne, vmName);
-        verify(stop).execute();
     }
 
     private Zone zone(final String name) {
@@ -213,9 +153,15 @@ public class InstanceLifecycleManagerTest {
     }
 
     private Instance namedInstance(final String providedName) {
+        @SuppressWarnings("deprecation")
         String name = providedName == null ? RandomStringUtils.random(10) : providedName;
         Instance instance = mock(Instance.class);
         when(instance.getName()).thenReturn(name);
         return instance;
+    }
+
+    @SuppressWarnings("unchecked")
+    private OperationFuture<Operation, Operation> operationFuture() {
+        return mock(OperationFuture.class);
     }
 }

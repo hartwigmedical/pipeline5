@@ -3,7 +3,6 @@ package com.hartwig.pipeline.credentials;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.google.api.services.compute.ComputeScopes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.storage.GSUtil;
@@ -19,7 +18,7 @@ public class CredentialProvider {
     public GoogleCredentials get() throws IOException, InterruptedException {
         GoogleCredentials credentials =
                 arguments.privateKeyPath().isPresent() ? GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath().get()))
-                        .createScoped(ComputeScopes.all()) : GoogleCredentials.getApplicationDefault();
+                        .createScoped("https://www.googleapis.com/auth/cloud-platform") : GoogleCredentials.getApplicationDefault();
         GSUtil.configure(true, 4);
         authorize(arguments);
         return credentials;

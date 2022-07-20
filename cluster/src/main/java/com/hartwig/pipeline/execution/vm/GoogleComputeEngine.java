@@ -11,26 +11,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.model.AttachedDisk;
-import com.google.api.services.compute.model.AttachedDiskInitializeParams;
-import com.google.api.services.compute.model.Image;
-import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.Metadata;
-import com.google.api.services.compute.model.NetworkInterface;
-import com.google.api.services.compute.model.Operation;
-import com.google.api.services.compute.model.Scheduling;
-import com.google.api.services.compute.model.ServiceAccount;
-import com.google.api.services.compute.model.Tags;
-import com.google.api.services.compute.model.Zone;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.serviceusage.v1beta1.ServiceUsage;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.compute.v1.AttachedDisk;
+import com.google.cloud.compute.v1.AttachedDiskInitializeParams;
+import com.google.cloud.compute.v1.Image;
+import com.google.cloud.compute.v1.ImagesClient;
+import com.google.cloud.compute.v1.ImagesSettings;
+import com.google.cloud.compute.v1.Instance;
+import com.google.cloud.compute.v1.InstancesClient;
+import com.google.cloud.compute.v1.InstancesSettings;
+import com.google.cloud.compute.v1.Items;
+import com.google.cloud.compute.v1.Metadata;
+import com.google.cloud.compute.v1.NetworkInterface;
+import com.google.cloud.compute.v1.Operation;
+import com.google.cloud.compute.v1.Scheduling;
+import com.google.cloud.compute.v1.ServiceAccount;
+import com.google.cloud.compute.v1.Tags;
+import com.google.cloud.compute.v1.Zone;
+import com.google.cloud.compute.v1.ZoneOperationsClient;
+import com.google.cloud.compute.v1.ZoneOperationsSettings;
+import com.google.cloud.compute.v1.ZonesClient;
+import com.google.cloud.compute.v1.ZonesSettings;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
@@ -56,16 +65,19 @@ public class GoogleComputeEngine implements ComputeEngine {
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleComputeEngine.class);
 
     private final CommonArguments arguments;
-    private final Compute compute;
+    private final ZonesClient zonesClient;
+    private final ImagesClient images;
     private final Consumer<List<Zone>> zoneRandomizer;
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
     private final Labels labels;
 
-    GoogleComputeEngine(final CommonArguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
-            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher, final Labels labels) {
+    GoogleComputeEngine(final CommonArguments arguments, final ZonesClient zonesClient, final ImagesClient images,
+            final Consumer<List<Zone>> zoneRandomizer, final InstanceLifecycleManager lifecycleManager,
+            final BucketCompletionWatcher bucketWatcher, final Labels labels) {
         this.arguments = arguments;
-        this.compute = compute;
+        this.zonesClient = zonesClient;
+        this.images = images;
         this.zoneRandomizer = zoneRandomizer;
         this.lifecycleManager = lifecycleManager;
         this.bucketWatcher = bucketWatcher;
@@ -79,11 +91,16 @@ public class GoogleComputeEngine implements ComputeEngine {
 
     public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas,
             final Labels labels) throws Exception {
-        Compute compute = initCompute(credentials);
+        final InstancesClient instances =
+                InstancesClient.create(InstancesSettings.newBuilder().setCredentialsProvider(() -> credentials).build());
         GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
-                compute,
+                ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
+                ImagesClient.create(ImagesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
                 Collections::shuffle,
-                new InstanceLifecycleManager(arguments, compute),
+                new InstanceLifecycleManager(arguments,
+                        instances,
+                        ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
+                        ZoneOperationsClient.create(ZoneOperationsSettings.newBuilder().setCredentialsProvider(() -> credentials).build())),
                 new BucketCompletionWatcher(),
                 labels);
         return constrainQuotas ? new QuotaConstrainedComputeEngine(engine,
@@ -119,29 +136,33 @@ public class GoogleComputeEngine implements ComputeEngine {
             boolean keepTrying = !zones.isEmpty();
             while (keepTrying) {
                 Zone currentZone = zones.get(index % zones.size());
-                Instance instance = lifecycleManager.newInstance();
-                instance.setName(vmName);
-                instance.setZone(currentZone.getName());
-                instance.setTags(new Tags().setItems(arguments.tags()));
-                if (arguments.usePreemptibleVms()) {
-                    instance.setScheduling(new Scheduling().setPreemptible(true));
-                }
-                instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));
+                final Tags.Builder tagsBuilder = Tags.newBuilder();
+                arguments.tags().forEach(tagsBuilder::addItems);
                 final Map<String, String> labelMap = labels.asMap(List.of(Map.entry("job_name", jobDefinition.name())));
-                instance.setLabels(labelMap);
-                addServiceAccount(instance);
-                Image image = attachDisks(compute,
-                        instance,
+                Instance.Builder instanceBuilder = Instance.newBuilder()
+                        .setName(vmName)
+                        .setZone(currentZone.getName())
+                        .setTags(tagsBuilder.build())
+                        .setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project))
+                        .putAllLabels(labelMap);
+
+                if (arguments.usePreemptibleVms()) {
+                    final Scheduling.Builder schedulingBuilder = Scheduling.newBuilder().setProvisioningModel("SPOT");
+                    if (arguments.useLocalSsds()) {
+                        schedulingBuilder.setInstanceTerminationAction("DELETE");
+                    }
+                    instanceBuilder.setScheduling(schedulingBuilder.build());
+                }
+
+                addServiceAccount(instanceBuilder);
+                Image image = attachDisks(instanceBuilder,
                         jobDefinition,
                         project,
-                        vmName,
                         currentZone.getName(),
                         arguments.imageName().isPresent()
-                                ? compute.images()
-                                .get(arguments.imageProject().orElse(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT),
-                                        arguments.imageName().get())
-                                .execute()
-                                : resolveLatestImage(compute, jobDefinition.imageFamily(), arguments.imageProject().orElse(project)),
+                                ? images.get(arguments.imageProject()
+                                .orElse(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT), arguments.imageName().get())
+                                : resolveLatestImage(images, jobDefinition.imageFamily(), arguments.imageProject().orElse(project)),
                         labelMap);
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         vmName,
@@ -151,11 +172,12 @@ public class GoogleComputeEngine implements ComputeEngine {
                         ? jobDefinition.startupCommand()
                         .asUnixString(new LocalSsdStorageStrategy(jobDefinition.localSsdCount()))
                         : jobDefinition.startupCommand().asUnixString(new PersistentStorageStrategy());
-                addStartupCommand(instance, bucket, flags, startupScript);
-                addNetworkInterface(instance, project);
+                addStartupCommand(instanceBuilder, bucket, flags, startupScript);
+                addNetworkInterface(instanceBuilder, project);
 
+                Instance instance = instanceBuilder.build();
                 Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, currentZone.getName(), vmName);
-                if (result.getError() == null) {
+                if (result.getError().getErrorsList().isEmpty()) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
                     status = waitForCompletion(bucket, flags, currentZone, instance);
                     if (status != PipelineStatus.PREEMPTED) {
@@ -188,9 +210,9 @@ public class GoogleComputeEngine implements ComputeEngine {
                     throw new RuntimeException(String.format(
                             "Quota exceeded for [%s], will keep trying until resources are available. Quota [%s]",
                             vmName,
-                            result.getError().getErrors().get(0).getMessage()));
+                            result.getError().getErrorsList().get(0).getMessage()));
                 } else {
-                    throw new RuntimeException(result.getError().toPrettyString());
+                    throw new RuntimeException(result.getError().getErrorsList().get(0).getMessage());
                 }
                 index++;
             }
@@ -203,65 +225,58 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     private static boolean anyErrorMatch(final Operation result, final String errorCode) {
-        return result.getError().getErrors().stream().anyMatch(error -> error.getCode().startsWith(errorCode));
-    }
-
-    private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
-        HttpTransport http = GoogleNetHttpTransport.newTrustedTransport();
-        JsonFactory json = JacksonFactory.getDefaultInstance();
-        return new Compute.Builder(http, json, new HttpCredentialsAdapter(credentials)).setApplicationName(APPLICATION_NAME).build();
+        return result.getError().getErrorsList().stream().anyMatch(error -> error.getCode().startsWith(errorCode));
     }
 
     private static ServiceUsage initServiceUseage(final GoogleCredentials credentials) throws Exception {
         HttpTransport http = GoogleNetHttpTransport.newTrustedTransport();
-        JsonFactory json = JacksonFactory.getDefaultInstance();
+        JsonFactory json = GsonFactory.getDefaultInstance();
         return new ServiceUsage.Builder(http, json, new HttpCredentialsAdapter(credentials)).setApplicationName(APPLICATION_NAME).build();
     }
 
-    private void addNetworkInterface(final Instance instance, final String projectName) {
-        NetworkInterface network = new NetworkInterface();
-        network.setNetwork(isUrl(arguments.network())
-                ? arguments.network()
-                : format("projects/%s/global/networks/%s", projectName, arguments.network()));
+    private void addNetworkInterface(final Instance.Builder instanceBuilder, final String projectName) {
+        NetworkInterface.Builder networkBuilder = NetworkInterface.newBuilder()
+                .setNetwork(isUrl(arguments.network())
+                        ? arguments.network()
+                        : format("projects/%s/global/networks/%s", projectName, arguments.network()));
         String subnet = arguments.subnet().orElse(arguments.network());
-        network.setSubnetwork(isUrl(subnet)
+        networkBuilder.setSubnetwork(isUrl(subnet)
                 ? subnet
                 : format("projects/%s/regions/%s/subnetworks/%s", projectName, arguments.region(), subnet));
-        network.set("no-address", "true");
-        instance.setNetworkInterfaces(singletonList(network));
+
+        instanceBuilder.addNetworkInterfaces(networkBuilder.build());
     }
 
     private boolean isUrl(final String argument) {
         return argument.startsWith("projects");
     }
 
-    private Image attachDisks(final Compute compute, final Instance instance, final VirtualMachineJobDefinition jobDefinition,
-            final String projectName, final String vmName, final String zone, final Image sourceImage, final Map<String, String> labels)
-            throws IOException {
-        AttachedDisk bootDisk = new AttachedDisk();
-        bootDisk.setBoot(true);
-        bootDisk.setAutoDelete(true);
-        AttachedDiskInitializeParams bootDiskParams = new AttachedDiskInitializeParams();
-        bootDiskParams.setSourceImage(sourceImage.getSelfLink());
-        bootDiskParams.setDiskType(pdssd(projectName, zone));
-        bootDiskParams.setDiskSizeGb(jobDefinition.baseImageDiskSizeGb());
-        bootDiskParams.setLabels(labels);
-        bootDisk.setInitializeParams(bootDiskParams);
+    private Image attachDisks(final Instance.Builder instanceBuilder, final VirtualMachineJobDefinition jobDefinition,
+            final String projectName, final String zone, final Image sourceImage, final Map<String, String> labels) throws IOException {
+        AttachedDisk bootDisk = AttachedDisk.newBuilder()
+                .setBoot(true)
+                .setAutoDelete(true)
+                .setInitializeParams(AttachedDiskInitializeParams.newBuilder()
+                        .setSourceImage(sourceImage.getSelfLink())
+                        .setDiskType(pdssd(projectName, zone))
+                        .setDiskSizeGb(jobDefinition.baseImageDiskSizeGb())
+                        .putAllLabels(labels)
+                        .build())
+                .build();
         List<AttachedDisk> disks = new ArrayList<>(singletonList(bootDisk));
         if (arguments.useLocalSsds()) {
             attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
         } else {
-            AttachedDiskInitializeParams workingDiskParams = new AttachedDiskInitializeParams();
-            workingDiskParams.setDiskType(pdssd(projectName, zone));
-            workingDiskParams.setDiskSizeGb(jobDefinition.workingDiskSpaceGb());
-            AttachedDisk workingDisk = new AttachedDisk();
-            workingDisk.setAutoDelete(true);
-            workingDisk.setBoot(false);
-            workingDisk.setInitializeParams(workingDiskParams);
-            disks.add(workingDisk);
+            disks.add(AttachedDisk.newBuilder()
+                    .setAutoDelete(true)
+                    .setBoot(false)
+                    .setInitializeParams(AttachedDiskInitializeParams.newBuilder()
+                            .setDiskType(pdssd(projectName, zone))
+                            .setDiskSizeGb(jobDefinition.workingDiskSpaceGb())
+                            .build())
+                    .build());
         }
-        instance.setDisks(disks);
-        compute.instances().attachDisk(projectName, zone, vmName, bootDisk);
+        instanceBuilder.addAllDisks(disks);
         return sourceImage;
     }
 
@@ -271,38 +286,36 @@ public class GoogleComputeEngine implements ComputeEngine {
 
     private void attachLocalSsds(final List<AttachedDisk> disks, final int deviceCount, final String projectName, final String zone) {
         for (int i = 0; i < deviceCount; i++) {
-            AttachedDisk disk = new AttachedDisk();
-            disk.setBoot(false);
-            disk.setAutoDelete(true);
-            AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
-            params.setDiskType(format(LOCAL_SSD, apiBaseUrl(projectName), zone));
-            disk.setInitializeParams(params);
-            disk.setType("SCRATCH");
-            disk.setInterface("NVME");
-            disks.add(disk);
+            disks.add(AttachedDisk.newBuilder()
+                    .setBoot(false)
+                    .setAutoDelete(true)
+                    .setType("SCRATCH")
+                    .setInterface("NVME")
+                    .setInitializeParams(AttachedDiskInitializeParams.newBuilder()
+                            .setDiskType(format(LOCAL_SSD, apiBaseUrl(projectName), zone))
+                            .build())
+                    .build());
         }
     }
 
-    private void addServiceAccount(final Instance instance) {
-        ServiceAccount account = new ServiceAccount();
-        account.setEmail(arguments.serviceAccountEmail());
-        account.setScopes(singletonList("https://www.googleapis.com/auth/cloud-platform"));
-        instance.setServiceAccounts(singletonList(account));
+    private void addServiceAccount(final Instance.Builder instance) {
+        instance.addServiceAccounts(ServiceAccount.newBuilder()
+                .setEmail(arguments.serviceAccountEmail())
+                .addScopes("https://www.googleapis.com/auth/cloud-platform")
+                .build());
     }
 
-    private void addStartupCommand(final Instance instance, final RuntimeBucket runtimeBucket, final RuntimeFiles runtimeFiles, final String startupScript) {
-        Metadata startupMetadata = new Metadata();
-        Metadata.Items items = new Metadata.Items();
-        items.setKey("startup-script");
-        items.setValue(startupScript);
-        startupMetadata.setItems(singletonList(items));
+    private void addStartupCommand(final Instance.Builder instance, final RuntimeBucket runtimeBucket, final RuntimeFiles runtimeFiles,
+            final String startupScript) {
+        Metadata startupMetadata =
+                Metadata.newBuilder().addItems(Items.newBuilder().setKey("startup-script").setValue(startupScript)).build();
         runtimeBucket.create(runtimeFiles.startupScript(), startupScript.getBytes());
         instance.setMetadata(startupMetadata);
     }
 
-    private Image resolveLatestImage(final Compute compute, final String sourceImageFamily, final String projectName) throws IOException {
-        Compute.Images.GetFromFamily images = compute.images().getFromFamily(projectName, sourceImageFamily);
-        Image image = images.execute();
+    private Image resolveLatestImage(final ImagesClient images, final String sourceImageFamily, final String projectName)
+            throws IOException {
+        Image image = images.getFromFamily(projectName, sourceImageFamily);
         if (image != null) {
             return image;
         }
@@ -317,7 +330,8 @@ public class GoogleComputeEngine implements ComputeEngine {
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    private PipelineStatus waitForCompletion(final RuntimeBucket bucket, final RuntimeFiles flags, final Zone zone, final Instance instance) {
+    private PipelineStatus waitForCompletion(final RuntimeBucket bucket, final RuntimeFiles flags, final Zone zone,
+            final Instance instance) {
         LOGGER.debug("Waiting for completion of {}", instance.getName());
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
             LOGGER.debug("Checking bucket for state");
@@ -340,11 +354,7 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     private List<Zone> fetchZones() throws IOException {
-        return compute.zones()
-                .list(arguments.project())
-                .execute()
-                .getItems()
-                .stream()
+        return StreamSupport.stream(zonesClient.list(arguments.project()).iterateAll().spliterator(), false)
                 .filter(zone -> zone.getRegion().endsWith(arguments.region()))
                 .collect(Collectors.toList());
     }
