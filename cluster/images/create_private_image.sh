@@ -115,8 +115,12 @@ if [[ -n $result_code_url ]]; then
         sleep 10
         if gsutil -q stat $result_code_url; then
             exit_code=$(gsutil cat $result_code_url)
-            echo "${result_code_url} present. Returning its contents as our exit code: $exit_code"
-            exit $exit_code
+            if [[ $exit_code != 0 ]]; then
+                echo "Failure while checking out the private resources"
+                exit $exit_code
+            else
+                echo "Private resources checkout succeeded"
+            fi
         fi
     done
 else
