@@ -110,7 +110,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
-                new RscriptCommand("cuppa", Versions.CUPPA, "CupGenerateReport_pipeline.R", r_script_arguments));
+                new RscriptCommand("cuppa", Versions.CUPPA, "CupGenerateReport_pipeline.R", r_script_arguments)
+        );
     }
 
     private InputDownload linxOutputDownload() {
