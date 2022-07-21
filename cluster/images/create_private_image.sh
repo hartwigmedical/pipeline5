@@ -120,6 +120,7 @@ if [[ -n $result_code_url ]]; then
                 exit $exit_code
             else
                 echo "Private resources checkout succeeded"
+                break
             fi
         fi
     done
