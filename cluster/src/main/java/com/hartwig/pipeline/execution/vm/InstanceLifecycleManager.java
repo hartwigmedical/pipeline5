@@ -8,14 +8,17 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.ComputeRequest;
-import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.InstanceList;
-import com.google.api.services.compute.model.Metadata;
-import com.google.api.services.compute.model.Operation;
-import com.google.api.services.compute.model.Zone;
+import com.google.api.gax.longrunning.OperationFuture;
+import com.google.cloud.compute.v1.Errors;
+import com.google.cloud.compute.v1.Instance;
+import com.google.cloud.compute.v1.InstancesClient;
+import com.google.cloud.compute.v1.Metadata;
+import com.google.cloud.compute.v1.Operation;
+import com.google.cloud.compute.v1.Zone;
+import com.google.cloud.compute.v1.ZoneOperationsClient;
+import com.google.cloud.compute.v1.ZonesClient;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 
@@ -38,26 +41,27 @@ class InstanceLifecycleManager {
     public static final String LIST_ZONES = "listZones";
 
     private final String project;
-    private final Compute compute;
+    private final InstancesClient instances;
+    private final ZonesClient zones;
+    private final ZoneOperationsClient zoneOperations;
     private final String region;
     private final Integer pollInterval;
 
-    InstanceLifecycleManager(final CommonArguments arguments, final Compute compute) {
+    InstanceLifecycleManager(final CommonArguments arguments, final InstancesClient compute, final ZonesClient zonesClient,
+            final ZoneOperationsClient zoneOperations) {
         this.project = arguments.project();
         this.region = arguments.region();
         this.pollInterval = arguments.pollInterval();
-        this.compute = compute;
-    }
-
-    Instance newInstance() {
-        return new Instance();
+        this.instances = compute;
+        this.zones = zonesClient;
+        this.zoneOperations = zoneOperations;
     }
 
     Optional<Instance> findExistingInstance(final String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
-            InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), LIST_INSTANCES);
-            if (instances.getItems() != null) {
-                for (Instance instance : instances.getItems()) {
+            Iterable<Instance> instances = executeWithRetries(() -> this.instances.list(project, zone).iterateAll(), LIST_INSTANCES);
+            if (instances != null) {
+                for (Instance instance : instances) {
                     if (instance.getName().equals(vmName)) {
                         return Optional.of(instance);
                     }
@@ -72,37 +76,38 @@ class InstanceLifecycleManager {
             try {
                 String shortZone = new File(i.getZone()).getName();
                 LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
-                Operation delete =
-                        executeSynchronously(compute.instances().delete(project, shortZone, vmName), project, shortZone, DELETE_VM);
-                if (delete.getError() != null) {
-                    throw new RuntimeException(delete.getError().toPrettyString());
+                Operation delete = executeSynchronously(instances.deleteAsync(project, shortZone, vmName), project, shortZone, DELETE_VM);
+                if (!delete.getError().getErrorsList().isEmpty()) {
+                    throw new RuntimeException(delete.getError()
+                            .getErrorsList()
+                            .stream()
+                            .map(Errors::getMessage)
+                            .collect(Collectors.joining(",")));
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Could not delete existing [" + vmName + "] instance", e);
             }
         });
-        try {
-            return executeSynchronously(compute.instances().insert(project, zone, instance), project, zone, "insertVm");
-        } catch (IOException ioe) {
-            throw new RuntimeException("Could not initialise insert operation!", ioe);
-        }
+        return executeSynchronously(instances.insertAsync(project, zone, instance), project, zone, "insertVm");
     }
 
     void delete(final String zone, final String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone, DELETE_VM);
+        executeSynchronously(getWithRetries(() -> instances.deleteAsync(project, zone, vm)), project, zone, DELETE_VM);
     }
 
     void stop(final String zone, final String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone, STOP_VM);
+        executeSynchronously(getWithRetries(() -> instances.stopAsync(project, zone, vm)), project, zone, STOP_VM);
     }
 
     private String operationStatus(final String jobName, final String zoneName) {
-        return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), OPERATION_STATUS).getStatus();
+        return executeWithRetries(() -> zoneOperations.get(project, zoneName, jobName), OPERATION_STATUS).getStatus()
+                .getValueDescriptor()
+                .getName();
     }
 
     String instanceStatus(final String vm, final String zone) {
         try {
-            Instance found = compute.instances().get(project, zone, vm).execute();
+            Instance found = instances.get(project, zone, vm);
             if (found != null) {
                 return found.getStatus();
             } else {
@@ -114,32 +119,33 @@ class InstanceLifecycleManager {
     }
 
     void disableStartupScript(final String zone, final String vm) throws IOException {
-        String latestFingerprint = compute.instances().get(project, zone, vm).execute().getMetadata().getFingerprint();
-        executeSynchronously(compute.instances().setMetadata(project, zone, vm, new Metadata().setFingerprint(latestFingerprint)),
+        String latestFingerprint = instances.get(project, zone, vm).getMetadata().getFingerprint();
+        executeSynchronously(instances.setMetadataAsync(project, zone, vm, Metadata.newBuilder().setFingerprint(latestFingerprint).build()),
                 project,
-                zone, SET_METADATA);
+                zone,
+                SET_METADATA);
     }
 
-    private ComputeRequest<Operation> getWithRetries(final CheckedSupplier<ComputeRequest<Operation>> supplier) {
+    private OperationFuture<Operation, Operation> getWithRetries(final CheckedSupplier<OperationFuture<Operation, Operation>> supplier) {
         return Failsafe.with(new RetryPolicy<>().handle(Exception.class).withDelay(Duration.ofSeconds(pollInterval)).withMaxRetries(5))
                 .get(supplier);
     }
 
-    private Operation executeSynchronously(
-            final ComputeRequest<Operation> request, final String projectName, final String zoneName, final String opName) {
-        Operation asyncOp = executeWithRetries(request::execute, opName);
+    private Operation executeSynchronously(final OperationFuture<Operation, Operation> request, final String projectName,
+            final String zoneName, final String opName) {
+        Operation asyncOp = executeWithRetries(request::get, opName);
         String logId = format("Operation [%s:%s]", asyncOp.getOperationType(), asyncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
         while (RUNNING_STATUS.equals(operationStatus(asyncOp.getName(), zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
+                //noinspection BusyWait
                 Thread.sleep(1000);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
         }
-        return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, asyncOp.getName()).execute(),
-                GET_ZONE_OPERATIONS);
+        return executeWithRetries(() -> zoneOperations.get(projectName, zoneName, asyncOp.getName()), GET_ZONE_OPERATIONS);
     }
 
     private <T> T executeWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
@@ -148,11 +154,7 @@ class InstanceLifecycleManager {
     }
 
     private List<Zone> fetchZones() {
-        return executeWithRetries(() -> compute.zones()
-                .list(project)
-                .execute()
-                .getItems()
-                .stream()
+        return executeWithRetries(() -> StreamSupport.stream(zones.list(project).iterateAll().spliterator(), false)
                 .filter(zone -> zone.getRegion().endsWith(region))
                 .collect(Collectors.toList()), LIST_ZONES);
     }
