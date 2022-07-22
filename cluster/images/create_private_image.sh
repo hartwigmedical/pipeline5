@@ -157,7 +157,7 @@ gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJE
 if [[ -n $pubsub_topic ]]; then
     [[ -n $pubsub_project ]] && extraArgs="--project $pubsub_project"
     echo "Publishing completion message to topic ${pubsub_topic}"
-    msg="$(echo "{'created_image': '${dest_image}'" | tr "'" '"')"
+    msg="$(echo "{'created_image': '${dest_image}'}" | tr "'" '"')"
     gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${extraArgs} 
 fi
 
