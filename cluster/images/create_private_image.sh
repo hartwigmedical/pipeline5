@@ -24,6 +24,8 @@ Optional arguments:
   --result-code-url [GCS url]   GCS (eg "gs://bucket/path") URL to write the exit code to (bucket must be writable).
                                 This script will interact with the bucket rather than with the imager instance over SSH.
   --non-interactive             Script is being run non-interactively so skip warnings and prompts when possible.
+  --pubsub-topic                Topic upon which to publish completion message. Uses current project if none specified.
+  --pubsub-project              Project to use for pubsub topic, optional even if topic is provided.
 EOM
 }
 
