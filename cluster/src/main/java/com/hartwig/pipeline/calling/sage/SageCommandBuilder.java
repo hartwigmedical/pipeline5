@@ -102,7 +102,6 @@ public class SageCommandBuilder {
             }
 
             arguments.add(String.format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
-            arguments.add(String.format("-panel_bed %s", resourceFiles.sageSomaticCodingPanel()));
 
             if (shallowSomaticMode) {
                 arguments.add("-hotspot_min_tumor_qual 40");
@@ -119,7 +118,6 @@ public class SageCommandBuilder {
             }
 
             arguments.add(String.format("-hotspots %s", resourceFiles.sageGermlineHotspots()));
-            arguments.add(String.format("-panel_bed %s", resourceFiles.sageGermlineCodingPanel()));
             arguments.add("-hotspot_min_tumor_qual 50");
             arguments.add("-panel_min_tumor_qual 75");
             arguments.add("-hotspot_max_germline_vaf 100");
@@ -131,11 +129,7 @@ public class SageCommandBuilder {
         }
 
         if (coverage) {
-            if (germlineMode) {
-                arguments.add(String.format("-coverage_bed %s", resourceFiles.sageGermlineCoveragePanel()));
-            } else {
-                arguments.add(String.format("-coverage_bed %s", resourceFiles.sageSomaticCodingPanel()));
-            }
+            arguments.add(String.format("-coverage_bed %s", resourceFiles.sageGeneCoverageBed()));
         }
 
         if (targetRegions) {
@@ -146,6 +140,7 @@ public class SageCommandBuilder {
         }
 
         arguments.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
+        arguments.add(String.format("-panel_bed %s", resourceFiles.sagePanelBed()));
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));

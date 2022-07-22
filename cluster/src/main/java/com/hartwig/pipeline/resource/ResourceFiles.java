@@ -37,15 +37,11 @@ public interface ResourceFiles {
 
     String sageSomaticHotspots();
 
-    String sageSomaticCodingPanel();
+    String sagePanelBed();
 
     String sageGermlineHotspots();
 
-    String sageGermlineCodingPanel();
-
-    String sageGermlineCoveragePanel();
-
-    String sageGermlineSlicePanel();
+    String sageGeneCoverageBed();
 
     String germlineBlacklistVcf();
 
@@ -69,11 +65,7 @@ public interface ResourceFiles {
         return of(GRIDSS_CONFIG, "gridss.properties");
     }
 
-    String gridssRepeatMaskerDb();
-
-    default String gridssRepeatMaskerDbBed() {
-        return gridssRepeatMaskerDb() + ".bed";
-    }
+    String repeatMaskerDb();
 
     default String gridssVirusRefGenomeFile() {
         return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");

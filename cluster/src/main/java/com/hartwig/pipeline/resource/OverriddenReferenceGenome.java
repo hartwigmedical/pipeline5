@@ -42,8 +42,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String gridssRepeatMaskerDb() {
-        return decorated.gridssRepeatMaskerDb();
+    public String repeatMaskerDb() {
+        return decorated.repeatMaskerDb();
     }
 
     @Override
@@ -67,8 +67,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageSomaticCodingPanel() {
-        return decorated.sageSomaticCodingPanel();
+    public String sagePanelBed() {
+        return decorated.sagePanelBed();
     }
 
     @Override
@@ -77,18 +77,8 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlineCodingPanel() {
-        return decorated.sageGermlineCodingPanel();
-    }
-
-    @Override
-    public String sageGermlineCoveragePanel() {
-        return decorated.sageGermlineCoveragePanel();
-    }
-
-    @Override
-    public String sageGermlineSlicePanel() {
-        return decorated.sageGermlineSlicePanel();
+    public String sageGeneCoverageBed() {
+        return decorated.sageGeneCoverageBed();
     }
 
     @Override

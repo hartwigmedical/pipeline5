@@ -59,28 +59,18 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageSomaticCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.somatic.37.bed.gz");
-    }
-
-    @Override
     public String sageGermlineHotspots() {
         return formPath(SAGE, "KnownHotspots.germline.37.vcf.gz");
     }
 
     @Override
-    public String sageGermlineCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.germline.37.bed.gz");
+    public String sagePanelBed() {
+        return formPath(SAGE, "ActionableCodingPanel.37.bed.gz");
     }
 
     @Override
-    public String sageGermlineCoveragePanel() {
-        return formPath(SAGE, "CoverageCodingPanel.germline.37.bed.gz");
-    }
-
-    @Override
-    public String sageGermlineSlicePanel() {
-        return formPath(SAGE, "SlicePanel.germline.37.bed.gz");
+    public String sageGeneCoverageBed() {
+        return formPath(SAGE, "CoverageCodingPanel.37.bed.gz");
     }
 
     @Override
@@ -129,7 +119,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String gridssRepeatMaskerDb() {
+    public String repeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "37.fa.out");
     }
 

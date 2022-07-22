@@ -31,16 +31,17 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx31G -jar /opt/tools/sage/3.0.3/sage.jar "
+                "java -Xmx31G -jar /opt/tools/sage/3.1/sage.jar "
                         + "-tumor reference -tumor_bam /data/input/reference.bam "
                         + "-reference tumor -reference_bam /data/input/tumor.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
-                        + "-panel_bed /opt/resources/sage/37/ActionableCodingPanel.germline.37.bed.gz "
                         + "-hotspot_min_tumor_qual 50 -panel_min_tumor_qual 75 -hotspot_max_germline_vaf 100 "
                         + "-hotspot_max_germline_rel_raw_base_qual 100 -panel_max_germline_vaf 100 -panel_max_germline_rel_raw_base_qual 100 "
                         + "-mnv_filter_enabled false "
-                        + "-panel_only -coverage_bed /opt/resources/sage/37/CoverageCodingPanel.germline.37.bed.gz "
+                        + "-panel_only "
+                        + "-coverage_bed /opt/resources/sage/37/CoverageCodingPanel.37.bed.gz "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "
+                        + "-panel_bed /opt/resources/sage/37/ActionableCodingPanel.37.bed.gz "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "

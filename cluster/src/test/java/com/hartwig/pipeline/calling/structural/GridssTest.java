@@ -67,12 +67,9 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                         + ".assembly.bam --workingdir /data/output --reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37"
                         + ".GATK.illumina.fasta --jar /opt/tools/gridss/2.13.2/gridss.jar --blacklist "
                         + "/opt/resources/gridss_repeatmasker_db/37/ENCFF001TDO.37.bed --configuration /opt/resources/gridss_config/gridss.properties --labels reference,tumor --jvmheap 31G --externalaligner /data/input/reference.bam /data/input/tumor.bam",
-                "/opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker --output /data/output/tumor.gridss.repeatmasker.vcf.gz "
-                        + "--jar /opt/tools/gridss/2.13.2/gridss.jar -w /data/output --rm /opt/tools/repeatmasker/4.1.1/RepeatMasker "
-                        + "/data/output/tumor.gridss.driver.vcf.gz",
                 "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk"
                         + ".use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp "
-                        + "/opt/tools/gridss/2.13.2/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.repeatmasker.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
+                        + "/opt/tools/gridss/2.13.2/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.driver.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Override

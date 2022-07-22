@@ -12,7 +12,6 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMasker;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -88,8 +87,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     }
 
     private List<BashCommand> gridssCommands(final Driver driver, final String sampleName) {
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new RepeatMasker())
-                .andThen(new GridssAnnotation(resourceFiles, false))
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new GridssAnnotation(resourceFiles))
                 .apply(SubStageInputOutput.empty(sampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
 
