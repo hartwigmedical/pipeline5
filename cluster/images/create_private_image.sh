@@ -33,17 +33,22 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive -- "$@")
+args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project: -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
 use_sha1_for_suffix=""
+pubsub_topic=""
+pubsub_project=""
+
 while true; do
     case "$1" in
         --resources-commit) resources_commit=$2; shift 2 ;;
         --use-sha1-for-suffix) use_sha1_for_suffix=true; shift 1 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
         --non-interactive) non_interactive=true; shift 1 ;;
+        --pubsub-topic) pubsub_topic=$2; shift 2 ;;
+        --pubsub-project) pubsub_project=$2; shift 2 ;;
         --) shift; break ;;
     esac
 done
@@ -145,3 +150,12 @@ gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
     --storage-location=$LOCATION --project=$DEST_PROJECT
 gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJECT
+
+
+if [[ -n $pubsub_topic ]]; then
+    [[ -n $pubsub_project ]] && extraArgs="--project $pubsub_project"
+    echo "Publishing completion message to topic ${pubsub_topic}"
+    msg="$(echo "{'created_image': '${dest_image}'" | tr "'" '"')"
+    gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${extraArgs} 
+fi
+
