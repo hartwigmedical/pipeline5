@@ -55,7 +55,9 @@ public class StartingPoint {
                 GermlineCaller.NAMESPACE,
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE,
-                Gridss.NAMESPACE, CramConversion.NAMESPACE, LilacBamSlicer.NAMESPACE)),
+                Gridss.NAMESPACE,
+                CramConversion.NAMESPACE,
+                LilacBamSlicer.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -79,7 +81,19 @@ public class StartingPoint {
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
                         Rose.NAMESPACE,
-                        VirusInterpreter.NAMESPACE)));
+                        VirusInterpreter.NAMESPACE))),
+        RERUN_530(concat(CRAM_COMPLETE.namespaces,
+                List.of(GermlineCaller.NAMESPACE,
+                        Gridss.NAMESPACE,
+                        Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        VirusBreakend.NAMESPACE,
+                        VirusInterpreter.NAMESPACE,
+                        Chord.NAMESPACE,
+                        Lilac.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Sigs.NAMESPACE,
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 
