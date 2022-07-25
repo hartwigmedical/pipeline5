@@ -8,4 +8,4 @@ CobaltGender	MALE
 DeletedGenes	0
 Contamination	0.0
 GermlineAberrations	NONE
-AmberMeanDepth	129
+AmberMeanDepth	128
