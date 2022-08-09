@@ -37,7 +37,7 @@ done
 image_family="pipeline5-${VERSION}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
 source_instance="${image_family}-$(whoami)"
 image_name="${image_family}-$(date +%Y%m%d%H%M)"
-source_project="debian-cloud"
+source_project="hmf-pipeline-development"
 source_family="debian-9"
 base_image_cmds="$(dirname "$0")/base.cmds"
 tools_image_cmds="$(dirname "$0")/tools.cmds"
