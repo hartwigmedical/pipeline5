@@ -29,6 +29,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 TestInputs.linxSomaticOutput(),
                 TestInputs.virusInterpreterOutput(),
                 TestInputs.chordOutput(),
+                TestInputs.lilacOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 persistedDataset);
     }
@@ -46,15 +47,18 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
                 input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
-                input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"));
+                input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"),
+                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.csv", "tumor.lilac.qc.csv"),
+                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.csv", "tumor.lilac.csv"));
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/protect/2.2/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
+                "java -Xmx8G -jar /opt/tools/protect/2.3/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
                         + "-primary_tumor_doids \"01;02\" -output_dir /data/output "
                         + "-serve_actionability_dir /opt/resources/serve/37/ -ref_genome_version 37 "
+                        + "-driver_gene_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-doid_json /opt/resources/disease_ontology/doid.json "
                         + "-purple_purity_tsv /data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
                         + "-purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv "
@@ -65,7 +69,8 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                         + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
                         + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv "
                         + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
-                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt");
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt " + "-lilac_result_csv /data/input/tumor.lilac.csv "
+                        + "-lilac_qc_csv /data/input/tumor.lilac.qc.csv");
     }
 
     @Override

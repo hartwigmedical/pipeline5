@@ -210,6 +210,7 @@ public class SomaticPipeline {
                                         linxSomaticOutput,
                                         virusInterpreterOutput,
                                         chordOutput,
+                                        lilacOutputFuture.get(),
                                         resourceFiles,
                                         persistedDataset)))
                                 .get()));

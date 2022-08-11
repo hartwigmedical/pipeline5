@@ -9,12 +9,12 @@ import com.hartwig.pipeline.tools.Versions;
 public class ProtectCommand extends JavaJarCommand {
 
     public ProtectCommand(final String tumorSample, final String referenceSample, final List<String> primaryTumorDoids,
-            final String outputDir, final String actionabilityDir, final RefGenomeVersion refGenomeVersion, final String doidJsonPath,
-            final String purplePurityPath, final String purpleQCFilePath, final String purpleGeneCopyNumberTsvPath,
-            final String purpleSomaticDriverCatalogPath, final String purpleGermlineDriverCatalogPath,
-            final String purpleSomaticVariantsPath, final String purpleGermlineVariantsPath, final String linxFusionTsvPath,
-            final String linxBreakendTsvPath, final String linxDriverCatalogPath, final String annotatedVirusTsvPath,
-            final String chordPredictionPath) {
+            final String outputDir, final String actionabilityDir, final RefGenomeVersion refGenomeVersion, final String driverGenePanel,
+            final String doidJsonPath, final String purplePurityPath, final String purpleQCFilePath,
+            final String purpleGeneCopyNumberTsvPath, final String purpleSomaticDriverCatalogPath,
+            final String purpleGermlineDriverCatalogPath, final String purpleSomaticVariantsPath, final String purpleGermlineVariantsPath,
+            final String linxFusionTsvPath, final String linxBreakendTsvPath, final String linxDriverCatalogPath,
+            final String annotatedVirusTsvPath, final String chordPredictionPath, final String lilacResultCsv, final String lilacQcCsv) {
         super("protect",
                 Versions.PROTECT,
                 "protect.jar",
@@ -31,6 +31,8 @@ public class ProtectCommand extends JavaJarCommand {
                         actionabilityDir,
                         "-ref_genome_version",
                         refGenomeVersion.numeric(),
+                        "-driver_gene_tsv",
+                        driverGenePanel,
                         "-doid_json",
                         doidJsonPath,
                         "-purple_purity_tsv",
@@ -56,6 +58,10 @@ public class ProtectCommand extends JavaJarCommand {
                         "-annotated_virus_tsv",
                         annotatedVirusTsvPath,
                         "-chord_prediction_txt",
-                        chordPredictionPath));
+                        chordPredictionPath,
+                        "-lilac_result_csv",
+                        lilacResultCsv,
+                        "-lilac_qc_csv",
+                        lilacQcCsv));
     }
 }
