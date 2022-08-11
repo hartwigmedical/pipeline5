@@ -30,6 +30,10 @@ sudo mkdir -p /opt/tools/cuppa-chart/1.6.1
 sudo unzip /opt/tools/cuppa/1.6.1/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.6.1
 sudo mv /tmp/cuppa-chart-1.6.1/cuppa-chart/* /opt/tools/cuppa-chart/1.6.1/
 sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.6.1 3.6.10
+sudo mkdir -p /opt/tools/cuppa-chart/1.7.0
+sudo unzip /opt/tools/cuppa/1.7.0/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.7.0
+sudo mv /tmp/cuppa-chart-1.7.0/cuppa-chart/* /opt/tools/cuppa-chart/1.7.0/
+sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.7.0 3.6.10
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
