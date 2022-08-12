@@ -94,4 +94,17 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
         assertThat(output.tumor().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac_slicer/tumor.hla.bam"));
         assertThat(output.tumorIndex().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac_slicer/tumor.hla.bam.bai"));
     }
+
+    @Override
+    protected void setupPersistedDataset() {
+        // Tumor and reference share a datatype so we can only assert one or the other in this test
+        persistedDataset.addPath(DataType.LILAC_HLA_BAM, "lilac_slicer/tumor.hla.bam");
+        persistedDataset.addPath(DataType.LILAC_HLA_BAM_INDEX, "lilac_slicer/tumor.hla.bam.bai");
+    }
+
+    @Override
+    public void validatePersistedOutputFromPersistedDataset(final LilacBamSliceOutput output) {
+        assertThat(output.tumor().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "lilac_slicer/tumor.hla.bam"));
+        assertThat(output.tumorIndex().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "lilac_slicer/tumor.hla.bam.bai"));
+    }
 }
