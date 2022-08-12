@@ -143,8 +143,7 @@ public class SomaticPipeline {
                 GripssOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
 
                 if (state.shouldProceed()) {
-                    Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
-                            metadata,
+                    PurpleOutput purpleOutput = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(metadata,
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
@@ -152,9 +151,7 @@ public class SomaticPipeline {
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
-                                    arguments)))));
-
-                    PurpleOutput purpleOutput = purpleOutputFuture.get();
+                                    arguments))))).get();
 
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = metadata.maybeTumor()
@@ -169,14 +166,15 @@ public class SomaticPipeline {
                         FlagstatOutput referenceFlagstat = metadata.maybeReference()
                                 .map(t -> pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat"))
                                 .orElse(skippedFlagstat(metadata.sampleName()));
+
+                        VirusBreakendOutput virusBreakendOutput = pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                         Future<VirusInterpreterOutput> virusInterpreterOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new VirusInterpreter(pair,
                                         resourceFiles,
                                         persistedDataset,
-                                        virusBreakendOutputFuture.get(),
+                                        virusBreakendOutput,
                                         purpleOutput,
                                         tumorMetrics)));
-                        VirusInterpreterOutput virusInterpreterOutput = pipelineResults.add(virusInterpreterOutputFuture.get());
 
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
@@ -186,18 +184,18 @@ public class SomaticPipeline {
                                 new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                         Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
+                        LilacBamSliceOutput lilacBamSliceOutput = pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Lilac(lilacBamSliceOutputFuture.get(), resourceFiles, purpleOutput)));
+                                new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput)));
                         Future<SigsOutput> signatureOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
-                        pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
-                        pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
-                        pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
-                        pipelineResults.add(state.add(lilacOutputFuture.get()));
+                        LinxGermlineOutput linxGermlineOutput = pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
+                        LilacOutput lilacOutput = pipelineResults.add(state.add(lilacOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = pipelineResults.add(state.add(linxSomaticOutputFuture.get()));
+
                         Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Cuppa(purpleOutput, linxSomaticOutput, resourceFiles, persistedDataset)));
                         Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -205,15 +203,15 @@ public class SomaticPipeline {
                         ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                         CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
                         PeachOutput peachOutput = pipelineResults.add(state.add(peachOutputFuture.get()));
+                        VirusInterpreterOutput virusInterpreterOutput = pipelineResults.add(state.add(virusInterpreterOutputFuture.get()));
                         ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                 new Protect(purpleOutput,
                                         linxSomaticOutput,
                                         virusInterpreterOutput,
                                         chordOutput,
-                                        lilacOutputFuture.get(),
+                                        lilacOutput,
                                         resourceFiles,
-                                        persistedDataset)))
-                                .get()));
+                                        persistedDataset))).get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
@@ -224,8 +222,8 @@ public class SomaticPipeline {
                                         sageGermlineOutput,
                                         purpleOutput,
                                         chordOutput,
-                                        lilacOutputFuture.get(),
-                                        linxGermlineOutputFuture.get(),
+                                        lilacOutput,
+                                        linxGermlineOutput,
                                         linxSomaticOutput,
                                         cuppaOutput,
                                         virusInterpreterOutput,
