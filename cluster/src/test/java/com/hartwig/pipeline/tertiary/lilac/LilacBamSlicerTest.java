@@ -21,7 +21,7 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
 
     @Override
     protected Stage<LilacBamSliceOutput, SomaticRunMetadata> createVictim() {
-        return new LilacBamSlicer(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new LilacBamSlicer(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
