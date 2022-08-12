@@ -1,6 +1,9 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
+import java.util.Optional;
 
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
@@ -8,6 +11,7 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -21,7 +25,7 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
 
     @Override
     protected Stage<LilacBamSliceOutput, SomaticRunMetadata> createVictim() {
-        return new LilacBamSlicer(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new LilacBamSlicer(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -43,6 +47,20 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
 
     @Override
     protected void validateOutput(final LilacBamSliceOutput output) {
+        assertOutputFile(output.reference(), "reference.hla.bam");
+        assertOutputFile(output.referenceIndex(), "reference.hla.bam.bai");
+        assertOutputFile(output.tumor(), "tumor.hla.bam");
+        assertOutputFile(output.tumorIndex(), "tumor.hla.bam.bai");
+    }
+
+    private void assertOutputFile(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<GoogleStorageLocation> maybeOutput,
+            final String pathFromResults) {
+        String outputDir = expectedRuntimeBucketName() + "/" + LilacBamSlicer.NAMESPACE;
+        assertThat(maybeOutput.isPresent()).isTrue();
+        GoogleStorageLocation reference = maybeOutput.get();
+        assertThat(reference.bucket()).isEqualTo(outputDir);
+        assertThat(reference.path()).isEqualTo("results/" + pathFromResults);
+        assertThat(reference.isDirectory()).isFalse();
 
     }
 
@@ -67,13 +85,26 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
         return false;
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     protected void validatePersistedOutput(final LilacBamSliceOutput output) {
-
+        assertThat(output.reference().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac_slicer/reference.hla.bam"));
+        assertThat(output.referenceIndex().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/lilac_slicer/reference.hla.bam.bai"));
+        assertThat(output.tumor().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac_slicer/tumor.hla.bam"));
+        assertThat(output.tumorIndex().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac_slicer/tumor.hla.bam.bai"));
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final LilacBamSliceOutput output) {
+    protected void setupPersistedDataset() {
+        // Tumor and reference share a datatype so we can only assert one or the other in this test
+        persistedDataset.addPath(DataType.LILAC_HLA_BAM, "lilac_slicer/tumor.hla.bam");
+        persistedDataset.addPath(DataType.LILAC_HLA_BAM_INDEX, "lilac_slicer/tumor.hla.bam.bai");
+    }
 
+    @Override
+    public void validatePersistedOutputFromPersistedDataset(final LilacBamSliceOutput output) {
+        assertThat(output.tumor().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "lilac_slicer/tumor.hla.bam"));
+        assertThat(output.tumorIndex().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "lilac_slicer/tumor.hla.bam.bai"));
     }
 }

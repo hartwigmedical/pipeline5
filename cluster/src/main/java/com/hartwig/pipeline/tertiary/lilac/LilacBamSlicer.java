@@ -25,6 +25,8 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -36,10 +38,12 @@ import com.hartwig.pipeline.tertiary.lilac.ImmutableLilacBamSliceOutput.Builder;
 public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     public static final String NAMESPACE = "lilac_slicer";
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
-    public LilacBamSlicer(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
+    public LilacBamSlicer(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -103,7 +107,26 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public LilacBamSliceOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return LilacBamSliceOutput.builder().status(PipelineStatus.PERSISTED).addDatatypes(datatypes(metadata)).build();
+        Builder outputBuilder = LilacBamSliceOutput.builder().status(PipelineStatus.PERSISTED);
+        metadata.maybeReference().ifPresent(reference -> {
+            String refName = reference.sampleName();
+            outputBuilder.reference(persistedDataset.path(refName, DataType.LILAC_HLA_BAM)
+                    .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                            PersistedLocations.blobForSet(metadata.set(), namespace(), basename(slicedBam(refName))))));
+            outputBuilder.referenceIndex(persistedDataset.path(refName, DataType.LILAC_HLA_BAM_INDEX)
+                    .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                            PersistedLocations.blobForSet(metadata.set(), namespace(), basename(bai(slicedBam(refName)))))));
+        });
+        metadata.maybeTumor().ifPresent(tumor -> {
+            String tumorName = tumor.sampleName();
+            outputBuilder.tumor(persistedDataset.path(tumorName, DataType.LILAC_HLA_BAM)
+                    .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                            PersistedLocations.blobForSet(metadata.set(), namespace(), basename(slicedBam(tumorName))))));
+            outputBuilder.tumorIndex(persistedDataset.path(tumorName, DataType.LILAC_HLA_BAM_INDEX)
+                    .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                            PersistedLocations.blobForSet(metadata.set(), namespace(), basename(bai(slicedBam(tumorName)))))));
+        });
+        return outputBuilder.build();
     }
 
     @Override
@@ -124,6 +147,10 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
         return bam + ".bai";
     }
 
+    private String basename(final String fullname) {
+        return new File(fullname).getName();
+    }
+
     private AddDatatype[] datatypes(final SomaticRunMetadata metadata) {
         ArrayList<AddDatatype> datatypes = new ArrayList<>();
         metadata.maybeReference().ifPresent(r -> {
@@ -131,8 +158,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
             datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM,
                     metadata.reference().barcode(),
                     new ArchivePath(Folder.root(), namespace(), referenceBam)));
-            datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM_INDEX,
-                    metadata.reference().barcode(),
+            datatypes.add(new AddDatatype(DataType.LILAC_HLA_BAM_INDEX, metadata.reference().barcode(),
                     new ArchivePath(Folder.root(), namespace(), bai(referenceBam))));
         });
         metadata.maybeTumor().ifPresent(t -> {

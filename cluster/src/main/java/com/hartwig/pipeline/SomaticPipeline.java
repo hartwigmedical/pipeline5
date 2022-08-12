@@ -180,8 +180,8 @@ public class SomaticPipeline {
 
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
-                        Future<LilacBamSliceOutput> lilacBamSliceOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new LilacBamSlicer(pair, resourceFiles)));
+                        Future<LilacBamSliceOutput> lilacBamSliceOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new LilacBamSlicer(pair, resourceFiles, persistedDataset)));
                         Future<LinxSomaticOutput> linxSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                         Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

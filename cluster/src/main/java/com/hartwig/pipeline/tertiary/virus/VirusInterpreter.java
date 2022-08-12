@@ -141,7 +141,6 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     public VirusInterpreterOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusInterpreterOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .addDatatypes(datatypes(metadata))
                 .maybeVirusAnnotations(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotatedVirusTsv(metadata)))))
