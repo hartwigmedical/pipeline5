@@ -142,7 +142,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("amber")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 120))
+                .performanceProfile(custom(16, 64))
                 .build();
     }
 
