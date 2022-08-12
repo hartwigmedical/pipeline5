@@ -106,7 +106,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-loci %s", resourceFiles.amberHeterozygousLoci()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        arguments.add(String.format("-threads %s", "12"));
     }
 
     private void addTargetRegionsArguments(final List<String> amberArguments) {

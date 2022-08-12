@@ -260,7 +260,6 @@ public class GoogleComputeEngineTest {
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         Scheduling scheduling = instanceArgumentCaptor.getValue().getScheduling();
         assertThat(scheduling.getProvisioningModel()).isEqualTo("SPOT");
-        assertThat(scheduling.getInstanceTerminationAction()).isEqualTo("DELETE");
     }
 
     @Test
