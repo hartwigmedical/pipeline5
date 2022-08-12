@@ -29,6 +29,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -55,11 +56,14 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload linxDriverCatalog;
     private final InputDownload virusAnnotations;
     private final InputDownload chordPrediction;
+    private final InputDownload lilacQcCsv;
+    private final InputDownload lilacResultsCsv;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public Protect(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusOutput,
-            final ChordOutput chordOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+            final ChordOutput chordOutput, final LilacOutput lilacOutput, final ResourceFiles resourceFiles,
+            final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purplePurity = new InputDownload(purpleOutputLocations.purity());
         this.purpleQCFile = new InputDownload(purpleOutputLocations.qcFile());
@@ -74,6 +78,8 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.linxDriverCatalog = new InputDownload(linxSomaticOutputLocations.driverCatalog());
         this.virusAnnotations = new InputDownload(virusOutput.virusAnnotations());
         this.chordPrediction = new InputDownload(chordOutput.predictions());
+        this.lilacQcCsv = initialiseOptionalLocation(lilacOutput.qc());
+        this.lilacResultsCsv = initialiseOptionalLocation(lilacOutput.result());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -96,7 +102,9 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxBreakends,
                 linxDriverCatalog,
                 virusAnnotations,
-                chordPrediction);
+                chordPrediction,
+                lilacQcCsv,
+                lilacResultsCsv);
     }
 
     @Override
@@ -107,6 +115,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 VmDirectories.OUTPUT,
                 resourceFiles.actionabilityDir(),
                 resourceFiles.version(),
+                resourceFiles.driverGenePanel(),
                 resourceFiles.doidJson(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
@@ -119,7 +128,9 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxBreakends.getLocalTargetPath(),
                 linxDriverCatalog.getLocalTargetPath(),
                 virusAnnotations.getLocalTargetPath(),
-                chordPrediction.getLocalTargetPath()));
+                chordPrediction.getLocalTargetPath(),
+                lilacResultsCsv.getLocalTargetPath(),
+                lilacQcCsv.getLocalTargetPath()));
     }
 
     @Override
