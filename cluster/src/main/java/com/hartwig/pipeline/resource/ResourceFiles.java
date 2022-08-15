@@ -149,6 +149,10 @@ public interface ResourceFiles {
         return of(ROSE, "actionability.tsv");
     }
 
+    default String roseCuratedPrimaryTumors() {
+        return of(ROSE, "curated_primary_tumor_header-only.tsv");
+    }
+
     default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }

@@ -119,9 +119,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 resourceFiles.roseActionabilityDb(),
                 "-ref_genome_version",
                 resourceFiles.version().numeric(),
-                "-driver_gene_37_tsv",
-                resourceFiles.driverGenePanel(),
-                "-driver_gene_38_tsv",
+                "-driver_gene_tsv",
                 resourceFiles.driverGenePanel(),
                 "-purple_purity_tsv",
                 purplePurity.getLocalTargetPath(),
@@ -152,7 +150,13 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",
-                metadata.tumor().sampleName(), "-ref_sample_id", metadata.reference().sampleName());
+                metadata.tumor().sampleName(),
+                "-ref_sample_id",
+                metadata.reference().sampleName(),
+                "-patient_id",
+                "not_used_because_primary_tumor_tsv_has_only_headers",
+                "-primary_tumor_tsv",
+                resourceFiles.roseCuratedPrimaryTumors());
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 
