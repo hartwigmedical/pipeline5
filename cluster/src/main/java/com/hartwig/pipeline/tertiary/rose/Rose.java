@@ -152,7 +152,11 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-tumor_sample_id",
                 metadata.tumor().sampleName(),
                 "-ref_sample_id",
-                metadata.reference().sampleName());
+                metadata.reference().sampleName(),
+                "-patient_id",
+                "not_used_because_primary_tumor_tsv_has_only_headers",
+                "-primary_tumor_tsv",
+                resourceFiles.roseCuratedPrimaryTumors());
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 
