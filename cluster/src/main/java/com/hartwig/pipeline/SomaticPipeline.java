@@ -186,7 +186,7 @@ public class SomaticPipeline {
                                 new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
                         LilacBamSliceOutput lilacBamSliceOutput = pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput)));
+                                new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput, persistedDataset)));
                         Future<SigsOutput> signatureOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
