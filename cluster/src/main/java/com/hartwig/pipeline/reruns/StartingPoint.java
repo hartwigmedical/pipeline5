@@ -90,6 +90,7 @@ public class StartingPoint {
                         VirusBreakend.NAMESPACE,
                         VirusInterpreter.NAMESPACE,
                         Chord.NAMESPACE,
+                        LilacBamSlicer.NAMESPACE,
                         Lilac.NAMESPACE,
                         Peach.NAMESPACE,
                         Sigs.NAMESPACE,

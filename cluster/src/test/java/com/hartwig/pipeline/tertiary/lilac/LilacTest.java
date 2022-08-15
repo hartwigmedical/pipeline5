@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
@@ -8,12 +10,16 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
 public class LilacTest extends TertiaryStageTest<LilacOutput> {
+
+    public static final String TUMOR_LILAC_CSV = "tumor.lilac.csv";
+    public static final String TUMOR_LILAC_QC_CSV = "tumor.lilac.qc.csv";
 
     @Before
     public void setUp() throws Exception {
@@ -22,7 +28,10 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected Stage<LilacOutput, SomaticRunMetadata> createVictim() {
-        return new Lilac(TestInputs.lilacBamSliceOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.purpleOutput());
+        return new Lilac(TestInputs.lilacBamSliceOutput(),
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                TestInputs.purpleOutput(),
+                persistedDataset);
     }
 
     @Override
@@ -46,17 +55,18 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected void validateOutput(final LilacOutput output) {
-        // Lilac output is currently not used by any other tools
+        assertThat(output.result()).contains(GoogleStorageLocation.of("run-reference-tumor-test/lilac", "results/" + TUMOR_LILAC_CSV));
+        assertThat(output.qc()).contains(GoogleStorageLocation.of("run-reference-tumor-test/lilac", "results/" + TUMOR_LILAC_QC_CSV));
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.LILAC_OUTPUT,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, "tumor.lilac.csv")),
+                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, TUMOR_LILAC_CSV)),
                 new AddDatatype(DataType.LILAC_QC_METRICS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, "tumor.lilac.qc.csv")));
+                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, TUMOR_LILAC_QC_CSV)));
     }
 
     @Override
@@ -66,11 +76,19 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected void validatePersistedOutput(final LilacOutput output) {
-        // No extra validation as Lilac output isn't used anywhere
+        assertThat(output.result()).contains(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac/" + TUMOR_LILAC_CSV));
+        assertThat(output.qc()).contains(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/lilac/" + TUMOR_LILAC_QC_CSV));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.LILAC_OUTPUT, TUMOR_LILAC_CSV);
+        persistedDataset.addPath(DataType.LILAC_QC_METRICS, TUMOR_LILAC_QC_CSV);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final LilacOutput output) {
-        // No extra validation as Lilac output isn't used anywhere
+        assertThat(output.result()).contains(GoogleStorageLocation.of(OUTPUT_BUCKET, TUMOR_LILAC_CSV));
+        assertThat(output.qc()).contains(GoogleStorageLocation.of(OUTPUT_BUCKET, TUMOR_LILAC_QC_CSV));
     }
 }
