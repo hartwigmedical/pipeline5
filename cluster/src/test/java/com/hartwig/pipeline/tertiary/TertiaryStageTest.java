@@ -1,15 +1,23 @@
 package com.hartwig.pipeline.tertiary;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
-public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest<S, SomaticRunMetadata>{
+import org.junit.Test;
+
+public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest<S, SomaticRunMetadata> {
 
     @Override
     protected Arguments createDisabledArguments() {
@@ -32,5 +40,12 @@ public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest
     @Override
     protected String expectedRuntimeBucketName() {
         return "run-reference-tumor-test";
+    }
+
+    @Test
+    public void persistedOutputDatatypesMatchOutputDatatypes() {
+        SomaticRunMetadata metadata = defaultSomaticRunMetadata();
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+                .datatypes()).isEqualTo(victim.persistedOutput(metadata).datatypes());
     }
 }

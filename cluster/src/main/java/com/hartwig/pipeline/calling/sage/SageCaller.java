@@ -2,6 +2,7 @@ package com.hartwig.pipeline.calling.sage;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,22 +99,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addDatatypes(new AddDatatype(sageConfiguration.vcfDatatype(),
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)))
-                .addDatatypes(new AddDatatype(sageConfiguration.geneCoverageDatatype(),
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), geneCoverageFile)))
-                .addAllDatatypes(somaticRefSampleBqrPlot.stream()
-                        .map(r -> new AddDatatype(sageConfiguration.tumorSampleBqrPlot(),
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), r)))
-                        .collect(Collectors.toList()))
-                .addAllDatatypes(somaticTumorSampleBqrPlot.stream()
-                        .map(t -> new AddDatatype(sageConfiguration.refSampleBqrPlot(),
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), t)))
-                        .collect(Collectors.toList()));
+                .addAllDatatypes(addDatatypes(metadata));
     }
 
     @Override
@@ -136,15 +122,42 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), geneCoverageFile))));
         somaticRefSampleBqrPlot.ifPresent(r -> builder.maybeSomaticRefSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(),
-                        sageConfiguration.refSampleBqrPlot())
+                sageConfiguration.refSampleBqrPlot())
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), r)))));
         somaticTumorSampleBqrPlot.ifPresent(r -> builder.maybeSomaticTumorSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(),
-                        sageConfiguration.tumorSampleBqrPlot())
+                sageConfiguration.tumorSampleBqrPlot())
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), r)))));
-        return builder.build();
+        return builder.addAllDatatypes(addDatatypes(metadata)).build();
     }
 
-    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+    @Override
+    public final List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
+        final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
+        final Optional<String> somaticRefSampleBqrPlot = referenceSampleBqrPlot(metadata);
+        final Optional<String> somaticTumorSampleBqrPlot = tumorSampleBqrPlot(metadata);
+
+        ArrayList<AddDatatype> datatypes = new ArrayList<>(List.of(new AddDatatype(sageConfiguration.vcfDatatype(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)),
+                new AddDatatype(sageConfiguration.geneCoverageDatatype(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), geneCoverageFile))));
+        datatypes.addAll(somaticRefSampleBqrPlot.stream()
+                .map(r -> new AddDatatype(sageConfiguration.tumorSampleBqrPlot(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), r)))
+                .collect(Collectors.toList()));
+        datatypes.addAll(somaticTumorSampleBqrPlot.stream()
+                .map(t -> new AddDatatype(sageConfiguration.refSampleBqrPlot(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), t)))
+                .collect(Collectors.toList()));
+        return datatypes;
+    }
+
+    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 
