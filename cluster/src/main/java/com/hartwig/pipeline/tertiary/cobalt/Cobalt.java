@@ -132,9 +132,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.COBALT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv.gz")))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -152,6 +150,18 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
                                 true)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.COBALT,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), outputFilename(metadata))));
+    }
+
+    private String outputFilename(final SomaticRunMetadata metadata) {
+        return metadata.sampleName() + ".cobalt.ratio.tsv.gz";
     }
 }

@@ -10,6 +10,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -43,6 +44,10 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     default S persistedOutput(final M metadata) {
         throw new UnsupportedOperationException(String.format("Stage [%s] does not support using persisted output.", namespace()));
+    }
+
+    default List<AddDatatype> addDatatypes(final M metadata) {
+        throw new UnsupportedOperationException(String.format("Stage [%s] has not defined any datatypes to add.", namespace()));
     }
 
     boolean shouldRun(Arguments arguments);

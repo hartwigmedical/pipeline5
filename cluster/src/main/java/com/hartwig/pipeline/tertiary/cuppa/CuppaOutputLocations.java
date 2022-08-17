@@ -7,6 +7,8 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface CuppaOutputLocations {
 
+    GoogleStorageLocation conclusionChart();
+
     GoogleStorageLocation conclusionTxt();
 
     GoogleStorageLocation resultCsv();

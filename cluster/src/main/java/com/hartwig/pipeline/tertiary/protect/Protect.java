@@ -153,9 +153,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 .maybeEvidence(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), evidenceTsv)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -171,16 +169,20 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public ProtectOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeEvidence(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), evidenceTsv))))
-                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), evidenceTsv)))
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), evidenceTsv(metadata)))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.PROTECT_EVIDENCE,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), evidenceTsv(metadata))));
     }
 
     @Override

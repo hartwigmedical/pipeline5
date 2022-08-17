@@ -131,26 +131,29 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER_CATALOG,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_DRIVERS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_CLUSTERS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), clustersTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
+        String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
+        String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
+        String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+        String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
+        String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
+        return List.of(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)),
+                new AddDatatype(DataType.LINX_BREAKENDS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), breakendTsv)),
+                new AddDatatype(DataType.LINX_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)),
+                new AddDatatype(DataType.LINX_DRIVERS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)),
+                new AddDatatype(DataType.LINX_FUSIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), fusionsTsv)),
+                new AddDatatype(DataType.LINX_CLUSTERS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), clustersTsv)),
+                new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)));
     }
 
     @Override
@@ -183,7 +186,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
-                        .build())
+                        .build()).addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 

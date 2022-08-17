@@ -91,7 +91,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     @Override
     public CramOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String cram = new File(outputCram).getName();
+        String cram = cram();
         String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);
 
@@ -102,13 +102,12 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.ALIGNED_READS,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.from(metadata), namespace(), cram)),
-                        new AddDatatype(DataType.ALIGNED_READS_INDEX,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.from(metadata), namespace(), crai)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    private String cram() {
+        return new File(outputCram).getName();
     }
 
     @Override
@@ -117,8 +116,13 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public CramOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        return CramOutput.builder().status(PipelineStatus.PERSISTED).build();
+    public List<AddDatatype> addDatatypes(final SingleSampleRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.ALIGNED_READS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), cram())),
+                new AddDatatype(DataType.ALIGNED_READS_INDEX,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), FileTypes.crai(cram()))));
     }
 
     @Override

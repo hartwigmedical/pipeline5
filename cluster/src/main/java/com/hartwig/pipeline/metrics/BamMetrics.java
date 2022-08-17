@@ -113,9 +113,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.WGSMETRICS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -126,7 +124,6 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
@@ -136,9 +133,14 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                                         metadata.sampleName(),
                                         namespace(),
                                         BamMetricsOutput.outputFile(metadata.sampleName())))))
-                .addDatatypes(new AddDatatype(DataType.WGSMETRICS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SingleSampleRunMetadata metadata) {
+        return Collections.singletonList(new AddDatatype(DataType.WGSMETRICS,
+                metadata.barcode(),
+                new ArchivePath(Folder.from(metadata), namespace(), BamMetricsOutput.outputFile(metadata.sampleName()))));
     }
 }
