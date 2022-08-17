@@ -164,6 +164,11 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public RoseOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return RoseOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
     }
