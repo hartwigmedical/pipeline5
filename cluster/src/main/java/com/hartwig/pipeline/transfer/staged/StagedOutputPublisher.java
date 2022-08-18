@@ -76,8 +76,10 @@ public class StagedOutputPublisher {
             ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(Type.SOMATIC);
             ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(Type.GERMLINE);
 
+            OutputDataset transientDataset = new OutputDataset(sourceBucket, set.getName());
             OutputIterator.from(blob -> {
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
+                dataType.ifPresent(d -> transientDataset.add(d, blob));
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 if (isSecondary(blobWithMd5)) {
                     alignedReadsAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
@@ -89,9 +91,10 @@ public class StagedOutputPublisher {
                     }
                 }
             }, sourceBucket).iterate(metadata);
+            transientDataset.serialize();
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
-                            .sample(tumorSampleName.orElseGet(() -> refSampleName.orElseThrow()))
+                            .sample(tumorSampleName.orElseGet(refSampleName::orElseThrow))
                             .bucket(sourceBucket.getName())
                             .runId(run.get().getId())
                             .setId(set.getId())
