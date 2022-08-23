@@ -98,26 +98,27 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     @Override
     public LinxGermlineOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-
-        String disruptionsTsv = metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
-        String driverCatalogTsv = metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
-
         return LinxGermlineOutput.builder()
                 .status(jobStatus)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
-                        .disruptions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(disruptionsTsv)))
-                        .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
+                        .disruptions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(disruptionsTsv(metadata))))
+                        .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv(metadata))))
                         .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), disruptionsTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), disruptionsTsv(metadata))),
+                new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv(metadata))));
     }
 
     @Override
@@ -132,20 +133,26 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public LinxGermlineOutput persistedOutput(final SomaticRunMetadata metadata) {
-
-        String disruptionsTsv = metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
-        String driverCatalogTsv = metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
-
+        String driverCatalogTsv = driverCatalogTsv(metadata);
         return LinxGermlineOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
-                        .disruptions(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DISRUPTIONS, disruptionsTsv))
+                        .disruptions(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DISRUPTIONS, disruptionsTsv(metadata)))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DRIVER_CATALOG, driverCatalogTsv))
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
                         .build())
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    private String driverCatalogTsv(final SomaticRunMetadata metadata) {
+        return metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
+    }
+
+    private String disruptionsTsv(final SomaticRunMetadata metadata) {
+        return metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
     }
 
     @NotNull

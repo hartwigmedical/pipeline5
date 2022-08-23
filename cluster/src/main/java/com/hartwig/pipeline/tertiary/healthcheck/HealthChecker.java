@@ -15,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -101,7 +102,6 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     @Override
     public HealthCheckOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-
         return HealthCheckOutput.builder()
                 .status(checkHealthCheckerOutput(metadata.sampleName(), bucket, jobStatus, resultsDirectory))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -152,6 +152,11 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
             status = PipelineStatus.FAILED;
         }
         return status;
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        throw new UnsupportedOperationException("No datatypes for HealthChecker");
     }
 
     private static String localMetricsPath(final BamMetricsOutput metricsOutput) {

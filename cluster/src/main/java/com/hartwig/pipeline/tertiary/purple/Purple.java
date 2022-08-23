@@ -183,11 +183,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         ImmutablePurpleOutput.Builder outputBuilder = PurpleOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_PURITY,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), purityTsv)))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)));
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory));
 
         metadata.maybeTumor().ifPresent(tumor -> {
             final String tumorSampleName = tumor.sampleName();
@@ -203,45 +199,18 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     .somaticCopyNumber(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticCopyNumberTsv)))
                     .somaticDriverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticDriverCatalog)))
                     .circosPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(circosPlot(metadata))));
-
-            outputBuilder.addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticVcf)))
-                    .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), svVcf)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), circosPlot(metadata))));
         });
 
         metadata.maybeReference().ifPresent(reference -> {
-            String germlineDriverCatalog = germlineDriverCatalog(metadata.sampleName());
             String germlineDeletionTsv = germlineDeletionTsv(metadata.sampleName());
             String germlineVcf = germlineVcf(metadata.sampleName());
             outputLocationsBuilder.germlineVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf)))
                     .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(),
                             resultsDirectory.path(germlineDriverCatalog(metadata.sampleName()))))
                     .germlineDeletions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDeletionTsv)));
-
-            outputBuilder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineVcf)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DELETION,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineDeletionTsv)));
         });
 
-        outputBuilder.maybeOutputLocations(outputLocationsBuilder.build());
+        outputBuilder.maybeOutputLocations(outputLocationsBuilder.build()).addAllDatatypes(addDatatypes(metadata));
         return outputBuilder.build();
     }
 
@@ -330,7 +299,59 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .germlineDriverCatalog(germlineDriverCatalogLocation)
                 .germlineDeletions(germlineDeletionLocation);
 
-        return PurpleOutput.builder().status(PipelineStatus.PERSISTED).maybeOutputLocations(outputLocationsBuilder.build()).build();
+        return PurpleOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .addAllDatatypes(addDatatypes(metadata))
+                .maybeOutputLocations(outputLocationsBuilder.build())
+                .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        String purityTsv = purityTsv(metadata.sampleName());
+        String qcFile = purpleQC(metadata.sampleName());
+        List<AddDatatype> datatypes = new ArrayList<>(List.of(new AddDatatype(DataType.PURPLE_PURITY,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), purityTsv)),
+                new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile))));
+        metadata.maybeTumor().ifPresent(tumor -> {
+            final String tumorSampleName = tumor.sampleName();
+            String somaticDriverCatalog = somaticDriverCatalog(tumorSampleName);
+            String somaticVcf = somaticVcf(tumorSampleName);
+            String svVcf = svVcf(tumorSampleName);
+            String somaticCopyNumberTsv = somaticCopyNumberTsv(tumorSampleName);
+            datatypes.addAll(List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), somaticVcf)),
+                    new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), svVcf)),
+                    new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)),
+                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv)),
+                    new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), circosPlot(metadata)))));
+        });
+        metadata.maybeReference().ifPresent(reference -> {
+            String germlineDriverCatalog = germlineDriverCatalog(metadata.sampleName());
+            String germlineDeletionTsv = germlineDeletionTsv(metadata.sampleName());
+            String germlineVcf = germlineVcf(metadata.sampleName());
+
+            datatypes.addAll(List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineVcf)),
+                    new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)),
+                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineDeletionTsv))));
+        });
+        return datatypes;
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {

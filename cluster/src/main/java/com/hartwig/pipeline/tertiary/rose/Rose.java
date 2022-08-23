@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.rose;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -14,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -167,7 +169,12 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
 
     @Override
     public RoseOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return RoseOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return RoseOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return Collections.emptyList();
     }
 
     @Override

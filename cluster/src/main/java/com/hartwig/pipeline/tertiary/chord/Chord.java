@@ -29,6 +29,8 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
+import org.jetbrains.annotations.NotNull;
+
 @Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "chord";
@@ -81,16 +83,19 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public ChordOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String chordPredictionTxt = metadata.tumor().sampleName() + PREDICTION_TXT;
+        String chordPredictionTxt = chordPredictionTxt(metadata);
         return ChordOutput.builder()
                 .status(jobStatus)
                 .maybePredictions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(chordPredictionTxt)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.CHORD_PREDICTION,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), chordPredictionTxt)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @NotNull
+    private String chordPredictionTxt(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PREDICTION_TXT;
     }
 
     @Override
@@ -104,10 +109,16 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
                 .status(PipelineStatus.PERSISTED)
                 .maybePredictions(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_PREDICTION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(),
-                                        namespace(),
-                                        metadata.tumor().sampleName() + PREDICTION_TXT))))
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), chordPredictionTxt(metadata)))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return Collections.singletonList(new AddDatatype(DataType.CHORD_PREDICTION,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), chordPredictionTxt(metadata))));
     }
 
     @Override

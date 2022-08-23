@@ -137,12 +137,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .qc(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(lilacQc)))
                 .result(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(lilacOutput)))
-                .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacOutput)),
-                        new AddDatatype(DataType.LILAC_QC_METRICS,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacQc)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -163,13 +158,18 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
                 .result(persistedDataset.path(metadata.tumor().sampleName(), DataType.LILAC_OUTPUT)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), lilacOutput))))
-                .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacOutput)),
-                        new AddDatatype(DataType.LILAC_QC_METRICS,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), lilacQc)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.LILAC_OUTPUT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), lilacOutput(metadata.sampleName()))),
+                new AddDatatype(DataType.LILAC_QC_METRICS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), lilacQcMetrics(metadata.sampleName()))));
     }
 
     @Override

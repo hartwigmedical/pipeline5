@@ -93,9 +93,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
                         outputFile,
                         outputFile,
                         resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.from(metadata), Flagstat.NAMESPACE, outputFile)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -108,10 +106,15 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
                 .maybeFlagstatOutputFile(persistedDataset.path(metadata.sampleName(), DataType.FLAGSTAT)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSingle(metadata.set(), metadata.sampleName(), namespace(), outputFile))))
-                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SingleSampleRunMetadata metadata) {
+        return Collections.singletonList(new AddDatatype(DataType.FLAGSTAT,
+                metadata.barcode(),
+                new ArchivePath(Folder.from(metadata), namespace(), FlagstatOutput.outputFile(metadata.sampleName()))));
     }
 
     @Override

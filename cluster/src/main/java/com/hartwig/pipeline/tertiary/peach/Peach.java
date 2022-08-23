@@ -106,12 +106,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv(metadata.sampleName()))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + PEACH_CALLS_TSV)),
-                        new AddDatatype(DataType.PEACH_GENOTYPE,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), genotypeTsv(metadata.sampleName()))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -133,14 +128,22 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .maybeGenotypes(persistedDataset.path(metadata.sampleName(), DataType.PEACH_GENOTYPE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), genotypeTsv))))
-                .addDatatypes(new AddDatatype(DataType.PEACH_GENOTYPE,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), genotypeTsv)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.PEACH_CALLS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + PEACH_CALLS_TSV)),
+                new AddDatatype(DataType.PEACH_GENOTYPE,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), genotypeTsv(metadata.sampleName()))));
     }
 }
