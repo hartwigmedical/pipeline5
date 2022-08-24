@@ -43,7 +43,6 @@ if [[ $IN_GCP && $# -eq 0 ]]; then
     checkout_target="$(metadata checkout-commit)"
     result_code_url="$(metadata result-code-url)"
 else
-    "$(dirname "$0")/check_deps.sh" || exit 1
     args=$(getopt -o "" --longoptions project:,tag-as-version:,checkout-commit:,checkout-branch:,result-code-url: -- "$@")
     [[ $? != 0 ]] && print_usage && exit 1
     eval set -- "$args"
