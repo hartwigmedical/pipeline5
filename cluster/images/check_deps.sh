@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-getopt -V | egrep -E '^getopty'
+getopt -V | egrep -E '^getopt'
 if [[ $? != 0 ]]; then
     echo "Your getopt implementation is not as expected and may not support long options!"
     echo "If you are on MacOS try running: "
