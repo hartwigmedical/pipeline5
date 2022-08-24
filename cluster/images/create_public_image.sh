@@ -21,6 +21,7 @@ Optional arguments:
 EOM
 }
 
+"$(dirname "$0")/check_deps.sh" || exit 1
 args=$(getopt -o "" --longoptions tools-only,flavour:,checkout-target: -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"

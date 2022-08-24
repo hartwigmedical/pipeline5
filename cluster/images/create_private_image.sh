@@ -31,6 +31,7 @@ EOM
 
 set -o pipefail
 
+"$(dirname "$0")/check_deps.sh" || exit 1
 [[ $# -eq 0 ]] && print_usage && exit 1
 source_image="$1"
 shift
