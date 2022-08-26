@@ -76,6 +76,7 @@ public class CommandLineOptions {
     private static final String USER_LABEL_FLAG = "user_label";
     private static final String USE_TARGET_REGIONS = "use_target_regions";
     private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
+    private static final String PUBSUB_TOPIC_WORKFLOW_FLAG = "pubsub_topic_workflow";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -136,7 +137,8 @@ public class CommandLineOptions {
                 .addOption(costCenterLabel())
                 .addOption(userLabel())
                 .addOption(useTargetRegions())
-                .addOption(publishDbLoadEvent());
+                .addOption(publishDbLoadEvent())
+                .addOption(pubsubTopicWorkflow());
     }
 
     private static Option useTargetRegions() { return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode"); }
@@ -163,6 +165,10 @@ public class CommandLineOptions {
 
     private static Option pubsubProject() {
         return optionWithArg(PUBSUB_PROJECT_FLAG, "Project to publish pipeline events over pub/sub");
+    }
+
+    private static Option pubsubTopicWorkflow() {
+        return optionWithArg(PUBSUB_TOPIC_WORKFLOW_FLAG, "Workflow to prefix to the pub/sub topic");
     }
 
     private static Option useCrams() {
@@ -353,6 +359,7 @@ public class CommandLineOptions {
                     .userLabel(userLabel(commandLine, defaults))
                     .useTargetRegions(booleanOptionWithDefault(commandLine, USE_TARGET_REGIONS, defaults.useTargetRegions()))
                     .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
+                    .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -388,6 +395,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(PUBSUB_PROJECT_FLAG));
         }
         return defaults.pubsubProject();
+    }
+
+    public static Optional<String> pubsubTopicWorkflow(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(PUBLISH_DB_LOAD_EVENT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBLISH_DB_LOAD_EVENT_FLAG));
+        }
+        return defaults.pubsubTopicWorkflow();
     }
 
     public static Optional<String> biopsy(final CommandLine commandLine, final Arguments defaults) {

@@ -73,6 +73,8 @@ public interface CommonArguments {
 
     Optional<String> pubsubProject();
 
+    Optional<String> pubsubTopicWorkflow();
+
     Optional<String> costCenterLabel();
 
     Optional<String> userLabel();
