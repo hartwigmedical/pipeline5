@@ -24,8 +24,9 @@ public class OutputDataset {
     }
 
     public void add(final AddDatatype datatype, final Blob blob) {
-        final Map<String, DatasetFile> sampleMap = datasetMap.computeIfAbsent(datatype.dataType().toString(), k -> new HashMap<>());
-        sampleMap.put(datatype.barcode(), new DatasetFile().path(blob.getName()));
+        final Map<String, DatasetFile> sampleMap =
+                datasetMap.computeIfAbsent(datatype.dataType().toString().toLowerCase(), k -> new HashMap<>());
+        sampleMap.put(datatype.barcode(), new DatasetFile().path(blob.getName().replaceFirst(set, "").substring(1)));
     }
 
     public void serialize() {

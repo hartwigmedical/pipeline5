@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.hartwig.api.model.Run;
+import com.hartwig.api.model.RunSet;
 
 import org.immutables.value.Value;
 
@@ -28,6 +30,9 @@ public interface Sample {
     }
 
     static ImmutableSample.Builder builder(final String name) {
+
+        Run run = new Run().id(1L).set(new RunSet().name("my set"));
+
         return ImmutableSample.builder().name(name);
     }
 }

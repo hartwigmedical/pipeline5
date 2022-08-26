@@ -76,7 +76,7 @@ public class StagedOutputPublisher {
             ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(Type.SOMATIC);
             ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(Type.GERMLINE);
 
-            OutputDataset outputDataset = new OutputDataset(sourceBucket, set.getName());
+            OutputDataset outputDataset = new OutputDataset(sourceBucket, metadata.set());
             OutputIterator.from(blob -> {
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 dataType.ifPresent(d -> outputDataset.add(d, blob));
