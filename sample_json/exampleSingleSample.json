@@ -1,0 +1,28 @@
+{
+  "reference": {
+    "type": "REFERENCE",
+    "name": "GIAB12878",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "{bucket-name}/{fastq-file-lane1-R1}.fastq.gz",
+        "secondOfPairPath": "{bucket-name}/{fastq-file-lane1-R2}.fastq.gz"
+      },
+      {
+        "laneNumber": "2",
+        "firstOfPairPath": "{bucket-name}/{fastq-file-lane2-R1}.fastq.gz",
+        "secondOfPairPath": "{bucket-name}/{fastq-file-lane2-R2}.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "{bucket-name}/{fastq-file-lane3-R1}.fastq.gz",
+        "secondOfPairPath": "{bucket-name}/{fastq-file-lane3-R2}.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "{bucket-name}/{fastq-file-lane4-R1}.fastq.gz",
+        "secondOfPairPath": "{bucket-name}/{fastq-file-lane4-R2}.fastq.gz"
+      }
+    ]
+  }
+}
