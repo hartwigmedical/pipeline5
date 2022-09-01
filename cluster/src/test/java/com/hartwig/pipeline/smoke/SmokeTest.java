@@ -19,7 +19,6 @@ import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -106,7 +105,6 @@ public class SmokeTest {
                 .refGenomeVersion(refGenomeVersion);
 
         Arguments arguments = builder.build();
-        GSUtil.configure(true, 4);
         Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
 
         cleanupBucket(inputMode, arguments.outputBucket(), storage);

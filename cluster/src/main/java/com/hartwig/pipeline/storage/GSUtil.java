@@ -8,18 +8,13 @@ import java.util.concurrent.TimeUnit;
 
 public class GSUtil {
 
-    private static boolean verbose = false;
-    private static int timeoutHours;
-
-    public static void configure(final boolean verbose, final int timeoutHours) {
-        GSUtil.verbose = verbose;
-        GSUtil.timeoutHours = timeoutHours;
-    }
+    private static final boolean VERBOSE = false;
+    private static final int TIMEOUT_HOURS = 4;
 
     public static void auth(final String gsdkPath, final String keyFile) throws IOException, InterruptedException {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(gsdkPath + "/gcloud", "auth", "activate-service-account", String.format("--key-file=%s", keyFile));
-        Processes.run(processBuilder, verbose);
+        Processes.run(processBuilder, VERBOSE);
     }
 
     public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl) throws IOException, InterruptedException {
@@ -48,7 +43,7 @@ public class GSUtil {
         command.add(sourceUrl);
         command.add(targetUrl);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
-        Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
+        Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 
     public static void rsync(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final boolean recurse)
@@ -76,7 +71,7 @@ public class GSUtil {
         command.add(sourceUrl);
         command.add(targetUrl);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
-        Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
+        Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 
     public static void rm(final String gsdkPath, final String path) {
@@ -88,7 +83,7 @@ public class GSUtil {
         command.add("gs://" + path);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         try {
-            Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
+            Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
