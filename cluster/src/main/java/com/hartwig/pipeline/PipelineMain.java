@@ -11,7 +11,6 @@ import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -53,7 +52,7 @@ public class PipelineMain {
         LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {
-            GoogleCredentials credentials = CredentialProvider.from(arguments).get();
+            GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             String topic = arguments.pubsubTopicWorkflow().map(tw -> tw + ".").orElse("") + PipelineComplete.TOPIC;

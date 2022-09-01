@@ -8,18 +8,18 @@ import java.util.concurrent.TimeUnit;
 
 public class GSUtil {
 
-    private static boolean VERBOSE = false;
-    private static int TIMEOUT_HOURS;
+    private static boolean verbose = false;
+    private static int timeoutHours;
 
     public static void configure(final boolean verbose, final int timeoutHours) {
-        VERBOSE = verbose;
-        TIMEOUT_HOURS = timeoutHours;
+        GSUtil.verbose = verbose;
+        GSUtil.timeoutHours = timeoutHours;
     }
 
     public static void auth(final String gsdkPath, final String keyFile) throws IOException, InterruptedException {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(gsdkPath + "/gcloud", "auth", "activate-service-account", String.format("--key-file=%s", keyFile));
-        Processes.run(processBuilder, VERBOSE);
+        Processes.run(processBuilder, verbose);
     }
 
     public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl) throws IOException, InterruptedException {
@@ -39,7 +39,7 @@ public class GSUtil {
             command.add("-u");
             command.add(userProject);
         }
-        command.add("-qm");
+        command.add("-m");
         command.addAll(Arrays.asList(switches));
         command.add("cp");
         if (recurse) {
@@ -48,7 +48,7 @@ public class GSUtil {
         command.add(sourceUrl);
         command.add(targetUrl);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
-        Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+        Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
     }
 
     public static void rsync(final String gsdkPath, final String sourceUrl, final String targetUrl, final String userProject, final boolean recurse)
@@ -76,7 +76,7 @@ public class GSUtil {
         command.add(sourceUrl);
         command.add(targetUrl);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
-        Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+        Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
     }
 
     public static void rm(final String gsdkPath, final String path) {
@@ -88,7 +88,7 @@ public class GSUtil {
         command.add("gs://" + path);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         try {
-            Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+            Processes.run(processBuilder, verbose, timeoutHours, TimeUnit.HOURS);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

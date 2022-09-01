@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.events.Pipeline.Context;
@@ -16,9 +17,9 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -104,13 +105,9 @@ public class SmokeTest {
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion);
 
-        if (whoami.equals("root")) {
-            String privateKeyPath = workingDir() + "/google-key.json";
-            builder.privateKeyPath(privateKeyPath).uploadPrivateKeyPath(privateKeyPath);
-        }
-
         Arguments arguments = builder.build();
-        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+        GSUtil.configure(true, 4);
+        Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
 
         cleanupBucket(inputMode, arguments.outputBucket(), storage);
 

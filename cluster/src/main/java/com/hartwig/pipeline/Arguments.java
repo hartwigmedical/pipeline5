@@ -49,8 +49,6 @@ public interface Arguments extends CommonArguments {
 
     String outputBucket();
 
-    String uploadPrivateKeyPath();
-
     Optional<Integer> sbpApiRunId();
 
     Optional<String> runId();
@@ -118,7 +116,6 @@ public interface Arguments extends CommonArguments {
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
-                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .cleanup(true)
@@ -132,7 +129,6 @@ public interface Arguments extends CommonArguments {
                     .setId(EMPTY)
                     .cmek(EMPTY)
                     .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
-                    .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
@@ -162,7 +158,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
-                    .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .publishDbLoadEvent(false)
@@ -195,7 +190,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
-                    .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
@@ -225,7 +219,6 @@ public interface Arguments extends CommonArguments {
                     .shallow(false)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
-                    .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)

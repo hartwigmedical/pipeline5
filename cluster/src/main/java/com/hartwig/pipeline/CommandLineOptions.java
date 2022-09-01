@@ -31,7 +31,6 @@ public class CommandLineOptions {
     private static final String CLEANUP_FLAG = "cleanup";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
-    private static final String PRIVATE_KEY_FLAG = "private_key_path";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String RUN_ID_FLAG = "run_id";
@@ -52,7 +51,6 @@ public class CommandLineOptions {
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String RUN_CUPPA_FLAG = "run_cuppa";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
-    private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String NETWORK_FLAG = "network";
@@ -80,7 +78,6 @@ public class CommandLineOptions {
 
     private static Options options() {
         return new Options().addOption(profile())
-                .addOption(privateKey())
                 .addOption(sampleDirectory())
                 .addOption(setId())
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
@@ -108,7 +105,6 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG, "Run cuppa in tertiary stage (must be explicitly enabled)"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
-                .addOption(uploadPrivateKey())
                 .addOption(network())
                 .addOption(subnet())
                 .addOption(networkTags())
@@ -242,10 +238,6 @@ public class CommandLineOptions {
         return optionWithArg(OUTPUT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
-    private static Option uploadPrivateKey() {
-        return optionWithArg(UPLOAD_PRIVATE_KEY_FLAG, "Private key to use for upload of fastq files");
-    }
-
     private static Option profile() {
         return optionWithArg(PROFILE_FLAG,
                 format("Defaults profile to use. Accepts [%s]",
@@ -266,11 +258,6 @@ public class CommandLineOptions {
 
     private static Option sbpS3Url() {
         return optionWithArg(SBP_S3_URL_FLAG, "URL of the SBP S3 endpoint");
-    }
-
-    private static Option privateKey() {
-        return optionWithArg(PRIVATE_KEY_FLAG,
-                "Fully qualified path to the private key for the service account used for all Google Cloud operations");
     }
 
     private static Option serviceAccountEmail() {
@@ -314,7 +301,6 @@ public class CommandLineOptions {
 
             return Arguments.builder()
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
-                    .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
@@ -333,7 +319,6 @@ public class CommandLineOptions {
                     .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
                     .subnet(subnet(commandLine, defaults))
                     .tags(networkTags(commandLine, defaults))
-                    .uploadPrivateKeyPath(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG, defaults.uploadPrivateKeyPath()))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
@@ -343,7 +328,6 @@ public class CommandLineOptions {
                     .zone(zone(commandLine, defaults))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
-                    .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .refGenomeUrl(refGenomeUrl(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
