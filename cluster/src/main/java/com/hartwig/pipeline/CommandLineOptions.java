@@ -426,8 +426,8 @@ public class CommandLineOptions {
     }
 
     public static Optional<String> pubsubTopicWorkflow(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PUBLISH_DB_LOAD_EVENT_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PUBLISH_DB_LOAD_EVENT_FLAG));
+        if (commandLine.hasOption(PUBSUB_TOPIC_WORKFLOW_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBSUB_TOPIC_WORKFLOW_FLAG));
         }
         return defaults.pubsubTopicWorkflow();
     }
