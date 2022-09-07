@@ -170,7 +170,7 @@ public class PipelineMain {
                 metadata,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
-                persistedDataset, mode);
+                persistedDataset);
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
