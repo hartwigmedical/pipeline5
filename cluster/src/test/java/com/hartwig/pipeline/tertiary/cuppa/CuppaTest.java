@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,21 +60,19 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected Stage<CuppaOutput, SomaticRunMetadata> createVictim() {
-        return new Cuppa(purpleOutput(), linxSomaticOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new Cuppa(purpleOutput(),
+                linxSomaticOutput(),
+                virusInterpreterOutput(),
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                persistedDataset);
     }
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.7.0/cuppa.jar "
-                        + "-categories DNA "
-                        + "-ref_data_dir /opt/resources/cuppa/ "
-                        + "-sample_data tumor "
-                        + "-sample_data_dir /data/input/results "
-                        + "-output_dir /data/output",
-                "/opt/tools/cuppa-chart/1.7.0_venv/bin/python /opt/tools/cuppa-chart/1.7.0/cuppa-chart.py "
-                        + "-sample tumor "
-                        + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV
-                        + " -output_dir /data/output",
+        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.7.0/cuppa.jar " + "-categories DNA " + "-ref_data_dir /opt/resources/cuppa/ "
+                        + "-sample_data tumor " + "-sample_data_dir /data/input/results " + "-output_dir /data/output",
+                "/opt/tools/cuppa-chart/1.7.0_venv/bin/python /opt/tools/cuppa-chart/1.7.0/cuppa-chart.py " + "-sample tumor "
+                        + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV + " -output_dir /data/output",
                 "Rscript /opt/tools/cuppa/1.7.0/CupGenerateReport_pipeline.R tumor /data/output/");
     }
 
@@ -129,6 +128,8 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedInputs() {
         return List.of(input(expectedRuntimeBucketName() + "/purple/results/", "results"),
-                input(expectedRuntimeBucketName() + "/linx/results/", "results"));
+                input(expectedRuntimeBucketName() + "/linx/results/", "results"),
+                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv",
+                        "tumor.virus.annotated.tsv"));
     }
 }

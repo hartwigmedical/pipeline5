@@ -34,6 +34,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,25 +47,26 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
     public static final String NAMESPACE = "cuppa";
+
     private final InputDownload purpleOutputDirectory;
-    private final LinxSomaticOutput linxOutput;
-
+    private final InputDownload linxOutputDirectory;
+    private final InputDownload virusInterpreterAnnotations;
     private final ResourceFiles resourceFiles;
-
     private final PersistedDataset persistedDataset;
 
-    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
+            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
-        this.linxOutput = linxOutput;
+        this.linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
+        this.virusInterpreterAnnotations = new InputDownload(virusInterpreterOutput.virusAnnotations());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleOutputDirectory, linxOutputDownload());
+        return List.of(purpleOutputDirectory, linxOutputDirectory, virusInterpreterAnnotations);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-sample_data",
                                 metadata.tumor().sampleName(),
                                 "-sample_data_dir",
-                                linxOutputDownload().getLocalTargetPath(),
+                                linxOutputDirectory.getLocalTargetPath(),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
                 new Python3Command("cuppa-chart",
@@ -108,12 +110,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
-                new RscriptCommand("cuppa", Versions.CUPPA, "CupGenerateReport_pipeline.R", r_script_arguments)
-        );
-    }
-
-    private InputDownload linxOutputDownload() {
-        return new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
+                new RscriptCommand("cuppa", Versions.CUPPA, "CupGenerateReport_pipeline.R", r_script_arguments));
     }
 
     @Override
@@ -195,7 +192,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         .featurePlot(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_FEATURE_PLOT)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), featurePlot))))
-                        .build()).addAllDatatypes(addDatatypes(metadata)).build();
+                        .build())
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
     }
 
     @Override
