@@ -51,8 +51,6 @@ public interface ResourceFiles {
 
     String mappabilityBed();
 
-    String sageGermlinePon();
-
     String germlinePon();
 
     String somaticPonArtefacts();

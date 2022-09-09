@@ -91,11 +91,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlinePon() {
-        return formPath(SAGE, "SageGermlinePon.98x.38.vcf.gz");
-    }
-
-    @Override
     public String germlinePon() {
         return formPath(SAGE, "SageGermlinePon.98x.38.tsv.gz");
     }

@@ -102,11 +102,6 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlinePon() {
-        return decorated.sageGermlinePon();
-    }
-
-    @Override
     public String germlinePon() {
         return decorated.germlinePon();
     }
