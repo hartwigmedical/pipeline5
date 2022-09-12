@@ -69,8 +69,6 @@ public interface CommonArguments {
 
     RefGenomeVersion refGenomeVersion();
 
-    Optional<String> refGenomeUrl();
-
     Optional<String> pubsubProject();
 
     Optional<String> pubsubTopicWorkflow();

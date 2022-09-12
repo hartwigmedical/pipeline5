@@ -62,7 +62,6 @@ public class CommandLineOptions {
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
-    private static final String REF_GENOME_URL = "ref_genome_url";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
     private static final String STARTING_POINT_FLAG = "starting_point";
     private static final String IMAGE_NAME_FLAG = "image_name";
@@ -123,7 +122,6 @@ public class CommandLineOptions {
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
                 .addOption(refGenomeVersion())
-                .addOption(refGenomeUrl())
                 .addOption(maxConcurrentLanes())
                 .addOption(json())
                 .addOption(startingPoint())
@@ -181,10 +179,6 @@ public class CommandLineOptions {
 
     private static Option biopsy() {
         return optionWithArg(BIOPSY_FLAG, "Name of the biopsy registered in the API.");
-    }
-
-    private static Option refGenomeUrl() {
-        return optionWithArg(REF_GENOME_URL, "GCS url to a valid reference genome fasta file (ie. gs://bucket/genome.fasta)");
     }
 
     private static Option startingPoint() {
@@ -345,7 +339,6 @@ public class CommandLineOptions {
                     .profile(defaults.profile())
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
-                    .refGenomeUrl(refGenomeUrl(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
                     .startingPoint(startingPoint(commandLine, defaults))
                     .imageName(imageName(commandLine, defaults))
@@ -423,13 +416,6 @@ public class CommandLineOptions {
             return List.of(commandLine.getOptionValue(NETWORK_TAGS_FLAG).split(","));
         }
         return defaults.tags();
-    }
-
-    private static Optional<String> refGenomeUrl(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(REF_GENOME_URL)) {
-            return Optional.of(commandLine.getOptionValue(REF_GENOME_URL));
-        }
-        return defaults.refGenomeUrl();
     }
 
     private static Optional<String> startingPoint(final CommandLine commandLine, final Arguments defaults) {
