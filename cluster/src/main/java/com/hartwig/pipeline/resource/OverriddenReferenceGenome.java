@@ -52,8 +52,13 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String svBreakendPon() {
-        return decorated.svBreakendPon();
+    public String svPrepBlacklistBed() {
+        return decorated.svPrepBlacklistBed();
+    }
+
+    @Override
+    public String sglBreakendPon() {
+        return decorated.sglBreakendPon();
     }
 
     @Override

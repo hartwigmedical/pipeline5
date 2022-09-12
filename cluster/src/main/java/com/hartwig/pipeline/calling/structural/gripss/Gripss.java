@@ -72,7 +72,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(String.format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
-        arguments.add(String.format("-pon_sgl_file %s", resourceFiles.svBreakendPon()));
+        arguments.add(String.format("-pon_sgl_file %s", resourceFiles.sglBreakendPon()));
         arguments.add(String.format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
         arguments.add(String.format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
         arguments.add(String.format("-vcf %s", gridssVcf.getLocalTargetPath()));

@@ -60,7 +60,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(tumorSampleName,
+        Driver driver = new Driver(resourceFiles).tumorSample(tumorSampleName,
                 tumorBamPath);
         return gridssCommands(driver, tumorSampleName);
     }
@@ -69,7 +69,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         String referenceSampleName = metadata.reference().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
-        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(referenceSampleName + ".assembly.bam")).referenceSample(
+        Driver driver = new Driver(resourceFiles).referenceSample(
                 referenceSampleName,
                 refBamPath);
         return gridssCommands(driver, referenceSampleName);
@@ -81,7 +81,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        return gridssCommands(new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(
+        return gridssCommands(new Driver(resourceFiles).tumorSample(
                 tumorSampleName,
                 tumorBamPath).referenceSample(referenceSampleName, refBamPath), tumorSampleName);
     }

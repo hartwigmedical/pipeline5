@@ -11,9 +11,7 @@ public interface ResourceNames {
     String GNOMAD = "gnomad";
     String MAPPABILITY = "mappability";
     String GIAB_HIGH_CONF = "giab_high_conf";
-    String GRIDSS_CONFIG = "gridss_config";
-    String GRIDSS_PON = "gridss_pon";
-    String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";
+    String GRIDSS = "gridss";
     String VIRUSBREAKEND_DB = "virusbreakend_db";
     String VIRUS_INTERPRETER = "virus_interpreter";
     String VIRUS_REFERENCE_GENOME = "virus_reference_genome";
