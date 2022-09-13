@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +60,11 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected Stage<CuppaOutput, SomaticRunMetadata> createVictim() {
-        return new Cuppa(purpleOutput(), linxSomaticOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new Cuppa(purpleOutput(),
+                linxSomaticOutput(),
+                virusInterpreterOutput(),
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                persistedDataset);
     }
 
     @Override
@@ -129,6 +134,8 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedInputs() {
         return List.of(input(expectedRuntimeBucketName() + "/purple/results/", "results"),
-                input(expectedRuntimeBucketName() + "/linx/results/", "results"));
+                input(expectedRuntimeBucketName() + "/linx/results/", "results"),
+                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv",
+                        "tumor.virus.annotated.tsv"));
     }
 }
