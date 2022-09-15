@@ -54,6 +54,6 @@ steps:
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
 logsBucket: 'gs://hmf-build-logs'
-timeout: 4800s
+timeout: 2400s
 options:
   machineType: 'N1_HIGHCPU_32'
