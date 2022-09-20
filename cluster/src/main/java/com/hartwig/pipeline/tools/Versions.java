@@ -24,7 +24,7 @@ public interface Versions {
     String PAVE = "1.2.2";
     String PEACH = "1.6";
     String PROTECT = "2.2";
-    String PURPLE = "3.4.2";
+    String PURPLE = "3.4.3";
     String ROSE = "1.0";
     String SAGE = "3.0.3";
     String SIGS = "1.0";
