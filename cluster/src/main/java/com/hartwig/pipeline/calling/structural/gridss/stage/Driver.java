@@ -90,31 +90,6 @@ public class Driver extends SubStage {
         // run SvPrep again to set reference depth
         commands.add(buildRefDepthCommand(gridssVcf, output));
 
-        /*
-        commands.add(new VersionedToolCommand(GRIDSS,
-                "gridss",
-                Versions.GRIDSS,
-                Stream.concat(Stream.of("--output",
-                        ,
-                        "--assembly",
-                        assemblyBamPath,
-                        "--workingdir",
-                        VmDirectories.OUTPUT,
-                        "--reference",
-                        resourceFiles.refGenomeFile(),
-                        "--jar",
-                        GridssJar.path(),
-                        "--blacklist",
-                        resourceFiles.gridssBlacklistBed(),
-                        "--configuration",
-                        resourceFiles.gridssPropertiesFile(),
-                        "--labels",
-                        sampleArguments.stream().map(SampleArgument::getSampleName).collect(Collectors.joining(",")),
-                        "--jvmheap",
-                        "31G",
-                        "--externalaligner"), sampleArguments.stream().map(SampleArgument::getSamplePath)).collect(Collectors.toList())));
-        */
-
         return commands;
     }
 
@@ -149,13 +124,11 @@ public class Driver extends SubStage {
             arguments.add(String.format("-existing_junction_file %s", tumorJunctionsFile));
 
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
-        arguments.add("-discordant_groups");
         arguments.add("-calc_fragment_length");
-        arguments.add("-trim_read_id");
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
-        arguments.add("-use_cache_bam");
-        arguments.add("-log_level DEBUG");
+
+        arguments.add("-log_level INFO");
 
         return new JavaJarCommand(SV_PREP, Versions.SV_PREP, SV_PREP_JAR, MAX_HEAP, arguments);
     }
@@ -183,10 +156,9 @@ public class Driver extends SubStage {
         arguments.add(String.format("--filtered_bams %s", svPrepBams));
 
         arguments.add(String.format("--jvmheap %s", MAX_HEAP));
-        // arguments.add("--externalaligner");
         arguments.add(String.format("--threads %d", GRIDSS_THREADS));
 
-        return new VersionedToolCommand(GRIDSS, "gridss.run_new", "pilot", arguments.toString());
+        return new VersionedToolCommand(GRIDSS, "gridss.run.sh", "pilot", arguments.toString());
     }
 
     private BashCommand buildRefDepthCommand(final String gridssVcf, final OutputFile output) {
