@@ -36,7 +36,9 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new GripssSomatic(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new GripssSomatic(
+                TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaultsBuilder().build());
     }
 
     @Override
@@ -54,7 +56,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.2/gripss.jar "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/pilot/gripss.jar "
                 + "-sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

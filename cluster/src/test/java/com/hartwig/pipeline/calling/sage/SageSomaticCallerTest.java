@@ -40,12 +40,12 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx60G -jar /opt/tools/sage/3.1.1/sage.jar " + "-tumor tumor -tumor_bam /data/input/tumor.bam "
+        return ImmutableList.of("java -Xmx60G -jar /opt/tools/sage/pilot/sage.jar " + "-tumor tumor -tumor_bam /data/input/tumor.bam "
                         + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
-                        + "-coverage_bed /opt/resources/sage/37/CoverageCodingPanel.37.bed.gz "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "
                         + "-panel_bed /opt/resources/sage/37/ActionableCodingPanel.37.bed.gz "
+                        + "-coverage_bed /opt/resources/sage/37/CoverageCodingPanel.37.bed.gz "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-write_bqr_data -write_bqr_plot "
                         + "-out /data/output/tumor.sage.somatic.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)",

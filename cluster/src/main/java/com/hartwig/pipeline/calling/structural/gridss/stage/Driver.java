@@ -124,7 +124,6 @@ public class Driver extends SubStage {
             arguments.add(String.format("-existing_junction_file %s", tumorJunctionsFile));
 
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
-        arguments.add("-calc_fragment_length");
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
 

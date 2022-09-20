@@ -136,7 +136,7 @@ public class SomaticPipeline {
                 PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
                 Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles)));
+                        new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles, arguments)));
                 Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
                 GripssOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
