@@ -123,6 +123,6 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow();
+        return arguments.runTertiary() && !arguments.shallow() && !arguments.useTargetRegions();
     }
 }

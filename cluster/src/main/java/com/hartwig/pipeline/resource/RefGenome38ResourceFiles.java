@@ -112,7 +112,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String repeatMaskerDb() {
-        return formPath(GRIDSS, "repeat_mask_data.37.fa.gz");
+        return formPath(GRIDSS, "repeat_mask_data.38.fa.gz");
     }
 
     @Override
@@ -197,7 +197,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String targetRegionsRatios() {
-        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_ratios.38.csv");
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_ratios.38.tsv");
     }
 
     @Override
