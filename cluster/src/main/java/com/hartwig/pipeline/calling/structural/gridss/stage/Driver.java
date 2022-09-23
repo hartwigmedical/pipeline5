@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Driver extends SubStage {
 
-    private static final String GRIDSS = "gridss";
+    private static final String GRIDSS_SCRIPT = "gridss.run.sh";
     private static final String SV_PREP = "sv-prep";
     private static final String SV_PREP_JAR = "sv-prep.jar";
 
@@ -127,7 +127,7 @@ public class Driver extends SubStage {
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        arguments.add("-log_level INFO");
+        // arguments.add("-log_level INFO");
 
         return new JavaJarCommand(SV_PREP, Versions.SV_PREP, SV_PREP_JAR, MAX_HEAP, arguments);
     }
@@ -157,7 +157,7 @@ public class Driver extends SubStage {
         arguments.add(String.format("--jvmheap %s", MAX_HEAP));
         arguments.add(String.format("--threads %d", GRIDSS_THREADS));
 
-        return new VersionedToolCommand(GRIDSS, "gridss.run.sh", "pilot", arguments.toString());
+        return new VersionedToolCommand(SV_PREP, GRIDSS_SCRIPT, Versions.SV_PREP, arguments.toString());
     }
 
     private BashCommand buildRefDepthCommand(final String gridssVcf, final OutputFile output) {
@@ -177,7 +177,7 @@ public class Driver extends SubStage {
 
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
-        arguments.add("-log_level DEBUG");
+        // arguments.add("-log_level DEBUG");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
         return new JavaClassCommand(

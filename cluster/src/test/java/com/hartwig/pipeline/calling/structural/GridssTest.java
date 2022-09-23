@@ -68,14 +68,14 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("export PATH=\"${PATH}:/opt/tools/samtools/1.14\"");
 
         expectedCommands.add(
-                "java -Xmx48G -jar /opt/tools/sv-prep/pilot/sv-prep.jar "
+                "java -Xmx48G -jar /opt/tools/sv-prep/1.0/sv-prep.jar "
                 + "-sample tumor -bam_file /data/input/tumor.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
                 + "-known_fusion_bed /opt/resources/fusions/37/known_fusions.37.bedpe "
                 + "-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\" "
                 + "-output_dir /data/output "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo) -log_level INFO");
+                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
 
         expectedCommands.add(
                 "/opt/tools/samtools/1.14/samtools sort -O bam /data/output/tumor.sv_prep.bam -o /data/output/tumor.sv_prep.sorted.bam");
@@ -83,7 +83,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/tumor.sv_prep.sorted.bam");
 
         expectedCommands.add(
-                "java -Xmx48G -jar /opt/tools/sv-prep/pilot/sv-prep.jar "
+                "java -Xmx48G -jar /opt/tools/sv-prep/1.0/sv-prep.jar "
                         + "-sample reference -bam_file /data/input/reference.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
@@ -91,7 +91,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                         + "-existing_junction_file /data/output/tumor.sv_prep.junctions.csv "
                         + "-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\" "
                         + "-output_dir /data/output "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) -log_level INFO");
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo)");
 
         expectedCommands.add(
                 "/opt/tools/samtools/1.14/samtools sort -O bam /data/output/reference.sv_prep.bam -o /data/output/reference.sv_prep.sorted.bam");
@@ -99,7 +99,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/reference.sv_prep.sorted.bam");
 
         expectedCommands.add(
-                "/opt/tools/gridss/pilot/gridss.run.sh --steps all "
+                "/opt/tools/sv-prep/1.0/gridss.run.sh --steps all "
                 + "--output /data/output/tumor.gridss.vcf.gz "
                 + "--workingdir /data/output "
                 + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
@@ -112,12 +112,12 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + "--jvmheap 48G --threads 10");
 
         expectedCommands.add(
-                "java -Xmx48G -cp /opt/tools/sv-prep/pilot/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
+                "java -Xmx48G -cp /opt/tools/sv-prep/1.0/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
                 + "-input_vcf /data/output/tumor.gridss.vcf.gz "
                 + "-output_vcf /data/output/tumor.gridss.driver.vcf.gz "
                 + "-samples tumor,reference -bam_files /data/input/tumor.bam,/data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
-                + "-log_level DEBUG -threads $(grep -c '^processor' /proc/cpuinfo)");
+                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
 
         expectedCommands.add("java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk"
                 + ".use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp "

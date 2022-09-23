@@ -16,19 +16,19 @@ public interface Versions {
     String COBALT = "1.13";
     String CUPPA = "1.7.0";
     String GRIDSS = "2.13.2";
-    String GRIPSS = "pilot"; // 2.2 -> 2.3
+    String GRIPSS = "2.3";
     String HEALTH_CHECKER = "3.4";
-    String LILAC = "pilot"; // 1.1 -> 1.4
-    String LINX = "pilot"; // 1.20.1 -> 1.22 or 1.23
+    String LILAC = "1.4";
+    String LINX = "1.22";
     String ORANGE = "1.10.1";
-    String PAVE = "pilot"; // 1.3.1 -> 1.4
+    String PAVE = "1.4";
     String PEACH = "1.6";
     String PROTECT = "2.3";
-    String PURPLE = "pilot"; // 3.5.1 -> 3.7
+    String PURPLE = "3.7";
     String ROSE = "1.1";
-    String SAGE = "pilot"; // 3.1.1 -> 3.2
+    String SAGE = "3.2";
     String SIGS = "1.1";
-    String SV_PREP = "pilot"; // will be 1.0
+    String SV_PREP = "1.0";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
 

@@ -38,7 +38,7 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/pilot/linx.jar -sample tumor -sv_vcf "
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.22/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version V37 -output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
@@ -46,7 +46,7 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv " + "-write_vis_data");
 
-        commands.add("java -Xmx8G -cp /opt/tools/linx/pilot/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
+        commands.add("java -Xmx8G -cp /opt/tools/linx/1.22/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
                 + "-sample tumor -ref_genome_version V37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
                 + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
 

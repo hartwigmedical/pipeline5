@@ -46,7 +46,7 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx15G -jar /opt/tools/lilac/pilot/lilac.jar " + "-sample tumor -reference_bam /data/input/reference.hla.bam "
+        return List.of("java -Xmx15G -jar /opt/tools/lilac/1.4/lilac.jar " + "-sample tumor -reference_bam /data/input/reference.hla.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
                 + "-resource_dir /opt/resources/lilac/ " + "-output_dir /data/output " + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                 + "-tumor_bam /data/input/tumor.hla.bam " + "-gene_copy_number_file /data/input/tumor.purple.cnv.gene.tsv "
