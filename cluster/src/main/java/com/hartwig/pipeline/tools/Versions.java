@@ -14,7 +14,7 @@ public interface Versions {
     String AMBER = "3.9";
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.7.0";
+    String CUPPA = "1.7.1";
     String GRIDSS = "2.13.2";
     String GRIPSS = "2.3";
     String HEALTH_CHECKER = "3.4";
@@ -84,6 +84,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-30";
+        return "5-31";
     }
 }

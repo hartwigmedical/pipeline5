@@ -87,7 +87,7 @@ public class SomaticPipeline {
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final SomaticRunMetadata metadata, final PipelineResults pipelineResults, final ExecutorService executorService,
-            final PersistedDataset persistedDataset, final InputMode mode) {
+            final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
@@ -196,14 +196,14 @@ public class SomaticPipeline {
                         LilacOutput lilacOutput = pipelineResults.add(state.add(lilacOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = pipelineResults.add(state.add(linxSomaticOutputFuture.get()));
 
-                        Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Cuppa(purpleOutput, linxSomaticOutput, resourceFiles, persistedDataset)));
                         Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Peach(purpleOutput, resourceFiles, persistedDataset)));
                         ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
-                        CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
                         PeachOutput peachOutput = pipelineResults.add(state.add(peachOutputFuture.get()));
                         VirusInterpreterOutput virusInterpreterOutput = pipelineResults.add(state.add(virusInterpreterOutputFuture.get()));
+                        Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Cuppa(purpleOutput, linxSomaticOutput, virusInterpreterOutput, resourceFiles, persistedDataset)));
+                        CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
                         ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                 new Protect(purpleOutput,
                                         linxSomaticOutput,
