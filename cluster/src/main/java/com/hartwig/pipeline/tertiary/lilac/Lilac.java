@@ -82,8 +82,8 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         List<String> arguments = Lists.newArrayList();
         arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedReference.getLocalTargetPath()));
         arguments.add(String.format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
-        arguments.add(String.format("-gene_copy_number_file %s", purpleGeneCopyNumber.getLocalTargetPath()));
-        arguments.add(String.format("-somatic_variants_file %s", purpleSomaticVariants.getLocalTargetPath()));
+        arguments.add(String.format("-gene_copy_number %s", purpleGeneCopyNumber.getLocalTargetPath()));
+        arguments.add(String.format("-somatic_vcf %s", purpleSomaticVariants.getLocalTargetPath()));
 
         return List.of(formCommand(arguments));
     }
