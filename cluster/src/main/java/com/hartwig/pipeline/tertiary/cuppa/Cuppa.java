@@ -36,6 +36,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -51,18 +52,20 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final InputDownload purpleSomaticVariantsDownload;
     private final InputDownload purpleStructuralVariantsDownload;
     private final InputDownload purpleOutputDirectory;
+    private final InputDownload virusInterpreterAnnotations;
     private final LinxSomaticOutput linxOutput;
 
     private final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
 
-    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
+            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
         this.purpleStructuralVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.structuralVariants());
         this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
+        this.virusInterpreterAnnotations = new InputDownload(virusInterpreterOutput.virusAnnotations());
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -70,7 +73,11 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVariantsDownload, purpleStructuralVariantsDownload, purpleOutputDirectory, linxOutputDownload());
+        return List.of(purpleSomaticVariantsDownload,
+                purpleStructuralVariantsDownload,
+                purpleOutputDirectory,
+                linxOutputDownload(),
+                virusInterpreterAnnotations);
     }
 
     @Override
