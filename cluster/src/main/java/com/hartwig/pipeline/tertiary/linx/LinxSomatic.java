@@ -143,7 +143,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
         String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
         String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
-        return List.of(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)),
+        return List.of(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv), true),
                 new AddDatatype(DataType.LINX_BREAKENDS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), breakendTsv)),
                 new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         metadata.barcode(),

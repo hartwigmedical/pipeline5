@@ -57,7 +57,8 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.LINX,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.drivers.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.drivers.tsv"),
+                        true),
                 new AddDatatype(DataType.LINX_BREAKENDS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.breakend.tsv")),

@@ -158,7 +158,8 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         return List.of(new AddDatatype(DataType.COBALT,
                 metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), outputFilename(metadata))));
+                new ArchivePath(Folder.root(), namespace(), outputFilename(metadata)),
+                true));
     }
 
     private String outputFilename(final SomaticRunMetadata metadata) {
