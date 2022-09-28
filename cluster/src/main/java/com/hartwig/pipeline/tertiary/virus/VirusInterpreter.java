@@ -118,9 +118,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     public VirusInterpreterOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         String annotatedTsv = annotatedVirusTsv(metadata);
-        return VirusInterpreterOutput.builder()
-                .status(jobStatus)
-                .addDatatypes(datatypes(metadata))
+        return VirusInterpreterOutput.builder().status(jobStatus).addAllDatatypes(addDatatypes(metadata))
                 .maybeVirusAnnotations(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(annotatedTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new SingleFileComponent(bucket,
@@ -144,13 +142,15 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                 .maybeVirusAnnotations(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotatedVirusTsv(metadata)))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
-    private AddDatatype[] datatypes(final SomaticRunMetadata metadata) {
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         return List.of(new AddDatatype(DataType.VIRUS_INTERPRETATION,
                 metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), annotatedVirusTsv(metadata)))).toArray(new AddDatatype[] {});
+                new ArchivePath(Folder.root(), namespace(), annotatedVirusTsv(metadata))));
     }
 
     private String annotatedVirusTsv(final SomaticRunMetadata metadata) {

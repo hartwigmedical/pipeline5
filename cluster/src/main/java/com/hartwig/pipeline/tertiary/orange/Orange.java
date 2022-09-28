@@ -309,18 +309,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
-        final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
         return OrangeOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), orangeJson)),
-                        new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), orangePdf)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -336,6 +329,16 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
+        final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
+        return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), orangeJson)),
+                new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf)));
     }
 }

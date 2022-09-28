@@ -83,7 +83,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
                 .maybeAnnotatedVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(vcfComponent(outputFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), ResultsDirectory.defaultDirectory()))
-                .addDatatypes(new AddDatatype(vcfDatatype, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), outputFile)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -95,7 +95,13 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
                 .maybeAnnotatedVariants(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), outputFile))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(vcfDatatype, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), outputFile(metadata))));
     }
 
     private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {

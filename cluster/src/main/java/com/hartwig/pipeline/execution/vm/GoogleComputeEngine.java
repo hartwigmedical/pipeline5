@@ -148,9 +148,6 @@ public class GoogleComputeEngine implements ComputeEngine {
 
                 if (arguments.usePreemptibleVms()) {
                     final Scheduling.Builder schedulingBuilder = Scheduling.newBuilder().setProvisioningModel("SPOT");
-                    if (arguments.useLocalSsds()) {
-                        schedulingBuilder.setInstanceTerminationAction("DELETE");
-                    }
                     instanceBuilder.setScheduling(schedulingBuilder.build());
                 }
 

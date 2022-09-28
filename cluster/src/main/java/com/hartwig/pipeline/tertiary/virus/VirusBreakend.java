@@ -102,7 +102,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                         new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .maybeSummary(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(summary)))
                 .maybeVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(vcf)))
-                .addDatatypes(datatypes(metadata))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -110,7 +110,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     public VirusBreakendOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusBreakendOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .addDatatypes(datatypes(metadata))
+                .addAllDatatypes(addDatatypes(metadata))
                 .maybeSummary(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND_SUMMARY)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), summary(metadata)))))
@@ -120,14 +120,14 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                 .build();
     }
 
-    private AddDatatype[] datatypes(final SomaticRunMetadata metadata) {
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         String vcf = vcf(metadata);
         String summary = summary(metadata);
         return List.of(new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), summary)),
-                new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), vcf)))
-                .toArray(new AddDatatype[] {});
+                new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), vcf)));
     }
 
     private String summary(final SomaticRunMetadata metadata) {

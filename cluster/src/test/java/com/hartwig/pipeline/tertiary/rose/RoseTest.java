@@ -42,9 +42,8 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/rose/1.0/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
-                        + " -ref_genome_version 37" + " -driver_gene_37_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
-                        + " -driver_gene_38_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
+                "java -Xmx8G -jar /opt/tools/rose/1.1/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
+                        + " -ref_genome_version 37" + " -driver_gene_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
                         + " -purple_purity_tsv /data/input/tumor.purple.purity.tsv" + " -purple_qc_file /data/input/tumor.purple.qc"
                         + " -purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv"
                         + " -purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv"
@@ -56,7 +55,9 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
                         + " -annotated_virus_tsv /data/input/tumor.virus.annotated.tsv"
                         + " -chord_prediction_txt /data/input/tumor_chord_prediction.txt"
                         + " -molecular_tissue_origin_txt /data/input/tumor.cuppa.conclusion.txt" + " -output_dir /data/output"
-                        + " -tumor_sample_id tumor" + " -ref_sample_id reference");
+                        + " -tumor_sample_id tumor" + " -ref_sample_id reference" + " -patient_id"
+                        + " not_used_because_primary_tumor_tsv_has_only_headers" + " -primary_tumor_tsv"
+                        + " /opt/resources/rose/curated_primary_tumor_header-only.tsv");
     }
 
     @Override

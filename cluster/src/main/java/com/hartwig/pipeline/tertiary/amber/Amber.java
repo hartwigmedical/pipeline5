@@ -8,7 +8,6 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -106,7 +105,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-loci %s", resourceFiles.amberHeterozygousLoci()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        arguments.add(String.format("-threads %s", "12"));
     }
 
     private void addTargetRegionsArguments(final List<String> amberArguments) {
@@ -128,9 +127,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.AMBER,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
@@ -148,7 +145,15 @@ public class Amber extends TertiaryStage<AmberOutput> {
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
                                 true)))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.AMBER,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))));
     }
 
     @Override

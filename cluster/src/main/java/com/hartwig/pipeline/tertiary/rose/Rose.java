@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.rose;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -14,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -119,9 +121,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 resourceFiles.roseActionabilityDb(),
                 "-ref_genome_version",
                 resourceFiles.version().numeric(),
-                "-driver_gene_37_tsv",
-                resourceFiles.driverGenePanel(),
-                "-driver_gene_38_tsv",
+                "-driver_gene_tsv",
                 resourceFiles.driverGenePanel(),
                 "-purple_purity_tsv",
                 purplePurity.getLocalTargetPath(),
@@ -152,7 +152,13 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",
-                metadata.tumor().sampleName(), "-ref_sample_id", metadata.reference().sampleName());
+                metadata.tumor().sampleName(),
+                "-ref_sample_id",
+                metadata.reference().sampleName(),
+                "-patient_id",
+                "not_used_because_primary_tumor_tsv_has_only_headers",
+                "-primary_tumor_tsv",
+                resourceFiles.roseCuratedPrimaryTumors());
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 
@@ -163,7 +169,12 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
 
     @Override
     public RoseOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return RoseOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return RoseOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return Collections.emptyList();
     }
 
     @Override

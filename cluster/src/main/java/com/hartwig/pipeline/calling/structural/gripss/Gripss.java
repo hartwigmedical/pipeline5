@@ -105,9 +105,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
-                        basename(unfilteredVcfFile),
-                        basename(unfilteredVcfFile),
-                        resultsDirectory))
+                        basename(unfilteredVcfFile), basename(unfilteredVcfFile), resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
@@ -116,13 +114,18 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addDatatypes(new AddDatatype(unfilteredDatatype(),
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcfFile))),
-                        new AddDatatype(filteredDatatype(),
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(filteredVcfFile))))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(unfilteredDatatype(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf(metadata)))),
+                new AddDatatype(filteredDatatype(),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), basename(filteredVcf(metadata)))));
     }
 
     @Override
@@ -157,9 +160,11 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
         return arguments.runTertiary();
     }
 
-    public String filteredVcf(final SomaticRunMetadata metadata) { return ""; }
-    public String unfilteredVcf(final SomaticRunMetadata metadata) { return ""; }
-    public DataType filteredDatatype() { return null; }
-    public DataType unfilteredDatatype() { return null; }
+    public abstract String filteredVcf(final SomaticRunMetadata metadata);
 
+    public abstract String unfilteredVcf(final SomaticRunMetadata metadata);
+
+    public abstract DataType filteredDatatype();
+
+    public abstract DataType unfilteredDatatype();
 }

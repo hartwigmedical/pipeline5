@@ -364,6 +364,8 @@ public class TestInputs {
                         .summaryChartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
                                 TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
                         .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
+                        .conclusionChart(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
+                                TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_CHART))
                         .build())
                 .build();
     }

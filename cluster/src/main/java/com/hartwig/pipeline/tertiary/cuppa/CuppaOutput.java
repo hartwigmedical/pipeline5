@@ -23,6 +23,7 @@ public interface CuppaOutput extends StageOutput {
     default CuppaOutputLocations cuppaOutputLocations() {
         return maybeCuppaOutputLocations().orElse(CuppaOutputLocations.builder()
                 .conclusionTxt(GoogleStorageLocation.empty())
+                .conclusionChart(GoogleStorageLocation.empty())
                 .featurePlot(GoogleStorageLocation.empty())
                 .resultCsv(GoogleStorageLocation.empty())
                 .summaryChartPng(GoogleStorageLocation.empty())

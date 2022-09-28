@@ -67,6 +67,6 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                 + "-ref_genome_version V37 "
                 + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz "
                 + "-output_dir /data/output "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
+                + "-threads 12");
     }
 }

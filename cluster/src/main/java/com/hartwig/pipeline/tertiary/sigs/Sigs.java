@@ -89,8 +89,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
-                .workingDiskSpaceGb(375)
-                .build();
+                .workingDiskSpaceGb(375).build();
     }
 
     @Override
@@ -100,10 +99,15 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".sig.allocation.tsv")))
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".sig.allocation.tsv")));
     }
 
     @Override
@@ -113,7 +117,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     @Override
     public SigsOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return SigsOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return SigsOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
     }
 
     @Override
