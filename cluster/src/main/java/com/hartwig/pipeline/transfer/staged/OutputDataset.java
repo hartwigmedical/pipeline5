@@ -30,7 +30,7 @@ public class OutputDataset {
                 new DatasetFile().isDirectory(datatype.isDirectory()).path(blob.getName().replaceFirst(set, "").substring(1)));
     }
 
-    public void serialize() {
+    public void serializeAndUpload() {
         try {
             outputBucket.create(set + "/" + DATASET_JSON, ObjectMappers.get().writeValueAsBytes(datasetMap));
         } catch (JsonProcessingException e) {

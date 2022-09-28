@@ -91,7 +91,7 @@ public class StagedOutputPublisher {
                     }
                 }
             }, sourceBucket).iterate(metadata);
-            outputDataset.serialize();
+            outputDataset.serializeAndUpload();
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
                             .sample(tumorSampleName.orElseGet(refSampleName::orElseThrow))

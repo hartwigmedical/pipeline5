@@ -44,7 +44,7 @@ public class OutputDatasetTest {
 
     @Test
     public void emptyDatasetReturnsEmptyJson() {
-        victim.serialize();
+        victim.serializeAndUpload();
         String emptyJson = new String(datasetBytes.getValue());
         assertThat(emptyJson).isEqualTo("{}");
     }
@@ -55,7 +55,7 @@ public class OutputDatasetTest {
         Blob amberBlob = TestBlobs.blob(TestInputs.SET + "/" + amberPathFromRoot);
         victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF)),
                 amberBlob);
-        victim.serialize();
+        victim.serializeAndUpload();
         Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
         assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), false);
     }
@@ -66,7 +66,7 @@ public class OutputDatasetTest {
         Blob amberBlob = TestBlobs.blob(TestInputs.SET + "/" + amberPathFromRoot);
         victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF), true),
                 amberBlob);
-        victim.serialize();
+        victim.serializeAndUpload();
         Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
         assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), true);
     }
@@ -83,7 +83,7 @@ public class OutputDatasetTest {
         victim.add(new AddDatatype(DataType.ALIGNED_READS,
                 TestInputs.referenceSample(),
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Aligner.NAMESPACE, REF_BAM)), refBam);
-        victim.serialize();
+        victim.serializeAndUpload();
         Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
         assertThatDatatypeIs(dataset.getAlignedReads(), tumorBamPathFromRoot, TestInputs.tumorSample(), false);
         assertThatDatatypeIs(dataset.getAlignedReads(), refBamPathFromRoot, TestInputs.referenceSample(), false);

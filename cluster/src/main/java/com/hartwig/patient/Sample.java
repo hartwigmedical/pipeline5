@@ -30,9 +30,6 @@ public interface Sample {
     }
 
     static ImmutableSample.Builder builder(final String name) {
-
-        Run run = new Run().id(1L).set(new RunSet().name("my set"));
-
         return ImmutableSample.builder().name(name);
     }
 }
