@@ -153,7 +153,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         return List.of(new AddDatatype(DataType.AMBER,
                 metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName()))));
+                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName())),
+                false));
     }
 
     @Override

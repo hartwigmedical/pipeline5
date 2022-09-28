@@ -12,11 +12,17 @@ public class AddDatatype {
     private final String path;
     private final DataType datatype;
     private final String barcode;
+    private final boolean isDirectory;
 
     public AddDatatype(final DataType datatype, final String barcode, final ArchivePath path) {
+        this(datatype, barcode, path, false);
+    }
+
+    public AddDatatype(final DataType datatype, final String barcode, final ArchivePath path, final boolean isDirectory) {
         this.datatype = datatype;
         this.barcode = barcode;
         this.path = path.path();
+        this.isDirectory = isDirectory;
     }
 
     public void apply(final SbpRestApi api, final AddFileApiResponse file) {
@@ -36,6 +42,10 @@ public class AddDatatype {
         return barcode;
     }
 
+    public boolean isDirectory() {
+        return isDirectory;
+    }
+
     @Override
     public String toString() {
         return format("add datatype [%s] to [%s]", datatype, path);
@@ -49,12 +59,13 @@ public class AddDatatype {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AddDatatype that = (AddDatatype) o;
-        return Objects.equals(path, that.path) && datatype == that.datatype && Objects.equals(barcode, that.barcode);
+        AddDatatype that = (AddDatatype) o;
+        return isDirectory == that.isDirectory && Objects.equals(path, that.path) && datatype == that.datatype && Objects.equals(barcode,
+                that.barcode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(path, datatype, barcode);
+        return Objects.hash(path, datatype, barcode, isDirectory);
     }
 }

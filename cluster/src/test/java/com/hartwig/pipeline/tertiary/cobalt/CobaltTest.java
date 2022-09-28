@@ -58,7 +58,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.COBALT,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Cobalt.NAMESPACE, "tumor.cobalt.ratio.tsv.gz")));
+                new ArchivePath(Folder.root(), Cobalt.NAMESPACE, "tumor.cobalt.ratio.tsv.gz"), true));
     }
 
     @Override

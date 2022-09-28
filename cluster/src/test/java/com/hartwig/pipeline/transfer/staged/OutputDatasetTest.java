@@ -50,14 +50,25 @@ public class OutputDatasetTest {
     }
 
     @Test
-    public void createDatasetJsonIncludingAddedDatatypesForSomatic() throws Exception {
+    public void createDatasetJsonIncludingAddedDatatypesForSomaticForFile() throws Exception {
         final String amberPathFromRoot = "amber/" + AMBER_BAF;
         Blob amberBlob = TestBlobs.blob(TestInputs.SET + "/" + amberPathFromRoot);
         victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF)),
                 amberBlob);
         victim.serialize();
         Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
-        assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample());
+        assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), false);
+    }
+
+    @Test
+    public void createDatasetJsonIncludingAddedDatatypesForSomaticForDirectory() throws Exception {
+        final String amberPathFromRoot = "amber/" + AMBER_BAF;
+        Blob amberBlob = TestBlobs.blob(TestInputs.SET + "/" + amberPathFromRoot);
+        victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF), true),
+                amberBlob);
+        victim.serialize();
+        Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
+        assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), true);
     }
 
     @Test
@@ -74,14 +85,16 @@ public class OutputDatasetTest {
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Aligner.NAMESPACE, REF_BAM)), refBam);
         victim.serialize();
         Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
-        assertThatDatatypeIs(dataset.getAlignedReads(), tumorBamPathFromRoot, TestInputs.tumorSample());
-        assertThatDatatypeIs(dataset.getAlignedReads(), refBamPathFromRoot, TestInputs.referenceSample());
+        assertThatDatatypeIs(dataset.getAlignedReads(), tumorBamPathFromRoot, TestInputs.tumorSample(), false);
+        assertThatDatatypeIs(dataset.getAlignedReads(), refBamPathFromRoot, TestInputs.referenceSample(), false);
     }
 
-    private void assertThatDatatypeIs(final Map<String, DatasetFile> alignedReads, final String fileName, final String sample) {
-        assertThat(alignedReads).isNotNull();
-        final DatasetFile tumorBamFile = alignedReads.get(sample);
-        assertThat(tumorBamFile).isNotNull();
-        assertThat(tumorBamFile.getPath()).isEqualTo(fileName);
+    private void assertThatDatatypeIs(final Map<String, DatasetFile> datasetFileMap, final String fileName, final String sample,
+            final boolean isDirectory) {
+        assertThat(datasetFileMap).isNotNull();
+        final DatasetFile datasetFile = datasetFileMap.get(sample);
+        assertThat(datasetFile).isNotNull();
+        assertThat(datasetFile.getPath()).isEqualTo(fileName);
+        assertThat(datasetFile.getIsDirectory()).isEqualTo(isDirectory);
     }
 }
