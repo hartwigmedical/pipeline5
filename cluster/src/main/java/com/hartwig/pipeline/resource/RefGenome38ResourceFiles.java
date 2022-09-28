@@ -9,8 +9,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
@@ -91,11 +90,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageGermlinePon() {
-        return formPath(SAGE, "SageGermlinePon.98x.38.vcf.gz");
-    }
-
-    @Override
     public String germlinePon() {
         return formPath(SAGE, "SageGermlinePon.98x.38.tsv.gz");
     }
@@ -118,22 +112,27 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String repeatMaskerDb() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "38.fa.out");
+        return formPath(GRIDSS, "repeat_mask_data.38.fa.gz");
     }
 
     @Override
     public String gridssBlacklistBed() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.38.bed");
+        return formPath(GRIDSS, "gridss_blacklist.38.bed.gz");
     }
 
     @Override
-    public String svBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed.gz");
+    public String svPrepBlacklistBed() {
+        return formPath(GRIDSS, "sv_prep_blacklist.38.bed");
+    }
+
+    @Override
+    public String sglBreakendPon() {
+        return formPath(GRIDSS, "sgl_pon.38.bed.gz");
     }
 
     @Override
     public String svBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe.gz");
+        return formPath(GRIDSS, "sv_pon.38.bedpe.gz");
     }
 
     @Override
@@ -198,7 +197,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String targetRegionsRatios() {
-        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_ratios.38.csv");
+        return formPath(ResourceNames.TARGET_REGIONS, "target_regions_ratios.38.tsv");
     }
 
     @Override

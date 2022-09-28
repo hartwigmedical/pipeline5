@@ -2,7 +2,7 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
@@ -36,22 +36,16 @@ public interface ResourceFiles {
     String amberHeterozygousLoci();
 
     String sageSomaticHotspots();
-
     String sagePanelBed();
-
     String sageGermlineHotspots();
-
     String sageGeneCoverageBed();
 
     String germlineBlacklistVcf();
-
     String germlineBlacklistBed();
 
     String clinvarVcf();
 
     String mappabilityBed();
-
-    String sageGermlinePon();
 
     String germlinePon();
 
@@ -62,7 +56,7 @@ public interface ResourceFiles {
     String giabHighConfidenceBed();
 
     default String gridssPropertiesFile() {
-        return of(GRIDSS_CONFIG, "gridss.properties");
+        return of(GRIDSS, "gridss.properties");
     }
 
     String repeatMaskerDb();
@@ -72,19 +66,17 @@ public interface ResourceFiles {
     }
 
     String gridssBlacklistBed();
+    String svPrepBlacklistBed();
 
-    String svBreakendPon();
-
+    String sglBreakendPon();
     String svBreakpointPon();
 
     String fragileSites();
-
     String lineElements();
 
     String ensemblDataCache();
 
     String knownFusionData();
-
     String knownFusionPairBedpe();
 
     String genotypeSnpsDB();
@@ -98,11 +90,8 @@ public interface ResourceFiles {
     String purpleCohortGermlineDeletions();
 
     String targetRegionsBed();
-
     String targetRegionsNormalisation();
-
     String targetRegionsRatios();
-
     String targetRegionsMsiIndels();
 
     default String targetRegionsInterval() {

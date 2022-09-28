@@ -34,8 +34,8 @@ final class PurpleArguments {
         return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()),
                 format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios()),
                 format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()),
-                "-min_diploid_tumor_ratio_count 0",
-                "-min_diploid_tumor_ratio_count_centromere 0");
+                "-min_diploid_tumor_ratio_count 3",
+                "-min_diploid_tumor_ratio_count_centromere 3");
     }
 
     public static List<String> addCommonArguments(final String amberOutputPath, final String cobaltOutputPath,

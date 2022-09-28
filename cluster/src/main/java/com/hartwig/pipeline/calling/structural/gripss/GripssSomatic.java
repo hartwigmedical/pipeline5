@@ -6,6 +6,7 @@ import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANT
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -19,13 +20,17 @@ import com.hartwig.pipeline.stages.Stage;
 @Namespace(GripssSomatic.GRIPSS_SOMATIC_NAMESPACE)
 public class GripssSomatic extends Gripss {
 
+    private final boolean useTargetRegions;
+
     public static final String GRIPSS_SOMATIC_NAMESPACE = "gripss_somatic";
 
     private static final String GRIPSS_SOMATIC_FILTERED = ".gripss.filtered.somatic.";
     private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
-    public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles) {
+    public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
+            final Arguments arguments) {
         super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
+        useTargetRegions = arguments.useTargetRegions();
     }
 
     @Override
@@ -68,6 +73,13 @@ public class GripssSomatic extends Gripss {
         arguments.add("-filter_sgls");
         arguments.add("-output_id somatic");
         arguments.addAll(commonArguments());
+
+        if(useTargetRegions)
+        {
+            arguments.add("-hard_min_tumor_qual 200");
+            arguments.add("-min_qual_break_point 1000");
+            arguments.add("-min_qual_break_end 1000");
+        }
 
         return formCommand(arguments);
     }

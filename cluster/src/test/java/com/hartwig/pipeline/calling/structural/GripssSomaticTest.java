@@ -36,7 +36,9 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new GripssSomatic(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new GripssSomatic(
+                TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaultsBuilder().build());
     }
 
     @Override
@@ -54,15 +56,15 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.2/gripss.jar "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3/gripss.jar "
                 + "-sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
-                + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed.gz "
-                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe.gz "
-                + "-repeat_mask_file /opt/resources/gridss_repeatmasker_db/37/37.fa.out "
+                + "-pon_sgl_file /opt/resources/gridss/37/sgl_pon.37.bed.gz "
+                + "-pon_sv_file /opt/resources/gridss/37/sv_pon.37.bedpe.gz "
+                + "-repeat_mask_file /opt/resources/gridss/37/repeat_mask_data.37.fa.gz "
                 + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz "
                 + "-output_dir /data/output");
     }

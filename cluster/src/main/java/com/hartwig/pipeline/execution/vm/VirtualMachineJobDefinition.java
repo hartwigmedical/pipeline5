@@ -103,7 +103,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gridss")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(12, 64))
+                .performanceProfile(custom(32, 64))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

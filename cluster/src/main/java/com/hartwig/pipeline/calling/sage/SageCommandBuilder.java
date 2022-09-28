@@ -128,19 +128,17 @@ public class SageCommandBuilder {
             arguments.add("-panel_only");
         }
 
-        if (coverage) {
-            arguments.add(String.format("-coverage_bed %s", resourceFiles.sageGeneCoverageBed()));
-        }
-
         if (targetRegions) {
-            arguments.add("-hotspot_min_tumor_qual 100");
-            arguments.add("-panel_min_tumor_qual 200");
-            arguments.add("-high_confidence_min_tumor_qual 200");
-            arguments.add("-low_confidence_min_tumor_qual 300");
+            arguments.add("-hotspot_min_tumor_vaf 0.01");
+            arguments.add("-hotspot_min_tumor_qual 150");
+            arguments.add("-panel_min_tumor_qual 250");
+            arguments.add("-high_confidence_min_tumor_qual 350");
+            arguments.add("-low_confidence_min_tumor_qual 500");
         }
 
         arguments.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
         arguments.add(String.format("-panel_bed %s", resourceFiles.sagePanelBed()));
+        arguments.add(String.format("-coverage_bed %s", resourceFiles.sageGeneCoverageBed()));
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));

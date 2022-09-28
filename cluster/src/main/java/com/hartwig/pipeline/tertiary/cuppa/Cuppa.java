@@ -218,6 +218,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary();
+        return !arguments.shallow() && arguments.runTertiary() && !arguments.useTargetRegions();
     }
 }
