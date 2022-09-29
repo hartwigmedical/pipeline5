@@ -1,29 +1,29 @@
-debuggroup summary 0.28s welcome to circos v0.69-6 31 July 2017 on Perl 5.024001
-debuggroup summary 0.28s current working directory /
-debuggroup summary 0.28s command /opt/tools/circos/0.69.6/bin/circos -nosvg -conf /data/output/circos/COLO829v003T.input.conf -outputdir /data/output/plot -outputfile COLO829v003T.input.png
-debuggroup summary 0.28s loading configuration from file /data/output/circos/COLO829v003T.input.conf
-debuggroup summary 0.28s found conf file /data/output/circos/COLO829v003T.input.conf
-debuggroup summary 0.53s debug will appear for these features: output,summary
-debuggroup summary 0.53s bitmap output image /data/output/plot/COLO829v003T.input.png
-debuggroup summary 0.53s parsing karyotype and organizing ideograms
-debuggroup summary 0.67s karyotype has 24 chromosomes of total size 3,095,677,436
-debuggroup summary 0.68s applying global and local scaling
-debuggroup summary 0.70s allocating image, colors and brushes
-debuggroup summary 10.18s drawing 24 ideograms of total size 3,095,677,436
-debuggroup summary 10.18s drawing highlights and ideograms
-debuggroup summary 10.18s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/highlight.bg.conf
-debuggroup summary 10.18s process track_0 highlight /data/output/circos/gaps.txt
-debuggroup summary 10.27s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
-debuggroup summary 10.27s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
-debuggroup summary 10.28s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
-debuggroup summary 10.28s processing track_0 scatter /data/output/circos/COLO829v003T.ratio.circos
-debuggroup summary 10.28s processing track_1 scatter /data/output/circos/COLO829v003R.ratio.circos
-debuggroup summary 10.30s processing track_2 scatter /data/output/circos/COLO829v003T.baf.circos
-debuggroup summary 10.33s drawing track_0 scatter z 0 COLO829v003T.ratio.circos orient out
-debuggroup summary 10.33s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
-debuggroup summary 10.51s drawing track_1 scatter z 0 COLO829v003R.ratio.circos orient out
-debuggroup summary 10.52s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
-debuggroup summary 10.54s drawing track_2 scatter z 0 COLO829v003T.baf.circos orient out
-debuggroup summary 10.55s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
-debuggroup output 10.69s generating output
-debuggroup output 11.39s created PNG image /data/output/plot/COLO829v003T.input.png (448 kb)
+debuggroup summary 0.25s welcome to circos v0.69-6 31 July 2017 on Perl 5.024001
+debuggroup summary 0.25s current working directory /
+debuggroup summary 0.25s command /opt/tools/circos/0.69.6/bin/circos -nosvg -conf /data/output/circos/COLO829v003T.input.conf -outputdir /data/output/plot -outputfile COLO829v003T.input.png
+debuggroup summary 0.25s loading configuration from file /data/output/circos/COLO829v003T.input.conf
+debuggroup summary 0.25s found conf file /data/output/circos/COLO829v003T.input.conf
+debuggroup summary 0.50s debug will appear for these features: output,summary
+debuggroup summary 0.50s bitmap output image /data/output/plot/COLO829v003T.input.png
+debuggroup summary 0.50s parsing karyotype and organizing ideograms
+debuggroup summary 0.65s karyotype has 24 chromosomes of total size 3,095,677,436
+debuggroup summary 0.66s applying global and local scaling
+debuggroup summary 0.67s allocating image, colors and brushes
+debuggroup summary 11.02s drawing 24 ideograms of total size 3,095,677,436
+debuggroup summary 11.02s drawing highlights and ideograms
+debuggroup summary 11.03s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/highlight.bg.conf
+debuggroup summary 11.03s process track_0 highlight /data/output/circos/gaps.txt
+debuggroup summary 11.17s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
+debuggroup summary 11.17s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
+debuggroup summary 11.17s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/scatter.conf
+debuggroup summary 11.17s processing track_0 scatter /data/output/circos/COLO829v003T.ratio.circos
+debuggroup summary 11.19s processing track_1 scatter /data/output/circos/COLO829v003R.ratio.circos
+debuggroup summary 11.22s processing track_2 scatter /data/output/circos/COLO829v003T.baf.circos
+debuggroup summary 11.24s drawing track_0 scatter z 0 COLO829v003T.ratio.circos orient out
+debuggroup summary 11.25s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
+debuggroup summary 11.43s drawing track_1 scatter z 0 COLO829v003R.ratio.circos orient out
+debuggroup summary 11.43s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
+debuggroup summary 11.48s drawing track_2 scatter z 0 COLO829v003T.baf.circos orient out
+debuggroup summary 11.49s found conf file /opt/tools/circos/0.69.6/bin/../etc/tracks/axis.conf
+debuggroup output 11.62s generating output
+debuggroup output 12.30s created PNG image /data/output/plot/COLO829v003T.input.png (448 kb)
