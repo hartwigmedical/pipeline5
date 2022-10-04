@@ -154,7 +154,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return List.of(new AddDatatype(DataType.AMBER,
                 metadata.barcode(),
                 new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv.gz", metadata.sampleName())),
-                false));
+                true));
     }
 
     @Override
