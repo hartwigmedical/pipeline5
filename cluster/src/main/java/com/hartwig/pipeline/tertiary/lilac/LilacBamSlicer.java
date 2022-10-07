@@ -138,9 +138,6 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     }
 
     private List<BashCommand> buildCommands(final String inputBamFile, final String slicedBamFile) {
-        if (FileTypes.isCram(inputBamFile)) {
-
-        }
         return List.of(new SamtoolsCommand("view",
                 "-f",
                 FileTypes.isCram(inputBamFile) ? "cram" : "bam",
