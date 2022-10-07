@@ -36,26 +36,10 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Override
     protected List<String> expectedCommands() {
         return List.of(
-                "/opt/tools/samtools/1.14/samtools view -f bam -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/reference.hla.bam /data/input/reference.bam",
+                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/reference.hla.bam /data/input/reference.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
-                "/opt/tools/samtools/1.14/samtools view -f bam -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.bam",
+                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam");
-    }
-
-    @Test
-    public void usesSamtoolsCramSettingsWhenInputsAreCrams() {
-        LilacBamSlicer victim = new LilacBamSlicer(AlignmentPair.of(AlignmentOutput.builder()
-                        .sample(TestInputs.referenceSample())
-                        .status(PipelineStatus.PERSISTED)
-                        .maybeAlignments(GoogleStorageLocation.of("crams", TestInputs.referenceSample() + ".cram"))
-                        .build(),
-                AlignmentOutput.builder()
-                        .sample(TestInputs.tumorSample())
-                        .status(PipelineStatus.PERSISTED)
-                        .maybeAlignments(GoogleStorageLocation.of("crams", TestInputs.tumorSample() + ".cram"))
-                        .build()), new RefGenome37ResourceFiles(), persistedDataset);
-        assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).isEqualTo("/opt/tools/samtools/1.14/samtools view -f cram -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/reference.hla.bam /data/input/reference.cram");
-        assertThat(victim.tumorReferenceCommands(input()).get(2).asBash()).isEqualTo("/opt/tools/samtools/1.14/samtools view -f cram -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.cram");
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -138,15 +137,8 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     }
 
     private List<BashCommand> buildCommands(final String inputAlignmentFile, final String slicedBamFile) {
-        return List.of(new SamtoolsCommand("view",
-                "-f",
-                FileTypes.isCram(inputAlignmentFile) ? "cram" : "bam",
-                "-L",
-                resourceFiles.hlaRegionBed(),
-                "-b",
-                "-o",
-                slicedBamFile,
-                inputAlignmentFile), new SambambaCommand("index", slicedBamFile));
+        return List.of(new SamtoolsCommand("view", "-L", resourceFiles.hlaRegionBed(), "-b", "-o", slicedBamFile, inputAlignmentFile),
+                new SambambaCommand("index", slicedBamFile));
     }
 
     private String slicedBam(final String sampleName) {
