@@ -137,16 +137,16 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
         return arguments.runTertiary() && !arguments.shallow();
     }
 
-    private List<BashCommand> buildCommands(final String inputBamFile, final String slicedBamFile) {
+    private List<BashCommand> buildCommands(final String inputAlignmentFile, final String slicedBamFile) {
         return List.of(new SamtoolsCommand("view",
                 "-f",
-                FileTypes.isCram(inputBamFile) ? "cram" : "bam",
+                FileTypes.isCram(inputAlignmentFile) ? "cram" : "bam",
                 "-L",
                 resourceFiles.hlaRegionBed(),
                 "-b",
                 "-o",
                 slicedBamFile,
-                inputBamFile), new SambambaCommand("index", slicedBamFile));
+                inputAlignmentFile), new SambambaCommand("index", slicedBamFile));
     }
 
     private String slicedBam(final String sampleName) {

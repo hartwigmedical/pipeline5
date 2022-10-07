@@ -5,17 +5,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Before
@@ -35,6 +40,22 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
                 "/opt/tools/samtools/1.14/samtools view -f bam -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam");
+    }
+
+    @Test
+    public void usesSamtoolsCramSettingsWhenInputsAreCrams() {
+        LilacBamSlicer victim = new LilacBamSlicer(AlignmentPair.of(AlignmentOutput.builder()
+                        .sample(TestInputs.referenceSample())
+                        .status(PipelineStatus.PERSISTED)
+                        .maybeAlignments(GoogleStorageLocation.of("crams", TestInputs.referenceSample() + ".cram"))
+                        .build(),
+                AlignmentOutput.builder()
+                        .sample(TestInputs.tumorSample())
+                        .status(PipelineStatus.PERSISTED)
+                        .maybeAlignments(GoogleStorageLocation.of("crams", TestInputs.tumorSample() + ".cram"))
+                        .build()), new RefGenome37ResourceFiles(), persistedDataset);
+        assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).isEqualTo("/opt/tools/samtools/1.14/samtools view -f cram -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/reference.hla.bam /data/input/reference.cram");
+        assertThat(victim.tumorReferenceCommands(input()).get(2).asBash()).isEqualTo("/opt/tools/samtools/1.14/samtools view -f cram -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.cram");
     }
 
     @Override
