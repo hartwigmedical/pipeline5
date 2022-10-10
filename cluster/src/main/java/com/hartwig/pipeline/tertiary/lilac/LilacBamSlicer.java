@@ -145,7 +145,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
                 Bash.allCpus(),
                 "-u",
                 "-M",
-                "-Y",
+                "-T",
                 resourceFiles.refGenomeFile(),
                 "-o",
                 slicedBamFile,
