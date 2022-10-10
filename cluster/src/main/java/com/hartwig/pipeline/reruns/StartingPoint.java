@@ -86,16 +86,17 @@ public class StartingPoint {
                 List.of(GermlineCaller.NAMESPACE,
                         PaveSomatic.NAMESPACE,
                         SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
                         Gridss.NAMESPACE,
                         GRIPSS_SOMATIC_NAMESPACE,
+                        GRIPSS_GERMLINE_NAMESPACE,
                         LinxSomatic.NAMESPACE,
+                        LinxGermline.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         VirusBreakend.NAMESPACE,
-                        Chord.NAMESPACE,
                         Sigs.NAMESPACE,
-                        Rose.NAMESPACE,
-                        Orange.NAMESPACE)));
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 

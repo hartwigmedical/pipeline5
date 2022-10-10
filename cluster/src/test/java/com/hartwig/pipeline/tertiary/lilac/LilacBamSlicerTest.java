@@ -5,22 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
-import org.junit.Test;
 
 public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Before
@@ -36,9 +31,9 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Override
     protected List<String> expectedCommands() {
         return List.of(
-                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/reference.hla.bam /data/input/reference.bam",
+                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -Y /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/reference.hla.bam /data/input/reference.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
-                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -b -o /data/output/tumor.hla.bam /data/input/tumor.bam",
+                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -Y /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam");
     }
 
