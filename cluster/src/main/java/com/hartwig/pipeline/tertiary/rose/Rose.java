@@ -50,7 +50,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
     private final InputDownload linxDriverCatalog;
     private final InputDownload virusAnnotations;
     private final InputDownload chordPredictions;
-    private final InputDownload cuppaConclusion;
+    private final InputDownload cuppaResults;
 
     public Rose(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, final LinxSomaticOutput linxSomaticOutput,
             final VirusInterpreterOutput virusOutput, final ChordOutput chordOutput, final CuppaOutput cuppaOutput) {
@@ -69,7 +69,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
         this.linxDriverCatalog = new InputDownload(linx.driverCatalog());
         this.virusAnnotations = new InputDownload(virusOutput.virusAnnotations());
         this.chordPredictions = new InputDownload(chordOutput.predictions());
-        this.cuppaConclusion = new InputDownload(cuppaOutput.cuppaOutputLocations().conclusionTxt());
+        this.cuppaResults = new InputDownload(cuppaOutput.cuppaOutputLocations().resultCsv());
     }
 
     @Override
@@ -85,8 +85,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 linxBreakends,
                 linxDriverCatalog,
                 virusAnnotations,
-                chordPredictions,
-                cuppaConclusion);
+                chordPredictions, cuppaResults);
     }
 
     @Override
@@ -147,8 +146,8 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 virusAnnotations.getLocalTargetPath(),
                 "-chord_prediction_txt",
                 chordPredictions.getLocalTargetPath(),
-                "-molecular_tissue_origin_txt",
-                cuppaConclusion.getLocalTargetPath(),
+                "-cuppa_result_csv",
+                cuppaResults.getLocalTargetPath(),
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-tumor_sample_id",
@@ -156,9 +155,7 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
                 "-ref_sample_id",
                 metadata.reference().sampleName(),
                 "-patient_id",
-                "not_used_because_primary_tumor_tsv_has_only_headers",
-                "-primary_tumor_tsv",
-                resourceFiles.roseCuratedPrimaryTumors());
+                "not_used_because_primary_tumor_tsv_has_only_headers");
         return List.of(new JavaJarCommand("rose", Versions.ROSE, "rose.jar", "8G", arguments));
     }
 

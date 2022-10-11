@@ -42,7 +42,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/rose/1.1/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
+                "java -Xmx8G -jar /opt/tools/rose/1.3/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
                         + " -ref_genome_version 37" + " -driver_gene_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
                         + " -purple_purity_tsv /data/input/tumor.purple.purity.tsv" + " -purple_qc_file /data/input/tumor.purple.qc"
                         + " -purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv"
@@ -54,10 +54,9 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
                         + " -linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv"
                         + " -annotated_virus_tsv /data/input/tumor.virus.annotated.tsv"
                         + " -chord_prediction_txt /data/input/tumor_chord_prediction.txt"
-                        + " -molecular_tissue_origin_txt /data/input/tumor.cuppa.conclusion.txt" + " -output_dir /data/output"
-                        + " -tumor_sample_id tumor" + " -ref_sample_id reference" + " -patient_id"
-                        + " not_used_because_primary_tumor_tsv_has_only_headers" + " -primary_tumor_tsv"
-                        + " /opt/resources/rose/curated_primary_tumor_header-only.tsv");
+                        + " -cuppa_result_csv /data/input/tumor.cup.data.csv -output_dir /data/output"
+                        + " -tumor_sample_id tumor" + " -ref_sample_id reference"
+                        + " -patient_id not_used_because_primary_tumor_tsv_has_only_headers");
     }
 
     @Override
@@ -74,7 +73,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
                 input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.conclusion.txt", "tumor.cuppa.conclusion.txt"));
+                input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"));
     }
 
     @Override
