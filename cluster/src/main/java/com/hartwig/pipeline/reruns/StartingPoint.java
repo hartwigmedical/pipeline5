@@ -90,8 +90,6 @@ public class StartingPoint {
                         Gridss.NAMESPACE,
                         GRIPSS_SOMATIC_NAMESPACE,
                         GRIPSS_GERMLINE_NAMESPACE,
-                        LinxSomatic.NAMESPACE,
-                        LinxGermline.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         VirusBreakend.NAMESPACE,
