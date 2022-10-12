@@ -5,8 +5,11 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
+import org.apache.commons.cli.CommandLine;
+
 public interface CommonArguments {
 
+    String PRIVATE_KEY_PATH = "private_key_path";
     String POLL_INTERVAL = "poll_interval";
     String DEFAULT_NETWORK = "default";
     String DEFAULT_DEVELOPMENT_CMEK =
@@ -18,6 +21,8 @@ public interface CommonArguments {
     String DEFAULT_REGION = "europe-west4";
 
     String project();
+
+    Optional<String> privateKeyPath();
 
     String cloudSdkPath();
 
@@ -60,4 +65,11 @@ public interface CommonArguments {
     Optional<String> userLabel();
 
     boolean useTargetRegions();
+
+    static Optional<String> privateKey(final CommandLine commandLine) {
+        if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
+            return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));
+        }
+        return Optional.empty();
+    }
 }
