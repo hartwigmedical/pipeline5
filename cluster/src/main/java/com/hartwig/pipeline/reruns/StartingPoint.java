@@ -86,7 +86,6 @@ public class StartingPoint {
                 List.of(GermlineCaller.NAMESPACE,
                         PaveSomatic.NAMESPACE,
                         SageConfiguration.SAGE_SOMATIC_NAMESPACE,
-                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
                         Gridss.NAMESPACE,
                         GRIPSS_SOMATIC_NAMESPACE,
                         GRIPSS_GERMLINE_NAMESPACE,
