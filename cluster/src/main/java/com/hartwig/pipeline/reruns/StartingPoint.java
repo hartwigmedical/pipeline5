@@ -84,16 +84,15 @@ public class StartingPoint {
                         VirusInterpreter.NAMESPACE))),
         RERUN_530(concat(CRAM_COMPLETE.namespaces,
                 List.of(GermlineCaller.NAMESPACE,
+                        LinxGermline.NAMESPACE,
+                        PaveSomatic.NAMESPACE,
+                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         Gridss.NAMESPACE,
+                        GRIPSS_SOMATIC_NAMESPACE,
+                        GRIPSS_GERMLINE_NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         VirusBreakend.NAMESPACE,
-                        VirusInterpreter.NAMESPACE,
-                        Chord.NAMESPACE,
-                        LilacBamSlicer.NAMESPACE,
-                        Lilac.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Sigs.NAMESPACE,
                         Rose.NAMESPACE)));
 
         private final List<String> namespaces;

@@ -10,8 +10,10 @@ import java.util.stream.Stream;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
@@ -54,8 +56,8 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return Stream.concat(buildCommands(getReferenceBamDownload().getLocalTargetPath(),
-                slicedBam(metadata.reference().sampleName())).stream(),
-                buildCommands(getTumorBamDownload().getLocalTargetPath(), slicedBam(metadata.tumor().sampleName())).stream())
+                                slicedBam(metadata.reference().sampleName())).stream(),
+                        buildCommands(getTumorBamDownload().getLocalTargetPath(), slicedBam(metadata.tumor().sampleName())).stream())
                 .collect(toList());
 
     }
@@ -72,7 +74,8 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder().name(NAMESPACE.replaceAll("_", "-"))
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name(NAMESPACE.replaceAll("_", "-"))
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
                 .namespacedResults(resultsDirectory)
@@ -134,9 +137,19 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
         return arguments.runTertiary() && !arguments.shallow();
     }
 
-    private List<BashCommand> buildCommands(final String inputBamFile, final String slicedBamFile) {
-        return List.of(new SambambaCommand("slice", "-L", resourceFiles.hlaRegionBed(), "-o", slicedBamFile, inputBamFile),
-                new SambambaCommand("index", slicedBamFile));
+    private List<BashCommand> buildCommands(final String inputAlignmentFile, final String slicedBamFile) {
+        return List.of(new SamtoolsCommand("view",
+                "-L",
+                resourceFiles.hlaRegionBed(),
+                "-@",
+                Bash.allCpus(),
+                "-u",
+                "-M",
+                "-T",
+                resourceFiles.refGenomeFile(),
+                "-o",
+                slicedBamFile,
+                inputAlignmentFile), new SambambaCommand("index", slicedBamFile));
     }
 
     private String slicedBam(final String sampleName) {
