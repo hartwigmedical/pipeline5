@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.alignment.persisted;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -12,16 +15,16 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
-import org.jetbrains.annotations.NotNull;
-
 public class PersistedAlignment implements Aligner {
 
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
+    private final Storage storage;
 
-    public PersistedAlignment(final PersistedDataset persistedDataset, final Arguments arguments) {
+    public PersistedAlignment(final PersistedDataset persistedDataset, final Arguments arguments, final Storage storage) {
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
+        this.storage = storage;
     }
 
     @Override
@@ -35,20 +38,28 @@ public class PersistedAlignment implements Aligner {
                 .build();
     }
 
-    @NotNull
     public GoogleStorageLocation existingRun(final SingleSampleRunMetadata metadata) {
         if (arguments.useCrams()) {
-            return GoogleStorageLocation.of(metadata.bucket(),
-                    PersistedLocations.blobForSingle(metadata.set(),
-                            metadata.sampleName(),
-                            CramConversion.NAMESPACE,
-                            FileTypes.cram(metadata.sampleName())));
+            return cramLocation(metadata);
         } else {
-            return GoogleStorageLocation.of(metadata.bucket(),
-                    PersistedLocations.blobForSingle(metadata.set(),
-                            metadata.sampleName(),
-                            Aligner.NAMESPACE,
-                            FileTypes.bam(metadata.sampleName())));
+            final String bamPath = PersistedLocations.blobForSingle(metadata.set(),
+                    metadata.sampleName(),
+                    Aligner.NAMESPACE,
+                    FileTypes.bam(metadata.sampleName()));
+            final Page<Blob> blobPage = storage.list(metadata.bucket(), Storage.BlobListOption.prefix(bamPath));
+            if (blobPage != null && blobPage.iterateAll().iterator().hasNext()) {
+                return GoogleStorageLocation.of(metadata.bucket(), bamPath);
+            } else {
+                return cramLocation(metadata);
+            }
         }
+    }
+
+    private static GoogleStorageLocation cramLocation(final SingleSampleRunMetadata metadata) {
+        return GoogleStorageLocation.of(metadata.bucket(),
+                PersistedLocations.blobForSingle(metadata.set(),
+                        metadata.sampleName(),
+                        CramConversion.NAMESPACE,
+                        FileTypes.cram(metadata.sampleName())));
     }
 }
