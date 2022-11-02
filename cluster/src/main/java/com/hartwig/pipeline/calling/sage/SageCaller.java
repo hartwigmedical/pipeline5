@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -74,7 +75,6 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
             final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
 
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
-        final String unfilteredOutputFile = sageConfiguration.unfilteredTemplate().apply(metadata);
         final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
         final Optional<String> somaticRefSampleBqrPlot = referenceSampleBqrPlot(metadata);
         final Optional<String> somaticTumorSampleBqrPlot = tumorSampleBqrPlot(metadata);
@@ -92,11 +92,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .maybeSomaticTumorSampleBqrPlot(somaticTumorSampleBqrPlot.map(t -> GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(t))))
                 .maybeVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile)))
-                .addReportComponents(bqrComponent("png", bucket, resultsDirectory, metadata.sampleName()))
-                .addReportComponents(bqrComponent("tsv", bucket, resultsDirectory, metadata.sampleName()))
-                .addReportComponents(vcfComponent(unfilteredOutputFile, bucket, resultsDirectory))
-                .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
-                .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
                 .addAllDatatypes(addDatatypes(metadata));
@@ -122,10 +118,10 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), geneCoverageFile))));
         somaticRefSampleBqrPlot.ifPresent(r -> builder.maybeSomaticRefSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(),
-                sageConfiguration.refSampleBqrPlot())
+                        sageConfiguration.refSampleBqrPlot())
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), r)))));
         somaticTumorSampleBqrPlot.ifPresent(r -> builder.maybeSomaticTumorSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(),
-                sageConfiguration.tumorSampleBqrPlot())
+                        sageConfiguration.tumorSampleBqrPlot())
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), r)))));
         return builder.addAllDatatypes(addDatatypes(metadata)).build();
     }
