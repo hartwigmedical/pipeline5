@@ -221,6 +221,7 @@ rose/COLO829v003T.rose.tsv
 rose/run.log
 sage_germline/COLO829v003R.sage.bqr.png
 sage_germline/COLO829v003R.sage.bqr.tsv
+sage_germline/COLO829v003T.sage.exon.medians.tsv
 sage_germline/COLO829v003R.sage.gene.coverage.tsv
 sage_germline/COLO829v003T.sage.bqr.png
 sage_germline/COLO829v003T.sage.bqr.tsv
@@ -234,6 +235,7 @@ sage_somatic/COLO829v003R.sage.bqr.png
 sage_somatic/COLO829v003R.sage.bqr.tsv
 sage_somatic/COLO829v003T.sage.bqr.png
 sage_somatic/COLO829v003T.sage.bqr.tsv
+sage_somatic/COLO829v003T.sage.exon.medians.tsv
 sage_somatic/COLO829v003T.sage.gene.coverage.tsv
 sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz
 sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz.tbi
