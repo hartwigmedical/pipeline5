@@ -91,6 +91,7 @@ purple/purple.version
 purple/run.log
 sage_germline/COLO829v003R.sage.bqr.png
 sage_germline/COLO829v003R.sage.bqr.tsv
+sage_germline/COLO829v003T.sage.exon.medians.tsv
 sage_germline/COLO829v003R.sage.gene.coverage.tsv
 sage_germline/COLO829v003R.sage.germline.filtered.vcf.gz
 sage_germline/COLO829v003R.sage.germline.filtered.vcf.gz.tbi
