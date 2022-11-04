@@ -154,7 +154,7 @@ public class PipelineMain {
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) {
+            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,

@@ -84,26 +84,30 @@ public class GoogleComputeEngine implements ComputeEngine {
         this.labels = labels;
     }
 
-    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final Labels labels) {
-        try {
-            final InstancesClient instances =
-                    InstancesClient.create(InstancesSettings.newBuilder().setCredentialsProvider(() -> credentials).build());
-            GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
-                    ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
-                    ImagesClient.create(ImagesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
-                    Collections::shuffle,
-                    new InstanceLifecycleManager(arguments,
-                            instances,
-                            ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
-                            ZoneOperationsClient.create(ZoneOperationsSettings.newBuilder()
-                                    .setCredentialsProvider(() -> credentials)
-                                    .build())),
-                    new BucketCompletionWatcher(),
-                    labels);
-            return new QuotaConstrainedComputeEngine(engine, initServiceUsage(credentials), arguments.region(), arguments.project(), 0.6);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialise compute engine", e);
-        }
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final Labels labels)
+            throws Exception {
+        return from(arguments, credentials, true, labels);
+    }
+
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas,
+            final Labels labels) throws Exception {
+        final InstancesClient instances =
+                InstancesClient.create(InstancesSettings.newBuilder().setCredentialsProvider(() -> credentials).build());
+        GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
+                ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
+                ImagesClient.create(ImagesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
+                Collections::shuffle,
+                new InstanceLifecycleManager(arguments,
+                        instances,
+                        ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
+                        ZoneOperationsClient.create(ZoneOperationsSettings.newBuilder().setCredentialsProvider(() -> credentials).build())),
+                new BucketCompletionWatcher(),
+                labels);
+        return constrainQuotas ? new QuotaConstrainedComputeEngine(engine,
+                initServiceUseage(credentials),
+                arguments.region(),
+                arguments.project(),
+                0.6) : engine;
     }
 
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
@@ -221,7 +225,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         return result.getError().getErrorsList().stream().anyMatch(error -> error.getCode().startsWith(errorCode));
     }
 
-    private static ServiceUsage initServiceUsage(final GoogleCredentials credentials) throws Exception {
+    private static ServiceUsage initServiceUseage(final GoogleCredentials credentials) throws Exception {
         HttpTransport http = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory json = GsonFactory.getDefaultInstance();
         return new ServiceUsage.Builder(http, json, new HttpCredentialsAdapter(credentials)).setApplicationName(APPLICATION_NAME).build();
@@ -245,7 +249,7 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     private Image attachDisks(final Instance.Builder instanceBuilder, final VirtualMachineJobDefinition jobDefinition,
-            final String projectName, final String zone, final Image sourceImage, final Map<String, String> labels) {
+            final String projectName, final String zone, final Image sourceImage, final Map<String, String> labels) throws IOException {
         AttachedDisk bootDisk = AttachedDisk.newBuilder()
                 .setBoot(true)
                 .setAutoDelete(true)
@@ -306,7 +310,8 @@ public class GoogleComputeEngine implements ComputeEngine {
         instance.setMetadata(startupMetadata);
     }
 
-    private Image resolveLatestImage(final ImagesClient images, final String sourceImageFamily, final String projectName) {
+    private Image resolveLatestImage(final ImagesClient images, final String sourceImageFamily, final String projectName)
+            throws IOException {
         Image image = images.getFromFamily(projectName, sourceImageFamily);
         if (image != null) {
             return image;
@@ -345,7 +350,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         });
     }
 
-    private List<Zone> fetchZones() {
+    private List<Zone> fetchZones() throws IOException {
         return StreamSupport.stream(zonesClient.list(arguments.project()).iterateAll().spliterator(), false)
                 .filter(zone -> zone.getRegion().endsWith(arguments.region()))
                 .collect(Collectors.toList());

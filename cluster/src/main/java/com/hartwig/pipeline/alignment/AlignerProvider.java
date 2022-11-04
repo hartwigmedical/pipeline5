@@ -48,8 +48,8 @@ public abstract class AlignerProvider {
     }
 
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-            final Labels labels) {
+            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Labels labels)
+            throws Exception {
         ComputeEngine computeEngine =
                 arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels);
         return new BwaAligner(arguments,
@@ -98,14 +98,18 @@ public abstract class AlignerProvider {
 
         @Override
         BwaAligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory,
-                final Labels labels) {
+                final Labels labels) throws Exception {
             SampleSource sampleSource =
                     getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(storage,
                             getArguments(),
                             labels));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
-            return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload,
+            return AlignerProvider.constructVmAligner(getArguments(),
+                    credentials,
+                    storage,
+                    sampleSource,
+                    sampleUpload,
                     resultsDirectory,
                     labels);
         }
@@ -120,12 +124,17 @@ public abstract class AlignerProvider {
 
         @Override
         BwaAligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory,
-                final Labels labels) {
+                final Labels labels) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), cloudCopy);
-            return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory,
+            return AlignerProvider.constructVmAligner(getArguments(),
+                    credentials,
+                    storage,
+                    sampleSource,
+                    sampleUpload,
+                    resultsDirectory,
                     labels);
         }
     }
