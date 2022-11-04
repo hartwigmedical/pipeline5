@@ -24,12 +24,14 @@ public class PipelineResults {
     private final String version;
     private final Storage storage;
     private final Bucket reportBucket;
+    private final boolean isNoOp;
     private final List<ReportComponent> components = new ArrayList<>();
 
-    PipelineResults(final String version, final Storage storage, final Bucket reportBucket) {
+    PipelineResults(final String version, final Storage storage, final Bucket reportBucket, final boolean isNoOp) {
         this.version = version;
         this.storage = storage;
         this.reportBucket = reportBucket;
+        this.isNoOp = isNoOp;
     }
 
     public <T extends StageOutput> T add(final T stageOutput) {
@@ -40,10 +42,14 @@ public class PipelineResults {
     }
 
     public void compose(final RunMetadata metadata, final String qualifier) {
-        String name = metadata.set();
-        Folder folder = Folder.root();
-        writeMetadata(metadata, name, folder);
-        compose(name, folder, qualifier);
+        if (!isNoOp) {
+            String name = metadata.set();
+            Folder folder = Folder.root();
+            writeMetadata(metadata, name, folder);
+            compose(name, folder, qualifier);
+        } else {
+            LOGGER.info("Skipping composition as this pipeline invocation will only publish events");
+        }
     }
 
     private void compose(final String name, final Folder folder, final String qualifier) {

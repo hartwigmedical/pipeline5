@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class PipelineResultsTest {
         storage = mock(Storage.class);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
-        victim = new PipelineResults("test", storage, outputBucket);
+        victim = new PipelineResults("test", storage, outputBucket, false);
     }
 
     @Test
@@ -67,6 +68,17 @@ public class PipelineResultsTest {
         verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("set/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("set/pipeline.version");
+    }
+
+    @Test
+    public void shouldNotInteractWithBucketWhenNoOpSet() {
+        victim = new PipelineResults("test", storage, outputBucket, true);
+        victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
+                (s, r, setName) -> secondComponentRan = true)));
+        victim.compose(TestInputs.referenceRunMetadata(), "test");
+        assertThat(firstComponentRan).isFalse();
+        assertThat(secondComponentRan).isFalse();
+        verifyNoMoreInteractions(outputBucket);
     }
 
     @NotNull
