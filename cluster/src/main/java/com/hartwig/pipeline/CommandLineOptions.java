@@ -77,6 +77,7 @@ public class CommandLineOptions {
     private static final String USE_TARGET_REGIONS = "use_target_regions";
     private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
     private static final String PUBSUB_TOPIC_WORKFLOW_FLAG = "pubsub_topic_workflow";
+    private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -138,7 +139,9 @@ public class CommandLineOptions {
                 .addOption(userLabel())
                 .addOption(useTargetRegions())
                 .addOption(publishDbLoadEvent())
-                .addOption(pubsubTopicWorkflow());
+                .addOption(pubsubTopicWorkflow())
+                .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
+                        "Compute nothing, only publish events for downstream consumption"));
     }
 
     private static Option useTargetRegions() { return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode"); }
@@ -360,6 +363,7 @@ public class CommandLineOptions {
                     .useTargetRegions(booleanOptionWithDefault(commandLine, USE_TARGET_REGIONS, defaults.useTargetRegions()))
                     .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
+                    .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

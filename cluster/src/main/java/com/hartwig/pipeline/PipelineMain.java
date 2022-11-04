@@ -14,6 +14,7 @@ import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
+import com.hartwig.pipeline.execution.vm.NoOpComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.labels.Labels;
@@ -153,12 +154,12 @@ public class PipelineMain {
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) {
         final Labels labels = Labels.of(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -182,7 +183,7 @@ public class PipelineMain {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
-                        GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,

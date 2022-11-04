@@ -15,6 +15,7 @@ import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
+import com.hartwig.pipeline.execution.vm.NoOpComputeEngine;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.ApiPersistedDataset;
@@ -47,9 +48,10 @@ public abstract class AlignerProvider {
     }
 
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Labels labels)
-            throws Exception {
-        ComputeEngine computeEngine = GoogleComputeEngine.from(arguments, credentials, labels);
+            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final Labels labels) {
+        ComputeEngine computeEngine =
+                arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels);
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,
@@ -96,17 +98,14 @@ public abstract class AlignerProvider {
 
         @Override
         BwaAligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory,
-                final Labels labels) throws Exception {
-            SampleSource sampleSource = getArguments().sampleJson()
-                    .<SampleSource>map(JsonSampleSource::new)
-                    .orElse(new GoogleStorageSampleSource(storage, getArguments(), labels));
+                final Labels labels) {
+            SampleSource sampleSource =
+                    getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(storage,
+                            getArguments(),
+                            labels));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
-            return AlignerProvider.constructVmAligner(getArguments(),
-                    credentials,
-                    storage,
-                    sampleSource,
-                    sampleUpload,
+            return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload,
                     resultsDirectory,
                     labels);
         }
@@ -121,17 +120,12 @@ public abstract class AlignerProvider {
 
         @Override
         BwaAligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory,
-                final Labels labels) throws Exception {
+                final Labels labels) {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), cloudCopy);
-            return AlignerProvider.constructVmAligner(getArguments(),
-                    credentials,
-                    storage,
-                    sampleSource,
-                    sampleUpload,
-                    resultsDirectory,
+            return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory,
                     labels);
         }
     }
