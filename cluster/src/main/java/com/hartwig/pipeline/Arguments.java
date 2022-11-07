@@ -49,7 +49,7 @@ public interface Arguments extends CommonArguments {
 
     String outputBucket();
 
-    String uploadPrivateKeyPath();
+    Optional<String> uploadPrivateKeyPath();
 
     Optional<Integer> sbpApiRunId();
 
@@ -118,7 +118,7 @@ public interface Arguments extends CommonArguments {
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
-                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .privateKeyPath(Optional.empty())
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .cleanup(true)
@@ -132,7 +132,7 @@ public interface Arguments extends CommonArguments {
                     .setId(EMPTY)
                     .cmek(EMPTY)
                     .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
-                    .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .uploadPrivateKeyPath(Optional.empty())
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
@@ -182,6 +182,7 @@ public interface Arguments extends CommonArguments {
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
+                    .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
                     .cmek(DEFAULT_DEVELOPMENT_CMEK)
@@ -208,8 +209,7 @@ public interface Arguments extends CommonArguments {
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
-            return ImmutableArguments.builder()
-                    .profile(profile)
+            return ImmutableArguments.builder().profile(profile).privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputBucket(EMPTY)
                     .region(EMPTY)
                     .project(EMPTY)

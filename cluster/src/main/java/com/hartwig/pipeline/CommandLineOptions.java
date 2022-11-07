@@ -327,7 +327,7 @@ public class CommandLineOptions {
                     .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
                     .subnet(subnet(commandLine, defaults))
                     .tags(networkTags(commandLine, defaults))
-                    .uploadPrivateKeyPath(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG, defaults.uploadPrivateKeyPath()))
+                    .uploadPrivateKeyPath(uploadKeyPath(commandLine))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
@@ -494,6 +494,13 @@ public class CommandLineOptions {
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Optional<String> uploadKeyPath(final CommandLine commandLine) {
+        if (commandLine.hasOption(UPLOAD_PRIVATE_KEY_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG));
+        }
+        return Optional.empty();
     }
 
     private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)
