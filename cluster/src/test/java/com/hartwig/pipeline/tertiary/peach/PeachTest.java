@@ -73,7 +73,7 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList("/opt/tools/peach/1.6_venv/bin/python /opt/tools/peach/1.6/src/main.py "
                 + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.6 "
-                + "--outputdir /data/output --panel /opt/resources/peach/min_DPYD.json");
+                + "--outputdir /data/output --panel /opt/resources/peach/peach.json");
     }
 
     @Override
