@@ -142,7 +142,7 @@ public interface ResourceFiles {
     }
 
     default String peachFilterBed() {
-        return of(PEACH, "peach.json");
+        return of(PEACH, "min_DPYD.json");
     }
 
     default String roseActionabilityDb() {
