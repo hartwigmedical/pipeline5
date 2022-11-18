@@ -8,8 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.events.Pipeline;
-import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
@@ -139,7 +138,9 @@ public class CommandLineOptions {
                 .addOption(pubsubTopicWorkflow());
     }
 
-    private static Option useTargetRegions() { return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode"); }
+    private static Option useTargetRegions() {
+        return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode");
+    }
 
     private static Option userLabel() {
         return optionWithArg(USER_LABEL_FLAG,
@@ -292,7 +293,7 @@ public class CommandLineOptions {
 
     private static Option publishDbLoadEvent() {
         return optionWithBooleanArg(PUBLISH_DB_LOAD_EVENT_FLAG,
-                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Context.PLATINUM));
+                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Pipeline.Context.PLATINUM));
     }
 
     @NotNull
@@ -376,7 +377,7 @@ public class CommandLineOptions {
         return defaults.costCenterLabel();
     }
 
-    public static Context context(final CommandLine commandLine, final Arguments defaults) {
+    public static Pipeline.Context context(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CONTEXT_FLAG)) {
             return Pipeline.Context.valueOf(commandLine.getOptionValue(CONTEXT_FLAG));
         }

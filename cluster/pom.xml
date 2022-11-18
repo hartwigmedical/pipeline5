@@ -17,8 +17,12 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>pipeline-events</artifactId>
+            <groupId>com.hartwig.events</groupId>
+            <artifactId>events-pipeline</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hartwig.events</groupId>
+            <artifactId>events-pubsub</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hartwig.api</groupId>

@@ -2,8 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
-import com.hartwig.events.Pipeline;
-import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -108,7 +107,7 @@ public interface Arguments extends CommonArguments {
 
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
 
-    Pipeline.Context DEFAULT_CONTEXT = Context.DIAGNOSTIC;
+    Pipeline.Context DEFAULT_CONTEXT = Pipeline.Context.DIAGNOSTIC;
 
     static ImmutableArguments.Builder defaultsBuilder(final String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
@@ -209,7 +208,9 @@ public interface Arguments extends CommonArguments {
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
-            return ImmutableArguments.builder().profile(profile).privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
+            return ImmutableArguments.builder()
+                    .profile(profile)
+                    .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputBucket(EMPTY)
                     .region(EMPTY)
                     .project(EMPTY)

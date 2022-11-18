@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.events.Pipeline;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;

@@ -7,21 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
-import com.hartwig.events.Analysis;
-import com.hartwig.events.Analysis.Molecule;
-import com.hartwig.events.Analysis.Type;
-import com.hartwig.events.AnalysisOutputBlob;
-import com.hartwig.events.ImmutableAnalysis;
-import com.hartwig.events.ImmutableAnalysisOutputBlob;
-import com.hartwig.events.ImmutablePipeline;
-import com.hartwig.events.Pipeline;
-import com.hartwig.events.PipelineComplete;
+import com.hartwig.events.pipeline.Analysis;
+import com.hartwig.events.pipeline.AnalysisOutputBlob;
+import com.hartwig.events.pipeline.ImmutableAnalysis;
+import com.hartwig.events.pipeline.ImmutableAnalysisOutputBlob;
+import com.hartwig.events.pipeline.ImmutablePipeline;
+import com.hartwig.events.pipeline.Pipeline;
+import com.hartwig.events.pipeline.PipelineComplete;
+import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
@@ -45,20 +42,17 @@ public class StagedOutputPublisher {
 
     private final SetResolver setResolver;
     private final Bucket sourceBucket;
-    private final Publisher publisher;
-    private final ObjectMapper objectMapper;
+    private final EventPublisher<PipelineComplete> publisher;
     private final Optional<Run> run;
     private final Pipeline.Context context;
     private final boolean stageCrams;
     private final boolean useOnlyDBSets;
 
-    public StagedOutputPublisher(final SetResolver setResolver, final Bucket sourceBucket, final Publisher publisher,
-            final ObjectMapper objectMapper, final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams,
-            final boolean useOnlyDBSets) {
+    public StagedOutputPublisher(final SetResolver setResolver, final Bucket sourceBucket, final EventPublisher<PipelineComplete> publisher,
+            final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
         this.setResolver = setResolver;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
-        this.objectMapper = objectMapper;
         this.run = run;
         this.context = target;
         this.stageCrams = stageCrams;
@@ -72,9 +66,9 @@ public class StagedOutputPublisher {
             SampleSet set = setResolver.resolve(metadata.set(), useOnlyDBSets);
             Optional<String> tumorSampleName = metadata.maybeTumor().map(SingleSampleRunMetadata::sampleName);
             Optional<String> refSampleName = metadata.maybeReference().map(SingleSampleRunMetadata::sampleName);
-            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(Type.ALIGNMENT);
-            ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(Type.SOMATIC);
-            ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(Type.GERMLINE);
+            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(Analysis.Type.ALIGNMENT);
+            ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(Analysis.Type.SOMATIC);
+            ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(Analysis.Type.GERMLINE);
 
             OutputDataset outputDataset = new OutputDataset(sourceBucket, metadata.set());
             OutputIterator.from(blob -> {
@@ -120,7 +114,7 @@ public class StagedOutputPublisher {
 
     @NotNull
     private ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
-        return ImmutableAnalysis.builder().molecule(Molecule.DNA).type(secondary);
+        return ImmutableAnalysis.builder().molecule(Analysis.Molecule.DNA).type(secondary);
     }
 
     private boolean isSecondary(final Blob blobWithMd5) {
@@ -145,7 +139,7 @@ public class StagedOutputPublisher {
 
     public void publish(final PipelineComplete event) {
         if (event.pipeline().analyses().stream().map(Analysis::output).mapToLong(List::size).sum() > 0) {
-            event.publish(publisher, objectMapper);
+            publisher.publish(event);
         }
     }
 

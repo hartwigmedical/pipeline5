@@ -11,14 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.core.ApiFuture;
 import com.google.api.gax.paging.Page;
-import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.google.pubsub.v1.PubsubMessage;
 import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
@@ -29,17 +25,17 @@ import com.hartwig.api.model.SampleStatus;
 import com.hartwig.api.model.SampleType;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
-import com.hartwig.events.Analysis;
-import com.hartwig.events.Analysis.Molecule;
-import com.hartwig.events.AnalysisOutputBlob;
-import com.hartwig.events.Pipeline.Context;
-import com.hartwig.events.PipelineComplete;
+import com.hartwig.events.pipeline.Analysis;
+import com.hartwig.events.pipeline.Analysis.Molecule;
+import com.hartwig.events.pipeline.AnalysisOutputBlob;
+import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.events.pipeline.Pipeline.Context;
+import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -69,7 +65,7 @@ public class ResearchMetadataApiTest {
     private RunApi runApi;
     private Run run;
     private Bucket bucket;
-    private Publisher publisher;
+    private EventPublisher<PipelineComplete> publisher;
     private SetResolver setResolver;
 
     @Before
@@ -80,8 +76,7 @@ public class ResearchMetadataApiTest {
         when(bucket.getName()).thenReturn("bucket");
         runApi = mock(RunApi.class);
         run = new Run().id(RUN_ID).version("5.28.6");
-        publisher = mock(Publisher.class);
-        ObjectMapper objectMapper = ObjectMappers.get();
+        publisher = mock(EventPublisher.class);
         setResolver = mock(SetResolver.class);
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
@@ -89,7 +84,7 @@ public class ResearchMetadataApiTest {
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setResolver, bucket, publisher, objectMapper, Optional.of(run), Context.RESEARCH, false, true),
+                new StagedOutputPublisher(setResolver, bucket, publisher, Optional.of(run), Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -138,7 +133,7 @@ public class ResearchMetadataApiTest {
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(mock(SetResolver.class), bucket, publisher, ObjectMappers.get(), Optional.of(run), Context.RESEARCH, true, true),
+                new StagedOutputPublisher(mock(SetResolver.class), bucket, publisher, Optional.of(run), Context.RESEARCH, true, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
@@ -151,11 +146,8 @@ public class ResearchMetadataApiTest {
 
     @Test
     public void publishesPipelineStagedEventOnCompletion() throws Exception {
-        ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = pipelineCompleteWithFile("set/purple/tumor.purple.somatic.vcf.gz",
+        PipelineComplete result = pipelineCompleteWithFile("set/purple/tumor.purple.somatic.vcf.gz",
                 TestOutput.builder().status(PipelineStatus.SUCCESS).build());
-
-        PipelineComplete result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
         assertThat(result.pipeline().runId()).isEqualTo(1);
         assertThat(result.pipeline().setId()).isEqualTo(SET_ID);
         assertThat(result.pipeline().sample()).isEqualTo("tumor");
@@ -175,11 +167,8 @@ public class ResearchMetadataApiTest {
 
     @Test
     public void publishesPipelineStagedEventOnCompletionSingleSampleFile() throws Exception {
-        ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = pipelineCompleteWithFile("set/reference/aligner/reference.bam",
+        PipelineComplete result = pipelineCompleteWithFile("set/reference/aligner/reference.bam",
                 TestOutput.builder().status(PipelineStatus.SUCCESS).build());
-
-        PipelineComplete result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
         Analysis analysis = result.pipeline().analyses().get(0);
         assertThat(analysis.molecule()).isEqualTo(Molecule.DNA);
         AnalysisOutputBlob blobResult = analysis.output().get(0);
@@ -191,12 +180,8 @@ public class ResearchMetadataApiTest {
     }
 
     @Test
-    public void publishesPipelineStagedEventOnCompletionRootFile() throws Exception {
-        ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor =
-                pipelineCompleteWithFile("set/run.log", TestOutput.builder().status(PipelineStatus.SUCCESS).build());
-
-        PipelineComplete result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
+    public void publishesPipelineStagedEventOnCompletionRootFile() {
+        PipelineComplete result = pipelineCompleteWithFile("set/run.log", TestOutput.builder().status(PipelineStatus.SUCCESS).build());
         Analysis analysis = result.pipeline().analyses().get(1);
         assertThat(analysis.molecule()).isEqualTo(Molecule.DNA);
         AnalysisOutputBlob blobResult = analysis.output().get(0);
@@ -209,16 +194,13 @@ public class ResearchMetadataApiTest {
 
     @Test
     public void publishesPipelineStagedEventOnCompletionWithDataType() throws Exception {
-        ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = pipelineCompleteWithFile("set/purple/tumor.purple.somatic.vcf.gz",
+        PipelineComplete result = pipelineCompleteWithFile("set/purple/tumor.purple.somatic.vcf.gz",
                 TestOutput.builder()
                         .status(PipelineStatus.SUCCESS)
                         .addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                                 "tumor",
                                 new ArchivePath(Folder.root(), "purple", "tumor.purple.somatic.vcf.gz")))
                         .build());
-
-        PipelineComplete result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
         AnalysisOutputBlob blobResult = result.pipeline().analyses().get(1).output().get(0);
         assertThat(blobResult.datatype()).hasValue("SOMATIC_VARIANTS_PURPLE");
     }
@@ -271,10 +253,10 @@ public class ResearchMetadataApiTest {
     }
 
     @NotNull
-    public ArgumentCaptor<PubsubMessage> pipelineCompleteWithFile(final String s, final StageOutput stageOutput) {
+    public PipelineComplete pipelineCompleteWithFile(final String s, final StageOutput stageOutput) {
         PipelineState state = new PipelineState();
         state.add(stageOutput);
-        ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
+        ArgumentCaptor<PipelineComplete> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PipelineComplete.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
         when(setResolver.resolve(metadata.set(), true)).thenReturn(new SampleSet().id(SET_ID));
         Blob outputBlob = mock(Blob.class);
@@ -285,9 +267,8 @@ public class ResearchMetadataApiTest {
         when(bucket.get(s)).thenReturn(outputBlob);
         Page<Blob> page = TestBlobs.pageOf(outputBlob);
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
-        //noinspection unchecked
-        when(publisher.publish(pubsubMessageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
         victim.complete(state, metadata);
-        return pubsubMessageArgumentCaptor;
+        verify(publisher).publish(pubsubMessageArgumentCaptor.capture());
+        return pubsubMessageArgumentCaptor.getValue();
     }
 }

@@ -7,7 +7,9 @@ import java.util.concurrent.Executors;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
-import com.hartwig.events.PipelineComplete;
+import com.hartwig.events.EventContext;
+import com.hartwig.events.pipeline.PipelineComplete;
+import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
@@ -56,17 +58,23 @@ public class PipelineMain {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
-            String topic = arguments.pubsubTopicWorkflow().map(tw -> tw + ".").orElse("") + PipelineComplete.TOPIC;
-            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(topic);
-            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
+            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments,
+                    storage,
+                    new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
+                            EventContext.builder()
+                                    .environment("prod-1")
+                                    .workflow(arguments.pubsubTopicWorkflow().orElse("analysis"))
+                                    .build(),
+                            new PipelineComplete.EventDescriptor())).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
-            PipelineProperties eventSubjects =
-                    PipelineProperties.builder().sample(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::sampleName)
+            PipelineProperties eventSubjects = PipelineProperties.builder()
+                    .sample(somaticRunMetadata.maybeTumor()
+                            .map(SingleSampleRunMetadata::sampleName)
                             .orElseGet(() -> somaticRunMetadata.reference().sampleName()))
                     .runId(arguments.sbpApiRunId())
                     .set(somaticRunMetadata.set())
