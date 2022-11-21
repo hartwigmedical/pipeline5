@@ -31,13 +31,12 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx31G -jar /opt/tools/sage/3.2/sage.jar "
+                "java -Xmx31G -jar /opt/tools/sage/3.2.2/sage.jar "
                         + "-tumor reference -tumor_bam /data/input/reference.bam "
                         + "-reference tumor -reference_bam /data/input/tumor.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-hotspot_min_tumor_qual 50 -panel_min_tumor_qual 75 -hotspot_max_germline_vaf 100 "
                         + "-hotspot_max_germline_rel_raw_base_qual 100 -panel_max_germline_vaf 100 -panel_max_germline_rel_raw_base_qual 100 "
-                        + "-mnv_filter_enabled false "
                         + "-panel_only "
                         + "-ref_sample_count 0 "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "
