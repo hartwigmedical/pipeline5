@@ -44,6 +44,7 @@ import com.hartwig.pipeline.turquoise.PipelineStarted;
 import com.hartwig.pipeline.turquoise.TurquoiseEvent;
 
 import org.apache.commons.cli.ParseException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +61,11 @@ public class PipelineMain {
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments,
                     storage,
-                    new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
+                    () -> new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
                             EventContext.builder()
-                                    .environment("prod-1")
-                                    .workflow(arguments.pubsubTopicWorkflow().orElse("analysis"))
+                                    .environment(arguments.pubsubTopicEnvironment()
+                                            .orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                                    .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
                                     .build(),
                             new PipelineComplete.EventDescriptor())).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
@@ -141,6 +143,11 @@ public class PipelineMain {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull
+    private static IllegalStateException missingPubsubArgumentsException() {
+        return new IllegalStateException("Cannot start pipeline with event publishing unless project, environment and workflow are defined");
     }
 
     public void publish(final TurquoiseEvent turquoiseEvent, final boolean publish) {

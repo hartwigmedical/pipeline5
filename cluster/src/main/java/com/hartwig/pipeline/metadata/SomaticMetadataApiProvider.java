@@ -21,16 +21,17 @@ public class SomaticMetadataApiProvider {
 
     private final Arguments arguments;
     private final Storage storage;
-    private final EventPublisher<PipelineComplete> publisher;
+    private final Supplier<EventPublisher<PipelineComplete>> publisher;
 
-    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage, final EventPublisher<PipelineComplete> publisher) {
+    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage,
+            final Supplier<EventPublisher<PipelineComplete>> publisher) {
         this.arguments = arguments;
         this.storage = storage;
         this.publisher = publisher;
     }
 
     public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage,
-            final EventPublisher<PipelineComplete> publisher) {
+            final Supplier<EventPublisher<PipelineComplete>> publisher) {
         return new SomaticMetadataApiProvider(arguments, storage, publisher);
     }
 
@@ -46,7 +47,7 @@ public class SomaticMetadataApiProvider {
                 arguments.sampleJson()
                         .map(JsonSampleSource::new)
                         .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")),
-                createPublisher(SetResolver.forLocal(), Optional.of(new Run().id(0L)), Pipeline.Context.PLATINUM, false));
+                () -> createPublisher(SetResolver.forLocal(), Optional.of(new Run().id(0L)), Pipeline.Context.PLATINUM, false));
     }
 
     public SomaticMetadataApi researchRun(final String biopsyName) {
@@ -78,6 +79,6 @@ public class SomaticMetadataApiProvider {
     private StagedOutputPublisher createPublisher(final SetResolver setResolver, final Optional<Run> run, final Pipeline.Context context,
             final boolean useOnlyDBSets) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
-        return new StagedOutputPublisher(setResolver, sourceBucket, publisher, run, context, arguments.outputCram(), useOnlyDBSets);
+        return new StagedOutputPublisher(setResolver, sourceBucket, publisher.get(), run, context, arguments.outputCram(), useOnlyDBSets);
     }
 }
