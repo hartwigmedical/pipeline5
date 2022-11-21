@@ -3,16 +3,15 @@ package com.hartwig.pipeline.metadata;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.model.Run;
-import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.pipeline.Pipeline;
+import com.hartwig.events.pipeline.PipelineComplete;
+import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.transfer.staged.SetResolver;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
@@ -22,15 +21,17 @@ public class SomaticMetadataApiProvider {
 
     private final Arguments arguments;
     private final Storage storage;
-    private final Publisher publisher;
+    private final Supplier<EventPublisher<PipelineComplete>> publisher;
 
-    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage, final Publisher publisher) {
+    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage,
+            final Supplier<EventPublisher<PipelineComplete>> publisher) {
         this.arguments = arguments;
         this.storage = storage;
         this.publisher = publisher;
     }
 
-    public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage, final Publisher publisher) {
+    public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage,
+            final Supplier<EventPublisher<PipelineComplete>> publisher) {
         return new SomaticMetadataApiProvider(arguments, storage, publisher);
     }
 
@@ -46,7 +47,7 @@ public class SomaticMetadataApiProvider {
                 arguments.sampleJson()
                         .map(JsonSampleSource::new)
                         .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")),
-                createPublisher(SetResolver.forLocal(), Optional.of(new Run().id(0L)), Context.PLATINUM, false));
+                () -> createPublisher(SetResolver.forLocal(), Optional.of(new Run().id(0L)), Pipeline.Context.PLATINUM, false));
     }
 
     public SomaticMetadataApi researchRun(final String biopsyName) {
@@ -58,7 +59,10 @@ public class SomaticMetadataApiProvider {
                 run,
                 biopsyName,
                 arguments,
-                createPublisher(SetResolver.forApi(api.sets()), run.or(() -> Optional.of(new Run().id(0L))), Context.RESEARCH, true),
+                createPublisher(SetResolver.forApi(api.sets()),
+                        run.or(() -> Optional.of(new Run().id(0L))),
+                        Pipeline.Context.RESEARCH,
+                        true),
                 new Anonymizer(arguments));
     }
 
@@ -72,17 +76,9 @@ public class SomaticMetadataApiProvider {
                 new Anonymizer(arguments));
     }
 
-    private StagedOutputPublisher createPublisher(final SetResolver setResolver, final Optional<Run> run, final Context context,
+    private StagedOutputPublisher createPublisher(final SetResolver setResolver, final Optional<Run> run, final Pipeline.Context context,
             final boolean useOnlyDBSets) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
-        ObjectMapper objectMapper = ObjectMappers.get();
-        return new StagedOutputPublisher(setResolver,
-                sourceBucket,
-                publisher,
-                objectMapper,
-                run,
-                context,
-                arguments.outputCram(),
-                useOnlyDBSets);
+        return new StagedOutputPublisher(setResolver, sourceBucket, publisher.get(), run, context, arguments.outputCram(), useOnlyDBSets);
     }
 }

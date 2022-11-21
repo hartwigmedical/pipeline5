@@ -36,7 +36,7 @@
         <htsjdk.version>2.22.0</htsjdk.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <google-api-services-serviceusage.version>v1beta1-rev20200804-1.30.10</google-api-services-serviceusage.version>
-        <pipeline-events.version>2.2.1</pipeline-events.version>
+        <events.version>1.0.0</events.version>
         <java-client.version>1.12.0</java-client.version>
         <compar.version>1.0.0</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
@@ -66,9 +66,14 @@
             </dependency>
 
             <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>pipeline-events</artifactId>
-                <version>${pipeline-events.version}</version>
+                <groupId>com.hartwig.events</groupId>
+                <artifactId>events-pipeline</artifactId>
+                <version>${events.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hartwig.events</groupId>
+                <artifactId>events-pubsub</artifactId>
+                <version>${events.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hartwig.api</groupId>
@@ -267,6 +272,11 @@
                 <artifactId>google-storage-wagon</artifactId>
                 <version>1.0</version>
             </extension>
+            <extension>
+                <groupId>com.google.cloud.artifactregistry</groupId>
+                <artifactId>artifactregistry-maven-wagon</artifactId>
+                <version>2.1.0</version>
+            </extension>
         </extensions>
         <plugins>
             <plugin>
@@ -337,6 +347,16 @@
         <repository>
             <id>hmf-maven-repository-release</id>
             <url>gs://hmf-maven-repository/release</url>
+        </repository>
+        <repository>
+            <id>artifact-registry</id>
+            <url>artifactregistry://europe-west4-maven.pkg.dev/hmf-build/hmf-maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

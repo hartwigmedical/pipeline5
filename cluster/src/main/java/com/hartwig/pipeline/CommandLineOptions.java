@@ -8,8 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.events.Pipeline;
-import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
@@ -76,6 +75,7 @@ public class CommandLineOptions {
     private static final String USE_TARGET_REGIONS = "use_target_regions";
     private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
     private static final String PUBSUB_TOPIC_WORKFLOW_FLAG = "pubsub_topic_workflow";
+    private static final String PUBSUB_TOPIC_ENVIRONMENT_FLAG = "pubsub_topic_environment";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -136,10 +136,13 @@ public class CommandLineOptions {
                 .addOption(userLabel())
                 .addOption(useTargetRegions())
                 .addOption(publishDbLoadEvent())
-                .addOption(pubsubTopicWorkflow());
+                .addOption(pubsubTopicWorkflow())
+                .addOption(pubsubTopicEnvironment());
     }
 
-    private static Option useTargetRegions() { return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode"); }
+    private static Option useTargetRegions() {
+        return optionWithBooleanArg(USE_TARGET_REGIONS, "Enable target-regions mode");
+    }
 
     private static Option userLabel() {
         return optionWithArg(USER_LABEL_FLAG,
@@ -166,7 +169,11 @@ public class CommandLineOptions {
     }
 
     private static Option pubsubTopicWorkflow() {
-        return optionWithArg(PUBSUB_TOPIC_WORKFLOW_FLAG, "Workflow to prefix to the pub/sub topic");
+        return optionWithArg(PUBSUB_TOPIC_WORKFLOW_FLAG, "Workflow to use in the pub/sub event context (ie analysis, verification)");
+    }
+
+    private static Option pubsubTopicEnvironment() {
+        return optionWithArg(PUBSUB_TOPIC_ENVIRONMENT_FLAG, "Environment to use in the pub/sub event context (ie prod-1, protect)");
     }
 
     private static Option useCrams() {
@@ -292,7 +299,7 @@ public class CommandLineOptions {
 
     private static Option publishDbLoadEvent() {
         return optionWithBooleanArg(PUBLISH_DB_LOAD_EVENT_FLAG,
-                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Context.PLATINUM));
+                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Pipeline.Context.PLATINUM));
     }
 
     @NotNull
@@ -353,6 +360,7 @@ public class CommandLineOptions {
                     .useTargetRegions(booleanOptionWithDefault(commandLine, USE_TARGET_REGIONS, defaults.useTargetRegions()))
                     .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
+                    .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -376,7 +384,7 @@ public class CommandLineOptions {
         return defaults.costCenterLabel();
     }
 
-    public static Context context(final CommandLine commandLine, final Arguments defaults) {
+    public static Pipeline.Context context(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CONTEXT_FLAG)) {
             return Pipeline.Context.valueOf(commandLine.getOptionValue(CONTEXT_FLAG));
         }
@@ -393,6 +401,13 @@ public class CommandLineOptions {
     public static Optional<String> pubsubTopicWorkflow(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(PUBSUB_TOPIC_WORKFLOW_FLAG)) {
             return Optional.of(commandLine.getOptionValue(PUBSUB_TOPIC_WORKFLOW_FLAG));
+        }
+        return defaults.pubsubTopicWorkflow();
+    }
+
+    public static Optional<String> pubsubTopicEnvironment(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(PUBSUB_TOPIC_ENVIRONMENT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBSUB_TOPIC_ENVIRONMENT_FLAG));
         }
         return defaults.pubsubTopicWorkflow();
     }

@@ -11,7 +11,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
@@ -99,7 +99,7 @@ public class SmokeTest {
                 .runId(randomRunId)
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
-                .context(Context.DIAGNOSTIC)
+                .context(Pipeline.Context.DIAGNOSTIC)
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion);
 

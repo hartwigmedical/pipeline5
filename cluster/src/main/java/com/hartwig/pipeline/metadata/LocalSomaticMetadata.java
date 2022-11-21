@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
@@ -14,9 +15,10 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
 
     private final Arguments arguments;
     private final JsonSampleSource jsonSampleSource;
-    private final StagedOutputPublisher stagedOutputPublisher;
+    private final Supplier<StagedOutputPublisher> stagedOutputPublisher;
 
-    LocalSomaticMetadata(final Arguments arguments, final JsonSampleSource jsonSampleSource, final StagedOutputPublisher stagedOutputPublisher) {
+    LocalSomaticMetadata(final Arguments arguments, final JsonSampleSource jsonSampleSource,
+            final Supplier<StagedOutputPublisher> stagedOutputPublisher) {
         this.arguments = arguments;
         this.jsonSampleSource = jsonSampleSource;
         this.stagedOutputPublisher = stagedOutputPublisher;
@@ -52,7 +54,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     @Override
     public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
         if (arguments.publishDbLoadEvent()) {
-            stagedOutputPublisher.publish(state, metadata);
+            stagedOutputPublisher.get().publish(state, metadata);
         }
     }
 

@@ -40,7 +40,9 @@ public class LocalSomaticMetadataTest {
         tumorSample = mock(Sample.class);
         final Sample refSample = mock(Sample.class);
         stagedOutputPublisher = mock(StagedOutputPublisher.class);
-        victim = new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).build(), jsonSampleSource, stagedOutputPublisher);
+        victim = new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).build(),
+                jsonSampleSource,
+                () -> stagedOutputPublisher);
         when(jsonSampleSource.sample(SampleType.REFERENCE)).thenReturn(Optional.of(refSample));
         when(tumorSample.name()).thenReturn(tumorName);
         when(refSample.name()).thenReturn(refName);
@@ -90,14 +92,16 @@ public class LocalSomaticMetadataTest {
         PipelineState state = mock(PipelineState.class);
         SomaticRunMetadata metadata = mock(SomaticRunMetadata.class);
         new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishDbLoadEvent(true).build(),
-                jsonSampleSource, stagedOutputPublisher).complete(state, metadata);
+                jsonSampleSource,
+                () -> stagedOutputPublisher).complete(state, metadata);
         verify(stagedOutputPublisher).publish(state, metadata);
     }
 
     @Test
     public void doesNotPublishesEventIfNotSpecifiedInArguments() {
         new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishDbLoadEvent(false).build(),
-                jsonSampleSource, stagedOutputPublisher).complete(mock(PipelineState.class), mock(SomaticRunMetadata.class));
+                jsonSampleSource,
+                () -> stagedOutputPublisher).complete(mock(PipelineState.class), mock(SomaticRunMetadata.class));
         verify(stagedOutputPublisher, never()).publish(any(), any());
     }
 }
