@@ -124,7 +124,6 @@ public class SageCommandBuilder {
             arguments.add("-hotspot_max_germline_rel_raw_base_qual 100");
             arguments.add("-panel_max_germline_vaf 100");
             arguments.add("-panel_max_germline_rel_raw_base_qual 100");
-            arguments.add("-mnv_filter_enabled false");
             arguments.add("-panel_only");
             arguments.add("-ref_sample_count 0");
         }
