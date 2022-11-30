@@ -169,6 +169,6 @@ if [[ -n $pubsub_topic ]]; then
     [[ -n $pubsub_project ]] && extra_args="--project $pubsub_project"
     echo "Publishing completion message to topic ${pubsub_topic}"
     msg="$(echo "{'created_image': '${dest_image}'}" | tr "'" '"')"
-    gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${extra_args} "${attribute_args}"
+    gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${attribute_args} ${extra_args}
 fi
 
