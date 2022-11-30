@@ -26,6 +26,7 @@ Optional arguments:
   --non-interactive             Script is being run non-interactively so skip warnings and prompts when possible.
   --pubsub-topic                Topic upon which to publish completion message. Uses current project if none specified.
   --pubsub-project              Project to use for pubsub topic, optional even if topic is provided.
+  --pubsub-attributes           Attributes in the form [[key1=value1][,key2=value2]...] passed to by the gcloud publish call.
 EOM
 }
 
@@ -36,13 +37,14 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project: -- "$@")
+args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes: -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
 use_sha1_for_suffix=""
 pubsub_topic=""
 pubsub_project=""
+pubsub_attributes=""
 
 while true; do
     case "$1" in
@@ -52,9 +54,17 @@ while true; do
         --non-interactive) non_interactive=true; shift 1 ;;
         --pubsub-topic) pubsub_topic=$2; shift 2 ;;
         --pubsub-project) pubsub_project=$2; shift 2 ;;
+        --pubsub-attributes) pubsub_attributes=$2; shift 2 ;;
         --) shift; break ;;
     esac
 done
+
+attribute_args=""
+if [[ -n $pubsub_attributes ]]; then
+    while read pair; do
+        attribute_args="$attribute_args --attribute=${pair%=*}=\"${pair#*=}\""
+    done <<< "$(echo ${pubsub_attributes} | tr ',' '\n')"
+fi
 
 suffix="$(date +%Y%m%d%H%M)"
 [[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
@@ -156,9 +166,9 @@ gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJE
 
 
 if [[ -n $pubsub_topic ]]; then
-    [[ -n $pubsub_project ]] && extraArgs="--project $pubsub_project"
+    [[ -n $pubsub_project ]] && extra_args="--project $pubsub_project"
     echo "Publishing completion message to topic ${pubsub_topic}"
     msg="$(echo "{'created_image': '${dest_image}'}" | tr "'" '"')"
-    gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${extraArgs} 
+    gcloud pubsub topics publish ${pubsub_topic} --message="${msg}" ${extra_args} "${attribute_args}"
 fi
 
