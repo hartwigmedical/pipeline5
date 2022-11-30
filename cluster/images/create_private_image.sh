@@ -61,9 +61,7 @@ done
 
 attribute_args=""
 if [[ -n $pubsub_attributes ]]; then
-    while read pair; do
-        attribute_args="$attribute_args --attribute=${pair%=*}=\"${pair#*=}\""
-    done <<< "$(echo ${pubsub_attributes} | tr ',' '\n')"
+    attribute_args="--attribute ${pubsub_attributes}"
 fi
 
 suffix="$(date +%Y%m%d%H%M)"
@@ -163,7 +161,6 @@ gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
     --storage-location=$LOCATION --project=$DEST_PROJECT
 gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJECT
-
 
 if [[ -n $pubsub_topic ]]; then
     [[ -n $pubsub_project ]] && extra_args="--project $pubsub_project"
