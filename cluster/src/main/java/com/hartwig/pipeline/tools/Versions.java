@@ -16,7 +16,7 @@ public interface Versions {
     String COBALT = "1.13";
     String CUPPA = "1.7.1";
     String GRIDSS = "2.13.2";
-    String GRIPSS = "2.3";
+    String GRIPSS = "2.3.2";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
     String LINX = "1.22";
