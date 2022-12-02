@@ -74,8 +74,8 @@ public class CommandLineOptions {
     private static final String USER_LABEL_FLAG = "user_label";
     private static final String USE_TARGET_REGIONS = "use_target_regions";
     private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
-    private static final String PUBSUB_TOPIC_WORKFLOW_FLAG = "pubsub_topic_workflow";
-    private static final String PUBSUB_TOPIC_ENVIRONMENT_FLAG = "pubsub_topic_environment";
+    private static final String PUBSUB_WORKFLOW_FLAG = "pubsub_workflow";
+    private static final String PUBSUB_ENVIRONMENT_FLAG = "pubsub_environment";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -169,11 +169,11 @@ public class CommandLineOptions {
     }
 
     private static Option pubsubTopicWorkflow() {
-        return optionWithArg(PUBSUB_TOPIC_WORKFLOW_FLAG, "Workflow to use in the pub/sub event context (ie analysis, verification)");
+        return optionWithArg(PUBSUB_WORKFLOW_FLAG, "Workflow to use in the pub/sub event context (ie analysis, verification)");
     }
 
     private static Option pubsubTopicEnvironment() {
-        return optionWithArg(PUBSUB_TOPIC_ENVIRONMENT_FLAG, "Environment to use in the pub/sub event context (ie prod-1, protect)");
+        return optionWithArg(PUBSUB_ENVIRONMENT_FLAG, "Environment to use in the pub/sub event context (ie prod-1, protect)");
     }
 
     private static Option useCrams() {
@@ -399,15 +399,15 @@ public class CommandLineOptions {
     }
 
     public static Optional<String> pubsubTopicWorkflow(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PUBSUB_TOPIC_WORKFLOW_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PUBSUB_TOPIC_WORKFLOW_FLAG));
+        if (commandLine.hasOption(PUBSUB_WORKFLOW_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBSUB_WORKFLOW_FLAG));
         }
         return defaults.pubsubTopicWorkflow();
     }
 
     public static Optional<String> pubsubTopicEnvironment(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PUBSUB_TOPIC_ENVIRONMENT_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PUBSUB_TOPIC_ENVIRONMENT_FLAG));
+        if (commandLine.hasOption(PUBSUB_ENVIRONMENT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBSUB_ENVIRONMENT_FLAG));
         }
         return defaults.pubsubTopicWorkflow();
     }
