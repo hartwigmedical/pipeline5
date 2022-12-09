@@ -56,7 +56,7 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
     protected List<String> expectedCommands() {
         return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.2/gripss.jar "
                 + "-sample reference "
-                + "-output_id germline "
+                + "-germline -output_id germline "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "

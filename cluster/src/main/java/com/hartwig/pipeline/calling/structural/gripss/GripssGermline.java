@@ -46,6 +46,7 @@ public class GripssGermline extends Gripss {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.reference().sampleName()));
+        arguments.add("-germline");
         arguments.add("-output_id germline");
         arguments.addAll(commonArguments());
 
