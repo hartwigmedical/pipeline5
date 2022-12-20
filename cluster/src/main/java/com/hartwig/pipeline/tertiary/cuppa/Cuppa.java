@@ -46,6 +46,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
+    public static final String CUP_REPORT = "_cup_report.pdf";
     public static final String NAMESPACE = "cuppa";
 
     private final InputDownload purpleOutputDirectory;
@@ -154,6 +155,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
     }
 
+    private String cuppaReport(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUP_REPORT;
+    }
+
     private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
     }
@@ -213,7 +218,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         new ArchivePath(Folder.root(), namespace(), cupDataCsv(metadata))),
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))));
+                        new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
+                new AddDatatype(DataType.CUPPA_REPORT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), cuppaReport(metadata))));
     }
 
     @Override
