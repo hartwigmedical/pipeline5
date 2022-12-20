@@ -112,7 +112,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name(name)
                 .startupCommand(startupScript)
-                .performanceProfile(custom(4, 24))
+                .performanceProfile(custom(8, 40))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

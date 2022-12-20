@@ -61,7 +61,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     protected List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand("gripss", Versions.GRIPSS, "gripss.jar", "16G", arguments));
+        commands.add(new JavaJarCommand("gripss", Versions.GRIPSS, "gripss.jar", "31G", arguments));
         return commands;
     }
 
