@@ -5,7 +5,7 @@ set -o pipefail
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-VERSION=5-31
+VERSION=5-32
 
 tools_only=false
 

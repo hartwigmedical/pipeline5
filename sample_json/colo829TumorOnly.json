@@ -1,0 +1,28 @@
+{
+  "tumor": {
+    "type": "TUMOR",
+    "name": "COLO829v003T",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "2",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R2_001.fastq.gz"
+      }
+    ]
+  }
+}
