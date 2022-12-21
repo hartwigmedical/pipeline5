@@ -86,6 +86,8 @@ public interface Arguments extends CommonArguments {
 
     Pipeline.Context context();
 
+    boolean publishEventsOnly();
+
     static String workingDir() {
         return System.getProperty("user.dir");
     }
@@ -94,8 +96,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
-
-    String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
+    
     String DEFAULT_DOCKER_UPLOAD_KEY_PATH = "/secrets/upload-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
@@ -136,6 +137,7 @@ public interface Arguments extends CommonArguments {
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .publishDbLoadEvent(false)
+                    .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -165,6 +167,7 @@ public interface Arguments extends CommonArguments {
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .publishDbLoadEvent(false)
+                    .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -200,6 +203,7 @@ public interface Arguments extends CommonArguments {
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .publishDbLoadEvent(false)
+                    .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -231,6 +235,7 @@ public interface Arguments extends CommonArguments {
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .publishDbLoadEvent(false)
+                    .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
