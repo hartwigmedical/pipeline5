@@ -76,6 +76,7 @@ public class CommandLineOptions {
     private static final String PUBLISH_DB_LOAD_EVENT_FLAG = "publish_db_load_event";
     private static final String PUBSUB_WORKFLOW_FLAG = "pubsub_workflow";
     private static final String PUBSUB_ENVIRONMENT_FLAG = "pubsub_environment";
+    private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -137,7 +138,9 @@ public class CommandLineOptions {
                 .addOption(useTargetRegions())
                 .addOption(publishDbLoadEvent())
                 .addOption(pubsubTopicWorkflow())
-                .addOption(pubsubTopicEnvironment());
+                .addOption(pubsubTopicEnvironment())
+                .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
+                        "Compute nothing, only publish events for downstream consumption"));
     }
 
     private static Option useTargetRegions() {
@@ -361,6 +364,7 @@ public class CommandLineOptions {
                     .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
                     .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
+                    .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
