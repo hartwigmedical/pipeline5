@@ -28,6 +28,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     private static final String TUMOR_CUP_DATA_CSV = "tumor.cup.data.csv";
     private static final String TUMOR_CUP_REPORT_SUMMARY_PNG = "tumor.cup.report.summary.png";
     private static final String TUMOR_CUPPA_CHART_PNG = "tumor.cuppa.chart.png";
+    private static final String TUMOR_CUP_REPORT = "tumor_cup_report.pdf";
 
     @Override
     public void disabledAppropriately() {
@@ -55,7 +56,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_FEATURE_PNG)),
                 new AddDatatype(DataType.CUPPA_CHART,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUPPA_CHART_PNG)));
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUPPA_CHART_PNG)),
+                new AddDatatype(DataType.CUPPA_REPORT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT)));
     }
 
     @Override
@@ -69,16 +73,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.7.1/cuppa.jar "
-                        + "-categories DNA "
-                        + "-ref_data_dir /opt/resources/cuppa/ "
-                        + "-sample_data tumor "
-                        + "-sample_data_dir /data/input/results "
-                        + "-output_dir /data/output",
-                "/opt/tools/cuppa-chart/1.7.1_venv/bin/python /opt/tools/cuppa-chart/1.7.1/cuppa-chart.py "
-                        + "-sample tumor "
-                        + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV
-                        + " -output_dir /data/output",
+        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.7.1/cuppa.jar " + "-categories DNA " + "-ref_data_dir /opt/resources/cuppa/ "
+                        + "-sample_data tumor " + "-sample_data_dir /data/input/results " + "-output_dir /data/output",
+                "/opt/tools/cuppa-chart/1.7.1_venv/bin/python /opt/tools/cuppa-chart/1.7.1/cuppa-chart.py " + "-sample tumor "
+                        + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV + " -output_dir /data/output",
                 "Rscript /opt/tools/cuppa/1.7.1/CupGenerateReport_pipeline.R tumor /data/output/");
     }
 
@@ -135,7 +133,6 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     protected List<String> expectedInputs() {
         return List.of(input(expectedRuntimeBucketName() + "/purple/results/", "results"),
                 input(expectedRuntimeBucketName() + "/linx/results/", "results"),
-                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv",
-                        "tumor.virus.annotated.tsv"));
+                input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"));
     }
 }
