@@ -70,10 +70,21 @@
                 <artifactId>events-pipeline</artifactId>
                 <version>${events.version}</version>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.hartwig.events</groupId>-->
+<!--                <artifactId>events-pubsub</artifactId>-->
+<!--                <version>${events.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.hartwig.events</groupId>
                 <artifactId>events-pubsub</artifactId>
                 <version>${events.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.hartwig.api</groupId>
