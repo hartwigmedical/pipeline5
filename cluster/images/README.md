@@ -1,29 +1,72 @@
 ## What is this?
 
-These are scripts and data for creating new base images for use in running PipelineV5 VMs on GCP. Instances are controlled via the
-code in this repository. 
+These are scripts and data for creating new base images for use in running PipelineV5 VMs on GCP. A base image is
+the image used in VM creation during stage execution. In other words, it is the image used by 
 
 ## Usage
 
-1. Amend the `tools.cmds` and/or `base.cmds` files. If you are only creating a custom image, provide the `-f` argument to read
-   overrides out of a bucket.
-1. *If you are updating R dependencies*, probably best to rebuild them on a clean VM:
-     * Create a new VM from the existing standard image
-     * Amend the `installDependencies.R` file, copy it to the VM, run it. This will take quite some time probably.
-     * `tar` up the contents of the `R` system libraries and push those to the bucket. To be safe include the contents of all the
-         libraries, find them by running `.libPaths()` at an R prompt, eg:
-         `tar cvf /data/rlibs-merged.tar /usr/local/lib/R/site-library /usr/lib/R/site-library /usr/lib/R/library`
-1. Run `create_public_image.sh` to make the image.
-1. When done delete the VM instance that is created for imaging as the script uses a static name for the VM and will fail fast
-   if the VM already exists when it is next invoked.
+### Creating a public image
 
-## Notes
+A public image contains all tools and resources with no licensing or confidentiality restriction. To create one
+run the following from this directory.
 
-* Successive runs of the script produce a new image in the same family including a timestamp in the name. As of this writing our
-  VM bootstrap code will create a VM from the latest image in the family (based upon its creation time, not its filename, though
-  both should be the same image).
-* There is also a R dependencies installation script here, used to build all the R dependencies needed by various components. It 
-    can be manually invoked on a VM if/when the R libraries need to be updated. Further usage notes are in the script itself.
-* GCP will automatically resize the filesystem of a created instance to the size requested at *VM* creation time, and this does not 
-    depend on the size of the image its filesystem is being initialised from. This works at least for the images based on the Debian 
-    9 series that we're using and maybe others. 
+```shell
+./create_public_image.sh
+```
+
+The image will be named for the current version in development, along with a timestamp of creation. 
+
+### Creating a public image with overrides
+
+Creating a public image will use resources (static configuration of the pipeline like gene panels, reference genomes
+etc) from the common-resources-public repository and common-resources bucket (large files). To override the files in
+either of these locations, for instance to make an image for an external group, you can use the `--flavour` option.
+
+First create a bucket of the conventions `gs://common-resources-overrides-{name}` where `name` is some identifier for the
+custom image. Upload the files you wish to override into that bucket, making sure to match the path in the actual repo/bucket.
+
+Then run `./create_public_image.sh --flavour {name}`
+
+Here is an example of overriding the driver gene panel for a PMC image
+
+```shell
+gsutil cp /path/to/overridden/DriverGenePanel.38.tsv gs://common-resources-pmc-overrides/gene_panel/38/DriverGenePanel.38.tsv
+./create_public_image.sh --flavour pmc
+```
+
+### Creating a public image with pilot jar
+
+Images can also be created using local pilot versions of tools jars. Source image is a previously created public
+image using `./create_public_image.sh`.
+
+```shell
+mkdir /path/to/pilot/jars/
+cp sage_pilot.jar /path/to/pilot/jars/sage_pilot.jar
+./create_pilot_image.sh -s ${source_image} -d /path/to/pilot/jars/
+```
+
+### Creating a private image
+
+A private image overlays the contents of common-resources-private repository on a previously created public image.
+These images are meant for production sequencing services.
+
+```shell
+./create_private_image.sh {source_image}
+```
+
+### Creating a custom docker container
+
+The above scripts all deal in VM images, but in some cases (for instance to use pilot jars) we also need a custom 
+docker container image. There is no script for this but it can be done by execution the following commands:
+
+```shell
+
+cd /path/to/root/of/pipeline5
+mvn clean install -Prelease -DskipTests
+cd cluster
+docker build --build-arg VERSION=local-SNAPSHOT -t eu.gcr.io/hmf-build/pipeline5:{your_version} .
+docker push eu.gcr.io/hmf-build/pipeline5:{your_version}
+```
+
+Where `your_version` is some descriptive name for the image, usually prefixed with the major version of the pipeline
+(eg 5.31.pmc-1). The image can then be accessed from platinum or other docker based tools via the tag `eu.gcr.io/hmf-build/pipeline5:{your_version}`
