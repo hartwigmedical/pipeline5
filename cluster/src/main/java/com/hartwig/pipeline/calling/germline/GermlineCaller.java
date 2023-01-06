@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -183,6 +184,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runGermlineCaller() && !arguments.shallow();
+        return arguments.runGermlineCaller() && arguments.context().equals(Pipeline.Context.RESEARCH) && !arguments.shallow();
     }
 }
