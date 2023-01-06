@@ -22,7 +22,7 @@ Creating a public image will use resources (static configuration of the pipeline
 etc) from the common-resources-public repository and common-resources bucket (large files). To override the files in
 either of these locations, for instance to make an image for an external group, you can use the `--flavour` option.
 
-First create a bucket of the conventions `gs://common-resources-overrides-{name}` where `name` is some identifier for the
+First create a bucket of the conventions `gs://common-resources-{name}-overrides` where `name` is some identifier for the
 custom image. Upload the files you wish to override into that bucket, making sure to match the path in the actual repo/bucket.
 
 Then run `./create_public_image.sh --flavour {name}`
