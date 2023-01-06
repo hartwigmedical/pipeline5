@@ -59,7 +59,7 @@ public interface CommonArguments {
 
     Optional<String> cmek();
 
-    Optional<String> runId();
+    Optional<String> runTag();
 
     Optional<Integer> sbpApiRunId();
 

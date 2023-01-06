@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.function.Function;
 
-import com.hartwig.patient.Lane;
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Lane;
+import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;

@@ -12,6 +12,7 @@ import org.immutables.value.Value;
 public interface Arguments extends CommonArguments {
 
     String EMPTY = "";
+    String DEFAULT_SAMPLE_JSON = "sample.json";
 
     Optional<String> startingPoint();
 
@@ -44,19 +45,15 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> biopsy();
 
-    String sbpApiUrl();
-
     String outputBucket();
 
     Optional<String> uploadPrivateKeyPath();
 
-    Optional<Integer> sbpApiRunId();
-
-    Optional<String> runId();
+    Optional<String> runTag();
 
     Optional<String> zone();
 
-    Optional<String> sampleJson();
+    String sampleJson();
 
     int maxConcurrentLanes();
 
@@ -73,7 +70,7 @@ public interface Arguments extends CommonArguments {
     }
 
     static ImmutableArguments.Builder testDefaultsBuilder() {
-        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name()).runId("test");
+        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name()).runTag("test");
     }
 
     boolean outputCram();
@@ -96,7 +93,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
-    
+
     String DEFAULT_DOCKER_UPLOAD_KEY_PATH = "/secrets/upload-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
@@ -117,7 +114,6 @@ public interface Arguments extends CommonArguments {
                     .profile(profile)
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
-                    .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
                     .privateKeyPath(Optional.empty())
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
@@ -144,7 +140,8 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
-                    .context(DEFAULT_CONTEXT);
+                    .context(DEFAULT_CONTEXT)
+                    .sampleJson(DEFAULT_SAMPLE_JSON);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -160,7 +157,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
@@ -177,7 +173,8 @@ public interface Arguments extends CommonArguments {
                     .useTargetRegions(false)
                     .anonymize(false)
                     .context(DEFAULT_CONTEXT)
-                    .userLabel(System.getProperty("user.name"));
+                    .userLabel(System.getProperty("user.name"))
+                    .sampleJson(DEFAULT_SAMPLE_JSON);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -195,7 +192,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
@@ -210,7 +206,8 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
-                    .context(DEFAULT_CONTEXT);
+                    .context(DEFAULT_CONTEXT)
+                    .sampleJson(DEFAULT_SAMPLE_JSON);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -228,7 +225,6 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
@@ -243,7 +239,8 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
-                    .context(DEFAULT_CONTEXT);
+                    .context(DEFAULT_CONTEXT)
+                    .sampleJson(DEFAULT_SAMPLE_JSON);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }

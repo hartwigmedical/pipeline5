@@ -21,8 +21,9 @@ import com.hartwig.api.model.UpdateRun;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
+import com.hartwig.pipeline.output.OutputPublisher;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class DiagnosticSomaticMetadataApiTest {
     private PipelineState pipelineState;
     private ArgumentCaptor<Long> runIdCaptor;
     private ArgumentCaptor<UpdateRun> updateCaptor;
-    private StagedOutputPublisher publisher;
+    private OutputPublisher publisher;
     private RunApi runApi;
     private SampleApi sampleApi;
 
@@ -57,7 +58,7 @@ public class DiagnosticSomaticMetadataApiTest {
         updateCaptor = ArgumentCaptor.forClass(UpdateRun.class);
         pipelineState = mock(PipelineState.class);
         when(pipelineState.status()).thenReturn(PipelineStatus.SUCCESS);
-        publisher = mock(StagedOutputPublisher.class);
+        publisher = mock(OutputPublisher.class);
         runApi = mock(RunApi.class);
         sampleApi = mock(SampleApi.class);
         victim = new DiagnosticSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));

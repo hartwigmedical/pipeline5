@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.metadata.TestJson;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 

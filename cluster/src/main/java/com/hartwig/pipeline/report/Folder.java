@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.report;
 
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 
 public interface Folder {
 

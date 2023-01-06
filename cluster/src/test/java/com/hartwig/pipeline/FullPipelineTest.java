@@ -14,11 +14,9 @@ import java.util.concurrent.Executors;
 
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.cleanup.Cleanup;
+import com.hartwig.pipeline.cram.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.SingleSampleEventListener;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

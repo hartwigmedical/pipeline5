@@ -2,6 +2,7 @@ package com.hartwig.pipeline.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

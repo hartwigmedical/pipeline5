@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.metadata.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

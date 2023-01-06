@@ -2,7 +2,7 @@ package com.hartwig.pipeline.storage;
 
 import java.io.IOException;
 
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Sample;
 
 public interface SampleUpload {
 

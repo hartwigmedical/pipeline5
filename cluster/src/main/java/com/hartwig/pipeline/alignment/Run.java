@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.RunTag;
-import com.hartwig.pipeline.metadata.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 
 import org.immutables.value.Value;
 

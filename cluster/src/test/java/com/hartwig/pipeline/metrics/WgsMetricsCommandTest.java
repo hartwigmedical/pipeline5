@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;

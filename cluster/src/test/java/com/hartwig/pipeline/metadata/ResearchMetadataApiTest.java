@@ -36,11 +36,13 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.transfer.staged.SetResolver;
-import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
+import com.hartwig.pipeline.output.OutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -84,7 +86,7 @@ public class ResearchMetadataApiTest {
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setResolver, bucket, publisher, Optional.of(run), Context.RESEARCH, false, true),
+                new OutputPublisher(setResolver, bucket, publisher, Optional.of(run), Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -133,7 +135,7 @@ public class ResearchMetadataApiTest {
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(mock(SetResolver.class), bucket, publisher, Optional.of(run), Context.RESEARCH, true, true),
+                new OutputPublisher(mock(SetResolver.class), bucket, publisher, Optional.of(run), Context.RESEARCH, true, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));

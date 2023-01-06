@@ -2,7 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.concurrent.BlockingQueue;
 
-import com.hartwig.pipeline.metadata.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 
 public class OutputStorage<S extends StageOutput, M extends RunMetadata> {

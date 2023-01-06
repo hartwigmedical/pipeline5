@@ -76,11 +76,6 @@
                 <version>${events.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hartwig.api</groupId>
-                <artifactId>java-client</artifactId>
-                <version>${java-client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-bom</artifactId>
                 <version>0.176.0</version>

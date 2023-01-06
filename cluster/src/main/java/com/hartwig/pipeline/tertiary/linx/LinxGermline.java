@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.metadata.InputMode.REFERENCE_ONLY;
-import static com.hartwig.pipeline.metadata.InputMode.TUMOR_REFERENCE;
+import static com.hartwig.pipeline.input.InputMode.REFERENCE_ONLY;
+import static com.hartwig.pipeline.input.InputMode.TUMOR_REFERENCE;
 
 import java.io.File;
 import java.util.Collections;
@@ -19,10 +19,10 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.InputMode;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.input.InputMode;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;

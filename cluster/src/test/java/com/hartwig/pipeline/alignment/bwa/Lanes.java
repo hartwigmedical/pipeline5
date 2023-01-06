@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.alignment.bwa;
 
-import com.hartwig.patient.ImmutableLane;
-import com.hartwig.patient.Lane;
+import com.hartwig.pipeline.input.ImmutableLane;
+import com.hartwig.pipeline.input.Lane;
 
 class Lanes {
 

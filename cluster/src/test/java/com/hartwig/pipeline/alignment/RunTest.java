@@ -9,8 +9,8 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 import org.junit.Test;
 

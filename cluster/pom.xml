@@ -25,10 +25,6 @@
             <artifactId>events-pubsub</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hartwig.api</groupId>
-            <artifactId>java-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.hartwig</groupId>
             <artifactId>compar</artifactId>
         </dependency>

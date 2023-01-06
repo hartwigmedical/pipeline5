@@ -10,8 +10,8 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.RunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {

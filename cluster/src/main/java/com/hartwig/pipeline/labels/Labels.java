@@ -7,8 +7,8 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.CommonArguments;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 import org.immutables.value.Value;
 
@@ -34,7 +34,7 @@ public interface Labels {
     }
 
     private static ImmutableLabels.Builder builder(final CommonArguments arguments) {
-        return ImmutableLabels.builder().runId(arguments.runId()).user(arguments.userLabel()).costCenter(arguments.costCenterLabel());
+        return ImmutableLabels.builder().runId(arguments.runTag()).user(arguments.userLabel()).costCenter(arguments.costCenterLabel());
     }
 
     default Map<String, String> asMap() {
