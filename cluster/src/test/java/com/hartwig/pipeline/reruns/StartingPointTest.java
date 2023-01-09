@@ -60,7 +60,6 @@ public class StartingPointTest {
         StartingPoint victim = new StartingPoint(testArgumentsWithStartingPoint("alignment_complete"));
         assertThat(victim.usePersisted(Aligner.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(BamMetrics.NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(GermlineCaller.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Flagstat.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SnpGenotype.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(CramConversion.NAMESPACE)).isFalse();

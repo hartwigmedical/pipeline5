@@ -157,7 +157,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         fail("This class implements persisted output. Validate it by overriding this method!");
     }
 
-    private Arguments defaultArguments() {
+    protected Arguments defaultArguments() {
         return Arguments.testDefaults();
     }
 
