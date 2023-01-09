@@ -184,6 +184,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runGermlineCaller() && arguments.context().equals(Pipeline.Context.RESEARCH) && !arguments.shallow();
+        return arguments.runGermlineCaller() && !arguments.context().equals(Pipeline.Context.DIAGNOSTIC) && !arguments.shallow();
     }
 }
