@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -49,6 +50,11 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     @Override
     protected Arguments createDisabledArguments() {
         return Arguments.testDefaultsBuilder().runGermlineCaller(false).build();
+    }
+
+    @Override
+    protected Arguments defaultArguments() {
+        return Arguments.testDefaultsBuilder().context(Pipeline.Context.RESEARCH).build();
     }
 
     @Override
