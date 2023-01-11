@@ -23,6 +23,9 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.ImmutablePipelineInput;
+import com.hartwig.pipeline.input.PipelineInput;
+import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -87,6 +90,13 @@ public class TestInputs {
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
 
+    public static PipelineInput pipelineInput() {
+        return ImmutablePipelineInput.builder()
+                .reference(Sample.builder(REFERENCE_SAMPLE).build())
+                .tumor(Sample.builder(TUMOR_SAMPLE).build())
+                .build();
+    }
+
     public static String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
     }
@@ -108,10 +118,7 @@ public class TestInputs {
     public static SomaticRunMetadata defaultGermlineRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
 
-        return SomaticRunMetadata.builder()
-                .set(SET)
-                .maybeReference(reference)
-                .bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {

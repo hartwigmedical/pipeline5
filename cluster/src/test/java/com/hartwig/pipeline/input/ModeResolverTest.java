@@ -1,11 +1,9 @@
-package com.hartwig.pipeline.metadata;
+package com.hartwig.pipeline.input;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.input.InputMode;
-import com.hartwig.pipeline.input.ModeResolver;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;

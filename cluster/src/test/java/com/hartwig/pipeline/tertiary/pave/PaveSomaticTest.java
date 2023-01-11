@@ -13,6 +13,7 @@ import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.stages.TestPersistedDataset;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -27,7 +28,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected Stage<PaveOutput, SomaticRunMetadata> createVictim() {
-        return new PaveSomatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(), new NoopPersistedDataset());
+        return new PaveSomatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(), new TestPersistedDataset());
     }
 
     @Override

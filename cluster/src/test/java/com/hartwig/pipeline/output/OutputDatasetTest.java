@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.output.staged;
+package com.hartwig.pipeline.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,18 +9,13 @@ import java.util.Map;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.api.model.Dataset;
-import com.hartwig.api.model.DatasetFile;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.output.OutputDataset;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,19 +52,21 @@ public class OutputDatasetTest {
         victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF)),
                 amberBlob);
         victim.serializeAndUpload();
-        Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
-        assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), false);
+        Map<String, Map<String, Map<String, String>>> dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Map.class);
+        assertThatDatatypeIs(dataset.get("amber"), amberPathFromRoot, TestInputs.tumorSample(), false);
     }
 
     @Test
     public void createDatasetJsonIncludingAddedDatatypesForSomaticForDirectory() throws Exception {
         final String amberPathFromRoot = "amber/" + AMBER_BAF;
         Blob amberBlob = TestBlobs.blob(TestInputs.SET + "/" + amberPathFromRoot);
-        victim.add(new AddDatatype(DataType.AMBER, TestInputs.tumorSample(), new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF), true),
-                amberBlob);
+        victim.add(new AddDatatype(DataType.AMBER,
+                TestInputs.tumorSample(),
+                new ArchivePath(Folder.root(), Amber.NAMESPACE, AMBER_BAF),
+                true), amberBlob);
         victim.serializeAndUpload();
-        Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
-        assertThatDatatypeIs(dataset.getAmber(), amberPathFromRoot, TestInputs.tumorSample(), true);
+        Map<String, Map<String, Map<String, String>>> dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Map.class);
+        assertThatDatatypeIs(dataset.get("amber"), amberPathFromRoot, TestInputs.tumorSample(), true);
     }
 
     @Test
@@ -85,17 +82,17 @@ public class OutputDatasetTest {
                 TestInputs.referenceSample(),
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Aligner.NAMESPACE, REF_BAM)), refBam);
         victim.serializeAndUpload();
-        Dataset dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Dataset.class);
-        assertThatDatatypeIs(dataset.getAlignedReads(), tumorBamPathFromRoot, TestInputs.tumorSample(), false);
-        assertThatDatatypeIs(dataset.getAlignedReads(), refBamPathFromRoot, TestInputs.referenceSample(), false);
+        Map<String, Map<String, Map<String, String>>> dataset = ObjectMappers.get().readValue(datasetBytes.getValue(), Map.class);
+        assertThatDatatypeIs(dataset.get("aligned_reads"), tumorBamPathFromRoot, TestInputs.tumorSample(), false);
+        assertThatDatatypeIs(dataset.get("aligned_reads"), refBamPathFromRoot, TestInputs.referenceSample(), false);
     }
 
-    private void assertThatDatatypeIs(final Map<String, DatasetFile> datasetFileMap, final String fileName, final String sample,
+    private void assertThatDatatypeIs(final Map<String, Map<String, String>> datasetFileMap, final String fileName, final String sample,
             final boolean isDirectory) {
         assertThat(datasetFileMap).isNotNull();
-        final DatasetFile datasetFile = datasetFileMap.get(sample);
+        final Map<String, String> datasetFile = datasetFileMap.get(sample);
         assertThat(datasetFile).isNotNull();
-        assertThat(datasetFile.getPath()).isEqualTo(fileName);
-        assertThat(datasetFile.getIsDirectory()).isEqualTo(isDirectory);
+        assertThat(datasetFile.get("path")).isEqualTo(fileName);
+        assertThat(Boolean.valueOf(datasetFile.get("is_directory"))).isEqualTo(isDirectory);
     }
 }

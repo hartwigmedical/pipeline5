@@ -18,10 +18,10 @@ import com.hartwig.pipeline.cram.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.OutputPublisher;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
@@ -29,7 +29,6 @@ import org.mockito.stubbing.Answer;
 public class FullPipelineTest {
 
     private static final SomaticRunMetadata METADATA = TestInputs.defaultSomaticRunMetadata();
-    private SomaticMetadataApi api;
     private SingleSamplePipeline reference;
     private SingleSamplePipeline tumor;
     private SomaticPipeline somatic;
@@ -37,6 +36,7 @@ public class FullPipelineTest {
     private SingleSampleEventListener referenceListener;
     private SingleSampleEventListener tumorListener;
     private Cleanup cleanup;
+    private OutputPublisher outputPublisher;
 
     @Before
     public void setUp() throws Exception {
@@ -44,19 +44,19 @@ public class FullPipelineTest {
         tumor = mock(SingleSamplePipeline.class);
         somatic = mock(SomaticPipeline.class);
         cleanup = mock(Cleanup.class);
-
-        api = mock(SomaticMetadataApi.class);
-        when(api.get()).thenReturn(METADATA);
+        outputPublisher = mock(OutputPublisher.class);
 
         referenceListener = new SingleSampleEventListener();
         tumorListener = new SingleSampleEventListener();
         victim = new FullPipeline(reference,
                 tumor,
                 somatic,
+                METADATA,
                 Executors.newCachedThreadPool(),
                 referenceListener,
                 tumorListener,
-                api, cleanup);
+                cleanup,
+                outputPublisher);
     }
 
     @Test
@@ -112,23 +112,6 @@ public class FullPipelineTest {
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
-    @Ignore("May not support single sample")
-    @Test
-    public void supportsSingleSampleIni() throws Exception {
-        SomaticRunMetadata metadata = TestInputs.defaultSingleSampleRunMetadata();
-        when(api.get()).thenReturn(metadata);
-        victim = new FullPipeline(reference,
-                tumor,
-                somatic,
-                Executors.newCachedThreadPool(),
-                referenceListener,
-                tumorListener,
-                api, cleanup);
-        when(reference.run(metadata.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
-        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
-    }
-
     @Test
     public void notifiesSetMetadataApiOnSuccessfulSomaticRun() throws Exception {
         when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
@@ -138,7 +121,7 @@ public class FullPipelineTest {
         victim.run();
 
         ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
-        verify(api, times(1)).complete(stateCaptor.capture(), eq(METADATA));
+        verify(outputPublisher, times(1)).publish(stateCaptor.capture(), eq(METADATA));
         assertThat(stateCaptor.getValue().status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
@@ -151,7 +134,7 @@ public class FullPipelineTest {
         victim.run();
 
         ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
-        verify(api, times(1)).complete(stateCaptor.capture(), eq(METADATA));
+        verify(outputPublisher, times(1)).publish(stateCaptor.capture(), eq(METADATA));
         assertThat(stateCaptor.getValue().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -182,7 +165,7 @@ public class FullPipelineTest {
         when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
         when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
-        doThrow(new NullPointerException()).when(api).complete(any(PipelineState.class), any(SomaticRunMetadata.class));
+        doThrow(new NullPointerException()).when(outputPublisher).publish(any(PipelineState.class), any(SomaticRunMetadata.class));
 
         try {
             victim.run();

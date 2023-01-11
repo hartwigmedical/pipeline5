@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 
@@ -24,7 +23,7 @@ public class RunTest {
         return SomaticRunMetadata.builder().maybeReference(referenceSample).maybeTumor(tumorSample).set("test").bucket(BUCKET).build();
     }
 
-    private static ImmutableSingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {
+    private static SingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {
         return SingleSampleRunMetadata.builder().type(type).barcode(sampleId).bucket(BUCKET).set(SET).build();
     }
 
@@ -37,7 +36,7 @@ public class RunTest {
     @Test
     public void idCanBeOverriddenFromArgumentsSingleSample() {
         Run victim = Run.from(REFERENCE_SAMPLE,
-                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.DEVELOPMENT).runId("override").build());
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.DEVELOPMENT).runTag("override").build());
         assertThat(victim.id()).isEqualTo("run-reference-override");
     }
 
@@ -63,11 +62,7 @@ public class RunTest {
     @Test
     public void appendsSbpRunIdWhenSpecified() {
         Run victim = Run.from(REFERENCE_SAMPLE,
-                Arguments.testDefaultsBuilder()
-                        .profile(Arguments.DefaultsProfile.PRODUCTION)
-                        .sbpApiRunId(1)
-                        .runId(Optional.empty())
-                        .build());
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).runTag(Optional.empty()).build());
         assertThat(victim.id()).isEqualTo("run-reference-1");
     }
 }

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.metadata;
+package com.hartwig.pipeline.input;
 
 import java.io.IOException;
 import java.nio.file.Files;

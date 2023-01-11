@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.output.staged;
+package com.hartwig.pipeline.output;
 
 import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
 import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
@@ -11,15 +11,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.api.model.Ini;
-import com.hartwig.api.model.Run;
-import com.hartwig.api.model.SampleSet;
 import com.hartwig.events.pipeline.Analysis;
 import com.hartwig.events.pipeline.AnalysisOutputBlob;
 import com.hartwig.events.pipeline.Pipeline;
@@ -29,25 +25,20 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.output.OutputPublisher;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class OutputPublisherTest {
+public class PipelineCompleteEventPublisherTest {
 
     private Bucket bucket;
     private EventPublisher<PipelineComplete> publisher;
     private PipelineState state;
-    private OutputPublisher victim;
-    private SetResolver setResolver;
-    private Run run;
+    private PipelineCompleteEventPublisher victim;
 
     @Before
     public void setUp() throws Exception {
@@ -55,9 +46,7 @@ public class OutputPublisherTest {
         when(bucket.getName()).thenReturn("bucket");
         publisher = mock(EventPublisher.class);
         state = mock(PipelineState.class);
-        setResolver = mock(SetResolver.class);
-        run = new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L).version("5.28.6");
-        victim = new OutputPublisher(setResolver, bucket, publisher, Optional.of(run), Pipeline.Context.DIAGNOSTIC, true, false);
+        victim = new PipelineCompleteEventPublisher(bucket, publisher, Pipeline.Context.DIAGNOSTIC, true);
     }
 
     @Test
@@ -69,7 +58,7 @@ public class OutputPublisherTest {
 
     @Test
     public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
-        victim = new OutputPublisher(setResolver, bucket, publisher, Optional.of(run), Pipeline.Context.DIAGNOSTIC, false, false);
+        victim = new PipelineCompleteEventPublisher(bucket, publisher, Pipeline.Context.DIAGNOSTIC, false);
         verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 
@@ -175,7 +164,6 @@ public class OutputPublisherTest {
     private PipelineComplete publish(final Page<Blob> page, final SomaticRunMetadata metadata) {
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         ArgumentCaptor<PipelineComplete> eventArgumentCaptor = ArgumentCaptor.forClass(PipelineComplete.class);
-        when(setResolver.resolve(metadata.set(), false)).thenReturn(new SampleSet().id(1L));
         victim.publish(state, metadata);
         verify(publisher).publish(eventArgumentCaptor.capture());
         return eventArgumentCaptor.getValue();

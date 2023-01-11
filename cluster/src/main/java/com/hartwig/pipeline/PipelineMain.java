@@ -29,10 +29,13 @@ import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.NoopOutputPublisher;
 import com.hartwig.pipeline.output.OutputPublisher;
+import com.hartwig.pipeline.output.PipelineCompleteEventPublisher;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.VmExecutionLogSummary;
+import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -61,13 +64,14 @@ public class PipelineMain {
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             PipelineInput input = JsonPipelineInput.read(arguments.sampleJson());
             final OutputPublisher outputPublisher =
-                    createPublisher(new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
+                    !arguments.context().equals(Pipeline.Context.PLATINUM) ? createPublisher(new EventPublisher<>(arguments.pubsubProject()
+                            .orElse(arguments.project()),
                             EventContext.builder()
                                     .environment(arguments.pubsubTopicEnvironment()
                                             .orElseThrow(PipelineMain::missingPubsubArgumentsException))
                                     .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
                                     .build(),
-                            new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments);
+                            new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments) : new NoopOutputPublisher();
             MetadataProvider metadataProvider = new MetadataProvider(arguments, input);
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
@@ -92,7 +96,7 @@ public class PipelineMain {
             BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
             StartingPoint startingPoint = new StartingPoint(arguments);
-            PersistedDataset persistedDataset = new PersistedDataset(input, arguments.project());
+            PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     input,
                     credentials,
@@ -210,10 +214,10 @@ public class PipelineMain {
                 germlineCallerOutputQueue);
     }
 
-    private OutputPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
+    private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
             final Storage storage, final Arguments arguments) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
-        return new OutputPublisher(sourceBucket, publisher, context, arguments.useCrams());
+        return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.useCrams());
     }
 
     public static void main(final String[] args) {

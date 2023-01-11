@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.NoOpComputeEngine;
 import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
@@ -66,7 +67,7 @@ public abstract class AlignerProvider {
                     credentials,
                     storage,
                     arguments,
-                    new PersistedDataset(input, arguments.project()),
+                    new InputPersistedDataset(input, arguments.project()),
                     labels);
         }
         return new LocalAlignerProvider(input, credentials, storage, arguments, labels);

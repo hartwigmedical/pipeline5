@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.output.staged;
+package com.hartwig.pipeline.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
