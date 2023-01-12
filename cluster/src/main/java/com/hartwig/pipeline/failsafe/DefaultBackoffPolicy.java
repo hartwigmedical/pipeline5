@@ -3,6 +3,8 @@ package com.hartwig.pipeline.failsafe;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
+import com.google.api.gax.rpc.InvalidArgumentException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,8 @@ public class DefaultBackoffPolicy<R> extends RetryPolicy<R> {
     DefaultBackoffPolicy(final int delay, final long maxDelay, final String taskName) {
         withBackoff(delay, maxDelay, ChronoUnit.SECONDS);
         withMaxRetries(-1);
+        abortOn(InvalidArgumentException.class);
+        onAbort(e -> LOGGER.error("Unable to submit operation", e.getFailure()));
         handle(Exception.class);
         onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.warn("[{}] failed: {}",
                 taskName,
