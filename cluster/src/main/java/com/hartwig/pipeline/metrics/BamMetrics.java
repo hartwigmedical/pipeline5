@@ -15,10 +15,8 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.CatCommand;
-import com.hartwig.pipeline.execution.vm.unix.GrepCommand;
-import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
-import com.hartwig.pipeline.execution.vm.unix.TeeCommand;
+import com.hartwig.pipeline.execution.vm.unix.GrepFileCommand;
+import com.hartwig.pipeline.execution.vm.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -100,9 +98,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                     resourceFiles.refGenomeFile(),
                     intermediateFile));
         }
-        bashCommands.add(new PipeCommands(new CatCommand(intermediateFile),
-                new GrepCommand("-A1 GENOME"),
-                new TeeCommand(outputFile)));
+        bashCommands.add(new RedirectStdoutCommand(new GrepFileCommand(intermediateFile, "-A1 GENOME"), outputFile));
         return bashCommands;
     }
 
