@@ -6,7 +6,8 @@ import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
-public class PipeCommands implements BashCommand {
+public class
+PipeCommands implements BashCommand {
 
     private final List<BashCommand> pipedCommands;
 

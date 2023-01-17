@@ -71,7 +71,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                         + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS_INTERMEDIATE
                         + " MINIMUM_MAPPING_QUALITY=20 " + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 USE_FAST_ALGORITHM=true READ_LENGTH=151",
-                "(cat /data/output/reference.wgsmetrics.intermediate.tmp | grep -A1 GENOME | tee /data/output/reference.wgsmetrics)");
+                "(grep -A1 GENOME /data/output/reference.wgsmetrics.intermediate.tmp 1> /data/output/reference.wgsmetrics)");
     }
 
     @Test

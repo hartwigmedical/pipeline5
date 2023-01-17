@@ -7,7 +7,6 @@ import com.hartwig.patient.Lane;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.unix.GrepCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 import com.hartwig.pipeline.stages.SubStage;
 
@@ -35,6 +34,6 @@ public class LaneAlignment extends SubStage {
                 lane.flowCellId(),
                 referenceGenomePath,
                 firstFastqPath,
-                secondFastqPath), new GrepCommand("-v '^@PG'"), new SamtoolsViewCommand(), new SambambaSortCommand(output.path(), "/dev/stdin")));
+                secondFastqPath), new SamtoolsViewCommand(), new SambambaSortCommand(output.path(), "/dev/stdin")));
     }
 }
