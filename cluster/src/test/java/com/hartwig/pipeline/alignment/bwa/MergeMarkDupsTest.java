@@ -22,6 +22,12 @@ public class MergeMarkDupsTest extends SubStageTest{
 
     @Test
     public void markdupsWithSambamba() {
-        assertThat(bash()).contains("(/opt/tools/sambamba/0.6.8/sambamba markdup -t $(grep -c '^processor' /proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam /dev/stdout | /opt/tools/samtools/1.14/samtools reheader --no-PG --command 'grep -v ^@PG' /dev/stdin > /data/output/tumor.bam)");
+        String sambamba = "/opt/tools/sambamba/0.6.8/sambamba";
+        String samtools = "/opt/tools/samtools/1.14/samtools";
+        String tmpbam = "/data/output/tumor.bam.intermediate.tmp";
+        assertThat(bash()).contains(
+                sambamba + " markdup -t $(grep -c '^processor' /proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam "
+                        + tmpbam + "rm tumor.l001.bam tumor.l002.bam" + "(" + samtools + " reheader --no-PG --command 'grep -v ^@PG' "
+                        + tmpbam + " 1> /data/output/tumor.bam)" + samtools + " index /data/output/tumor.bam");
     }
 }

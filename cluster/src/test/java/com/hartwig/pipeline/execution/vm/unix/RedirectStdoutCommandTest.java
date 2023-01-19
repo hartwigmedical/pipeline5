@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class RedirectStdoutCommandTest {
     @Test
-    public void shouldCreateValidRedirectionCommand() {
+    public void createsValidCommand() {
         String grepString = "view file.bam";
         String outputFile = "/some/output/file";
         assertThat(new RedirectStdoutCommand(new SamtoolsCommand(grepString), outputFile).asBash()).isEqualTo(format("(/opt/tools/samtools/1.14/samtools %s 1> %s)",
