@@ -28,6 +28,7 @@ public class MergeMarkDupsTest extends SubStageTest{
         assertThat(bash()).contains(
                 sambamba + " markdup -t $(grep -c '^processor' /proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam "
                         + tmpbam + "rm tumor.l001.bam tumor.l002.bam" + "(" + samtools + " reheader --no-PG --command 'grep -v ^@PG' "
-                        + tmpbam + " 1> /data/output/tumor.bam)" + samtools + " index /data/output/tumor.bam");
+                        + tmpbam + " 1> /data/output/tumor.bam)" + samtools
+                        + " index -@ $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.bam");
     }
 }

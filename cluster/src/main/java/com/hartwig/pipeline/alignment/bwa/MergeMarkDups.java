@@ -26,7 +26,7 @@ public class MergeMarkDups extends SubStage {
         cmds.add(new SambambaMarkdupCommand(inputBamPaths, intermediateOutputBAM));
         cmds.add(new DeleteFilesCommand(inputBamPaths));
         cmds.add(new RedirectStdoutCommand(new BamReheaderCommand(intermediateOutputBAM),  output.path()));
-        cmds.add(new SamtoolsCommand("index", output.path()));
+        cmds.add(SamtoolsCommand.index(output.path()));
         return cmds;
     }
 }

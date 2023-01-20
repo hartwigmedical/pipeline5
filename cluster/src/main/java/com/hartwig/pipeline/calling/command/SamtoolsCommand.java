@@ -13,7 +13,7 @@ public class SamtoolsCommand extends VersionedToolCommand {
     }
 
     public static SamtoolsCommand index(final String file) {
-        return new SamtoolsCommand("index", file);
+        return new SamtoolsCommand("index", "-@", Bash.allCpus(), file);
     }
 
     public static SamtoolsCommand toUncompressedBam(final ResourceFiles resourceFiles, final String inputFile, final String outputFile) {
