@@ -14,11 +14,8 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
-import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -103,16 +100,31 @@ public class StartingPoint {
                         HealthChecker.NAMESPACE,
 //                        PaveSomatic.NAMESPACE,
 //                        PaveGermline.NAMESPACE,
-//                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
-//                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
-//                        Purple.NAMESPACE,
-//                        LinxSomatic.NAMESPACE,
-//                        LinxGermline.NAMESPACE,
-//                        Peach.NAMESPACE,
-//                        Cuppa.NAMESPACE,
-                        Protect.NAMESPACE,
-                        Sigs.NAMESPACE,
-                        VirusInterpreter.NAMESPACE)));
+                        //                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        //                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        //                        Purple.NAMESPACE,
+                        //                        LinxSomatic.NAMESPACE,
+                        //                        LinxGermline.NAMESPACE,
+                        //                        Peach.NAMESPACE,
+                        //                        Cuppa.NAMESPACE,
+                        Protect.NAMESPACE, Sigs.NAMESPACE, VirusInterpreter.NAMESPACE))),
+
+        RERUN_531_PLUS_GRIDSS_GRIPSS(concat(CRAM_COMPLETE.namespaces,
+                //                        Gridss.NAMESPACE,
+                List.of(LilacBamSlicer.NAMESPACE, Amber.NAMESPACE, Chord.NAMESPACE, Cobalt.NAMESPACE, "cram2bam", GermlineCaller.NAMESPACE,
+                        //                                GRIPSS_SOMATIC_NAMESPACE,
+                        //                                GRIPSS_GERMLINE_NAMESPACE,
+                        Orange.NAMESPACE, Lilac.NAMESPACE, VirusBreakend.NAMESPACE, Rose.NAMESPACE, HealthChecker.NAMESPACE,
+                        //                        PaveSomatic.NAMESPACE,
+                        //                        PaveGermline.NAMESPACE,
+                        //                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        //                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        //                        Purple.NAMESPACE,
+                        //                        LinxSomatic.NAMESPACE,
+                        //                        LinxGermline.NAMESPACE,
+                        //                        Peach.NAMESPACE,
+                        //                        Cuppa.NAMESPACE,
+                        Protect.NAMESPACE, Sigs.NAMESPACE, VirusInterpreter.NAMESPACE)));
 
         private final List<String> namespaces;
 
