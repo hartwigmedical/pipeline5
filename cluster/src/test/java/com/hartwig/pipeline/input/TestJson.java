@@ -13,7 +13,7 @@ public class TestJson {
     @NotNull
     public static String get(final String name) {
         try {
-            return new String(Files.readAllBytes(Paths.get(Resources.testResource("sbp_api/" + name + ".json"))));
+            return new String(Files.readAllBytes(Paths.get(Resources.testResource("pipeline-input/" + name + ".json"))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

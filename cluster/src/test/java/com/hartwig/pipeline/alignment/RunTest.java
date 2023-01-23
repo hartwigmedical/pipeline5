@@ -58,11 +58,4 @@ public class RunTest {
         Run victim = Run.from(SOMATIC, Arguments.testDefaults());
         assertThat(victim.id().length()).isLessThanOrEqualTo(40);
     }
-
-    @Test
-    public void appendsSbpRunIdWhenSpecified() {
-        Run victim = Run.from(REFERENCE_SAMPLE,
-                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).runTag(Optional.empty()).build());
-        assertThat(victim.id()).isEqualTo("run-reference-1");
-    }
 }

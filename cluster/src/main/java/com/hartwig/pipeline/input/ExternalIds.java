@@ -8,4 +8,8 @@ public interface ExternalIds {
     Long runId();
 
     Long setId();
+
+    static ImmutableExternalIds.Builder builder() {
+        return ImmutableExternalIds.builder();
+    }
 }

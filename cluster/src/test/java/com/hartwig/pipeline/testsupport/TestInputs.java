@@ -23,6 +23,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.ExternalIds;
 import com.hartwig.pipeline.input.ImmutablePipelineInput;
 import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.input.Sample;
@@ -89,6 +90,8 @@ public class TestInputs {
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
+    public static final long EXTERNAL_RUN_ID = 1L;
+    public static final long EXTERNAL_SET_ID = 2L;
 
     public static PipelineInput pipelineInput() {
         return ImmutablePipelineInput.builder()
@@ -112,18 +115,22 @@ public class TestInputs {
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).maybeReference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder()
+                .set(SET)
+                .maybeTumor(tumor)
+                .maybeReference(reference)
+                .bucket(BUCKET)
+                .maybeExternalIds(externalIds())
+                .build();
     }
 
-    public static SomaticRunMetadata defaultGermlineRunMetadata() {
-        final SingleSampleRunMetadata reference = referenceRunMetadata();
-
-        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).build();
+    public static ExternalIds externalIds() {
+        return ExternalIds.builder().runId(EXTERNAL_RUN_ID).setId(EXTERNAL_SET_ID).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).maybeExternalIds(externalIds()).build();
     }
 
     @NotNull

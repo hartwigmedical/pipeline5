@@ -18,7 +18,7 @@ public class ApiPersistedDatasetTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new InputPersistedDataset(ObjectMappers.get().readValue(TestJson.get("get_dataset"), PipelineInput.class), "project");
+        victim = new InputPersistedDataset(ObjectMappers.get().readValue(TestJson.get("with_dataset"), PipelineInput.class), "project");
     }
 
     @Test

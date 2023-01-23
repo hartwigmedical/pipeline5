@@ -48,7 +48,9 @@ public class BwaAlignerTest {
         computeEngine = mock(GoogleComputeEngine.class);
         storage = mock(Storage.class);
         sampleUpload = mock(SampleUpload.class);
-        PipelineInput input = ImmutablePipelineInput.builder().build();
+        PipelineInput input = ImmutablePipelineInput.builder()
+                .reference(Sample.builder(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
+                .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
                 storage,
@@ -97,6 +99,17 @@ public class BwaAlignerTest {
 
     @Test
     public void returnsProvidedBamIfInSample() throws Exception {
+        PipelineInput input = ImmutablePipelineInput.builder()
+                .reference(Sample.builder(METADATA.sampleName()).bam("gs://bucket/path/reference.bam").build())
+                .build();
+        victim = new BwaAligner(arguments,
+                computeEngine,
+                storage,
+                input,
+                sampleUpload,
+                ResultsDirectory.defaultDirectory(),
+                Executors.newSingleThreadExecutor(),
+                mock(Labels.class));
         AlignmentOutput output = victim.run(METADATA);
         assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam"));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());
@@ -110,8 +123,6 @@ public class BwaAlignerTest {
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
-
-      //  when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build());
     }
 
     private static ImmutableLane lane(final int index) {
