@@ -93,6 +93,7 @@ public class SmokeTest {
         @SuppressWarnings("deprecation")
         final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
+                .context(Pipeline.Context.PLATINUM)
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(findCloudSdk())
                 .setId(setName)
