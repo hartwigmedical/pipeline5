@@ -7,11 +7,13 @@ import com.hartwig.pipeline.execution.vm.Bash;
 
 class BwaMemCommand extends BwaCommand {
 
-    BwaMemCommand(final String recordGroupId, final String sampleName, final String flowcellId, final String referenceGenomePath,
+    private static final String SAMPLE_NAME = "NA";
+
+    BwaMemCommand(final String recordGroupId, final String flowcellId, final String referenceGenomePath,
             final String first, final String second) {
         super("mem",
                 "-R",
-                format("\"@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s\"", recordGroupId, sampleName, flowcellId, sampleName),
+                format("\"@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s\"", recordGroupId, SAMPLE_NAME, flowcellId, SAMPLE_NAME),
                 "-Y",
                 "-t",
                 Bash.allCpus(),

@@ -113,7 +113,6 @@ public class BwaAligner implements Aligner {
                     resourceFiles.refGenomeFile(),
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
-                    metadata.sampleName(),
                     lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
             perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 

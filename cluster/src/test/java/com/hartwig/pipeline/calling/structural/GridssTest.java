@@ -80,7 +80,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add(
                 "/opt/tools/samtools/1.14/samtools sort -O bam /data/output/tumor.sv_prep.bam -o /data/output/tumor.sv_prep.sorted.bam");
 
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/tumor.sv_prep.sorted.bam");
+        expectedCommands.add("/opt/tools/samtools/1.14/samtools index -@ $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.sv_prep.sorted.bam");
 
         expectedCommands.add(
                 "java -Xmx48G -jar /opt/tools/sv-prep/1.0.1/sv-prep.jar "
@@ -96,7 +96,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add(
                 "/opt/tools/samtools/1.14/samtools sort -O bam /data/output/reference.sv_prep.bam -o /data/output/reference.sv_prep.sorted.bam");
 
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/reference.sv_prep.sorted.bam");
+        expectedCommands.add("/opt/tools/samtools/1.14/samtools index -@ $(grep -c '^processor' /proc/cpuinfo) /data/output/reference.sv_prep.sorted.bam");
 
         expectedCommands.add(
                 "/opt/tools/sv-prep/1.0.1/gridss.run.sh --steps all "

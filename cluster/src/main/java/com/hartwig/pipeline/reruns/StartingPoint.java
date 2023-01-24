@@ -45,11 +45,7 @@ public class StartingPoint {
 
     enum StartingPoints {
         BEGINNING(Collections.emptyList()),
-        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE,
-                BamMetrics.NAMESPACE,
-                GermlineCaller.NAMESPACE,
-                Flagstat.NAMESPACE,
-                SnpGenotype.NAMESPACE)),
+        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE, BamMetrics.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         SKIP_GRIDSS(List.of(Aligner.NAMESPACE,
                 BamMetrics.NAMESPACE,

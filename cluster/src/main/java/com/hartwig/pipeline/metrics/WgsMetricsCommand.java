@@ -30,6 +30,8 @@ class WgsMetricsCommand extends JavaClassCommand {
                 "MINIMUM_MAPPING_QUALITY=20",
                 "MINIMUM_BASE_QUALITY=10",
                 "COVERAGE_CAP=250",
+                "USE_FAST_ALGORITHM=true",
+                "READ_LENGTH=151", // The default 150 does not work if USE_FAST_ALGORITHM=true
                 maybeIntervals.map(i -> "INTERVALS=" + i).orElse(""));
     }
 }

@@ -67,6 +67,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                 TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
                 output,
                 input),
+                format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
                                 + "-r /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
