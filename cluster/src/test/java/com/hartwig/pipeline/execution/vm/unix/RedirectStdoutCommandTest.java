@@ -3,18 +3,19 @@ package com.hartwig.pipeline.execution.vm.unix;
 import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import org.junit.Test;
 
 public class RedirectStdoutCommandTest {
     @Test
     public void createsValidCommand() {
-        String grepString = "view file.bam";
         String outputFile = "/some/output/file";
-        assertThat(new RedirectStdoutCommand(new SamtoolsCommand(grepString), outputFile).asBash()).isEqualTo(format("(/opt/tools/samtools/1.14/samtools %s 1> %s)",
-                grepString,
-                outputFile));
+        BashCommand cmd = mock(BashCommand.class);
+        when(cmd.asBash()).thenReturn("some arbitrary command");
+        assertThat(new RedirectStdoutCommand(cmd, outputFile).asBash()).isEqualTo(format("(some arbitrary command 1> %s)", outputFile));
     }
 }
