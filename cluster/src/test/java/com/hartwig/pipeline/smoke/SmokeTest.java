@@ -100,7 +100,6 @@ public class SmokeTest {
                 .runTag(randomRunId)
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
-                .context(Pipeline.Context.DIAGNOSTIC)
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion);
 

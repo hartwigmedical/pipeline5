@@ -63,15 +63,7 @@ public class PipelineMain {
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             PipelineInput input = JsonPipelineInput.read(arguments.sampleJson());
-            final OutputPublisher outputPublisher =
-                    !arguments.context().equals(Pipeline.Context.PLATINUM) ? createPublisher(new EventPublisher<>(arguments.pubsubProject()
-                            .orElse(arguments.project()),
-                            EventContext.builder()
-                                    .environment(arguments.pubsubTopicEnvironment()
-                                            .orElseThrow(PipelineMain::missingPubsubArgumentsException))
-                                    .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
-                                    .build(),
-                            new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments) : new NoopOutputPublisher();
+            final OutputPublisher outputPublisher = getOutputPublisher(arguments, storage);
             MetadataProvider metadataProvider = new MetadataProvider(arguments, input);
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
@@ -144,6 +136,20 @@ public class PipelineMain {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @NotNull
+    private OutputPublisher getOutputPublisher(final Arguments arguments, final Storage storage) {
+        if (arguments.context().equals(Pipeline.Context.PLATINUM)) {
+            return new NoopOutputPublisher();
+        } else {
+            return createPublisher(new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
+                    EventContext.builder()
+                            .environment(arguments.pubsubTopicEnvironment().orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                            .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                            .build(),
+                    new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments);
         }
     }
 
