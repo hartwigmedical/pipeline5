@@ -30,6 +30,10 @@ public interface BamMetricsOutput extends StageOutput {
         return String.format("%s.wgsmetrics", sample);
     }
 
+    static String intermediateOutputFile(final String sample) {
+        return String.format("%s.wgsmetrics.intermediate.tmp", sample);
+    }
+
     static ImmutableBamMetricsOutput.Builder builder() {
         return ImmutableBamMetricsOutput.builder();
     }

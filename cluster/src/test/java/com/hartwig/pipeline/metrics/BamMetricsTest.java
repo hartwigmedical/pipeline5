@@ -23,6 +23,8 @@ import org.junit.Test;
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
     public static final String REFERENCE_WGSMETRICS = "reference.wgsmetrics";
+    public static final String REFERENCE_WGSMETRICS_INTERMEDIATE = "reference.wgsmetrics.intermediate.tmp";
+    public static final String TUMOR_WGSMETRICS_INTERMEDIATE = "tumor.wgsmetrics.intermediate.tmp";
     public static final AddDatatype ADD_DATATYPE = new AddDatatype(DataType.WGSMETRICS,
             TestInputs.referenceRunMetadata().barcode(),
             new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics"));
@@ -64,11 +66,12 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
-                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.13.2/gridss.jar "
-                + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
-                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
-                + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
+                        + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.13.2/gridss.jar "
+                        + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
+                        + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS_INTERMEDIATE
+                        + " MINIMUM_MAPPING_QUALITY=20 " + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 USE_FAST_ALGORITHM=true READ_LENGTH=151",
+                "(grep -A1 GENOME /data/output/reference.wgsmetrics.intermediate.tmp 1> /data/output/reference.wgsmetrics)");
     }
 
     @Test
@@ -87,8 +90,8 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 "java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 "
                         + "-cp /opt/tools/gridss/2.13.2/gridss.jar picard.cmdline.PicardCommandLine CollectWgsMetrics "
                         + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
-                        + "INPUT=/data/input/tumor.bam OUTPUT=/data/output/tumor.wgsmetrics "
-                        + "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 "
+                        + "INPUT=/data/input/tumor.bam OUTPUT=/data/output/" + TUMOR_WGSMETRICS_INTERMEDIATE + " "
+                        + "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250 USE_FAST_ALGORITHM=true READ_LENGTH=151 "
                         + "INTERVALS=/opt/resources/target_regions/38/target_regions_definition.38.interval_list");
     }
 

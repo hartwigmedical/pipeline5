@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.metrics;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,8 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.GrepFileCommand;
+import com.hartwig.pipeline.execution.vm.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -79,16 +82,24 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
         final String outputFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName());
+        final String intermediateFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.intermediateOutputFile(metadata.sampleName());
+        ArrayList<BashCommand> bashCommands = new ArrayList<>();
+
         if (arguments.useTargetRegions()) {
-            return List.of(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
-                            resourceFiles.targetRegionsInterval(),
-                            resourceFiles.refGenomeFile()),
-                    new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
-                            resourceFiles.refGenomeFile(),
-                            outputFile,
-                            Optional.of(resourceFiles.targetRegionsInterval())));
+            bashCommands.add(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
+                    resourceFiles.targetRegionsInterval(),
+                    resourceFiles.refGenomeFile()));
+            bashCommands.add(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                    resourceFiles.refGenomeFile(),
+                    intermediateFile,
+                    Optional.of(resourceFiles.targetRegionsInterval())));
+        } else {
+            bashCommands.add(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
+                    resourceFiles.refGenomeFile(),
+                    intermediateFile));
         }
-        return List.of(new WgsMetricsCommand(bamDownload.getLocalTargetPath(), resourceFiles.refGenomeFile(), outputFile));
+        bashCommands.add(new RedirectStdoutCommand(new GrepFileCommand(intermediateFile, "-A1 GENOME"), outputFile));
+        return bashCommands;
     }
 
     @Override

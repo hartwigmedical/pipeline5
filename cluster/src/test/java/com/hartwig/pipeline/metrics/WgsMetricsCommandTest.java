@@ -63,6 +63,8 @@ public class WgsMetricsCommandTest {
         options.put("MINIMUM_MAPPING_QUALITY", "20");
         options.put("MINIMUM_BASE_QUALITY", "10");
         options.put("COVERAGE_CAP", "250");
+        options.put("USE_FAST_ALGORITHM", "true");
+        options.put("READ_LENGTH", "151");
 
         assertThat(secondHalf.size()).isEqualTo(options.size());
         for (String key : options.keySet()) {

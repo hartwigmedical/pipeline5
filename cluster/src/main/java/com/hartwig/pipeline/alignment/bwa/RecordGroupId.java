@@ -16,10 +16,16 @@ public interface RecordGroupId {
                         + "RG field", fastq));
             }
         }
-        return fastqNoExtension.replace("_R1", "").replace("_R2", "");
+        return removeSampleName(removeR1R2(fastqNoExtension));
     }
 
-    static String removeFastqAndGz(final String name) {
-        return removeExtension(removeExtension(name));
+    static String removeFastqAndGz(final String input) {
+        return removeExtension(removeExtension(input));
+    }
+    static String removeR1R2(final String input) {
+        return input.replace("_R1", "").replace("_R2", "");
+    }
+    static String removeSampleName(final String input) {
+        return input.substring(input.indexOf("_") + 1);
     }
 }
