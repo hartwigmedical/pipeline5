@@ -6,12 +6,10 @@ import java.util.function.Supplier;
 
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.cleanup.Cleanup;
-import com.hartwig.pipeline.metadata.CompletionHandler;
-import com.hartwig.pipeline.metadata.SingleSampleEventListener;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.cram.cleanup.Cleanup;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -27,22 +25,23 @@ public class FullPipeline {
     private final ExecutorService executorService;
     private final SingleSampleEventListener referenceSampleEventListener;
     private final SingleSampleEventListener tumorSampleEventListener;
-    private final SomaticMetadataApi api;
     private final SomaticRunMetadata metadata;
     private final Cleanup cleanup;
+    private final OutputPublisher outputPublisher;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
-            final SomaticPipeline somaticPipeline, final ExecutorService executorService, final SingleSampleEventListener referenceApi,
-            final SingleSampleEventListener tumorApi, final SomaticMetadataApi api, final Cleanup cleanup) {
+            final SomaticPipeline somaticPipeline, final SomaticRunMetadata metadata, final ExecutorService executorService,
+            final SingleSampleEventListener referenceApi, final SingleSampleEventListener tumorApi, final Cleanup cleanup,
+            final OutputPublisher outputPublisher) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
         this.executorService = executorService;
         this.referenceSampleEventListener = referenceApi;
         this.tumorSampleEventListener = tumorApi;
-        this.api = api;
-        this.metadata = api.get();
+        this.metadata = metadata;
         this.cleanup = cleanup;
+        this.outputPublisher = outputPublisher;
     }
 
     public PipelineState run() {
@@ -73,7 +72,7 @@ public class FullPipeline {
             waitForSingleSamples(bothSingleSamplesPipelineComplete);
             PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
             PipelineState combinedState = singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
-            api.complete(combinedState, metadata);
+            outputPublisher.publish(combinedState, metadata);
             if (combinedState.shouldProceed()) {
                 cleanup.run(metadata);
             }
@@ -101,7 +100,8 @@ public class FullPipeline {
         };
     }
 
-    private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata, final CountDownLatch latch) {
+    private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata,
+            final CountDownLatch latch) {
         try {
             return pipeline.run(metadata);
         } catch (Exception e) {

@@ -17,8 +17,7 @@ import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.SingleSampleEventListener;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
@@ -66,7 +65,7 @@ public class SingleSamplePipeline {
         LOGGER.info("Pipeline5 single sample pipeline starting for sample name [{}] with id [{}] {}",
                 metadata.sampleName(),
                 metadata.barcode(),
-                arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
+                arguments.runTag().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         AlignmentOutput alignmentOutput = convertCramsIfNecessary(arguments, metadata, state);

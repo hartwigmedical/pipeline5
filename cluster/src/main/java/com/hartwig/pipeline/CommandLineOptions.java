@@ -31,9 +31,7 @@ public class CommandLineOptions {
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String PRIVATE_KEY_FLAG = "private_key_path";
-    private static final String SBP_API_URL_FLAG = "sbp_api_url";
-    private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
-    private static final String RUN_ID_FLAG = "run_id";
+    private static final String RUN_TAG_FLAG = "run_tag";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
     private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
@@ -53,7 +51,6 @@ public class CommandLineOptions {
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
-    private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String NETWORK_FLAG = "network";
     private static final String SUBNET_FLAG = "subnet";
     private static final String NETWORK_TAGS_FLAG = "network_tags";
@@ -96,10 +93,7 @@ public class CommandLineOptions {
                         "Have stdout and stderr of Google tools like gsutil stream to the console"))
                 .addOption(project())
                 .addOption(region())
-                .addOption(sbpRunId())
-                .addOption(sbpApiUrl())
-                .addOption(sbpS3Url())
-                .addOption(runId())
+                .addOption(runTag())
                 .addOption(gsutilPath())
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
@@ -230,12 +224,6 @@ public class CommandLineOptions {
         return optionWithArg(NETWORK_TAGS_FLAG, "Network tags to apply to all GCE instances, comma delimited.");
     }
 
-    private static Option sbpRunId() {
-        return optionWithArg(SBP_RUN_ID_FLAG,
-                "The id of the run in the SBP API. This will be used to look up set information in the "
-                        + "somatic pipeline, and to update the correct run on pipeline completion.");
-    }
-
     private static Option setId() {
         return optionWithArg(SET_ID_FLAG,
                 "The id of the set for which to run a somatic pipeline. A set represents a valid reference/tumor pair (ie CPCT12345678). "
@@ -260,16 +248,8 @@ public class CommandLineOptions {
         return optionWithArg(CLOUD_SDK_PATH_FLAG, "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
     }
 
-    private static Option runId() {
-        return optionWithArg(RUN_ID_FLAG, "Override the generated run id used for runtime bucket and cluster naming");
-    }
-
-    private static Option sbpApiUrl() {
-        return optionWithArg(SBP_API_URL_FLAG, "URL of the SBP API endpoint");
-    }
-
-    private static Option sbpS3Url() {
-        return optionWithArg(SBP_S3_URL_FLAG, "URL of the SBP S3 endpoint");
+    private static Option runTag() {
+        return optionWithArg(RUN_TAG_FLAG, "Override the generated run id used for runtime bucket and cluster naming");
     }
 
     private static Option privateKey() {
@@ -321,10 +301,8 @@ public class CommandLineOptions {
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
-                    .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
-                    .sbpApiRunId(sbpRunId(commandLine))
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
-                    .runId(runId(commandLine))
+                    .runTag(runTag(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
@@ -349,7 +327,7 @@ public class CommandLineOptions {
                     .profile(defaults.profile())
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
-                    .sampleJson(sampleJson(commandLine, defaults))
+                    .sampleJson(commandLine.getOptionValue(SAMPLE_JSON_FLAG, defaults.sampleJson()))
                     .startingPoint(startingPoint(commandLine, defaults))
                     .imageName(imageName(commandLine, defaults))
                     .biopsy(biopsy(commandLine, defaults))
@@ -451,13 +429,6 @@ public class CommandLineOptions {
         return defaults.cmek();
     }
 
-    private static Optional<String> sampleJson(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(SAMPLE_JSON_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(SAMPLE_JSON_FLAG));
-        }
-        return defaults.sampleJson();
-    }
-
     private static Optional<String> imageProject(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(IMAGE_PROJECT_FLAG)) {
             return Optional.of(commandLine.getOptionValue(IMAGE_PROJECT_FLAG));
@@ -493,17 +464,6 @@ public class CommandLineOptions {
         return Arrays.stream(RefGenomeVersion.values()).map(RefGenomeVersion::numeric);
     }
 
-    private static Optional<Integer> sbpRunId(final CommandLine commandLine) {
-        if (commandLine.hasOption(SBP_RUN_ID_FLAG)) {
-            try {
-                return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_RUN_ID_FLAG)));
-            } catch (NumberFormatException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return Optional.empty();
-    }
-
     private static int maxConcurrentLanes(final CommandLine commandLine, final int defaultValue) {
         try {
             if (commandLine.hasOption(MAX_CONCURRENT_LANES_FLAG)) {
@@ -531,9 +491,9 @@ public class CommandLineOptions {
         return Boolean.parseBoolean(value);
     }
 
-    private static Optional<String> runId(final CommandLine commandLine) {
-        if (commandLine.hasOption(RUN_ID_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(RUN_ID_FLAG));
+    private static Optional<String> runTag(final CommandLine commandLine) {
+        if (commandLine.hasOption(RUN_TAG_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(RUN_TAG_FLAG));
         }
         return Optional.empty();
     }

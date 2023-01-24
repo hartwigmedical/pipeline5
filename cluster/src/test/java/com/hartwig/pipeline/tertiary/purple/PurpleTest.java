@@ -8,13 +8,13 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.stages.TestPersistedDataset;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -118,7 +118,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.gripssSomaticProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
-                new NoopPersistedDataset(),
+                new TestPersistedDataset(),
                 Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains(
                 "-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");

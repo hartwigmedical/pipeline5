@@ -15,14 +15,11 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Lane;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -32,10 +29,13 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
+import com.hartwig.pipeline.input.Lane;
+import com.hartwig.pipeline.input.PipelineInput;
+import com.hartwig.pipeline.input.Sample;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ArchivePath;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -54,19 +54,19 @@ public class BwaAligner implements Aligner {
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
-    private final SampleSource sampleSource;
+    private final PipelineInput input;
     private final SampleUpload sampleUpload;
     private final ResultsDirectory resultsDirectory;
     private final ExecutorService executorService;
     private final Labels labels;
 
-    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
+    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final PipelineInput input,
             final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService,
             final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
-        this.sampleSource = sampleSource;
+        this.input = input;
         this.sampleUpload = sampleUpload;
         this.resultsDirectory = resultsDirectory;
         this.executorService = executorService;
@@ -78,7 +78,7 @@ public class BwaAligner implements Aligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments, labels);
 
-        Sample sample = sampleSource.sample(metadata);
+        Sample sample = input.sampleFor(metadata);
         if (sample.bam().isPresent()) {
             String noPrefix = sample.bam().orElseThrow().replace("gs://", "");
             int firstSlash = noPrefix.indexOf("/");

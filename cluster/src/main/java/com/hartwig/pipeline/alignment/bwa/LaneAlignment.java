@@ -3,7 +3,7 @@ package com.hartwig.pipeline.alignment.bwa;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.patient.Lane;
+import com.hartwig.pipeline.input.Lane;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;

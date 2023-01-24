@@ -6,36 +6,38 @@ import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.events.EventContext;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.cleanup.CleanupProvider;
+import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.NoOpComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.input.InputMode;
+import com.hartwig.pipeline.input.JsonPipelineInput;
+import com.hartwig.pipeline.input.MetadataProvider;
+import com.hartwig.pipeline.input.ModeResolver;
+import com.hartwig.pipeline.input.PipelineInput;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.metadata.InputMode;
-import com.hartwig.pipeline.metadata.ModeResolver;
-import com.hartwig.pipeline.metadata.SingleSampleEventListener;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
-import com.hartwig.pipeline.metadata.SomaticMetadataApiProvider;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.NoopOutputPublisher;
+import com.hartwig.pipeline.output.OutputPublisher;
+import com.hartwig.pipeline.output.PipelineCompleteEventPublisher;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.VmExecutionLogSummary;
-import com.hartwig.pipeline.reruns.ApiPersistedDataset;
-import com.hartwig.pipeline.reruns.NoopPersistedDataset;
+import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
@@ -60,18 +62,20 @@ public class PipelineMain {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
-            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments,
-                    storage,
-                    () -> new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
+            PipelineInput input = JsonPipelineInput.read(arguments.sampleJson());
+            final OutputPublisher outputPublisher =
+                    !arguments.context().equals(Pipeline.Context.PLATINUM) ? createPublisher(new EventPublisher<>(arguments.pubsubProject()
+                            .orElse(arguments.project()),
                             EventContext.builder()
                                     .environment(arguments.pubsubTopicEnvironment()
                                             .orElseThrow(PipelineMain::missingPubsubArgumentsException))
                                     .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
                                     .build(),
-                            new PipelineComplete.EventDescriptor())).get();
+                            new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments) : new NoopOutputPublisher();
+            MetadataProvider metadataProvider = new MetadataProvider(arguments, input);
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
-            SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
+            SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
@@ -85,7 +89,6 @@ public class PipelineMain {
                     .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::barcode))
                     .type(ini)
                     .build();
-            somaticMetadataApi.start();
             startedEvent(eventSubjects, turquoisePublisher, arguments.publishToTurquoise());
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
@@ -93,13 +96,9 @@ public class PipelineMain {
             BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
             StartingPoint startingPoint = new StartingPoint(arguments);
-            PersistedDataset persistedDataset = arguments.biopsy()
-                    .<PersistedDataset>map(b -> new ApiPersistedDataset(SbpRestApi.newInstance(arguments.sbpApiUrl()),
-                            ObjectMappers.get(),
-                            b,
-                            arguments.project()))
-                    .orElse(new NoopPersistedDataset());
+            PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
+                    input,
                     credentials,
                     storage,
                     referenceEventListener,
@@ -111,6 +110,7 @@ public class PipelineMain {
                     persistedDataset,
                     mode),
                     singleSamplePipeline(arguments,
+                            input,
                             credentials,
                             storage,
                             tumorEventListener,
@@ -132,11 +132,12 @@ public class PipelineMain {
                             startingPoint,
                             persistedDataset,
                             mode),
+                    metadataProvider.get(),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
-                    somaticMetadataApi,
-                    CleanupProvider.from(arguments, storage).get()).run();
+                    CleanupProvider.from(arguments, storage).get(),
+                    outputPublisher).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
             return state;
@@ -189,11 +190,11 @@ public class PipelineMain {
                 persistedDataset);
     }
 
-    private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener, final SomaticRunMetadata metadata,
-            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
-            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final StartingPoint startingPoint,
-            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+    private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
+            final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
+            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
+            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
@@ -203,7 +204,7 @@ public class PipelineMain {
                         startingPoint,
                         labels,
                         mode),
-                AlignerProvider.from(credentials, storage, arguments, labels).get(),
+                AlignerProvider.from(input, credentials, storage, arguments, labels).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 arguments,
@@ -211,6 +212,12 @@ public class PipelineMain {
                 metricsOutputQueue,
                 flagstatOutputQueue,
                 germlineCallerOutputQueue);
+    }
+
+    private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
+            final Storage storage, final Arguments arguments) {
+        Bucket sourceBucket = storage.get(arguments.outputBucket());
+        return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.useCrams());
     }
 
     public static void main(final String[] args) {

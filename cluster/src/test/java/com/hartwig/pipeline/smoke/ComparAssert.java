@@ -5,10 +5,10 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.github.jknack.handlebars.internal.Files;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -44,7 +44,7 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
             throw new RuntimeException("Failed to run Compar", e);
         }
         File noDifferences = new File(Resources.testResource("smoke_test/compar_no_differences"));
-        for (File expected: noDifferences.listFiles()) {
+        for (File expected : noDifferences.listFiles()) {
             File actual = Path.of(outputDir.getAbsolutePath(), expected.getName().replaceAll("^sample", "COLO829v003T")).toFile();
             Assertions.assertThat(readContents(actual))
                     .as(format("Actual contents do not match expectatation in [%s]", expected.getAbsolutePath()))
@@ -64,7 +64,7 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
 
     private String readContents(final File source) {
         try {
-            return Files.read(source, Charset.defaultCharset());
+            return Files.readString(Path.of(source.getPath()), Charset.defaultCharset());
         } catch (IOException e) {
             Assertions.fail("Unable to read contents of [%s]", source.getAbsolutePath());
             return null;
@@ -75,7 +75,10 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
         void run(final File victim, final File truthset, final File outputDir) throws ParseException {
             String boilerplate = "linx_dir=linx;purple_dir=purple";
             String fileSources = format("TRUTHSET;sample_dir=%s;%s,VICTIM;sample_dir=%s;%s",
-                    victim.getAbsolutePath(), boilerplate, truthset.getAbsolutePath(), boilerplate);
+                    victim.getAbsolutePath(),
+                    boilerplate,
+                    truthset.getAbsolutePath(),
+                    boilerplate);
             List<String> arguments = List.of("-match_level",
                     "KEY_FIELDS",
                     "-categories",

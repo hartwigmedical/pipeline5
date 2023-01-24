@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.reruns.NoopPersistedDataset;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.stages.TestPersistedDataset;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -24,7 +24,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
         return new SageGermlineCaller(TestInputs.defaultPair(),
-                new NoopPersistedDataset(),
+                new TestPersistedDataset(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 

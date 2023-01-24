@@ -1,13 +1,11 @@
 package com.hartwig.pipeline.reruns;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.metadata.TestJson;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.input.TestJson;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Before;
@@ -15,15 +13,12 @@ import org.junit.Test;
 
 public class ApiPersistedDatasetTest {
 
-    private static final String BIOPSY = "biopsy";
     public static final String SAMPLE = "CPCT12345678R";
-    private ApiPersistedDataset victim;
+    private InputPersistedDataset victim;
 
     @Before
     public void setUp() throws Exception {
-        final SbpRestApi restApi = mock(SbpRestApi.class);
-        when(restApi.getDataset(BIOPSY)).thenReturn(TestJson.get("get_dataset"));
-        victim = new ApiPersistedDataset(restApi, ObjectMappers.get(), BIOPSY, "project");
+        victim = new InputPersistedDataset(ObjectMappers.get().readValue(TestJson.get("with_dataset"), PipelineInput.class), "project");
     }
 
     @Test

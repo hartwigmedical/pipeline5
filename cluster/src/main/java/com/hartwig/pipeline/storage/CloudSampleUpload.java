@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Sample;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

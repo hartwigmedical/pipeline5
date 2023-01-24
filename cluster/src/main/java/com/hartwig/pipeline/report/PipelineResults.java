@@ -12,7 +12,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.metadata.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

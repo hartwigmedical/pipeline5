@@ -7,6 +7,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,17 +26,10 @@ public class AlignerProviderTest {
     }
 
     @Test
-    public void wiresUpBootstrapWithLocalDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, LOCAL_ARGUMENTS, mock(Labels.class));
+    public void wiresUpAlignerWithLocalDependencies() throws Exception {
+        AlignerProvider victim =
+                AlignerProvider.from(TestInputs.pipelineInput(), credentials, storage, LOCAL_ARGUMENTS, mock(Labels.class));
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.LocalAlignerProvider.class);
-    }
-
-    @Ignore
-    @Test
-    public void wiresUpBootstrapWithSbpDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().build(), mock(Labels.class));
-        assertThat(victim.get()).isNotNull();
-        assertThat(victim).isInstanceOf(AlignerProvider.SbpAlignerProvider.class);
     }
 }

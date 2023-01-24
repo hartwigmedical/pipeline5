@@ -2,7 +2,7 @@ package com.hartwig.pipeline.storage;
 
 import java.util.function.Function;
 
-import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.input.Sample;
 
 public class LocalFileTarget implements Function<Sample, String> {
 

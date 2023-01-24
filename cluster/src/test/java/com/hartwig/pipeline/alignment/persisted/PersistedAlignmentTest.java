@@ -13,8 +13,8 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.stages.TestPersistedDataset;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -52,7 +52,7 @@ public class PersistedAlignmentTest {
         final Blob blob = TestBlobs.blob(PERSISTED_REFERENCE_BAM.path());
         final Page<Blob> page = TestBlobs.pageOf(blob);
         when(storage.list(TestInputs.BUCKET, Storage.BlobListOption.prefix(PERSISTED_REFERENCE_BAM.path()))).thenReturn(page);
-        PersistedAlignment victim = new PersistedAlignment(new NoopPersistedDataset(), Arguments.testDefaults(), storage);
+        PersistedAlignment victim = new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaults(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
@@ -63,7 +63,7 @@ public class PersistedAlignmentTest {
     public void returnsCramsInConventionalLocationIfNotPersistedAndBamsDontExist() {
         final Page<Blob> page = TestBlobs.pageOf();
         when(storage.list(TestInputs.BUCKET, Storage.BlobListOption.prefix(PERSISTED_REFERENCE_CRAM.path()))).thenReturn(page);
-        PersistedAlignment victim = new PersistedAlignment(new NoopPersistedDataset(), Arguments.testDefaults(), storage);
+        PersistedAlignment victim = new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaults(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
@@ -73,7 +73,7 @@ public class PersistedAlignmentTest {
     @Test
     public void returnsCramsInConventionalLocationIfNoPersistedAndUseCrams() {
         PersistedAlignment victim =
-                new PersistedAlignment(new NoopPersistedDataset(), Arguments.testDefaultsBuilder().useCrams(true).build(), storage);
+                new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaultsBuilder().useCrams(true).build(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
