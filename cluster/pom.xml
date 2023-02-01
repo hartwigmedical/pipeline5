@@ -28,6 +28,10 @@
             <groupId>com.hartwig</groupId>
             <artifactId>compar</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig.pdl</groupId>
+            <artifactId>pdl-spec</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>

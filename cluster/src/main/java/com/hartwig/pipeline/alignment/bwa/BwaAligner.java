@@ -15,6 +15,9 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Storage;
+import com.hartwig.pdl.LaneInput;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.Aligner;
@@ -29,9 +32,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
-import com.hartwig.pipeline.input.Lane;
-import com.hartwig.pipeline.input.PipelineInput;
-import com.hartwig.pipeline.input.Sample;
+import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -60,9 +61,9 @@ public class BwaAligner implements Aligner {
     private final ExecutorService executorService;
     private final Labels labels;
 
-    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final PipelineInput input,
-            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService,
-            final Labels labels) {
+    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
+            final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final ExecutorService executorService, final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -75,10 +76,11 @@ public class BwaAligner implements Aligner {
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace =
+                new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments, labels);
 
-        Sample sample = input.sampleFor(metadata);
+        SampleInput sample = Inputs.sampleFor(input, metadata);
         if (sample.bam().isPresent()) {
             String noPrefix = sample.bam().orElseThrow().replace("gs://", "");
             int firstSlash = noPrefix.indexOf("/");
@@ -97,16 +99,16 @@ public class BwaAligner implements Aligner {
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<ReportComponent> laneLogComponents = new ArrayList<>();
         List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
-        for (Lane lane : sample.lanes()) {
+        for (LaneInput lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments, labels);
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
-            InputDownload first =
-                    new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.firstOfPairPath())));
-            InputDownload second =
-                    new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
+            InputDownload first = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+                    fastQFileName(sample.name(), lane.firstOfPairPath())));
+            InputDownload second = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+                    fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
 
             SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
@@ -114,7 +116,8 @@ public class BwaAligner implements Aligner {
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
                     lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
-            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
+            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(),
+                    resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
@@ -122,7 +125,10 @@ public class BwaAligner implements Aligner {
             futures.add(executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
-            laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
+            laneLogComponents.add(new RunLogComponent(laneBucket,
+                    laneNamespace(lane),
+                    Folder.from(metadata),
+                    resultsDirectory));
             laneFailedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
         }
 
@@ -141,20 +147,25 @@ public class BwaAligner implements Aligner {
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
-            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path()),
-                    RuntimeFiles.typical()));
+            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(),
+                    resultsDirectory.path()), RuntimeFiles.typical()));
 
-            PipelineStatus status =
-                    runWithRetries(metadata, rootBucket, VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+            PipelineStatus status = runWithRetries(metadata,
+                    rootBucket,
+                    VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(status)
-                    .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(merged.outputFile().fileName())))
+                    .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(),
+                            resultsDirectory.path(merged.outputFile().fileName())))
                     .addAllReportComponents(laneLogComponents)
                     .addAllFailedLogLocations(laneFailedLogs)
                     .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
-                    .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
+                    .addReportComponents(new RunLogComponent(rootBucket,
+                            Aligner.NAMESPACE,
+                            Folder.from(metadata),
+                            resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
                                         Aligner.NAMESPACE,
@@ -170,10 +181,14 @@ public class BwaAligner implements Aligner {
                                         resultsDirectory))
                         .addDatatypes(new AddDatatype(DataType.ALIGNED_READS,
                                         metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))),
+                                        new ArchivePath(Folder.from(metadata),
+                                                BwaAligner.NAMESPACE,
+                                                bam(metadata.sampleName()))),
                                 new AddDatatype(DataType.ALIGNED_READS_INDEX,
                                         metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(metadata.sampleName()))));
+                                        new ArchivePath(Folder.from(metadata),
+                                                BwaAligner.NAMESPACE,
+                                                bai(metadata.sampleName()))));
             }
             output = outputBuilder.build();
         } else {
@@ -186,15 +201,16 @@ public class BwaAligner implements Aligner {
 
     public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
-        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
-                .get(() -> computeEngine.submit(laneBucket, jobDefinition));
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
+                metadata.toString(),
+                Aligner.NAMESPACE))).get(() -> computeEngine.submit(laneBucket, jobDefinition));
     }
 
-    private static String laneNamespace(final Lane lane) {
+    private static String laneNamespace(final LaneInput lane) {
         return NAMESPACE + "/" + laneId(lane);
     }
 
-    static String laneId(final Lane lane) {
+    static String laneId(final LaneInput lane) {
         return lane.flowCellId() + "-" + lane.laneNumber();
     }
 

@@ -11,16 +11,15 @@ import java.util.concurrent.Executors;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
+import com.hartwig.pdl.LaneInput;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.input.ImmutableLane;
-import com.hartwig.pipeline.input.ImmutablePipelineInput;
-import com.hartwig.pipeline.input.PipelineInput;
-import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -48,8 +47,12 @@ public class BwaAlignerTest {
         computeEngine = mock(GoogleComputeEngine.class);
         storage = mock(Storage.class);
         sampleUpload = mock(SampleUpload.class);
-        PipelineInput input = ImmutablePipelineInput.builder()
-                .reference(Sample.builder(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
+        PipelineInput input = PipelineInput.builder()
+                .reference(SampleInput.builder()
+                        .name(METADATA.sampleName())
+                        .addLanes(lane(1))
+                        .addLanes(lane(2))
+                        .build())
                 .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
@@ -68,7 +71,8 @@ public class BwaAlignerTest {
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(
+                PipelineStatus.SUCCESS);
         victim.run(METADATA);
         assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/flowcell-L001");
         assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/flowcell-L002");
@@ -81,7 +85,8 @@ public class BwaAlignerTest {
     public void failsWhenAnyLaneFails() throws Exception {
         setupMocks();
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        when(computeEngine.submit(any(), argThat(jobDef -> jobDef.name().contains("l001")))).thenReturn(PipelineStatus.FAILED);
+        when(computeEngine.submit(any(),
+                argThat(jobDef -> jobDef.name().contains("l001")))).thenReturn(PipelineStatus.FAILED);
         assertThat(victim.run(METADATA).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -91,7 +96,8 @@ public class BwaAlignerTest {
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(
+                PipelineStatus.SUCCESS);
         victim.run(METADATA);
         assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference-test/aligner");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-markdup");
@@ -99,8 +105,11 @@ public class BwaAlignerTest {
 
     @Test
     public void returnsProvidedBamIfInSample() throws Exception {
-        PipelineInput input = ImmutablePipelineInput.builder()
-                .reference(Sample.builder(METADATA.sampleName()).bam("gs://bucket/path/reference.bam").build())
+        PipelineInput input = PipelineInput.builder()
+                .reference(SampleInput.builder()
+                        .name(METADATA.sampleName())
+                        .bam("gs://bucket/path/reference.bam")
+                        .build())
                 .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
@@ -125,7 +134,7 @@ public class BwaAlignerTest {
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
     }
 
-    private static ImmutableLane lane(final int index) {
+    private static LaneInput lane(final int index) {
         return Lanes.emptyBuilder().flowCellId("flowcell").laneNumber(String.format("L00%s", index)).build();
     }
 }
