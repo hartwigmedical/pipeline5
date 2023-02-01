@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.hartwig.api.HmfApi;
 import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.model.Run;
@@ -22,15 +23,15 @@ public class HmfApiStatusUpdate {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(HmfApiStatusUpdate.class);
     public static final String FAILED = "Failed";
-    private final Run run;
     private final RunApi runApi;
+    private final Run run;
 
-    HmfApiStatusUpdate(final Run run, final RunApi runApi) {
-        this.runApi = runApi;
-        this.run = run;
+    public HmfApiStatusUpdate(final String apiUrl, final Long runId) {
+        this.runApi = HmfApi.create(apiUrl).runs();
+        this.run = runApi.get(runId);
     }
 
-    public void complete(final PipelineState pipelineState) {
+    public void finish(final PipelineState pipelineState) {
         LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
         try {
             ApiRunStatus.finish(runApi, run, pipelineState.status());

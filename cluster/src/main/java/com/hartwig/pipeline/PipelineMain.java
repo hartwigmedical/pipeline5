@@ -28,6 +28,7 @@ import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.NoopOutputPublisher;
 import com.hartwig.pipeline.output.OutputPublisher;
@@ -69,7 +70,9 @@ public class PipelineMain {
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
+            HmfApiStatusUpdate apiUpdate = new HmfApiStatusUpdate(arguments.hmfApiUrl(), input.externalIds().get().runId());
             LOGGER.info("Starting pipeline in [{}] mode", mode);
+            apiUpdate.start();
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
@@ -132,6 +135,7 @@ public class PipelineMain {
                     outputPublisher).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
+            apiUpdate.finish(state);
             return state;
 
         } catch (Exception e) {

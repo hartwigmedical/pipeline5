@@ -45,6 +45,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> biopsy();
 
+    String hmfApiUrl();
+
     String outputBucket();
 
     Optional<String> uploadPrivateKeyPath();
@@ -90,7 +92,7 @@ public interface Arguments extends CommonArguments {
     }
 
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
-    String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
+    String DEFAULT_PRODUCTION_HMF_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
 
@@ -114,6 +116,7 @@ public interface Arguments extends CommonArguments {
                     .profile(profile)
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
+                    .hmfApiUrl(DEFAULT_PRODUCTION_HMF_API_URL)
                     .privateKeyPath(Optional.empty())
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
@@ -147,6 +150,7 @@ public interface Arguments extends CommonArguments {
                     .profile(profile)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
+                    .hmfApiUrl(NOT_APPLICABLE)
                     .cloudSdkPath(CommonArguments.DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
@@ -180,6 +184,7 @@ public interface Arguments extends CommonArguments {
                     .profile(profile)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
+                    .hmfApiUrl(NOT_APPLICABLE)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
@@ -215,6 +220,7 @@ public interface Arguments extends CommonArguments {
                     .outputBucket(EMPTY)
                     .region(EMPTY)
                     .project(EMPTY)
+                    .hmfApiUrl(NOT_APPLICABLE)
                     .serviceAccountEmail(EMPTY)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .cleanup(true)
