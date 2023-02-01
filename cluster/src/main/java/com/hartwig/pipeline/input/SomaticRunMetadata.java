@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hartwig.pdl.OperationalReferences;
 
 import org.immutables.value.Value;
 
@@ -15,7 +16,7 @@ public interface SomaticRunMetadata extends RunMetadata {
     int MAX_SAMPLE_LENGTH = 13;
 
     @JsonProperty("external_ids")
-    Optional<ExternalIds> maybeExternalIds();
+    Optional<OperationalReferences> maybeExternalIds();
 
     @JsonProperty("reference")
     Optional<SingleSampleRunMetadata> maybeReference();

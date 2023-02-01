@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.function.Function;
 
-import com.hartwig.pipeline.input.Lane;
-import com.hartwig.pipeline.input.Sample;
+import com.hartwig.pdl.LaneInput;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
@@ -22,13 +22,13 @@ public class CloudSampleUploadTest {
     private static final String SAMPLE_NAME = "TEST123";
     private static final String SAMPLE_PATH = "samples/" + SAMPLE_NAME + "/";
     private static final String FASTQ_DIR = "/fastq-dir/";
-    private static final Lane LANE_1 = Lane.builder()
+    private static final LaneInput LANE_1 = LaneInput.builder()
             .firstOfPairPath(FASTQ_DIR + "reads1.fastq.gz")
             .secondOfPairPath(FASTQ_DIR + "mates1.fastq.gz")
             .laneNumber("")
             .flowCellId("")
             .build();
-    private static final Sample SAMPLE_ONE_LANE = Sample.builder(SAMPLE_NAME).addLanes(LANE_1).build();
+    private static final SampleInput SAMPLE_ONE_LANE = SampleInput.builder().name(SAMPLE_NAME).addLanes(LANE_1).build();
     private static final String TARGET_PATH = "gs://run/samples/TEST123/";
     private CloudCopy cloudCopy;
     private CloudSampleUpload victim;
@@ -51,8 +51,12 @@ public class CloudSampleUploadTest {
 
     @Test
     public void doesNotCopyWhenGunzippedInStorage() {
-        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.firstOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1)
-                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.secondOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1);
+        mockRuntimeBucket.with(
+                        "samples/" + SAMPLE_NAME + "/" + LANE_1.firstOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "")
+                                + "/", 1)
+                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.secondOfPairPath()
+                        .replace(FASTQ_DIR, "")
+                        .replace(".gz", "") + "/", 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any());
     }

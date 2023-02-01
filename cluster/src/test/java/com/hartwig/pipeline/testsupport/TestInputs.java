@@ -7,6 +7,9 @@ import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPS
 
 import java.util.List;
 
+import com.hartwig.pdl.OperationalReferences;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -23,10 +26,6 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.input.ExternalIds;
-import com.hartwig.pipeline.input.ImmutablePipelineInput;
-import com.hartwig.pipeline.input.PipelineInput;
-import com.hartwig.pipeline.input.Sample;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -94,14 +93,15 @@ public class TestInputs {
     public static final long EXTERNAL_SET_ID = 2L;
 
     public static PipelineInput pipelineInput() {
-        return ImmutablePipelineInput.builder()
-                .reference(Sample.builder(REFERENCE_SAMPLE).build())
-                .tumor(Sample.builder(TUMOR_SAMPLE).build())
+        return PipelineInput.builder()
+                .reference(SampleInput.builder().name(REFERENCE_SAMPLE).build())
+                .tumor(SampleInput.builder().name(TUMOR_SAMPLE).build())
                 .build();
     }
 
     public static String inputDownload(final String commands) {
-        return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
+        return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm "
+                + commands;
     }
 
     public static String referenceSample() {
@@ -124,13 +124,18 @@ public class TestInputs {
                 .build();
     }
 
-    public static ExternalIds externalIds() {
-        return ExternalIds.builder().runId(EXTERNAL_RUN_ID).setId(EXTERNAL_SET_ID).build();
+    public static OperationalReferences externalIds() {
+        return OperationalReferences.builder().runId(EXTERNAL_RUN_ID).setId(EXTERNAL_SET_ID).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).maybeExternalIds(externalIds()).build();
+        return SomaticRunMetadata.builder()
+                .set(SET)
+                .maybeReference(reference)
+                .bucket(BUCKET)
+                .maybeExternalIds(externalIds())
+                .build();
     }
 
     @NotNull
@@ -215,7 +220,8 @@ public class TestInputs {
         String germlineVcf = REFERENCE_SAMPLE + ".germline.vcf.gz";
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE), germlineVcf))
+                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
+                        germlineVcf))
                 .maybeGermlineVcfIndexLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
                         germlineVcf + ".tbi"))
                 .build();
@@ -255,18 +261,20 @@ public class TestInputs {
     public static PaveOutput paveSomaticOutput() {
         return PaveOutput.builder(PaveSomatic.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveSomatic.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".somatic." +
-                        // String.format(".%s.%s.", SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_ID) +
-                        FileTypes.GZIPPED_VCF))
+                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveSomatic.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + ".somatic." +
+                                // String.format(".%s.%s.", SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_ID) +
+                                FileTypes.GZIPPED_VCF))
                 .build();
     }
 
     public static PaveOutput paveGermlineOutput() {
         return PaveOutput.builder(PaveGermline.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".germline." +
-                        // String.format(".%s.%s.", SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_ID) +
-                        FileTypes.GZIPPED_VCF))
+                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + ".germline." +
+                                // String.format(".%s.%s.", SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_ID) +
+                                FileTypes.GZIPPED_VCF))
                 .build();
     }
 
@@ -308,7 +316,8 @@ public class TestInputs {
     public static VirusBreakendOutput virusBreakendOutput() {
         return VirusBreakendOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeSummary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf.summary.tsv"))
+                .maybeSummary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE),
+                        TUMOR_SAMPLE + ".virusbreakend.vcf.summary.tsv"))
                 .maybeVariants(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf"))
                 .build();
     }
@@ -316,7 +325,8 @@ public class TestInputs {
     public static VirusInterpreterOutput virusInterpreterOutput() {
         return VirusInterpreterOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeVirusAnnotations(gsLocation(somaticBucket(VirusInterpreter.NAMESPACE), TUMOR_SAMPLE + ".virus.annotated.tsv"))
+                .maybeVirusAnnotations(gsLocation(somaticBucket(VirusInterpreter.NAMESPACE),
+                        TUMOR_SAMPLE + ".virus.annotated.tsv"))
                 .build();
     }
 
@@ -343,12 +353,16 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputLocations(PurpleOutputLocations.builder()
                         .outputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
-                        .somaticVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
-                        .germlineVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_VCF))
-                        .structuralVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
+                        .somaticVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
+                        .germlineVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_VCF))
+                        .structuralVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
                         .purity(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
                         .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
-                        .geneCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
+                        .geneCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
                         .somaticDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
@@ -357,7 +371,8 @@ public class TestInputs {
                                 format("plot/%s%s", TUMOR_SAMPLE, Purple.PURPLE_CIRCOS_PLOT)))
                         .somaticCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_COPY_NUMBER_TSV))
-                        .germlineDeletions(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DELETION_TSV))
+                        .germlineDeletions(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DELETION_TSV))
                         .build())
                 .build();
     }
@@ -373,11 +388,14 @@ public class TestInputs {
         return CuppaOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
-                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
+                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
+                                TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
+                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
+                                TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
                         .summaryChartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
                                 TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
-                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
+                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
+                                TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
                         .conclusionChart(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
                                 TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_CHART))
                         .build())
@@ -399,13 +417,19 @@ public class TestInputs {
         return LinxSomaticOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
-                        .breakends(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.BREAKEND_TSV))
-                        .driverCatalog(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.DRIVER_CATALOG_TSV))
-                        .fusions(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.FUSION_TSV))
-                        .svAnnotations(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.SV_ANNOTATIONS_TSV))
-                        .clusters(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.CLUSTERS_TSV))
+                        .breakends(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.BREAKEND_TSV))
+                        .driverCatalog(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.DRIVER_CATALOG_TSV))
+                        .fusions(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.FUSION_TSV))
+                        .svAnnotations(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.SV_ANNOTATIONS_TSV))
+                        .clusters(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.CLUSTERS_TSV))
                         .outputDirectory(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), RESULTS))
-                        .drivers(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.DRIVERS_TSV))
+                        .drivers(gsLocation(somaticBucket(LinxSomatic.NAMESPACE),
+                                TUMOR_SAMPLE + LinxSomatic.DRIVERS_TSV))
                         .build())
                 .build();
     }
@@ -414,7 +438,8 @@ public class TestInputs {
         return LinxGermlineOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
-                        .disruptions(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_DISRUPTION_TSV))
+                        .disruptions(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
+                                TUMOR_SAMPLE + LinxGermline.GERMLINE_DISRUPTION_TSV))
                         .driverCatalog(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
                                 TUMOR_SAMPLE + LinxGermline.GERMLINE_DRIVER_CATALOG_TSV))
                         .outputDirectory(gsLocation(somaticBucket(LinxGermline.NAMESPACE), RESULTS))
@@ -433,24 +458,29 @@ public class TestInputs {
     public static LilacBamSliceOutput lilacBamSliceOutput() {
         return LilacBamSliceOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .reference(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam"))
-                .referenceIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam.bai"))
+                .reference(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE),
+                        REFERENCE_SAMPLE + ".hla.bam"))
+                .referenceIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE),
+                        REFERENCE_SAMPLE + ".hla.bam.bai"))
                 .tumor(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam"))
-                .tumorIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam.bai"))
+                .tumorIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE),
+                        TUMOR_SAMPLE + ".hla.bam.bai"))
                 .build();
     }
 
     public static ProtectOutput protectOutput() {
         return ProtectOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeEvidence(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
+                .maybeEvidence(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE),
+                        TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
                 .build();
     }
 
     public static PeachOutput peachOutput() {
         return PeachOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
+                .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE),
+                        TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
                 .build();
     }
 

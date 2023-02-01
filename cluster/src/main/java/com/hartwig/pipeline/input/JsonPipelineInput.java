@@ -3,6 +3,7 @@ package com.hartwig.pipeline.input;
 import java.io.File;
 import java.io.IOException;
 
+import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 
 public class JsonPipelineInput {
