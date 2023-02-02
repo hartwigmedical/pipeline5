@@ -8,6 +8,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.api.HmfApi;
+import com.hartwig.api.RunApi;
 import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
@@ -70,7 +72,8 @@ public class PipelineMain {
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
-            HmfApiStatusUpdate apiUpdate = new HmfApiStatusUpdate(arguments.hmfApiUrl(), input.externalIds().get().runId());
+            RunApi runApi = HmfApi.create(arguments.hmfApiUrl()).runs();
+            HmfApiStatusUpdate apiUpdate = new HmfApiStatusUpdate(runApi, input.externalIds().get().runId());
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             apiUpdate.start();
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
