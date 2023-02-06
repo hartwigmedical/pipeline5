@@ -20,19 +20,13 @@ public class HmfApiStatusUpdate {
     private final static Logger LOGGER = LoggerFactory.getLogger(HmfApiStatusUpdate.class);
     private static final String PIPELINE_SOURCE = "Pipeline";
     private static final String HEALTH_CHECK = "HealthCheck";
-    private final RunApi runApi;
-    private final Run run;
 
-    public HmfApiStatusUpdate(final RunApi runApi, final Long runId) {
-        this.runApi = runApi;
-        this.run = runApi.get(runId);
-    }
-
-    public void start() {
+    public static void start(final RunApi runApi, final Run run) {
+        LOGGER.info("Recording pipeline start with status [{}]", Status.PROCESSING);
         runApi.update(run.getId(), new UpdateRun().failure(null).status(Status.PROCESSING).startTime(timestamp()));
     }
 
-    public void finish(final PipelineState pipelineState) {
+    public static void finish(final RunApi runApi, final Run run, final PipelineState pipelineState) {
         LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
         runApi.update(run.getId(), statusUpdate(pipelineState.status()).endTime(timestamp()));
     }

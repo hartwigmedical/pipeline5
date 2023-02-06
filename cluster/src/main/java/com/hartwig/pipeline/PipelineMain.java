@@ -10,6 +10,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.RunApi;
+import com.hartwig.api.model.Run;
 import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
@@ -57,6 +58,8 @@ import org.slf4j.LoggerFactory;
 public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
+    private static final String START = "start";
+    private static final String FINISH = "finish";
 
     public PipelineState start(final Arguments arguments) {
         LOGGER.info("Arguments are [{}]", arguments);
@@ -72,10 +75,10 @@ public class PipelineMain {
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
-            RunApi runApi = HmfApi.create(arguments.hmfApiUrl()).runs();
-            HmfApiStatusUpdate apiUpdate = new HmfApiStatusUpdate(runApi, input.externalIds().get().runId());
+            RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
+
             LOGGER.info("Starting pipeline in [{}] mode", mode);
-            apiUpdate.start();
+            apiUpdate(runApi, input, null, arguments, START);
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
@@ -138,7 +141,7 @@ public class PipelineMain {
                     outputPublisher).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
-            apiUpdate.finish(state);
+            apiUpdate(runApi, input, state, arguments, FINISH);
             return state;
 
         } catch (Exception e) {
@@ -233,6 +236,17 @@ public class PipelineMain {
         return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.useCrams());
     }
 
+    private void apiUpdate(RunApi runApi, PipelineInput input, PipelineState state, Arguments arguments, String startOrFinish){
+        if (arguments.hmfApiUrl().isPresent()) {
+            Run run = runApi.get(input.externalIds().orElseThrow().runId());
+            if (startOrFinish.equals(START)){
+                HmfApiStatusUpdate.start(runApi, run);
+            } else if (startOrFinish.equals(FINISH)) {
+                HmfApiStatusUpdate.finish(runApi, run, state);
+            }
+
+        }
+    }
     public static void main(final String[] args) {
         try {
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));

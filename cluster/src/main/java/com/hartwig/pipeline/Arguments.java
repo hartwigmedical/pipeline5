@@ -45,7 +45,7 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> biopsy();
 
-    String hmfApiUrl();
+    Optional<String> hmfApiUrl();
 
     String outputBucket();
 
