@@ -62,6 +62,7 @@ public class CommandLineOptions {
     private static final String STARTING_POINT_FLAG = "starting_point";
     private static final String IMAGE_NAME_FLAG = "image_name";
     private static final String BIOPSY_FLAG = "biopsy";
+    private static final String HMF_API_URL_FLAG = "hmf_api_url";
     private static final String IMAGE_PROJECT_FLAG = "image_project";
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
@@ -122,6 +123,7 @@ public class CommandLineOptions {
                 .addOption(startingPoint())
                 .addOption(imageName())
                 .addOption(biopsy())
+                .addOption(hmfApiUrl())
                 .addOption(imageProject())
                 .addOption(useCrams())
                 .addOption(pubsubProject())
@@ -183,6 +185,9 @@ public class CommandLineOptions {
 
     private static Option biopsy() {
         return optionWithArg(BIOPSY_FLAG, "Name of the biopsy registered in the API.");
+    }
+    private static Option hmfApiUrl() {
+        return optionWithArg(HMF_API_URL_FLAG, "URL of the HMF-API.");
     }
 
     private static Option startingPoint() {
@@ -343,6 +348,7 @@ public class CommandLineOptions {
                     .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
                     .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
                     .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
+                    .hmfApiUrl(hmfApiUrl(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -399,6 +405,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(BIOPSY_FLAG));
         }
         return defaults.biopsy();
+    }
+
+    public static Optional<String> hmfApiUrl(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(HMF_API_URL_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(HMF_API_URL_FLAG));
+        }
+        return defaults.hmfApiUrl();
     }
 
     public static Optional<String> subnet(final CommandLine commandLine, final Arguments defaults) {

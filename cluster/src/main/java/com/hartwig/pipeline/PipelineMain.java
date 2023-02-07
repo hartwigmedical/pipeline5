@@ -244,7 +244,6 @@ public class PipelineMain {
             } else if (startOrFinish.equals(FINISH)) {
                 HmfApiStatusUpdate.finish(runApi, run, state);
             }
-
         }
     }
     public static void main(final String[] args) {
