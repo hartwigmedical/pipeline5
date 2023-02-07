@@ -25,6 +25,7 @@ public interface LinxGermlineOutput extends StageOutput {
     default LinxGermlineOutputLocations linxOutputLocations() {
         return maybeLinxGermlineOutputLocations().orElse(LinxGermlineOutputLocations.builder()
                 .disruptions(empty())
+                .breakends(empty())
                 .driverCatalog(empty())
                 .outputDirectory(empty())
                 .build());

@@ -263,7 +263,6 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveSomatic.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".somatic." +
-                                // String.format(".%s.%s.", SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_ID) +
                                 FileTypes.GZIPPED_VCF))
                 .build();
     }
@@ -273,7 +272,6 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." +
-                                // String.format(".%s.%s.", SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_ID) +
                                 FileTypes.GZIPPED_VCF))
                 .build();
     }
@@ -289,9 +287,9 @@ public class TestInputs {
                 .build();
     }
 
-    public static GripssOutput gripssSomaticProcessOutput() {
-        String filtered = ".gripss.filtered.";
-        String full = ".gripss.full.";
+    public static GripssOutput gripssSomaticOutput() {
+        String filtered = ".gripss.filtered.somatic.";
+        String full = ".gripss.somatic.";
         return GripssOutput.builder(GRIPSS_SOMATIC_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
@@ -302,8 +300,8 @@ public class TestInputs {
     }
 
     public static GripssOutput gripssGermlineOutput() {
-        String filtered = ".gripss.filtered.";
-        String full = ".gripss.full.";
+        String filtered = ".gripss.filtered.germline.";
+        String full = ".gripss.germline.";
         return GripssOutput.builder(GRIPSS_GERMLINE_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
@@ -358,7 +356,9 @@ public class TestInputs {
                         .germlineVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_VCF))
                         .structuralVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
-                                TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
+                                TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_SV_VCF))
+                        .germlineStructuralVariants(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_SV_VCF))
                         .purity(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
                         .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
                         .geneCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE),
@@ -440,6 +440,8 @@ public class TestInputs {
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
                         .disruptions(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
                                 TUMOR_SAMPLE + LinxGermline.GERMLINE_DISRUPTION_TSV))
+                        .breakends(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
+                                TUMOR_SAMPLE + LinxGermline.GERMLINE_BREAKEND_TSV))
                         .driverCatalog(gsLocation(somaticBucket(LinxGermline.NAMESPACE),
                                 TUMOR_SAMPLE + LinxGermline.GERMLINE_DRIVER_CATALOG_TSV))
                         .outputDirectory(gsLocation(somaticBucket(LinxGermline.NAMESPACE), RESULTS))

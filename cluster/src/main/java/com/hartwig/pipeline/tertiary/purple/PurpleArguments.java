@@ -16,15 +16,17 @@ final class PurpleArguments {
             final String svRecoveryVcfPath, final ResourceFiles resourceFiles) {
         return List.of(format("-tumor %s", tumorSampleName),
                 format("-somatic_vcf %s", somaticVcfPath),
-                format("-structural_vcf %s", structuralVcfPath),
+                format("-somatic_sv_vcf %s", structuralVcfPath),
                 format("-sv_recovery_vcf %s", svRecoveryVcfPath),
                 format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()),
                 format("-circos %s", CIRCOS_PATH));
     }
 
-    public static List<String> germlineArguments(final String sampleName, final String germlineVcfPath, final ResourceFiles resourceFiles) {
+    public static List<String> germlineArguments(
+            final String sampleName, final String germlineVcfPath, final String germlineSvVcfPath, final ResourceFiles resourceFiles) {
         return List.of(format("-reference %s", sampleName),
                 format("-germline_vcf %s", germlineVcfPath),
+                format("-germline_sv_vcf %s", germlineSvVcfPath),
                 format("-germline_hotspots %s", resourceFiles.sageGermlineHotspots()),
                 format("-germline_del_freq_file %s", resourceFiles.purpleCohortGermlineDeletions()));
     }
@@ -44,7 +46,6 @@ final class PurpleArguments {
                 format("-cobalt %s", cobaltOutputPath),
                 format("-ref_genome %s", resourceFiles.refGenomeFile()),
                 format("-ref_genome_version %s", resourceFiles.version().toString()),
-                "-run_drivers",
                 format("-driver_gene_panel %s", resourceFiles.driverGenePanel()),
                 format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()),
                 format("-gc_profile %s", resourceFiles.gcProfileFile()),

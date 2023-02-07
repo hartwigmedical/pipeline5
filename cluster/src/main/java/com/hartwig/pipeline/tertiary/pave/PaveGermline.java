@@ -18,7 +18,7 @@ public class PaveGermline extends Pave {
     public static final String NAMESPACE = "pave_germline";
 
     public PaveGermline(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
-        super(resourceFiles, sageOutput, persistedDataset, DataType.GERMLINE_VARIANTS_PAVE);
+        super(resourceFiles, sageOutput, persistedDataset, DataType.PAVE_GERMLINE_VARIANTS);
     }
 
     @Override

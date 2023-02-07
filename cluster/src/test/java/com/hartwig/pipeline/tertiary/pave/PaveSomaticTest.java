@@ -71,7 +71,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PAVE,
+        return List.of(new AddDatatype(DataType.PAVE_SOMATIC_VARIANTS,
                 TestInputs.tumorRunMetadata().barcode(),
                 new ArchivePath(Folder.root(), PaveSomatic.NAMESPACE, "tumor.sage.somatic.filtered.pave.vcf.gz")));
     }

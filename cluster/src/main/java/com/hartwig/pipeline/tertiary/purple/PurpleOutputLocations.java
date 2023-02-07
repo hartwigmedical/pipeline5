@@ -23,6 +23,7 @@ public interface PurpleOutputLocations {
 
     // germline
     Optional<GoogleStorageLocation> germlineVariants();
+    Optional<GoogleStorageLocation> germlineStructuralVariants();
     Optional<GoogleStorageLocation> germlineDriverCatalog();
     Optional<GoogleStorageLocation> germlineDeletions();
 

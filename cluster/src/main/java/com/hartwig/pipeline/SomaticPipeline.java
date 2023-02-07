@@ -147,6 +147,7 @@ public class SomaticPipeline {
                                     paveSomaticOutput,
                                     paveGermlineOutput,
                                     metadata.maybeTumor().map(t -> gripssSomaticProcessOutput).orElse(gripssGermlineProcessOutput),
+                                    gripssGermlineProcessOutput,
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
@@ -182,7 +183,7 @@ public class SomaticPipeline {
                         Future<LinxSomaticOutput> linxSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                         Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
+                                new LinxGermline(purpleOutput, resourceFiles, persistedDataset)));
                         LilacBamSliceOutput lilacBamSliceOutput = pipelineResults.add(state.add(lilacBamSliceOutputFuture.get()));
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput, persistedDataset)));

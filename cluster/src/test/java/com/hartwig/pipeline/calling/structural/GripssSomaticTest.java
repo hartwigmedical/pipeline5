@@ -98,8 +98,8 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
-        persistedDataset.addPath(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS_UNFILTERED, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
     }
 
     @Override
