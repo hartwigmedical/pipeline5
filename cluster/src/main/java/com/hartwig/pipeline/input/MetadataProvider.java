@@ -2,6 +2,8 @@ package com.hartwig.pipeline.input;
 
 import java.util.Optional;
 
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
@@ -18,8 +20,8 @@ public class MetadataProvider {
 
     public SomaticRunMetadata get() {
         String setId = RunTag.apply(arguments, arguments.setId());
-        Optional<Sample> reference = pipelineInput.sample(SampleType.REFERENCE);
-        Optional<Sample> tumor = pipelineInput.sample(SampleType.TUMOR);
+        Optional<SampleInput> reference = Inputs.sample(pipelineInput, SampleType.REFERENCE);
+        Optional<SampleInput> tumor = Inputs.sample(pipelineInput, SampleType.TUMOR);
 
         return SomaticRunMetadata.builder()
                 .set(setId)

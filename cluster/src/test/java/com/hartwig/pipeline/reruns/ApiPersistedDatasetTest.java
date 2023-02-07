@@ -2,8 +2,8 @@ package com.hartwig.pipeline.reruns;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.input.TestJson;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;

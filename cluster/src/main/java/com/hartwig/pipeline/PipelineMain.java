@@ -15,6 +15,7 @@ import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
@@ -27,7 +28,6 @@ import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
 import com.hartwig.pipeline.input.ModeResolver;
-import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
@@ -238,7 +238,7 @@ public class PipelineMain {
 
     private void apiUpdate(RunApi runApi, PipelineInput input, PipelineState state, Arguments arguments, String startOrFinish){
         if (arguments.hmfApiUrl().isPresent()) {
-            Run run = runApi.get(input.externalIds().orElseThrow().runId());
+            Run run = runApi.get(input.operationalReferences().orElseThrow().runId());
             if (startOrFinish.equals(START)){
                 HmfApiStatusUpdate.start(runApi, run);
             } else if (startOrFinish.equals(FINISH)) {

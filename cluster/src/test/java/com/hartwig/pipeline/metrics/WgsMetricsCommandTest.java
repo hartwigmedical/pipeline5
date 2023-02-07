@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.hartwig.pipeline.input.Sample;
+import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;
@@ -24,14 +24,14 @@ public class WgsMetricsCommandTest {
     private String reference;
     private String input;
     private String sampleName;
-    private Sample sample;
+    private SampleInput sample;
 
     @Before
     public void setup() {
         reference = "referenceSampleName.fasta";
         input = "input.bam";
         sampleName = "sample";
-        sample = mock(Sample.class);
+        sample = mock(SampleInput.class);
 
         when(sample.name()).thenReturn(sampleName);
 

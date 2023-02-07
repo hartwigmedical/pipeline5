@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.pipeline.input.Sample;
+import com.hartwig.pdl.SampleInput;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class CloudSampleUpload implements SampleUpload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket) {
+    public void run(final SampleInput sample, final RuntimeBucket runtimeBucket) {
         try {
             uploadSample(runtimeBucket, sample);
         } catch (Exception e) {
@@ -35,7 +35,7 @@ public class CloudSampleUpload implements SampleUpload {
         }
     }
 
-    private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
+    private void uploadSample(final RuntimeBucket runtimeBucket, final SampleInput sample) {
         sample.lanes()
                 .stream()
                 .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
@@ -50,7 +50,7 @@ public class CloudSampleUpload implements SampleUpload {
                 });
     }
 
-    private void gsutilCP(final Sample sample, final RuntimeBucket bucket, final String file) {
+    private void gsutilCP(final SampleInput sample, final RuntimeBucket bucket, final String file) {
         String target = singleSampleFile(sample, file);
         String targetPath = format("gs://%s/%s", bucket.name(), target);
         if (bucket.get(target) != null || bucket.get(target.replaceAll(".gz", "") + "/") != null) {
@@ -62,7 +62,7 @@ public class CloudSampleUpload implements SampleUpload {
     }
 
     @NotNull
-    private static String singleSampleFile(final Sample sample, final String file) {
+    private static String singleSampleFile(final SampleInput sample, final String file) {
         String filename = new File(file).getName();
         return format(SAMPLE_DIRECTORY + "%s/%s", sample.name(), filename);
     }

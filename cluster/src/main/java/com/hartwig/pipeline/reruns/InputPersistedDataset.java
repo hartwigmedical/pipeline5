@@ -5,8 +5,8 @@ import static java.util.Optional.ofNullable;
 import java.util.Map;
 import java.util.Optional;
 
+import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.input.PipelineInput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class InputPersistedDataset implements PersistedDataset {
