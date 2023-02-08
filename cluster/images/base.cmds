@@ -16,8 +16,6 @@ sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
-sudo gzip -d /opt/resources/gridss_repeatmasker_db/37/*
-sudo gzip -d /opt/resources/gridss_repeatmasker_db/38/*
 
 # Note the "-n", bucket-based files should never overwrite what came from the repository
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-resources/* /opt/resources/
