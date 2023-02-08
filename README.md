@@ -93,26 +93,14 @@ the purple results and WGS metrics.
 
 ### Building and Testing Pipeline 5
 
-Pv5 is a Java application and is built with Maven. It is compatible with all builds of [Java 11](https://jdk.java.net/11/) and [Maven
-3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
+Pv5 is a Java application and builds with Maven. It is compatible with all builds of [Java 11](https://jdk.java.net/11/) and [Maven
+3](https://maven.apache.org/download.cgi). 
 
 To build the application and run all the tests:
 
 ```
-mvn clean install -DskipDocker
+mvn clean package
 ```
-Note the `-DskipDocker`. Building the Docker image is time consuming and not necessary for most testing. Without this flag a
-Docker image will be built for you based on the version of the artifact in your root `pom.xml`.
-
-### CI with Travis
-
-After each push our CI build runs on [Travis](https://travis-ci.org/). The build is basically the equivalent of running `mvn
-clean install`. On each CI build we:
-- Compile all the modules.
-- Run all the tests
-- Create a docker image which can be used to run the code in production.
-
-Each docker image gets a version of 5.{minor}.{build-number}. 
 
 ### GIT and Pull Requests
 
@@ -131,3 +119,23 @@ Small changes do not need to follow this process, it is meant to help and not hi
 
 All changes should be committed with quality commit messages, as this is a main source of documentation. Please read the [7
 rules](https://chris.beams.io/posts/git-commit/) and follow them.
+
+### CI 
+
+After each push our CI build runs on Google's Cloud Build in our development project. In addition to the tests you might run
+locally the CI build also:
+
+- Runs the "smoke" test which checks the output of the full pipeline run against expectations
+- Pushes a Docker image which can be used to run the pipeline in Kubernetes as we do in production
+
+### Running Locally
+
+Pv5 can be run locally, we include some sample configurations in `.run` which Intellij should pick up automatically. Open those
+from `Edit Configurations...` under the `Run` menu and amend as needed. If significant changes are needed to get the application
+running then commit those back to the repo.
+
+### Disk Images
+
+Pv5 uses a custom disk image to launch the VMs that implement the stages it runs. When components are upgraded or if resources
+change a new image must be created, by the developer. See `cluster/images/README.md` for specifics.
+
