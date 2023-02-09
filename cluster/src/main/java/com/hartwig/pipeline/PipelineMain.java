@@ -242,7 +242,7 @@ public class PipelineMain {
             if (startOrFinish.equals(START)){
                 HmfApiStatusUpdate.start(runApi, run);
             } else if (startOrFinish.equals(FINISH)) {
-                HmfApiStatusUpdate.finish(runApi, run, state);
+                HmfApiStatusUpdate.finish(runApi, run, state.status());
             }
         }
     }

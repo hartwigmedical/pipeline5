@@ -22,13 +22,13 @@ public class HmfApiStatusUpdate {
     private static final String HEALTH_CHECK = "HealthCheck";
 
     public static void start(final RunApi runApi, final Run run) {
-        LOGGER.info("Recording pipeline start with status [{}]", Status.PROCESSING);
+        LOGGER.info("Recording pipeline start status in hmf-api [{}]", Status.PROCESSING);
         runApi.update(run.getId(), new UpdateRun().failure(null).status(Status.PROCESSING).startTime(timestamp()));
     }
 
-    public static void finish(final RunApi runApi, final Run run, final PipelineState pipelineState) {
-        LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
-        runApi.update(run.getId(), statusUpdate(pipelineState.status()).endTime(timestamp()));
+    public static void finish(final RunApi runApi, final Run run, final PipelineStatus pipelineStatus) {
+        LOGGER.info("Recording pipeline finish status in hmf-api [{}]", pipelineStatus);
+        runApi.update(run.getId(), statusUpdate(pipelineStatus).endTime(timestamp()));
     }
 
     private static UpdateRun statusUpdate(final PipelineStatus status) {
