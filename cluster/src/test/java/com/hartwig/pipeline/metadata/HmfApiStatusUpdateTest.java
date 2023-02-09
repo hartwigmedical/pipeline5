@@ -30,17 +30,19 @@ public class HmfApiStatusUpdateTest {
     private RunApi runApi;
     private Run run;
     private ArgumentCaptor<UpdateRun> argCaptor;
+    private HmfApiStatusUpdate apiStatusUpdate;
 
     @Before
     public void setup() {
         runApi = mock(RunApi.class);
         run = new Run().id(RUN_ID);
         argCaptor = ArgumentCaptor.forClass(UpdateRun.class);
+        apiStatusUpdate = new HmfApiStatusUpdate(runApi);
     }
 
     @Test
     public void startSetsApiStatusToProcessing() {
-        HmfApiStatusUpdate.start(runApi, run);
+        apiStatusUpdate.start(run.getId());
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.PROCESSING);
         assertThat(LocalDateTime.parse(Objects.requireNonNull(argCaptor.getValue().getStartTime()),
@@ -50,14 +52,14 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void successSetsApiStatusToFinished() {
-        HmfApiStatusUpdate.finish(runApi, run, PipelineStatus.SUCCESS);
+        apiStatusUpdate.finish(run.getId(), PipelineStatus.SUCCESS);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Test
     public void qcFailureSetsApiStatusToFailed() {
-        HmfApiStatusUpdate.finish(runApi, run, PipelineStatus.QC_FAILED);
+        apiStatusUpdate.finish(run.getId(), PipelineStatus.QC_FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.QCFAILURE);
@@ -65,7 +67,7 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void technicalFailureSetsApiStatusToFailed() {
-        HmfApiStatusUpdate.finish(runApi, run, PipelineStatus.FAILED);
+        apiStatusUpdate.finish(run.getId(), PipelineStatus.FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.TECHNICALFAILURE);

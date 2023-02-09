@@ -9,6 +9,8 @@ import com.hartwig.api.model.Run;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
@@ -20,15 +22,20 @@ public class HmfApiStatusUpdate {
     private final static Logger LOGGER = LoggerFactory.getLogger(HmfApiStatusUpdate.class);
     private static final String PIPELINE_SOURCE = "Pipeline";
     private static final String HEALTH_CHECK = "HealthCheck";
+    private final RunApi runApi;
 
-    public static void start(final RunApi runApi, final Run run) {
-        LOGGER.info("Recording pipeline start status in hmf-api [{}]", Status.PROCESSING);
-        runApi.update(run.getId(), new UpdateRun().failure(null).status(Status.PROCESSING).startTime(timestamp()));
+    public HmfApiStatusUpdate(final RunApi runApi) {
+        this.runApi = runApi;
     }
 
-    public static void finish(final RunApi runApi, final Run run, final PipelineStatus pipelineStatus) {
+    public void start(final Long runId) {
+        LOGGER.info("Recording pipeline start status in hmf-api [{}]", Status.PROCESSING);
+        runApi.update(runId, new UpdateRun().failure(null).status(Status.PROCESSING).startTime(timestamp()));
+    }
+
+    public void finish(final Long runId, final PipelineStatus pipelineStatus) {
         LOGGER.info("Recording pipeline finish status in hmf-api [{}]", pipelineStatus);
-        runApi.update(run.getId(), statusUpdate(pipelineStatus).endTime(timestamp()));
+        runApi.update(runId, statusUpdate(pipelineStatus).endTime(timestamp()));
     }
 
     private static UpdateRun statusUpdate(final PipelineStatus status) {
