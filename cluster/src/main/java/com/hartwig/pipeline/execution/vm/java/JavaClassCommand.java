@@ -27,14 +27,19 @@ public class JavaClassCommand implements BashCommand {
     }
 
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
-                            final List<String> jvmArguments, final String... arguments) {
+                            final List<String> jvmArguments, final List<String> arguments) {
         this.toolName = toolName;
         this.version = version;
         this.classPath = jar;
         this.mainClass = mainClass;
         this.maxHeapSize = maxHeapSize;
         this.jvmArguments = new ArrayList<>(jvmArguments);
-        this.arguments = Arrays.asList(arguments);
+        this.arguments = arguments;
+    }
+
+    public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
+            final List<String> jvmArguments, final String... arguments) {
+        this(toolName, version, jar, mainClass, maxHeapSize, jvmArguments, Arrays.asList(arguments));
     }
 
     @Override

@@ -2,9 +2,9 @@ package com.hartwig.pipeline.tertiary.cuppa;
 
 import static java.lang.String.format;
 
-import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -17,7 +17,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
-import com.hartwig.pipeline.execution.vm.r.RscriptCommand;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -87,31 +86,25 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @NotNull
     private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
-        final List<String> r_script_arguments = Arrays.asList(metadata.tumor().sampleName(), VmDirectories.OUTPUT + "/");
-        return List.of(new JavaJarCommand("cuppa",
-                        Versions.CUPPA,
-                        "cuppa.jar",
-                        "4G",
-                        List.of("-categories",
-                                "DNA",
-                                "-ref_data_dir",
-                                resourceFiles.cuppaRefData(),
-                                "-sample_data",
-                                metadata.tumor().sampleName(),
-                                "-sample_data_dir",
-                                linxOutputDirectory.getLocalTargetPath(),
-                                "-output_dir",
-                                VmDirectories.OUTPUT)),
-                new Python3Command("cuppa-chart",
-                        Versions.CUPPA,
-                        "cuppa-chart.py",
-                        List.of("-sample",
-                                metadata.tumor().sampleName(),
-                                "-sample_data",
-                                VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
-                                "-output_dir",
-                                VmDirectories.OUTPUT)),
-                new RscriptCommand("cuppa", Versions.CUPPA, "CupGenerateReport_pipeline.R", r_script_arguments));
+
+        List<String> cuppaArguments = Lists.newArrayList(
+                "-categories DNA",
+                format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
+                format("-sample_data %s", metadata.tumor().sampleName()),
+                format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
+                format("-output_dir %s", VmDirectories.OUTPUT),
+                "-create_pdf");
+
+        String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
+
+        List<String> chartArguments = Lists.newArrayList(
+                format("-sample %s", metadata.tumor().sampleName()),
+                format("-sample_data %s", cuppaOutputFile),
+                format("-output_dir %s", VmDirectories.OUTPUT));
+
+        return List.of(
+                new JavaJarCommand("cuppa", Versions.CUPPA, "cuppa.jar", "4G", cuppaArguments),
+                new Python3Command("cuppa-chart", Versions.CUPPA, "cuppa-chart.py", chartArguments));
     }
 
     @Override

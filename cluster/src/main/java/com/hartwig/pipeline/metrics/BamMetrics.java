@@ -3,20 +3,21 @@ package com.hartwig.pipeline.metrics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
+import com.google.api.client.util.Lists;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.GrepFileCommand;
-import com.hartwig.pipeline.execution.vm.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -39,6 +40,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
+    private final InputDownload bamBaiDownload;
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
 
@@ -46,6 +48,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
             final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.alignments());
+        bamBaiDownload = new InputDownload(alignmentOutput  .alignments().transform(FileTypes::toAlignmentIndex));
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
     }
@@ -56,9 +59,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> inputs() {
-        return Collections.singletonList(bamDownload);
-    }
+    public List<BashCommand> inputs() { return ImmutableList.of(bamDownload, bamBaiDownload); }
 
     @Override
     public String namespace() {
@@ -81,10 +82,11 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
-        final String outputFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName());
-        final String intermediateFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.intermediateOutputFile(metadata.sampleName());
         ArrayList<BashCommand> bashCommands = new ArrayList<>();
 
+        /*
+        final String outputFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName());
+        final String intermediateFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.intermediateOutputFile(metadata.sampleName());
         if (arguments.useTargetRegions()) {
             bashCommands.add(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
                     resourceFiles.targetRegionsInterval(),
@@ -98,7 +100,17 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                     resourceFiles.refGenomeFile(),
                     intermediateFile));
         }
-        bashCommands.add(new RedirectStdoutCommand(new GrepFileCommand(intermediateFile, "-A1 GENOME"), outputFile));
+        */
+
+        bashCommands.add(new BamMetricsCommand(
+                metadata.sampleName(),
+                bamDownload.getLocalTargetPath(),
+                resourceFiles,
+                VmDirectories.OUTPUT,
+                Bash.allCpus(),
+                arguments.useTargetRegions() ? resourceFiles.targetRegionsBed() : null));
+
+        // bashCommands.add(new RedirectStdoutCommand(new GrepFileCommand(intermediateFile, "-A1 GENOME"), outputFile));
         return bashCommands;
     }
 

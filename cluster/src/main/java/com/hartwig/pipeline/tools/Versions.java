@@ -12,21 +12,22 @@ public interface Versions {
 
     // HMF tools
     String AMBER = "3.9";
+    String BAM_TOOLS = "pilot"; // will be 1.0
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.7.1";
+    String CUPPA = "pilot"; // 1.7.1 -> 1.7.2
     String GRIDSS = "2.13.2";
     String GRIPSS = "pilot"; // 2.3.2 -> 2.3.3
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
-    String LINX = "pilot"; // 1.22
-    String ORANGE = "1.10.2";
+    String LINX = "pilot"; // 1.22.1
+    String ORANGE = "pilot"; // 1.10.2 -> 1.10.3
     String PAVE = "1.4";
     String PEACH = "1.7";
-    String PROTECT = "2.3";
+    String PROTECT = "pilot"; // 2.3 -> 2.3.1
     String PURPLE = "pilot"; // 3.7.1 -> 3.8
-    String ROSE = "1.3";
-    String SAGE = "3.2.3";
+    String ROSE = "pilot"; // 1.3 -> 1.3.1
+    String SAGE = "pilot"; // 3.2.3 -> 3.2.5
     String SIGS = "1.1";
     String SV_PREP = "1.0.1";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";

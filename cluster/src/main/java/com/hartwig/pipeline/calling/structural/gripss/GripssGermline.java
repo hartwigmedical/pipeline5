@@ -32,20 +32,24 @@ public class GripssGermline extends Gripss {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
 
-        return buildCommand(metadata);
+        return buildCommand(metadata, false);
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
 
-        return buildCommand(metadata);
+        return buildCommand(metadata, true);
     }
 
-    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata) {
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, boolean refOnly) {
 
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.reference().sampleName()));
+
+        if(!refOnly)
+            arguments.add(String.format("-reference %s", metadata.tumor().sampleName()));
+
         arguments.add("-germline");
         arguments.add("-output_id germline");
         arguments.addAll(commonArguments());
