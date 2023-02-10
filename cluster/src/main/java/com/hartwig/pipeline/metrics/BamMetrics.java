@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -84,24 +83,6 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
         ArrayList<BashCommand> bashCommands = new ArrayList<>();
 
-        /*
-        final String outputFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName());
-        final String intermediateFile = VmDirectories.OUTPUT + "/" + BamMetricsOutput.intermediateOutputFile(metadata.sampleName());
-        if (arguments.useTargetRegions()) {
-            bashCommands.add(new BedToIntervalsCommand(resourceFiles.targetRegionsBed(),
-                    resourceFiles.targetRegionsInterval(),
-                    resourceFiles.refGenomeFile()));
-            bashCommands.add(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
-                    resourceFiles.refGenomeFile(),
-                    intermediateFile,
-                    Optional.of(resourceFiles.targetRegionsInterval())));
-        } else {
-            bashCommands.add(new WgsMetricsCommand(bamDownload.getLocalTargetPath(),
-                    resourceFiles.refGenomeFile(),
-                    intermediateFile));
-        }
-        */
-
         bashCommands.add(new BamMetricsCommand(
                 metadata.sampleName(),
                 bamDownload.getLocalTargetPath(),
@@ -110,7 +91,6 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                 Bash.allCpus(),
                 arguments.useTargetRegions() ? resourceFiles.targetRegionsBed() : null));
 
-        // bashCommands.add(new RedirectStdoutCommand(new GrepFileCommand(intermediateFile, "-A1 GENOME"), outputFile));
         return bashCommands;
     }
 
