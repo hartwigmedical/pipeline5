@@ -42,7 +42,7 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/rose/pilot/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
+                "java -Xmx8G -jar /opt/tools/rose/1.3.1/rose.jar" + " -actionability_database_tsv /opt/resources/rose/actionability.tsv"
                         + " -ref_genome_version 37" + " -driver_gene_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
                         + " -purple_purity_tsv /data/input/tumor.purple.purity.tsv" + " -purple_qc_file /data/input/tumor.purple.qc"
                         + " -purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv"
