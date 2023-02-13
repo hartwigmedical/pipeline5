@@ -8,6 +8,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.api.HmfApi;
+import com.hartwig.api.RunApi;
 import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
@@ -28,6 +30,7 @@ import com.hartwig.pipeline.input.ModeResolver;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.NoopOutputPublisher;
 import com.hartwig.pipeline.output.OutputPublisher;
@@ -69,7 +72,13 @@ public class PipelineMain {
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
+            RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
+            HmfApiStatusUpdate apiStatusUpdate = new HmfApiStatusUpdate(runApi);
+
             LOGGER.info("Starting pipeline in [{}] mode", mode);
+            if (arguments.hmfApiUrl().isPresent()) {
+                apiStatusUpdate.start(input.operationalReferences().orElseThrow().runId());
+            }
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
@@ -132,6 +141,10 @@ public class PipelineMain {
                     outputPublisher).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
+
+            if (arguments.hmfApiUrl().isPresent()) {
+                apiStatusUpdate.finish(input.operationalReferences().orElseThrow().runId(), state.status());
+            }
             return state;
 
         } catch (Exception e) {

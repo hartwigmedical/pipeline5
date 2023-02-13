@@ -62,6 +62,7 @@ public class CommandLineOptions {
     private static final String STARTING_POINT_FLAG = "starting_point";
     private static final String IMAGE_NAME_FLAG = "image_name";
     private static final String BIOPSY_FLAG = "biopsy";
+    private static final String HMF_API_URL_FLAG = "hmf_api_url";
     private static final String IMAGE_PROJECT_FLAG = "image_project";
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
@@ -97,11 +98,9 @@ public class CommandLineOptions {
                 .addOption(gsutilPath())
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
-                .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG,
-                        "Run tertiary analysis algorithms (amber, cobalt, purple, cuppa, etc)"))
+                .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple, cuppa, etc)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
-                .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG,
-                        "Run cuppa in tertiary stage (must be explicitly enabled)"))
+                .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG, "Run cuppa in tertiary stage (must be explicitly enabled)"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
                 .addOption(uploadPrivateKey())
@@ -113,8 +112,7 @@ public class CommandLineOptions {
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
-                .addOption(optionWithBooleanArg(PUBLISH_TO_TURQUOISE_FLAG,
-                        "Publish events on pipeline start and stop to turquoise."))
+                .addOption(optionWithBooleanArg(PUBLISH_TO_TURQUOISE_FLAG, "Publish events on pipeline start and stop to turquoise."))
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
@@ -125,6 +123,7 @@ public class CommandLineOptions {
                 .addOption(startingPoint())
                 .addOption(imageName())
                 .addOption(biopsy())
+                .addOption(hmfApiUrl())
                 .addOption(imageProject())
                 .addOption(useCrams())
                 .addOption(pubsubProject())
@@ -137,8 +136,7 @@ public class CommandLineOptions {
                 .addOption(pubsubTopicWorkflow())
                 .addOption(pubsubTopicEnvironment())
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
-                        "Compute nothing, only publish events for downstream consumption"))
-                .addOption(optionWithArg("hmf_api_url", "placeholder"));
+                        "Compute nothing, only publish events for downstream consumption"));
     }
 
     private static Option useTargetRegions() {
@@ -158,9 +156,7 @@ public class CommandLineOptions {
     private static Option context() {
         return optionWithArg(CONTEXT_FLAG,
                 format("Context in which this pipeline is run [%s]. Impacts downstream handling of results in production environment",
-                        Stream.of(Pipeline.Context.values())
-                                .map(Pipeline.Context::name)
-                                .collect(Collectors.joining(", "))));
+                        Stream.of(Pipeline.Context.values()).map(Pipeline.Context::name).collect(Collectors.joining(", "))));
     }
 
     private static Option anonymize() {
@@ -172,13 +168,11 @@ public class CommandLineOptions {
     }
 
     private static Option pubsubTopicWorkflow() {
-        return optionWithArg(PUBSUB_WORKFLOW_FLAG,
-                "Workflow to use in the pub/sub event context (ie analysis, verification)");
+        return optionWithArg(PUBSUB_WORKFLOW_FLAG, "Workflow to use in the pub/sub event context (ie analysis, verification)");
     }
 
     private static Option pubsubTopicEnvironment() {
-        return optionWithArg(PUBSUB_ENVIRONMENT_FLAG,
-                "Environment to use in the pub/sub event context (ie prod-1, protect)");
+        return optionWithArg(PUBSUB_ENVIRONMENT_FLAG, "Environment to use in the pub/sub event context (ie prod-1, protect)");
     }
 
     private static Option useCrams() {
@@ -192,6 +186,9 @@ public class CommandLineOptions {
     private static Option biopsy() {
         return optionWithArg(BIOPSY_FLAG, "Name of the biopsy registered in the API.");
     }
+    private static Option hmfApiUrl() {
+        return optionWithArg(HMF_API_URL_FLAG, "URL of the HMF-API.");
+    }
 
     private static Option startingPoint() {
         return optionWithArg(STARTING_POINT_FLAG,
@@ -204,8 +201,7 @@ public class CommandLineOptions {
     }
 
     private static Option imageName() {
-        return optionWithArg(IMAGE_NAME_FLAG,
-                String.format("Image to use instead of the latest %s image", Versions.imageVersion()));
+        return optionWithArg(IMAGE_NAME_FLAG, String.format("Image to use instead of the latest %s image", Versions.imageVersion()));
     }
 
     private static Option maxConcurrentLanes() {
@@ -240,8 +236,7 @@ public class CommandLineOptions {
     }
 
     private static Option patientReportBucket() {
-        return optionWithArg(OUTPUT_BUCKET_FLAG,
-                "Bucket in which to persist the final patient report and accompanying data.");
+        return optionWithArg(OUTPUT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
     private static Option uploadPrivateKey() {
@@ -255,8 +250,7 @@ public class CommandLineOptions {
     }
 
     private static Option gsutilPath() {
-        return optionWithArg(CLOUD_SDK_PATH_FLAG,
-                "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
+        return optionWithArg(CLOUD_SDK_PATH_FLAG, "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
     }
 
     private static Option runTag() {
@@ -293,8 +287,7 @@ public class CommandLineOptions {
 
     private static Option publishDbLoadEvent() {
         return optionWithBooleanArg(PUBLISH_DB_LOAD_EVENT_FLAG,
-                format("Publish an event for downstream DB load; has no effect unless context is [%s]",
-                        Pipeline.Context.PLATINUM));
+                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Pipeline.Context.PLATINUM));
     }
 
     @NotNull
@@ -316,20 +309,13 @@ public class CommandLineOptions {
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runTag(runTag(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
-                    .usePreemptibleVms(booleanOptionWithDefault(commandLine,
-                            USE_PREEMTIBLE_VMS_FLAG,
-                            defaults.usePreemptibleVms()))
+                    .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
-                    .runSnpGenotyper(booleanOptionWithDefault(commandLine,
-                            RUN_SNP_GENOTYPER_FLAG,
-                            defaults.runSnpGenotyper()))
-                    .runGermlineCaller(booleanOptionWithDefault(commandLine,
-                            RUN_GERMLINE_CALLER_FLAG,
-                            defaults.runGermlineCaller()))
+                    .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
+                    .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
-                    .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG,
-                            defaults.serviceAccountEmail()))
+                    .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET_FLAG, defaults.outputBucket()))
                     .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
                     .subnet(subnet(commandLine, defaults))
@@ -338,9 +324,7 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
-                    .publishToTurquoise(booleanOptionWithDefault(commandLine,
-                            PUBLISH_TO_TURQUOISE_FLAG,
-                            defaults.publishToTurquoise()))
+                    .publishToTurquoise(booleanOptionWithDefault(commandLine, PUBLISH_TO_TURQUOISE_FLAG, defaults.publishToTurquoise()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
                             defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
@@ -359,17 +343,12 @@ public class CommandLineOptions {
                     .context(context(commandLine, defaults))
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))
-                    .useTargetRegions(booleanOptionWithDefault(commandLine,
-                            USE_TARGET_REGIONS,
-                            defaults.useTargetRegions()))
-                    .publishDbLoadEvent(booleanOptionWithDefault(commandLine,
-                            PUBLISH_DB_LOAD_EVENT_FLAG,
-                            defaults.publishDbLoadEvent()))
+                    .useTargetRegions(booleanOptionWithDefault(commandLine, USE_TARGET_REGIONS, defaults.useTargetRegions()))
+                    .publishDbLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_DB_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .pubsubTopicWorkflow(pubsubTopicWorkflow(commandLine, defaults))
                     .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
-                    .publishEventsOnly(booleanOptionWithDefault(commandLine,
-                            PUBLISH_EVENTS_ONLY_FLAG,
-                            defaults.publishEventsOnly()))
+                    .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
+                    .hmfApiUrl(hmfApiUrl(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -426,6 +405,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(BIOPSY_FLAG));
         }
         return defaults.biopsy();
+    }
+
+    public static Optional<String> hmfApiUrl(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(HMF_API_URL_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(HMF_API_URL_FLAG));
+        }
+        return defaults.hmfApiUrl();
     }
 
     public static Optional<String> subnet(final CommandLine commandLine, final Arguments defaults) {
@@ -509,8 +495,8 @@ public class CommandLineOptions {
         return Optional.empty();
     }
 
-    private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag,
-            final boolean defaultValue) throws ParseException {
+    private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)
+            throws ParseException {
         String value = commandLine.getOptionValue(flag, Boolean.toString(defaultValue));
         if (!value.equals("true") && !value.equals("false")) {
             throw new ParseException(flag + " is a flag and only accepts true|false");
