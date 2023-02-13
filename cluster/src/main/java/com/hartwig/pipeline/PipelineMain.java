@@ -14,6 +14,7 @@ import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -77,9 +78,10 @@ public class PipelineMain {
 
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             if (arguments.hmfApiUrl().isPresent()) {
-                apiStatusUpdate.start(input.operationalReferences().orElseThrow().runId());
+                apiStatusUpdate.start(input.operationalReferences().map(OperationalReferences::runId).orElseThrow());
             }
-            String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
+            String ini =
+                    somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
                             .map(SingleSampleRunMetadata::sampleName)
@@ -139,7 +141,10 @@ public class PipelineMain {
                     tumorEventListener,
                     CleanupProvider.from(arguments, storage).get(),
                     outputPublisher).run();
-            completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
+            completedEvent(eventSubjects,
+                    turquoisePublisher,
+                    state.status().toString(),
+                    arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
 
             if (arguments.hmfApiUrl().isPresent()) {
@@ -159,8 +164,10 @@ public class PipelineMain {
         } else {
             return createPublisher(new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
                     EventContext.builder()
-                            .environment(arguments.pubsubTopicEnvironment().orElseThrow(PipelineMain::missingPubsubArgumentsException))
-                            .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                            .environment(arguments.pubsubTopicEnvironment()
+                                    .orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                            .workflow(arguments.pubsubTopicWorkflow()
+                                    .orElseThrow(PipelineMain::missingPubsubArgumentsException))
                             .build(),
                     new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments);
         }
@@ -168,7 +175,8 @@ public class PipelineMain {
 
     @NotNull
     private static IllegalStateException missingPubsubArgumentsException() {
-        return new IllegalStateException("Cannot start pipeline with event publishing unless project, environment and workflow are defined");
+        return new IllegalStateException(
+                "Cannot start pipeline with event publishing unless project, environment and workflow are defined");
     }
 
     public void publish(final TurquoiseEvent turquoiseEvent, final boolean publish) {
@@ -177,24 +185,30 @@ public class PipelineMain {
         }
     }
 
-    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status, final boolean publish) {
-        publish(PipelineCompleted.builder().properties(properties).publisher(publisher).status(status).build(), publish);
+    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status,
+            final boolean publish) {
+        publish(PipelineCompleted.builder().properties(properties).publisher(publisher).status(status).build(),
+                publish);
     }
 
     public void startedEvent(final PipelineProperties subjects, final Publisher publisher, final boolean publish) {
         publish(PipelineStarted.builder().properties(subjects).publisher(publisher).build(), publish);
     }
 
-    private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
+    private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials,
+            final Storage storage, final SomaticRunMetadata metadata,
+            final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue,
+            final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -212,13 +226,16 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
             final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
+            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -233,8 +250,8 @@ public class PipelineMain {
                 germlineCallerOutputQueue);
     }
 
-    private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
-            final Storage storage, final Arguments arguments) {
+    private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher,
+            final Pipeline.Context context, final Storage storage, final Arguments arguments) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.useCrams());
     }
@@ -253,7 +270,9 @@ public class PipelineMain {
             LOGGER.error("Exiting due to incorrect arguments");
             System.exit(1);
         } catch (Exception e) {
-            LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
+            LOGGER.error(
+                    "An unexpected issue arose while running the pipeline. See the attached exception for more details.",
+                    e);
             System.exit(1);
         }
     }
