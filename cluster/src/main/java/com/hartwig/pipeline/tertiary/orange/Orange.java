@@ -77,13 +77,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload sageSomaticTumorSampleBqrPlot;
     private final InputDownload lilacQc;
     private final InputDownload lilacResult;
-    private final InputDownload linxBreakEndTsv;
-    private final InputDownload linxDriverCatalogTsv;
-    private final InputDownload linxDriverTsv;
-    private final InputDownload linxFusionTsv;
-    private final InputDownload linxStructuralVariantsTsv;
     private final InputDownload linxOutputDir;
-    private final InputDownload linxGermlineDisruptionsTsv;
+    private final InputDownload linxGermlineDataDirectory;
+    private final InputDownload linxSomaticDataDirectory;
     private final InputDownload chordPredictionTxt;
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
@@ -120,13 +116,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
         LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
-        this.linxBreakEndTsv = new InputDownload(linxSomaticOutputLocations.breakends());
-        this.linxDriverCatalogTsv = new InputDownload(linxSomaticOutputLocations.driverCatalog());
-        this.linxDriverTsv = new InputDownload(linxSomaticOutputLocations.drivers());
-        this.linxFusionTsv = new InputDownload(linxSomaticOutputLocations.fusions());
-        this.linxStructuralVariantsTsv = new InputDownload(linxSomaticOutputLocations.svAnnotations());
+        this.linxSomaticDataDirectory = new InputDownload(linxSomaticOutputLocations.outputDirectory());
         this.linxOutputDir = new InputDownload(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_DIR);
-        this.linxGermlineDisruptionsTsv = new InputDownload(linxGermlineOutput.linxOutputLocations().disruptions());
+        this.linxGermlineDataDirectory = new InputDownload(linxGermlineOutput.linxOutputLocations().outputDirectory());
         this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
@@ -164,12 +156,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 lilacQc,
                 lilacResult,
                 linxOutputDir,
-                linxFusionTsv,
-                linxBreakEndTsv,
-                linxDriverCatalogTsv,
-                linxDriverTsv,
-                linxStructuralVariantsTsv,
-                linxGermlineDisruptionsTsv,
+                linxGermlineDataDirectory,
+                linxSomaticDataDirectory,
                 cuppaFeaturePlot,
                 cuppaChartPlot,
                 cuppaResultCsv,
@@ -259,20 +247,12 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 lilacQc.getLocalTargetPath(),
                                 "-lilac_result_csv",
                                 lilacResult.getLocalTargetPath(),
-                                "-linx_breakend_tsv",
-                                linxBreakEndTsv.getLocalTargetPath(),
-                                "-linx_driver_catalog_tsv",
-                                linxDriverCatalogTsv.getLocalTargetPath(),
-                                "-linx_driver_tsv",
-                                linxDriverTsv.getLocalTargetPath(),
-                                "-linx_fusion_tsv",
-                                linxFusionTsv.getLocalTargetPath(),
-                                "-linx_germline_disruption_tsv",
-                                linxGermlineDisruptionsTsv.getLocalTargetPath(),
+                                "-linx_germline_data_directory",
+                                linxGermlineDataDirectory.getLocalTargetPath(),
                                 "-linx_plot_directory",
                                 linxPlotDir,
-                                "-linx_structural_variant_tsv",
-                                linxStructuralVariantsTsv.getLocalTargetPath(),
+                                "-linx_somatic_data_directory",
+                                linxSomaticDataDirectory.getLocalTargetPath(),
                                 "-cuppa_result_csv",
                                 cuppaResultCsv.getLocalTargetPath(),
                                 "-cuppa_summary_plot",
@@ -299,6 +279,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 resourceFiles.driverGenePanel(),
                                 "-known_fusion_file",
                                 resourceFiles.knownFusionData(),
+                                "-ensembl_data_directory",
+                                resourceFiles.ensemblDataCache(),
                                 "-convert_germline_to_somatic")));
     }
 

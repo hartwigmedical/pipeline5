@@ -71,6 +71,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.report.summary.png", "tumor.cup.report.summary.png"),
+                input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.report.chart.png", "tumor.cup.report.chart.png"),
                 input(expectedRuntimeBucketName() + "/protect/tumor.protect.tsv", "tumor.protect.tsv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.csv", "tumor.lilac.csv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.csv", "tumor.lilac.qc.csv"),
@@ -109,6 +110,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cuppa_result_csv /data/input/tumor.cup.data.csv "
                         + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
                         + "-cuppa_feature_plot /data/input/tumor.cup.report.features.png "
+                        + "-cuppa_chart_plot /data/input/tumor.cup.report.chart.png "
                         + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv "
                         + "-protect_evidence_tsv /data/input/tumor.protect.tsv "
@@ -117,7 +119,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                         + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv");
+                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
+                        + "-convert_germline_to_somatic");
     }
 
     @Override

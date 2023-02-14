@@ -25,6 +25,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     private static final String TUMOR_CUPPA_CONCLUSION_TXT = "tumor.cuppa.conclusion.txt";
     private static final String TUMOR_CUP_REPORT_FEATURE_PNG = "tumor.cup.report.features.png";
+    private static final String TUMOR_CUP_REPORT_CHART_PNG = "tumor.cup.report.chart.png";
     private static final String TUMOR_CUP_DATA_CSV = "tumor.cup.data.csv";
     private static final String TUMOR_CUP_REPORT_SUMMARY_PNG = "tumor.cup.report.summary.png";
     private static final String TUMOR_CUPPA_CHART_PNG = "tumor.cuppa.chart.png";
@@ -54,6 +55,9 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_FEATURE_PNG)),
+                new AddDatatype(DataType.CUPPA_CHART_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_CHART_PNG)),
                 new AddDatatype(DataType.CUPPA_CHART,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUPPA_CHART_PNG)),
