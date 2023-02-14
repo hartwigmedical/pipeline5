@@ -73,7 +73,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         return cramCommands();
     }
 
-    public List<BashCommand> cramCommands() {
+    private List<BashCommand> cramCommands() {
         return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram, resourceFiles).commands();
     }
 

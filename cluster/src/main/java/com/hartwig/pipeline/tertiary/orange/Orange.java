@@ -88,6 +88,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
     private final InputDownloadIfBlobExists cuppaFeaturePlot;
+    private final InputDownload cuppaChartPlot;
     private final InputDownload peachGenotypeTsv;
     private final InputDownload protectEvidenceTsv;
     private final InputDownload annotatedVirusTsv;
@@ -131,6 +132,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
         this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
         this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
+        this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.chartPlot());
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
         this.protectEvidenceTsv = new InputDownload(protectOutput.evidence());
         this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
@@ -169,6 +171,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 linxStructuralVariantsTsv,
                 linxGermlineDisruptionsTsv,
                 cuppaFeaturePlot,
+                cuppaChartPlot,
                 cuppaResultCsv,
                 cuppaSummaryPlot,
                 chordPredictionTxt,
@@ -196,6 +199,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
+        String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxOutputDir.getLocalTargetPath() + "/plot";
         return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
@@ -214,7 +218,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-doid_json",
                                 resourceFiles.doidJson(),
                                 "-primary_tumor_doids",
-                                primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
+                                primaryTumorDoidsString,
                                 "-max_evidence_level",
                                 MAX_EVIDENCE_LEVEL,
                                 "-ref_sample_wgs_metrics_file",
@@ -275,6 +279,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 cuppaSummaryPlot.getLocalTargetPath(),
                                 "-cuppa_feature_plot",
                                 cuppaFeaturePlot.getLocalTargetPath(),
+                                "-cuppa_chart_plot",
+                                cuppaChartPlot.getLocalTargetPath(),
                                 "-chord_prediction_txt",
                                 chordPredictionTxt.getLocalTargetPath(),
                                 "-peach_genotype_tsv",
@@ -292,7 +298,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-driver_gene_panel_tsv",
                                 resourceFiles.driverGenePanel(),
                                 "-known_fusion_file",
-                                resourceFiles.knownFusionData())));
+                                resourceFiles.knownFusionData(),
+                                "-convert_germline_to_somatic")));
     }
 
     @Override

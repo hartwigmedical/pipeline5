@@ -17,6 +17,8 @@ public interface CuppaOutputLocations {
 
     GoogleStorageLocation featurePlot();
 
+    GoogleStorageLocation chartPlot();
+
     static ImmutableCuppaOutputLocations.Builder builder() {
         return ImmutableCuppaOutputLocations.builder();
     }

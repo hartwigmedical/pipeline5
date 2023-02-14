@@ -25,6 +25,7 @@ public interface CuppaOutput extends StageOutput {
                 .conclusionTxt(GoogleStorageLocation.empty())
                 .conclusionChart(GoogleStorageLocation.empty())
                 .featurePlot(GoogleStorageLocation.empty())
+                .chartPlot(GoogleStorageLocation.empty())
                 .resultCsv(GoogleStorageLocation.empty())
                 .summaryChartPng(GoogleStorageLocation.empty())
                 .build());
