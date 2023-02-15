@@ -30,8 +30,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.linxSomaticOutput(),
                 TestInputs.cuppaOutput(),
                 TestInputs.virusInterpreterOutput(),
-                TestInputs.protectOutput(),
                 TestInputs.peachOutput(),
+                TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 

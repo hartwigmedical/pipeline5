@@ -44,7 +44,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
     public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
-    public static final String CUPPA_CHART_PLOT = ".cup.report.chart.png";
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
     public static final String CUP_REPORT = "_cup_report.pdf";
@@ -136,7 +135,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         .conclusionTxt(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaConclusionTxt(metadata))))
                         .summaryChartPng(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cupReportSummaryPng(metadata))))
                         .featurePlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaFeaturePlot(metadata))))
-                        .chartPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaChartPlot(metadata))))
                         .resultCsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cupDataCsv(metadata))))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -155,10 +153,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     private String cuppaFeaturePlot(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
-    }
-
-    private String cuppaChartPlot(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CHART_PLOT;
     }
 
     private String cuppaReport(final SomaticRunMetadata metadata) {
@@ -185,7 +179,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         final String cuppaChart = cupReportSummaryPng(metadata);
         final String resultsCsv = cupDataCsv(metadata);
         final String featurePlot = cuppaFeaturePlot(metadata);
-        final String chartPlot = cuppaChartPlot(metadata);
         return CuppaOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
@@ -204,9 +197,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         .featurePlot(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_FEATURE_PLOT)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), featurePlot))))
-                        .chartPlot(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CHART_PLOT)
-                                .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), chartPlot))))
                         .build())
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
@@ -229,9 +219,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
-                new AddDatatype(DataType.CUPPA_CHART_PLOT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaChartPlot(metadata))),
                 new AddDatatype(DataType.CUPPA_REPORT,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cuppaReport(metadata))));

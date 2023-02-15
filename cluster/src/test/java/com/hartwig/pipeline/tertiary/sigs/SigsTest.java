@@ -30,7 +30,7 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
 
     @Override
     protected Stage<SigsOutput, SomaticRunMetadata> createVictim() {
-        return new Sigs(purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new Sigs(purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
