@@ -76,7 +76,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx18G -jar /opt/tools/purple/pilot/purple.jar "
+                "java -Xmx18G -jar /opt/tools/purple/3.8.1/purple.jar "
                         + "-amber /data/input/results "
                         + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
@@ -101,7 +101,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedReferenceOnlyCommands() {
-        return Collections.singletonList("java -Xmx18G -jar /opt/tools/purple/pilot/purple.jar "
+        return Collections.singletonList("java -Xmx18G -jar /opt/tools/purple/3.8.1/purple.jar "
                         + "-amber /data/input/results "
                         + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

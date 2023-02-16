@@ -68,7 +68,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     protected List<String> expectedCommands() {
 
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/bam-tools/pilot/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
+                "java -Xmx24G -cp /opt/tools/bam-tools/1.0/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
                 + "-sample reference "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
@@ -88,7 +88,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 Arguments.testDefaultsBuilder().useTargetRegions(true).build());
 
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
-                "java -Xmx24G -cp /opt/tools/bam-tools/pilot/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
+                "java -Xmx24G -cp /opt/tools/bam-tools/1.0/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
                         + "-sample tumor "
                         + "-ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
                         + "-ref_genome_version V38 "
