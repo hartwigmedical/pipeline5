@@ -12,7 +12,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.InputDownloadIfBlobExists;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -81,11 +80,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload annotatedVirusTsv;
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
-                  final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
-                  final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
-                  final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
-                  final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-                  final ResourceFiles resourceFiles) {
+            final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
+            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
+            final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
+            final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
+            final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
