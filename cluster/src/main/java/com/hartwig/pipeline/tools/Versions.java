@@ -19,13 +19,11 @@ public interface Versions {
     String GRIPSS = "2.3.2";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
-    String LINX = "1.22";
-    String ORANGE = "2.2.1";
+    String LINX = "1.23.2";
+    String ORANGE = "2.3";
     String PAVE = "1.4";
     String PEACH = "1.7";
-    String PROTECT = "2.3";
-    String PURPLE = "3.7.1";
-    String ROSE = "1.3";
+    String PURPLE = "3.8.1";
     String SAGE = "3.2.3";
     String SIGS = "1.1";
     String SV_PREP = "1.0.1";

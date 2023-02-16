@@ -44,7 +44,6 @@ final class PurpleArguments {
                 format("-cobalt %s", cobaltOutputPath),
                 format("-ref_genome %s", resourceFiles.refGenomeFile()),
                 format("-ref_genome_version %s", resourceFiles.version().toString()),
-                "-run_drivers",
                 format("-driver_gene_panel %s", resourceFiles.driverGenePanel()),
                 format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()),
                 format("-gc_profile %s", resourceFiles.gcProfileFile()),

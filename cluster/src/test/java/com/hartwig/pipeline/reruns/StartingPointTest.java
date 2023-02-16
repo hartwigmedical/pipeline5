@@ -1,17 +1,5 @@
 package com.hartwig.pipeline.reruns;
 
-import static java.util.stream.Collectors.toList;
-
-import static com.hartwig.pipeline.reruns.StartingPoint.StartingPoints.values;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
@@ -33,14 +21,15 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.peach.Peach;
-import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
-
 import org.junit.Test;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StartingPointTest {
 
@@ -98,7 +87,7 @@ public class StartingPointTest {
 
     @Test
     public void startingPointsAreUpToDate() {
-        List<Namespace> endStages = namespacesOf(Sigs.class, Orange.class, Cram2Bam.class, HealthChecker.class, Protect.class, Lilac.class,
+        List<Namespace> endStages = namespacesOf(Sigs.class, Orange.class, Cram2Bam.class, HealthChecker.class, Lilac.class,
                 Cuppa.class, Peach.class);
         NamespacesTest.allNamespaces().stream().filter(n -> !endStages.contains(n)).map(Namespace::value).collect(toList()).forEach(n -> {
             boolean referenced = false;

@@ -50,12 +50,8 @@ import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
-import com.hartwig.pipeline.tertiary.protect.Protect;
-import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.rose.Rose;
-import com.hartwig.pipeline.tertiary.rose.RoseOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
@@ -203,14 +199,6 @@ public class SomaticPipeline {
                         Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Cuppa(purpleOutput, linxSomaticOutput, virusInterpreterOutput, resourceFiles, persistedDataset)));
                         CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
-                        var protectOutput = executorService.submit(() -> stageRunner.run(metadata,
-                                new Protect(purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        lilacOutput,
-                                        resourceFiles,
-                                        persistedDataset)));
 
                         SigsOutput sigsOutput = pipelineResults.add(state.add(signatureOutputFuture.get()));
 
@@ -231,16 +219,7 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles)));
-                        Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Rose(resourceFiles,
-                                        purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        cuppaOutput)));
                         pipelineResults.add(state.add(orangeOutputFuture.get()));
-                        pipelineResults.add(state.add(roseOutputFuture.get()));
-                        pipelineResults.add(state.add(protectOutput.get()));
 
                         pipelineResults.compose(metadata, "Somatic");
                     }

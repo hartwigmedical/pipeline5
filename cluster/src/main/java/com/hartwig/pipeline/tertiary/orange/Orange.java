@@ -74,7 +74,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload chordPredictionTxt;
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
-    private final InputDownloadIfBlobExists cuppaFeaturePlot;
+    private final InputDownload cuppaFeaturePlot;
     private final InputDownload cuppaChartPlot;
     private final InputDownload peachGenotypeTsv;
     private final InputDownload sigsAllocationTsv;
@@ -104,10 +104,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
         this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
-        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
+        this.cuppaFeaturePlot = new InputDownload(cuppaOutputLocations.featurePlot());
         this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.conclusionChart());
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
-        this.sigsAllocationTsv = initialiseOptionalLocation(sigsOutput.maybeAllocationTsv());
+        this.sigsAllocationTsv = new InputDownload(sigsOutput.allocationTsv());
         this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
         this.lilacQc = initialiseOptionalLocation(lilacOutput.qc());
         this.lilacResult = initialiseOptionalLocation(lilacOutput.result());
@@ -235,8 +235,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 resourceFiles.knownFusionData(),
                                 "-ensembl_data_directory",
                                 resourceFiles.ensemblDataCache(),
-                                "-convert_germline_to_somatic",
-                                "-experiment_type", "WGS" // will be removed in the next release.
+                                "-convert_germline_to_somatic"
                         )));
     }
 
