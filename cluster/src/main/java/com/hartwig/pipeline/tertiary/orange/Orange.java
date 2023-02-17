@@ -9,13 +9,9 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarFileExistsCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -73,7 +69,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload chordPredictionTxt;
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
-    private final InputDownload cuppaFeaturePlot;
+    private final InputDownloadIfBlobExists cuppaFeaturePlot;
     private final InputDownload cuppaChartPlot;
     private final InputDownload peachGenotypeTsv;
     private final InputDownload sigsAllocationTsv;
@@ -103,7 +99,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
         this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
-        this.cuppaFeaturePlot = new InputDownload(cuppaOutputLocations.featurePlot());
+        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
         this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.conclusionChart());
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
         this.sigsAllocationTsv = new InputDownload(sigsOutput.allocationTsv());
@@ -160,82 +156,82 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";
+        var orangeJarCommand = new JavaJarCommand("orange",
+                Versions.ORANGE,
+                "orange.jar",
+                "16G",
+                List.of("-output_dir",
+                        VmDirectories.OUTPUT,
+                        "-ref_genome_version",
+                        resourceFiles.version().numeric(),
+                        "-tumor_sample_id",
+                        metadata.tumor().sampleName(),
+                        "-reference_sample_id",
+                        metadata.reference().sampleName(),
+                        "-doid_json",
+                        resourceFiles.doidJson(),
+                        "-primary_tumor_doids",
+                        primaryTumorDoidsString,
+                        "-ref_sample_wgs_metrics_file",
+                        refMetrics.getLocalTargetPath(),
+                        "-tumor_sample_wgs_metrics_file",
+                        tumMetrics.getLocalTargetPath(),
+                        "-ref_sample_flagstat_file",
+                        refFlagstat.getLocalTargetPath(),
+                        "-tumor_sample_flagstat_file",
+                        tumFlagstat.getLocalTargetPath(),
+                        "-sage_germline_gene_coverage_tsv",
+                        sageGermlineGeneCoverageTsv.getLocalTargetPath(),
+                        "-sage_somatic_ref_sample_bqr_plot",
+                        sageSomaticRefSampleBqrPlot.getLocalTargetPath(),
+                        "-sage_somatic_tumor_sample_bqr_plot",
+                        sageSomaticTumorSampleBqrPlot.getLocalTargetPath(),
+                        "-purple_data_directory",
+                        purpleOutputDir.getLocalTargetPath(),
+                        "-purple_plot_directory",
+                        purpleOutputDir.getLocalTargetPath() + "/plot",
+                        "-lilac_qc_csv",
+                        lilacQc.getLocalTargetPath(),
+                        "-lilac_result_csv",
+                        lilacResult.getLocalTargetPath(),
+                        "-linx_germline_data_directory",
+                        linxGermlineDataDir.getLocalTargetPath(),
+                        "-linx_plot_directory",
+                        linxPlotDir,
+                        "-linx_somatic_data_directory",
+                        linxSomaticOutputDir.getLocalTargetPath(),
+                        "-cuppa_result_csv",
+                        cuppaResultCsv.getLocalTargetPath(),
+                        "-cuppa_summary_plot",
+                        cuppaSummaryPlot.getLocalTargetPath(),
+                        "-cuppa_chart_plot",
+                        cuppaChartPlot.getLocalTargetPath(),
+                        "-chord_prediction_txt",
+                        chordPredictionTxt.getLocalTargetPath(),
+                        "-peach_genotype_tsv",
+                        peachGenotypeTsv.getLocalTargetPath(),
+                        "-sigs_allocation_tsv",
+                        sigsAllocationTsv.getLocalTargetPath(),
+                        "-annotated_virus_tsv",
+                        annotatedVirusTsv.getLocalTargetPath(),
+                        "-pipeline_version_file",
+                        pipelineVersionFilePath,
+                        "-cohort_mapping_tsv",
+                        resourceFiles.orangeCohortMapping(),
+                        "-cohort_percentiles_tsv",
+                        resourceFiles.orangeCohortPercentiles(),
+                        "-driver_gene_panel_tsv",
+                        resourceFiles.driverGenePanel(),
+                        "-known_fusion_file",
+                        resourceFiles.knownFusionData(),
+                        "-ensembl_data_directory",
+                        resourceFiles.ensemblDataCache(),
+                        "-convert_germline_to_somatic"
+                ));
+        var withOptionalPlotCommand = new JavaJarFileExistsCommand(orangeJarCommand,
+                "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
         return List.of(new MkDirCommand(linxPlotDir),
-                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                new JavaJarCommand("orange",
-                        Versions.ORANGE,
-                        "orange.jar",
-                        "16G",
-                        List.of("-output_dir",
-                                VmDirectories.OUTPUT,
-                                "-ref_genome_version",
-                                resourceFiles.version().numeric(),
-                                "-tumor_sample_id",
-                                metadata.tumor().sampleName(),
-                                "-reference_sample_id",
-                                metadata.reference().sampleName(),
-                                "-doid_json",
-                                resourceFiles.doidJson(),
-                                "-primary_tumor_doids",
-                                primaryTumorDoidsString,
-                                "-ref_sample_wgs_metrics_file",
-                                refMetrics.getLocalTargetPath(),
-                                "-tumor_sample_wgs_metrics_file",
-                                tumMetrics.getLocalTargetPath(),
-                                "-ref_sample_flagstat_file",
-                                refFlagstat.getLocalTargetPath(),
-                                "-tumor_sample_flagstat_file",
-                                tumFlagstat.getLocalTargetPath(),
-                                "-sage_germline_gene_coverage_tsv",
-                                sageGermlineGeneCoverageTsv.getLocalTargetPath(),
-                                "-sage_somatic_ref_sample_bqr_plot",
-                                sageSomaticRefSampleBqrPlot.getLocalTargetPath(),
-                                "-sage_somatic_tumor_sample_bqr_plot",
-                                sageSomaticTumorSampleBqrPlot.getLocalTargetPath(),
-                                "-purple_data_directory",
-                                purpleOutputDir.getLocalTargetPath(),
-                                "-purple_plot_directory",
-                                purpleOutputDir.getLocalTargetPath() + "/plot",
-                                "-lilac_qc_csv",
-                                lilacQc.getLocalTargetPath(),
-                                "-lilac_result_csv",
-                                lilacResult.getLocalTargetPath(),
-                                "-linx_germline_data_directory",
-                                linxGermlineDataDir.getLocalTargetPath(),
-                                "-linx_plot_directory",
-                                linxPlotDir,
-                                "-linx_somatic_data_directory",
-                                linxSomaticOutputDir.getLocalTargetPath(),
-                                "-cuppa_result_csv",
-                                cuppaResultCsv.getLocalTargetPath(),
-                                "-cuppa_summary_plot",
-                                cuppaSummaryPlot.getLocalTargetPath(),
-                                "-cuppa_feature_plot",
-                                cuppaFeaturePlot.getLocalTargetPath(),
-                                "-cuppa_chart_plot",
-                                cuppaChartPlot.getLocalTargetPath(),
-                                "-chord_prediction_txt",
-                                chordPredictionTxt.getLocalTargetPath(),
-                                "-peach_genotype_tsv",
-                                peachGenotypeTsv.getLocalTargetPath(),
-                                "-sigs_allocation_tsv",
-                                sigsAllocationTsv.getLocalTargetPath(),
-                                "-annotated_virus_tsv",
-                                annotatedVirusTsv.getLocalTargetPath(),
-                                "-pipeline_version_file",
-                                pipelineVersionFilePath,
-                                "-cohort_mapping_tsv",
-                                resourceFiles.orangeCohortMapping(),
-                                "-cohort_percentiles_tsv",
-                                resourceFiles.orangeCohortPercentiles(),
-                                "-driver_gene_panel_tsv",
-                                resourceFiles.driverGenePanel(),
-                                "-known_fusion_file",
-                                resourceFiles.knownFusionData(),
-                                "-ensembl_data_directory",
-                                resourceFiles.ensemblDataCache(),
-                                "-convert_germline_to_somatic"
-                        )));
+                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath, withOptionalPlotCommand);
     }
 
     @Override

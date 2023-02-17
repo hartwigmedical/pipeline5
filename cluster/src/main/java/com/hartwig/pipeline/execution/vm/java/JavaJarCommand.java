@@ -31,6 +31,6 @@ public class JavaJarCommand implements BashCommand {
                 toolName,
                 version,
                 jar,
-                arguments.stream().collect(Collectors.joining(" ")));
+                String.join(" ", arguments));
     }
 }

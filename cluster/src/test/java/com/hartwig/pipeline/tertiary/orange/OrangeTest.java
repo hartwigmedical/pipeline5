@@ -39,15 +39,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     protected List<String> expectedInputs() {
         return ImmutableList.of("mkdir -p /data/input/linx",
                 "mkdir -p /data/input/purple",
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.somatic.tsv", "tumor.driver.catalog.somatic.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.germline.tsv", "tumor.driver.catalog.germline.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.germline.deletion.tsv", "tumor.purple.germline.deletion.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.germline.vcf.gz", "tumor.purple.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.cnv.somatic.tsv", "tumor.purple.cnv.somatic.tsv"),
+                "mkdir -p /data/input/linx_germline",
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"),
                 input("run-reference-test/bam_metrics/results/reference.wgsmetrics", "reference.wgsmetrics"),
@@ -82,44 +74,36 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     protected List<String> expectedCommands() {
         return Arrays.asList("mkdir -p /data/input/linx/plot",
                 "echo '5.32' | tee /data/input/orange_pipeline.version.txt",
-                "java -Xmx16G -jar /opt/tools/orange/2.2.1/orange.jar " + "-output_dir /data/output " + "-ref_genome_version 37 "
+                "java -Xmx16G -jar /opt/tools/orange/2.3/orange.jar " + "-output_dir /data/output " + "-ref_genome_version 37 "
                         + "-tumor_sample_id tumor " + "-reference_sample_id reference "
                         + "-doid_json /opt/resources/disease_ontology/doid.json " + "-primary_tumor_doids \"01;02\" "
-                        + "-max_evidence_level C " + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
+                        + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat "
                         + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
                         + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv "
                         + "-sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
                         + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png "
-                        + "-purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv "
-                        + "-purple_germline_driver_catalog_tsv /data/input/tumor.driver.catalog.germline.tsv "
-                        + "-purple_germline_deletion_tsv /data/input/tumor.purple.germline.deletion.tsv "
-                        + "-purple_germline_variant_vcf /data/input/tumor.purple.germline.vcf.gz "
-                        + "-purple_plot_directory /data/input/purple/plot " + "-purple_purity_tsv /data/input/tumor.purple.purity.tsv "
-                        + "-purple_qc_file /data/input/tumor.purple.qc "
-                        + "-purple_somatic_copy_number_tsv /data/input/tumor.purple.cnv.somatic.tsv "
-                        + "-purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv "
-                        + "-purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz "
+                        + "-purple_data_directory /data/input/purple "
+                        + "-purple_plot_directory /data/input/purple/plot "
                         + "-lilac_qc_csv /data/input/tumor.lilac.qc.csv " + "-lilac_result_csv /data/input/tumor.lilac.csv "
-                        + "-linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
-                        + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv "
-                        + "-linx_driver_tsv /data/input/tumor.linx.drivers.tsv " + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv "
-                        + "-linx_germline_disruption_tsv /data/input/tumor.linx.germline.disruption.tsv "
-                        + "-linx_plot_directory /data/input/linx/plot " + "-linx_structural_variant_tsv /data/input/tumor.linx.svs.tsv "
+                        + "-linx_germline_data_directory /data/input/linx_germline "
+                        + "-linx_plot_directory /data/input/linx/plot "
+                        + "-linx_somatic_data_directory /data/input/linx "
                         + "-cuppa_result_csv /data/input/tumor.cup.data.csv "
                         + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
                         + "-cuppa_feature_plot /data/input/tumor.cup.report.features.png "
                         + "-cuppa_chart_plot /data/input/tumor.cup.report.chart.png "
                         + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv "
-                        + "-protect_evidence_tsv /data/input/tumor.protect.tsv "
+                        + "-sigs_allocation_tsv /data/input/tumor.sig.allocation.tsv "
                         + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
                         + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                         + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
+                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ "
                         + "-convert_germline_to_somatic");
     }
 
