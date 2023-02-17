@@ -106,16 +106,16 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + "--jar /opt/tools/gridss/2.13.2/gridss.jar "
                 + "--blacklist /opt/resources/gridss/37/gridss_blacklist.37.bed.gz "
                 + "--configuration /opt/resources/gridss/gridss.properties "
-                + "--labels tumor,reference "
-                + "--bams /data/input/tumor.bam,/data/input/reference.bam "
-                + "--filtered_bams /data/output/tumor.sv_prep.sorted.bam,/data/output/reference.sv_prep.sorted.bam "
+                + "--labels reference,tumor "
+                + "--bams /data/input/reference.bam,/data/input/tumor.bam "
+                + "--filtered_bams /data/output/reference.sv_prep.sorted.bam,/data/output/tumor.sv_prep.sorted.bam "
                 + "--jvmheap 48G --threads 10");
 
         expectedCommands.add(
                 "java -Xmx48G -cp /opt/tools/sv-prep/1.0.1/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
                 + "-input_vcf /data/output/tumor.gridss.vcf.gz "
                 + "-output_vcf /data/output/tumor.gridss.driver.vcf.gz "
-                + "-samples tumor,reference -bam_files /data/input/tumor.bam,/data/input/reference.bam "
+                + "-samples reference,tumor -bam_files /data/input/reference.bam,/data/input/tumor.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
                 + "-threads $(grep -c '^processor' /proc/cpuinfo)");
 
