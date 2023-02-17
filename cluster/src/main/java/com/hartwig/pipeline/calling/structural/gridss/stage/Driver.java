@@ -58,7 +58,8 @@ public class Driver extends SubStage {
     }
 
     public Driver referenceSample(final String referenceSampleName, final String referenceSamplePath) {
-        sampleArguments.add(new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
+        // ensure reference sample is processed first since this has a bearing on the order in the VCF where ref is first by convention
+        sampleArguments.add(0, new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
         return this;
     }
 
