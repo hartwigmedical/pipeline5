@@ -58,7 +58,7 @@ public class Driver extends SubStage {
     }
 
     public Driver referenceSample(final String referenceSampleName, final String referenceSamplePath) {
-        sampleArguments.add(new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
+        sampleArguments.add(0, new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
         return this;
     }
 
