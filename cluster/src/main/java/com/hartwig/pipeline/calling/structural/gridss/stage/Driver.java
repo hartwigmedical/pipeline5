@@ -2,15 +2,9 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.Versions.SAMBAMBA;
-import static com.hartwig.pipeline.tools.Versions.SAMTOOLS;
-
 import java.util.List;
-import java.util.SortedSet;
 import java.util.StringJoiner;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
@@ -18,7 +12,6 @@ import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
@@ -26,8 +19,6 @@ import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.tools.Versions;
-
-import org.jetbrains.annotations.NotNull;
 
 public class Driver extends SubStage {
 
@@ -44,7 +35,7 @@ public class Driver extends SubStage {
     private enum SampleType
     {
         TUMOR,
-        REFERENCE;
+        REFERENCE
     }
 
     public Driver(final ResourceFiles resourceFiles) {
@@ -58,7 +49,7 @@ public class Driver extends SubStage {
     }
 
     public Driver referenceSample(final String referenceSampleName, final String referenceSamplePath) {
-        sampleArguments.add(new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
+        sampleArguments.add(0, new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
         return this;
     }
 
