@@ -188,7 +188,7 @@ public class SomaticPipeline {
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput, persistedDataset)));
                         Future<SigsOutput> signatureOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
+                                executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles, persistedDataset)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
@@ -212,6 +212,7 @@ public class SomaticPipeline {
                                         lilacOutput,
                                         resourceFiles,
                                         persistedDataset))).get()));
+                        var sigsOutput = pipelineResults.add(state.add(signatureOutputFuture.get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
@@ -227,8 +228,8 @@ public class SomaticPipeline {
                                         linxSomaticOutput,
                                         cuppaOutput,
                                         virusInterpreterOutput,
-                                        protectOutput,
                                         peachOutput,
+                                        sigsOutput,
                                         resourceFiles)));
                         Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Rose(resourceFiles,
@@ -237,7 +238,6 @@ public class SomaticPipeline {
                                         virusInterpreterOutput,
                                         chordOutput,
                                         cuppaOutput)));
-                        pipelineResults.add(state.add(signatureOutputFuture.get()));
                         pipelineResults.add(state.add(orangeOutputFuture.get()));
                         pipelineResults.add(state.add(roseOutputFuture.get()));
 
