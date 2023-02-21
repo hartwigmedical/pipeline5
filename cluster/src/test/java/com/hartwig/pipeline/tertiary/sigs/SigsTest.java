@@ -8,9 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -49,7 +49,9 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
 
     @Override
     protected void validateOutput(final SigsOutput output) {
-        // Sigs output is not used as input for other tools
+        String bucketName = expectedRuntimeBucketName() + "/" + Sigs.NAMESPACE;
+        assertThat(output.allocationTsv().bucket()).isEqualTo(bucketName);
+        assertThat(output.allocationTsv().path()).isEqualTo("results/tumor.sig.allocation.tsv");
     }
 
     @Override
