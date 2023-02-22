@@ -28,10 +28,7 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected Stage<LilacOutput, SomaticRunMetadata> createVictim() {
-        return new Lilac(TestInputs.lilacBamSliceOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.purpleOutput(),
-                persistedDataset);
+        return new Lilac(TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

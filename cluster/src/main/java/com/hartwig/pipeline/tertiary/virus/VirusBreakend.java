@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -40,6 +41,11 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(VirusBreakendOutput.class);
     }
 
     @Override

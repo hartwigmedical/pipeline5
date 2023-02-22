@@ -6,6 +6,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
@@ -18,6 +19,11 @@ public class SageSomaticCaller extends SageCaller {
     public SageSomaticCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
             final Arguments arguments) {
         super(alignmentPair, persistedDataset, SageConfiguration.somatic(resourceFiles, arguments));
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(SageOutput.class, "somatic");
     }
 
     @Override

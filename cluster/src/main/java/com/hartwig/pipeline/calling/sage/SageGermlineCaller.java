@@ -5,6 +5,7 @@ import java.util.List;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
@@ -17,6 +18,11 @@ public class SageGermlineCaller extends SageCaller {
     public SageGermlineCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,
             final ResourceFiles resourceFiles) {
         super(alignmentPair, persistedDataset, SageConfiguration.germline(resourceFiles));
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(SageOutput.class, "germline");
     }
 
     @Override

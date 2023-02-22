@@ -10,6 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -18,9 +19,11 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -54,33 +57,50 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_CIRCOS_PLOT = ".circos.png";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload somaticVcfDownload;
-    private final InputDownload germlineVcfDownload;
-    private final InputDownload somaticSvVcfDownload;
-    private final InputDownload somaticSvVcfIndexDownload;
-    private final InputDownload germlineSvVcfDownload;
-    private final InputDownload svRecoveryVcfDownload;
-    private final InputDownload svRecoveryVcfIndexDownload;
-    private final InputDownload amberOutputDownload;
-    private final InputDownload cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
 
-    public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
-            final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
-            final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
+    private InputDownload somaticVcfDownload;
+    private InputDownload germlineVcfDownload;
+    private InputDownload somaticSvVcfDownload;
+    private InputDownload somaticSvVcfIndexDownload;
+    private InputDownload germlineSvVcfDownload;
+    private InputDownload svRecoveryVcfDownload;
+    private InputDownload svRecoveryVcfIndexDownload;
+    private InputDownload amberOutputDownload;
+    private InputDownload cobaltOutputDownload;
+
+    public Purple(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
-        this.somaticVcfDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
-        this.germlineVcfDownload = new InputDownload(paveGermlineOutput.annotatedVariants());
-        this.somaticSvVcfDownload = new InputDownload(gripssSomaticOutput.filteredVariants());
-        this.somaticSvVcfIndexDownload = new InputDownload(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
-        this.svRecoveryVcfDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
-        this.germlineSvVcfDownload = new InputDownload(gripssGermlineOutput.filteredVariants());
-        this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
-        this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
+    }
+
+    @Override
+    public void registerInput(final InputDependencyProvider inputDependencyProvider, final boolean stageRunning) {
+        var paveSomaticOutput = inputDependencyProvider.registerInput(PaveOutput.class, "somatic");
+        var paveGermlineOutput = inputDependencyProvider.registerInput(PaveOutput.class, "germline");
+        var gripssSomaticOutput = inputDependencyProvider.registerInput(GripssOutput.class, "somatic");
+        var gripssGermlineOutput = inputDependencyProvider.registerInput(GripssOutput.class, "germline");
+        var amberOutput = inputDependencyProvider.registerInput(AmberOutput.class);
+        var cobaltOutput = inputDependencyProvider.registerInput(CobaltOutput.class);
+
+        if (stageRunning) {
+            this.somaticVcfDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
+            this.germlineVcfDownload = new InputDownload(paveGermlineOutput.annotatedVariants());
+            this.somaticSvVcfDownload = new InputDownload(gripssSomaticOutput.filteredVariants());
+            this.somaticSvVcfIndexDownload = new InputDownload(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
+            this.svRecoveryVcfDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants());
+            this.svRecoveryVcfIndexDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+            this.germlineSvVcfDownload = new InputDownload(gripssGermlineOutput.filteredVariants());
+            this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
+            this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(PurpleOutput.class);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -27,6 +28,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Cobalt.NAMESPACE)
@@ -38,12 +40,16 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
 
-    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
-            final Arguments arguments) {
+    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset, final Arguments arguments) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(CobaltOutput.class);
     }
 
     @Override

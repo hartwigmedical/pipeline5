@@ -32,7 +32,7 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
     @Override
     protected Stage<LinxGermlineOutput, SomaticRunMetadata> createVictim() {
-        return new LinxGermline(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new LinxGermline(TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

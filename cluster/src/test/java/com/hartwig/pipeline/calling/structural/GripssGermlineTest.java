@@ -36,7 +36,7 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new GripssGermline(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new GripssGermline(persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
-        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput(), persistedDataset);
+        return new Chord(RefGenomeVersion.V37, persistedDataset);
     }
 
     @Override

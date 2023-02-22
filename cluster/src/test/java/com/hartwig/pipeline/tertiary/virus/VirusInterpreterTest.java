@@ -31,12 +31,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
 
     @Override
     protected Stage<VirusInterpreterOutput, SomaticRunMetadata> createVictim() {
-        return new VirusInterpreter(TestInputs.defaultPair(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                persistedDataset,
-                TestInputs.virusBreakendOutput(),
-                TestInputs.purpleOutput(),
-                TestInputs.tumorMetricsOutput());
+        return new VirusInterpreter(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

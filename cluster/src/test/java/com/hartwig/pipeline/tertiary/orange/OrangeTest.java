@@ -17,22 +17,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected Stage<OrangeOutput, SomaticRunMetadata> createVictim() {
-        return new Orange(TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceMetricsOutput(),
-                TestInputs.tumorFlagstatOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.sageSomaticOutput(),
-                TestInputs.sageGermlineOutput(),
-                TestInputs.purpleOutput(),
-                TestInputs.chordOutput(),
-                TestInputs.lilacOutput(),
-                TestInputs.linxGermlineOutput(),
-                TestInputs.linxSomaticOutput(),
-                TestInputs.cuppaOutput(),
-                TestInputs.virusInterpreterOutput(),
-                TestInputs.peachOutput(),
-                TestInputs.sigsOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new Orange(TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override

@@ -19,9 +19,11 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -32,6 +34,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
@@ -41,23 +44,36 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "lilac";
 
     private final ResourceFiles resourceFiles;
-    private final LilacBamSliceOutput slicedOutput;
-    private final InputDownload purpleGeneCopyNumber;
-    private final InputDownload purpleSomaticVariants;
-    private final InputDownload slicedReference;
-    private final InputDownload slicedTumor;
     private final PersistedDataset persistedDataset;
 
-    public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
-            final PersistedDataset persistedDataset) {
+    private LilacBamSliceOutput slicedOutput;
+    private InputDownload purpleGeneCopyNumber;
+    private InputDownload purpleSomaticVariants;
+    private InputDownload slicedReference;
+    private InputDownload slicedTumor;
+
+    public Lilac(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
-        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
-        this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
-        this.slicedOutput = slicedOutput;
-        this.slicedReference = initialiseOptionalLocation(slicedOutput.reference());
-        this.slicedTumor = initialiseOptionalLocation(slicedOutput.tumor());
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        slicedOutput = inputDependencyProvider.registerInput(LilacBamSliceOutput.class);
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+
+        if (stageRunning) {
+            PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+            this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
+            this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
+            this.slicedReference = initialiseOptionalLocation(slicedOutput.reference());
+            this.slicedTumor = initialiseOptionalLocation(slicedOutput.tumor());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(LilacOutput.class);
     }
 
     @Override
@@ -67,14 +83,14 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> result = new ArrayList<>();
-        result.add(purpleGeneCopyNumber);
-        result.add(purpleSomaticVariants);
-        result.add(slicedReference);
-        result.add(slicedTumor);
-        result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
-        result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
-        return result;
+        return List.of(
+                purpleGeneCopyNumber,
+                purpleSomaticVariants,
+                slicedReference,
+                slicedTumor,
+                initialiseOptionalLocation(slicedOutput.tumorIndex()),
+                initialiseOptionalLocation(slicedOutput.referenceIndex())
+        );
     }
 
     @Override

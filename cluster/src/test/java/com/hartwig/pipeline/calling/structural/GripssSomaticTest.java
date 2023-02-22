@@ -36,9 +36,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new GripssSomatic(
-                TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Arguments.testDefaultsBuilder().build());
+        return new GripssSomatic(persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaultsBuilder().build());
     }
 
     @Override

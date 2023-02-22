@@ -14,9 +14,11 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -27,6 +29,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +40,29 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String PREDICTION_TXT = "_chord_prediction.txt";
 
     private final RefGenomeVersion refGenomeVersion;
-    private final InputDownload purpleStructuralVcfDownload;
-    private final InputDownload purpleSomaticVcfDownload;
     private final PersistedDataset persistedDataset;
 
-    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
+    private InputDownload purpleStructuralVcfDownload;
+    private InputDownload purpleSomaticVcfDownload;
+
+    public Chord(final RefGenomeVersion refGenomeVersion, final PersistedDataset persistedDataset) {
         this.refGenomeVersion = refGenomeVersion;
-        this.purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
-        this.purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+
+        if (stageRunning) {
+            this.purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
+            this.purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(ChordOutput.class);
     }
 
     @Override

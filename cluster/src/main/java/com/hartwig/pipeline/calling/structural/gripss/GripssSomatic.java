@@ -12,6 +12,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
@@ -27,10 +28,14 @@ public class GripssSomatic extends Gripss {
     private static final String GRIPSS_SOMATIC_FILTERED = ".gripss.filtered.somatic.";
     private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
-    public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-            final Arguments arguments) {
-        super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
+    public GripssSomatic(final PersistedDataset persistedDataset, final ResourceFiles resourceFiles, final Arguments arguments) {
+        super(persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
         useTargetRegions = arguments.useTargetRegions();
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(GripssOutput.class, "somatic");
     }
 
     @Override

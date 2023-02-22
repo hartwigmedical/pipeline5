@@ -15,9 +15,11 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -28,6 +30,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -39,14 +42,27 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     public static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
 
-    private final InputDownload purpleGermlineVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Peach(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleGermlineVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().germlineVariants());
+    private InputDownload purpleGermlineVariantsDownload;
+
+    public Peach(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+        if (stageRunning) {
+            purpleGermlineVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().germlineVariants());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(PeachOutput.class);
     }
 
     @Override

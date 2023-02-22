@@ -17,9 +17,11 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.input.InputDependencyProvider;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -48,20 +50,35 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT = "_cup_report.pdf";
     public static final String NAMESPACE = "cuppa";
 
-    private final InputDownload purpleOutputDirectory;
-    private final InputDownload linxOutputDirectory;
-    private final InputDownload virusInterpreterAnnotations;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
-        this.linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
-        this.virusInterpreterAnnotations = new InputDownload(virusInterpreterOutput.virusAnnotations());
+    private InputDownload purpleOutputDirectory;
+    private InputDownload linxOutputDirectory;
+    private InputDownload virusInterpreterAnnotations;
+
+    public Cuppa(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+        var linxOutput = inputDependencyProvider.registerInput(LinxSomaticOutput.class);
+        var virusInterpreterOutput = inputDependencyProvider.registerInput(VirusInterpreterOutput.class);
+
+        if (stageRunning) {
+            PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+            this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
+            this.linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
+            this.virusInterpreterAnnotations = new InputDownload(virusInterpreterOutput.virusAnnotations());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(CuppaOutput.class);
     }
 
     @Override

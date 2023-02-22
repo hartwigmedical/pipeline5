@@ -31,11 +31,7 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected Stage<HealthCheckOutput, SomaticRunMetadata> createVictim() {
-        return new HealthChecker(TestInputs.referenceMetricsOutput(),
-                TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.tumorFlagstatOutput(),
-                TestInputs.purpleOutput());
+        return new HealthChecker();
     }
 
     @Override

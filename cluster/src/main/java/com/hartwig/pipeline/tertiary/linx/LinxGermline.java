@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
 import static com.hartwig.pipeline.input.InputMode.REFERENCE_ONLY;
 import static com.hartwig.pipeline.input.InputMode.TUMOR_REFERENCE;
 
@@ -18,10 +19,12 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -46,17 +49,29 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     public static final String GERMLINE_DISRUPTION_TSV = ".linx.germline.disruption.tsv";
     public static final String GERMLINE_BREAKEND_TSV = ".linx.germline.breakend.tsv";
 
-    private final InputDownload purpleGermlineSvsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public LinxGermline(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleGermlineSvsDownload = new InputDownload(
-                purpleOutputLocations.germlineStructuralVariants().isPresent() ?
-                        purpleOutputLocations.germlineStructuralVariants().get() : null);
+    private InputDownload purpleGermlineSvsDownload;
+
+    public LinxGermline(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(final InputDependencyProvider inputDependencyProvider, final boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+
+        if (stageRunning) {
+            PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+            purpleGermlineSvsDownload = initialiseOptionalLocation(purpleOutputLocations.structuralVariants());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(LinxGermlineOutput.class);
     }
 
     @Override

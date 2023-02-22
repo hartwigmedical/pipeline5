@@ -64,11 +64,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected Stage<CuppaOutput, SomaticRunMetadata> createVictim() {
-        return new Cuppa(purpleOutput(),
-                linxSomaticOutput(),
-                virusInterpreterOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                persistedDataset);
+        return new Cuppa(TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -48,6 +49,11 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         super(pair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(GridssOutput.class);
     }
 
     @Override

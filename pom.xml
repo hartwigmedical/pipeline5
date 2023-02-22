@@ -41,6 +41,7 @@
         <compar.version>0.0.3</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <pdl.version>0.1.1</pdl.version>
+        <jgrapht.core.version>1.5.1</jgrapht.core.version>
     </properties>
 
     <scm>
@@ -157,6 +158,16 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId> jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-io</artifactId>
+                <version>${jgrapht.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.intellij</groupId>

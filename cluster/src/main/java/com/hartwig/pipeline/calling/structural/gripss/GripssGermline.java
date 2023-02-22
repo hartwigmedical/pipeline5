@@ -11,6 +11,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
@@ -24,9 +25,13 @@ public class GripssGermline extends Gripss {
     private static final String GRIPSS_GERMLINE_FILTERED = ".gripss.filtered.germline.";
     private static final String GRIPSS_GERMLINE_UNFILTERED = ".gripss.germline.";
 
-    public GripssGermline(final GridssOutput gridssOutput, final PersistedDataset persistedDataset,
-            final ResourceFiles resourceFiles) {
-        super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_GERMLINE_NAMESPACE);
+    public GripssGermline(final PersistedDataset persistedDataset, final ResourceFiles resourceFiles) {
+        super(persistedDataset, resourceFiles, GRIPSS_GERMLINE_NAMESPACE);
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(GripssOutput.class, "germline");
     }
 
     @Override

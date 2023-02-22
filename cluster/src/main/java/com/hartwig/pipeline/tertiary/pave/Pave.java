@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -33,16 +34,25 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     static final String PAVE_FILE_NAME = "pave";
 
     protected final ResourceFiles resourceFiles;
-    protected final InputDownload vcfDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
-    public Pave(
-            final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset, final DataType vcfDatatype) {
+    protected InputDownload vcfDownload;
+
+    public Pave(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset, final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
-        this.vcfDownload = new InputDownload(sageOutput.variants());
         this.persistedDataset = persistedDataset;
         this.vcfDatatype = vcfDatatype;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var label = vcfDatatype == DataType.PAVE_SOMATIC_VARIANTS ? "somatic" : "germline";
+        var sageOutput = inputDependencyProvider.registerInput(SageOutput.class, label);
+
+        if (stageRunning) {
+            this.vcfDownload = new InputDownload(sageOutput.variants());
+        }
     }
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);

@@ -16,10 +16,12 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -30,6 +32,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -40,20 +43,37 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private final InputDownload virusBreakendOutput;
-    private final InputDownload tumorBamMetrics;
-    private final InputDownload purpleQc;
-    private final InputDownload purplePurity;
 
-    public VirusInterpreter(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
-            final VirusBreakendOutput virusBreakendOutput, final PurpleOutput purpleOutput, final BamMetricsOutput tumorBamMetricsOutput) {
+    private InputDownload virusBreakendOutput;
+    private InputDownload tumorBamMetrics;
+    private InputDownload purpleQc;
+    private InputDownload purplePurity;
+
+    public VirusInterpreter(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
-        this.virusBreakendOutput = new InputDownload(virusBreakendOutput.summary());
-        this.purpleQc = new InputDownload(purpleOutput.outputLocations().qcFile());
-        this.purplePurity = new InputDownload(purpleOutput.outputLocations().purity());
-        this.tumorBamMetrics = InputDownload.initialiseOptionalLocation(tumorBamMetricsOutput.maybeMetricsOutputFile());
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(VirusInterpreterOutput.class);
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        super.registerInput(inputDependencyProvider, stageRunning);
+
+        var virusBreakendOutput = inputDependencyProvider.registerInput(VirusBreakendOutput.class);
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+        var tumorBamMetricsOutput = inputDependencyProvider.registerInput(BamMetricsOutput.class, "tumor");
+
+        if (stageRunning) {
+            this.virusBreakendOutput = new InputDownload(virusBreakendOutput.summary());
+            this.purpleQc = new InputDownload(purpleOutput.outputLocations().qcFile());
+            this.purplePurity = new InputDownload(purpleOutput.outputLocations().purity());
+            this.tumorBamMetrics = InputDownload.initialiseOptionalLocation(tumorBamMetricsOutput.maybeMetricsOutputFile());
+        }
     }
 
     @Override

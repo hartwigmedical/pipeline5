@@ -43,15 +43,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.paveSomaticOutput(),
-                TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticOutput(),
-                TestInputs.gripssGermlineOutput(),
-                TestInputs.amberOutput(),
-                TestInputs.cobaltOutput(),
-                persistedDataset,
-                Arguments.testDefaults());
+        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset, Arguments.testDefaults());
     }
 
     @Override
@@ -118,12 +110,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Test
     public void shallowModeUsesLowDepthSettings() {
         Purple victim = new Purple(new RefGenome37ResourceFiles(),
-                TestInputs.paveSomaticOutput(),
-                TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticOutput(),
-                TestInputs.gripssGermlineOutput(),
-                TestInputs.amberOutput(),
-                TestInputs.cobaltOutput(),
                 new TestPersistedDataset(),
                 Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains(

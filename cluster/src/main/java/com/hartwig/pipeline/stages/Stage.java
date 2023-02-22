@@ -10,11 +10,18 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {
+
+    default void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {}
+
+    default String outputClassTag() {
+        return null;
+    }
 
     List<BashCommand> inputs();
 

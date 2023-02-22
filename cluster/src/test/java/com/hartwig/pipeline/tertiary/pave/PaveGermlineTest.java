@@ -28,7 +28,7 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
 
     @Override
     protected Stage<PaveOutput, SomaticRunMetadata> createVictim() {
-        return new PaveGermline(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageGermlineOutput(), new TestPersistedDataset());
+        return new PaveGermline(TestInputs.REF_GENOME_37_RESOURCE_FILES, new TestPersistedDataset());
     }
 
     @Override

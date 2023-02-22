@@ -17,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -34,21 +35,28 @@ import com.hartwig.pipeline.tools.Versions;
 
 public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
-    private final InputDownload gridssVcf;
-    private final InputDownload gridssVcfIndex;
     private final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
     private final String namespace;
 
-    public Gripss(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-            final String namespace) {
+    private InputDownload gridssVcf;
+    private InputDownload gridssVcfIndex;
 
+    public Gripss(final PersistedDataset persistedDataset, final ResourceFiles resourceFiles, final String namespace) {
         this.resourceFiles = resourceFiles;
-        this.gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
-        this.gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.namespace = namespace;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var gridssOutput = inputDependencyProvider.registerInput(GridssOutput.class);
+
+        if (stageRunning) {
+            this.gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
+            this.gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        }
     }
 
     @Override

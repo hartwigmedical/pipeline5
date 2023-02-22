@@ -14,10 +14,13 @@ import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarFileExistsCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.InputDependencyProvider;
+import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -54,58 +57,77 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private static final String LOCAL_LINX_GERMLINE_DIR = VmDirectories.INPUT + "/" + LinxGermline.NAMESPACE;
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload refMetrics;
-    private final InputDownload tumMetrics;
-    private final InputDownload refFlagstat;
-    private final InputDownload tumFlagstat;
-    private final InputDownload purpleOutputDir;
-    private final InputDownload sageGermlineGeneCoverageTsv;
-    private final InputDownload sageSomaticRefSampleBqrPlot;
-    private final InputDownload sageSomaticTumorSampleBqrPlot;
-    private final InputDownload lilacQc;
-    private final InputDownload lilacResult;
-    private final InputDownload linxSomaticOutputDir;
-    private final InputDownload linxGermlineDataDir;
-    private final InputDownload chordPredictionTxt;
-    private final InputDownload cuppaSummaryPlot;
-    private final InputDownload cuppaResultCsv;
-    private final InputDownloadIfBlobExists cuppaFeaturePlot;
-    private final InputDownload cuppaChartPlot;
-    private final InputDownload peachGenotypeTsv;
-    private final InputDownload sigsAllocationTsv;
-    private final InputDownload annotatedVirusTsv;
 
-    public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
-            final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
-            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
-            final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
-            final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles) {
+    private InputDownload refMetrics;
+    private InputDownload tumMetrics;
+    private InputDownload refFlagstat;
+    private InputDownload tumFlagstat;
+    private InputDownload purpleOutputDir;
+    private InputDownload sageGermlineGeneCoverageTsv;
+    private InputDownload sageSomaticRefSampleBqrPlot;
+    private InputDownload sageSomaticTumorSampleBqrPlot;
+    private InputDownload lilacQc;
+    private InputDownload lilacResult;
+    private InputDownload linxSomaticOutputDir;
+    private InputDownload linxGermlineDataDir;
+    private InputDownload chordPredictionTxt;
+    private InputDownload cuppaSummaryPlot;
+    private InputDownload cuppaResultCsv;
+    private InputDownloadIfBlobExists cuppaFeaturePlot;
+    private InputDownload cuppaChartPlot;
+    private InputDownload peachGenotypeTsv;
+    private InputDownload sigsAllocationTsv;
+    private InputDownload annotatedVirusTsv;
 
+    public Orange(final ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
-        this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
-        this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
-        this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
-        this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
-        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
-        this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
-        this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
-        this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
-        this.linxSomaticOutputDir = new InputDownload(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
-        this.linxGermlineDataDir = new InputDownload(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
-        this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
-        CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
-        this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
-        this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
-        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
-        this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.conclusionChart());
-        this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
-        this.sigsAllocationTsv = new InputDownload(sigsOutput.allocationTsv());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
-        this.lilacQc = initialiseOptionalLocation(lilacOutput.qc());
-        this.lilacResult = initialiseOptionalLocation(lilacOutput.result());
+    }
+
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var referenceMetrics = inputDependencyProvider.registerInput(BamMetricsOutput.class, "reference");
+        var tumorMetrics = inputDependencyProvider.registerInput(BamMetricsOutput.class, "tumor");
+        var tumorFlagstat = inputDependencyProvider.registerInput(FlagstatOutput.class, "tumor");
+        var referenceFlagstat = inputDependencyProvider.registerInput(FlagstatOutput.class, "reference");
+        var sageSomaticOutput = inputDependencyProvider.registerInput(SageOutput.class, "somatic");
+        var sageGermlineOutput = inputDependencyProvider.registerInput(SageOutput.class, "germline");
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+        var chordOutput = inputDependencyProvider.registerInput(ChordOutput.class);
+        var lilacOutput = inputDependencyProvider.registerInput(LilacOutput.class);
+        var linxGermlineOutput = inputDependencyProvider.registerInput(LinxGermlineOutput.class);
+        var linxSomaticOutput = inputDependencyProvider.registerInput(LinxSomaticOutput.class);
+        var cuppaOutput = inputDependencyProvider.registerInput(CuppaOutput.class);
+        var virusOutput = inputDependencyProvider.registerInput(VirusInterpreterOutput.class);
+        var peachOutput = inputDependencyProvider.registerInput(PeachOutput.class);
+        var sigsOutput = inputDependencyProvider.registerInput(SigsOutput.class);
+
+        if (stageRunning) {
+            this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
+            this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
+            this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
+            this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
+            this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
+            this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
+            this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
+            this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
+            this.linxSomaticOutputDir = new InputDownload(linxSomaticOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
+            this.linxGermlineDataDir = new InputDownload(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
+            this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
+            CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
+            this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
+            this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
+            this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
+            this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.conclusionChart());
+            this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
+            this.sigsAllocationTsv = initialiseOptionalLocation(sigsOutput.maybeAllocationTsv());
+            this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
+            this.lilacQc = initialiseOptionalLocation(lilacOutput.qc());
+            this.lilacResult = initialiseOptionalLocation(lilacOutput.result());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(OrangeOutput.class);
     }
 
     @Override

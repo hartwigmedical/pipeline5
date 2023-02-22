@@ -8,6 +8,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
@@ -17,8 +18,13 @@ import com.hartwig.pipeline.stages.Stage;
 public class PaveSomatic extends Pave {
     public static final String NAMESPACE = "pave_somatic";
 
-    public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
-        super(resourceFiles, sageOutput, persistedDataset, DataType.PAVE_SOMATIC_VARIANTS);
+    public PaveSomatic(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+        super(resourceFiles, persistedDataset, DataType.PAVE_SOMATIC_VARIANTS);
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(PaveOutput.class, "somatic");
     }
 
     @Override

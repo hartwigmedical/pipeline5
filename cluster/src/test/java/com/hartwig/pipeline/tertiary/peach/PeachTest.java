@@ -66,7 +66,7 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected Stage<PeachOutput, SomaticRunMetadata> createVictim() {
-        return new Peach(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new Peach(TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

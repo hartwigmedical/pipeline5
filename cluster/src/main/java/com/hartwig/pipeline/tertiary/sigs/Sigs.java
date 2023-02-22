@@ -15,9 +15,11 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -36,16 +38,29 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     public static final String ALLOCATION_TSV = ".sig.allocation.tsv";
     public static final String NAMESPACE = "sigs";
 
-    private final InputDownload purpleSomaticVariantsDownload;
-
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
+    private InputDownload purpleSomaticVariantsDownload;
 
-    public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
+
+    public Sigs(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+
+        if (stageRunning) {
+            purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(SigsOutput.class);
     }
 
     @Override

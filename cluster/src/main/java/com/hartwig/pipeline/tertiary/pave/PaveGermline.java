@@ -8,17 +8,24 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 
 @Namespace(PaveGermline.NAMESPACE)
 public class PaveGermline extends Pave {
     public static final String NAMESPACE = "pave_germline";
 
-    public PaveGermline(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
-        super(resourceFiles, sageOutput, persistedDataset, DataType.PAVE_GERMLINE_VARIANTS);
+    public PaveGermline(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+        super(resourceFiles, persistedDataset, DataType.PAVE_GERMLINE_VARIANTS);
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(PaveOutput.class, "germline");
     }
 
     @Override

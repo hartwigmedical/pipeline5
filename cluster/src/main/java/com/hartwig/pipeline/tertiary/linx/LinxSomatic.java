@@ -15,9 +15,11 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -28,11 +30,15 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.lilac.LilacBamSliceOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
+
+import static com.hartwig.pipeline.execution.vm.InputDownload.*;
 
 @Namespace(LinxSomatic.NAMESPACE)
 public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata> {
@@ -45,19 +51,30 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
 
-    private final InputDownload purpleOutputDirDownload;
-    private final InputDownload purpleStructuralVariantsDownload;
+    private InputDownload purpleOutputDirDownload;
+    private InputDownload purpleStructuralVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public LinxSomatic(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = purpleOutputLocations.structuralVariants().isPresent()
-                ? new InputDownload(purpleOutputLocations.structuralVariants().get())
-                : null;
+    public LinxSomatic(final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @Override
+    public void registerInput(InputDependencyProvider inputDependencyProvider, boolean stageRunning) {
+        var purpleOutput = inputDependencyProvider.registerInput(PurpleOutput.class);
+
+        if (stageRunning) {
+            PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+            purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
+            purpleStructuralVariantsDownload = initialiseOptionalLocation(purpleOutputLocations.structuralVariants());
+        }
+    }
+
+    @Override
+    public String outputClassTag() {
+        return OutputClassUtil.getOutputClassTag(LinxSomaticOutput.class);
     }
 
     @Override
