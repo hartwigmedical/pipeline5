@@ -4,11 +4,13 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.input.InputDependencyProvider;
@@ -18,6 +20,7 @@ import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageRunner;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
@@ -29,30 +32,34 @@ import org.slf4j.LoggerFactory;
 public class ExecutionGraph {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionGraph.class);
 
-    private final ExecutorService executorService;
-    private final StageRunner<SomaticRunMetadata> stageRunner;
-
     private final Map<String, Stage<? extends StageOutput, SomaticRunMetadata>> stageByTag = new HashMap<>();
     private final Map<String, StageOutput> stageInputByTag = new HashMap<>();
     private final DefaultDirectedGraph<String, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);
-
-    public ExecutionGraph(final ExecutorService executorService, final StageRunner<SomaticRunMetadata> stageRunner) {
-        this.executorService = executorService;
-        this.stageRunner = stageRunner;
-    }
+    private ExecutionGraphRun activeRun;
 
     void addStage(Stage<? extends StageOutput, SomaticRunMetadata> stage) {
         var tag = stage.outputClassTag();
+        if (activeRun != null) {
+            LOGGER.warn("Cannot add stage with tag '{}'. Run already started.", tag);
+            return;
+        }
         g.addVertex(tag);
         stageByTag.put(tag, stage);
     }
 
-    void addStages(List<Stage<? extends StageOutput, SomaticRunMetadata>> stages) {
-        stages.forEach(this::addStage);
+    @SafeVarargs
+    final void addStages(Stage<? extends StageOutput, SomaticRunMetadata>... stages) {
+        for (var stage : stages) {
+            addStage(stage);
+        }
     }
 
-    void addStageInput(StageOutput input, String label) {
-        var tag = OutputClassUtil.getOutputClassTag(input.getClass(), label);
+    void addStageInput(StageOutput input, Class<? extends StageOutput> stageOutputClass, String label) {
+        var tag = OutputClassUtil.getOutputClassTag(stageOutputClass, label);
+        if (activeRun != null) {
+            LOGGER.warn("Cannot add stage input with tag '{}'. Run already started.", tag);
+            return;
+        }
         g.addVertex(tag);
         stageInputByTag.put(tag, input);
     }
@@ -88,23 +95,30 @@ public class ExecutionGraph {
             }, false);
         }
 
+        // TODO: Some checks on validity of the graph
+
         LOGGER.info("Completed execution graph. Looks like: {}", exportAsDot());
     }
 
-    void run() {
-        PipelineState state = new PipelineState();
-        DefaultDirectedGraph<String, DefaultEdge> runGraph = (DefaultDirectedGraph<String, DefaultEdge>) g.clone();
-        Map<String, StageOutput> completeStagesByTag = new HashMap<>(stageInputByTag);
-        completeStagesByTag.keySet().forEach(runGraph::removeVertex);
-        Map<String, StageOutput> runningStagesByTag = new HashMap<>();
-
+    Future<PipelineState> run(ExecutorService executorService, StageRunner<SomaticRunMetadata> stageRunner, SomaticRunMetadata metadata,
+            PipelineResults pipelineResults) {
+        this.completeGraph();
+        activeRun = new ExecutionGraphRun(g, stageInputByTag, executorService, stageRunner, metadata, pipelineResults);
+        return activeRun.start();
     }
 
     String exportAsDot() {
+        Set<String> runningTags = Optional.ofNullable(activeRun).map(ExecutionGraphRun::getRunningTags).orElseGet(HashSet::new);
+        Set<String> finishedTags = Optional.ofNullable(activeRun).map(ExecutionGraphRun::getFinishedTags).orElseGet(HashSet::new);
         var exporter = new DOTExporter<String, DefaultEdge>();
         exporter.setVertexAttributeProvider((v) -> {
             Map<String, Attribute> map = new LinkedHashMap<>();
             map.put("label", DefaultAttribute.createAttribute(v));
+            if (runningTags.contains(v)) {
+                map.put("color", DefaultAttribute.createAttribute("red"));
+            } else if (finishedTags.contains(v)) {
+                map.put("color", DefaultAttribute.createAttribute("green"));
+            }
             return map;
         });
         var writer = new StringWriter();
@@ -112,7 +126,7 @@ public class ExecutionGraph {
         return writer.toString();
     }
 
-    class ExecutionGraphRun {
+    private class ExecutionGraphRun {
 
         private final ExecutorService executorService;
         private final StageRunner<SomaticRunMetadata> stageRunner;
@@ -123,6 +137,7 @@ public class ExecutionGraph {
         private final DefaultDirectedGraph<String, DefaultEdge> runGraph;
         private final Map<String, StageOutput> completeStagesByTag;
         private final Set<String> runningStageTags = new HashSet<>();
+        private final BlockingQueue<Pair<String, StageOutput>> stageDoneQueue = new LinkedBlockingQueue<>();
 
         ExecutionGraphRun(DefaultDirectedGraph<String, DefaultEdge> g, Map<String, StageOutput> stageInputByTag,
                 ExecutorService executorService, StageRunner<SomaticRunMetadata> stageRunner, SomaticRunMetadata metadata,
@@ -136,51 +151,66 @@ public class ExecutionGraph {
             this.pipelineResults = pipelineResults;
         }
 
-        void start() {
-            this.executorService.submit(() -> {
-                runRound();
-
-            })
-        }
-
-        void runRound() {
-            synchronized (this) {
-                var readyStages = runGraph.vertexSet().stream()
-                        .filter(key -> runGraph.incomingEdgesOf(key).size() == 0)
-                        .collect(Collectors.toList());
-                for (String root : readyStages) {
-                    LOGGER.info("Starting graph vertex {}", root);
-                    Stage<? extends StageOutput, SomaticRunMetadata> stage = stageByTag.get(root);
-                    stage.registerInput(new InputDependencyProvider() {
-                        @Override
-                        public <T> T registerInput(final Class<T> clazz) {
-                            var tag = OutputClassUtil.getOutputClassTag(clazz);
-                            return (T) completeStagesByTag.get(tag);
-                        }
-
-                        @Override
-                        public <T> T registerInput(final Class<T> clazz, final String label) {
-                            var tag = OutputClassUtil.getOutputClassTag(clazz, label);
-                            return (T) completeStagesByTag.get(tag);
-                        }
-                    }, true);
-                    var tag = stage.outputClassTag();
-                    runningStageTags.add(tag);
-                    executorService.submit(() -> submitStage(stage, tag));
+        Future<PipelineState> start() {
+            return this.executorService.submit(() -> {
+                while (!runGraph.vertexSet().isEmpty() && state.shouldProceed()) {
+                    runRound();
+                    try {
+                        var done = stageDoneQueue.take();
+                        onStageDone(done.getLeft(), done.getRight());
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+                LOGGER.info("Finished running execution graph.");
+                return state;
+            });
+        }
+
+        private void runRound() {
+            var readyStages = runGraph.vertexSet().stream()
+                    .filter(tag -> runGraph.incomingEdgesOf(tag).size() == 0)
+                    .filter(tag -> !runningStageTags.contains(tag))
+                    .collect(Collectors.toList());
+            for (String root : readyStages) {
+                LOGGER.info("Starting graph vertex {}", root);
+                Stage<? extends StageOutput, SomaticRunMetadata> stage = stageByTag.get(root);
+                stage.registerInput(new InputDependencyProvider() {
+                    @Override
+                    public <T> T registerInput(final Class<T> clazz) {
+                        var tag = OutputClassUtil.getOutputClassTag(clazz);
+                        return (T) completeStagesByTag.get(tag);
+                    }
+
+                    @Override
+                    public <T> T registerInput(final Class<T> clazz, final String label) {
+                        var tag = OutputClassUtil.getOutputClassTag(clazz, label);
+                        return (T) completeStagesByTag.get(tag);
+                    }
+                }, true);
+                var tag = stage.outputClassTag();
+                runningStageTags.add(tag);
+                executorService.submit(() -> {
+                    StageOutput result = stageRunner.run(metadata, stage);
+                    stageDoneQueue.add(Pair.of(tag, result));
+                });
             }
         }
 
-        private void submitStage(final Stage<? extends StageOutput, SomaticRunMetadata> stage, final String tag) {
-            var stageOutput = stageRunner.run(metadata, stage);
+        private void onStageDone(String tag, StageOutput stageOutput) {
             LOGGER.info("Finished running graph vertex {}", tag);
-            synchronized (this) {
-                pipelineResults.add(state.add(stageOutput));
-                runningStageTags.remove(tag);
-                completeStagesByTag.put(tag, stageOutput);
-                runGraph.removeVertex(tag);
-            }
-            runRound();
+            pipelineResults.add(state.add(stageOutput));
+            runningStageTags.remove(tag);
+            completeStagesByTag.put(tag, stageOutput);
+            runGraph.removeVertex(tag);
+        }
+
+        Set<String> getRunningTags() {
+            return runningStageTags;
+        }
+
+        Set<String> getFinishedTags() {
+            return completeStagesByTag.keySet();
         }
     }
 }

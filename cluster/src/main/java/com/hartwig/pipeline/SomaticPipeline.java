@@ -2,15 +2,12 @@ package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
@@ -20,10 +17,8 @@ import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.input.InputDependencyProvider;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.OutputClassUtil;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -47,12 +42,6 @@ import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.nio.Attribute;
-import org.jgrapht.nio.DefaultAttribute;
-import org.jgrapht.nio.dot.DOTExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +79,6 @@ public class SomaticPipeline {
     }
 
     public PipelineState run(final AlignmentPair pair) {
-        PipelineState state = new PipelineState();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 
         BamMetricsOutput tumorMetrics = metadata.maybeTumor()
@@ -108,7 +96,8 @@ public class SomaticPipeline {
 
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
 
-        List<Stage<? extends StageOutput, SomaticRunMetadata>> stages = List.of(
+        var executionGraph = new ExecutionGraph();
+        executionGraph.addStages(
                 new Amber(pair, resourceFiles, persistedDataset, arguments),
                 new Cobalt(pair, resourceFiles, persistedDataset, arguments),
                 new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments),
@@ -132,79 +121,18 @@ public class SomaticPipeline {
                 new Cuppa(resourceFiles, persistedDataset),
                 new Orange(resourceFiles)
         );
+        executionGraph.addStageInput(tumorMetrics, BamMetricsOutput.class, "tumor");
+        executionGraph.addStageInput(referenceMetrics, BamMetricsOutput.class, "reference");
+        executionGraph.addStageInput(tumorFlagstat, FlagstatOutput.class, "tumor");
+        executionGraph.addStageInput(referenceFlagstat, FlagstatOutput.class, "reference");
 
-        DefaultDirectedGraph<String, DefaultEdge> g = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
-
-        stages.stream()
-                .map(Stage::outputClassTag)
-                .forEach(g::addVertex);
-        g.addVertex(OutputClassUtil.getOutputClassTag(BamMetricsOutput.class, "tumor"));
-        g.addVertex(OutputClassUtil.getOutputClassTag(BamMetricsOutput.class, "reference"));
-        g.addVertex(OutputClassUtil.getOutputClassTag(FlagstatOutput.class, "tumor"));
-        g.addVertex(OutputClassUtil.getOutputClassTag(FlagstatOutput.class, "reference"));
-
-        var vertices = g.vertexSet();
-
-        stages.forEach(stage -> stage.registerInput(new InputDependencyProvider() {
-            @Override
-            public <T> T registerInput(Class<T> clazz) {
-                var classTag = OutputClassUtil.getOutputClassTag(clazz);
-                if (!vertices.contains(classTag)) {
-                    throw new IllegalArgumentException(String.format("%s expects input %s, but this input does not exist.", stage.outputClassTag(), classTag));
-                }
-                g.addEdge(classTag, stage.outputClassTag());
-                return null;
-            }
-
-            @Override
-            public <T> T registerInput(Class<T> clazz, String label) {
-                var classTag = OutputClassUtil.getOutputClassTag(clazz, label);
-                if (!vertices.contains(classTag)) {
-                    throw new IllegalArgumentException(String.format("%s expects input %s, but this input does not exist.", stage.outputClassTag(), classTag));
-                }
-                g.addEdge(classTag, stage.outputClassTag());
-                return null;
-            }
-        }, false));
-
-        var exporter = new DOTExporter<String, DefaultEdge>();
-        exporter.setVertexAttributeProvider((v) -> {
-            Map<String, Attribute> map = new LinkedHashMap<>();
-            map.put("label", DefaultAttribute.createAttribute(v));
-            return map;
-        });
-        var writer = new StringWriter();
-        exporter.exportGraph(g, writer);
-        LOGGER.info("Somatic pipeline graph looks like: {}", writer);
-
-        var topoGroups = topoGroups(g);
-
-        pipelineResults.compose(metadata, "Somatic");
-        return state;
-    }
-
-    static <T> List<List<T>> topoGroups(DefaultDirectedGraph<T, DefaultEdge> graph) {
-        var inDegrees = graph.vertexSet().stream()
-                .map(vertex -> Pair.of(vertex, graph.inDegreeOf(vertex)))
-                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-
-        List<List<T>> result = new ArrayList<>();
-
-        do {
-            var zeroIn = inDegrees.entrySet().stream()
-                    .filter(entry -> entry.getValue() == 0)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            zeroIn.forEach(vertex -> {
-                inDegrees.remove(vertex);
-                graph.outgoingEdgesOf(vertex).stream()
-                        .map(graph::getEdgeTarget)
-                        .forEach(outVertex -> inDegrees.computeIfPresent(outVertex, (v, degree) -> degree - 1));
-            });
-            result.add(zeroIn);
-        } while (!inDegrees.isEmpty());
-
-        return result;
+        try {
+            var state = executionGraph.run(executorService, stageRunner, metadata, pipelineResults).get();
+            pipelineResults.compose(metadata, "Somatic");
+            return state;
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private BamMetricsOutput skippedMetrics(final String sample) {
