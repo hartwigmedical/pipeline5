@@ -62,6 +62,8 @@ import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
+import com.hartwig.pipeline.tertiary.protect.Protect;
+import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
@@ -466,6 +468,14 @@ public class TestInputs {
                 .tumor(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam"))
                 .tumorIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE),
                         TUMOR_SAMPLE + ".hla.bam.bai"))
+                .build();
+    }
+
+    public static ProtectOutput protectOutput() {
+        return ProtectOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeEvidence(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE),
+                        TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
                 .build();
     }
 

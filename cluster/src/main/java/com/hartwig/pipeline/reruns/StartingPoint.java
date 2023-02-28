@@ -32,6 +32,7 @@ import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.rose.Rose;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
@@ -76,6 +77,7 @@ public class StartingPoint {
                         Cuppa.NAMESPACE,
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
+                        Rose.NAMESPACE,
                         VirusInterpreter.NAMESPACE))),
         RERUN_530(concat(CRAM_COMPLETE.namespaces,
                 List.of(GermlineCaller.NAMESPACE,
@@ -87,7 +89,8 @@ public class StartingPoint {
                         GRIPSS_GERMLINE_NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
-                        VirusBreakend.NAMESPACE)));
+                        VirusBreakend.NAMESPACE,
+                        Rose.NAMESPACE)));
 
         private final List<String> namespaces;
 
