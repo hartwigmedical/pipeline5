@@ -67,6 +67,7 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
@@ -491,7 +492,10 @@ public class TestInputs {
     }
 
     public static SigsOutput sigsOutput() {
-        return SigsOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return SigsOutput.builder()
+                .maybeAllocationTsv(GoogleStorageLocation.of(somaticBucket(Sigs.NAMESPACE),
+                        TUMOR_SAMPLE + Sigs.ALLOCATION_TSV))
+                .status(PipelineStatus.SUCCESS).build();
     }
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {

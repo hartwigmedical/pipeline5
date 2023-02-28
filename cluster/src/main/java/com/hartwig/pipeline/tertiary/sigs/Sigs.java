@@ -21,6 +21,8 @@ import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -31,15 +33,19 @@ import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Sigs.NAMESPACE)
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
+    public static final String ALLOCATION_TSV = ".sig.allocation.tsv";
     public static final String NAMESPACE = "sigs";
 
     private final InputDownload purpleSomaticVariantsDownload;
 
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
-    public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
+
+    public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -97,6 +103,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return SigsOutput.builder()
                 .status(jobStatus)
+                .maybeAllocationTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(allocationTsv(metadata))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
@@ -107,7 +114,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         return List.of(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
                 metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".sig.allocation.tsv")));
+                new ArchivePath(Folder.root(), namespace(), allocationTsv(metadata))));
     }
 
     @Override
@@ -117,11 +124,21 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     @Override
     public SigsOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return SigsOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+        return SigsOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeAllocationTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.SIGNATURE_ALLOCATION)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), allocationTsv(metadata)))))
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
     }
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary() && !arguments.useTargetRegions();
+    }
+
+    private String allocationTsv(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + ALLOCATION_TSV;
     }
 }
