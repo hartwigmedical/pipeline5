@@ -192,8 +192,7 @@ public class CommandLineOptions {
 
     private static Option startingPoint() {
         return optionWithArg(STARTING_POINT_FLAG,
-                "Run from a starting point after fastq alignment. Supporting starting points are (alignment_complete, calling_complete, "
-                        + " skip_gridss, gripss_complete, purple_complete)");
+                "Run from a starting point after fastq alignment. Specify \"help\" for this argument to see starting points.");
     }
 
     private static Option json() {

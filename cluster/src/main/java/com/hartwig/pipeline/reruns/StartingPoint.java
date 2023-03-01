@@ -23,6 +23,7 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
@@ -31,6 +32,7 @@ import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
+import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.rose.Rose;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
@@ -78,19 +80,7 @@ public class StartingPoint {
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
                         Rose.NAMESPACE,
-                        VirusInterpreter.NAMESPACE))),
-        RERUN_530(concat(CRAM_COMPLETE.namespaces,
-                List.of(GermlineCaller.NAMESPACE,
-                        LinxGermline.NAMESPACE,
-                        PaveSomatic.NAMESPACE,
-                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
-                        Gridss.NAMESPACE,
-                        GRIPSS_SOMATIC_NAMESPACE,
-                        GRIPSS_GERMLINE_NAMESPACE,
-                        Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        VirusBreakend.NAMESPACE,
-                        Rose.NAMESPACE)));
+                        VirusInterpreter.NAMESPACE)));
 
         private final List<String> namespaces;
 
