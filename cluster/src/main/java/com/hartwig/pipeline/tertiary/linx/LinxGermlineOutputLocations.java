@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 public interface LinxGermlineOutputLocations
 {
     GoogleStorageLocation disruptions();
-
+    GoogleStorageLocation breakends();
     GoogleStorageLocation driverCatalog();
 
     GoogleStorageLocation outputDirectory();

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS;
+import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS_UNFILTERED;
 
 import java.util.List;
 
@@ -59,10 +59,10 @@ public class GripssSomatic extends Gripss {
     }
 
     @Override
-    public DataType filteredDatatype() { return SOMATIC_STRUCTURAL_VARIANTS_GRIPSS; }
+    public DataType filteredDatatype() { return GRIPSS_SOMATIC_STRUCTURAL_VARIANTS; }
 
     @Override
-    public DataType unfilteredDatatype() { return SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY; }
+    public DataType unfilteredDatatype() { return GRIPSS_SOMATIC_STRUCTURAL_VARIANTS_UNFILTERED; }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {

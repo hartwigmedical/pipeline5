@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS;
+import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS_UNFILTERED;
 
 import java.util.List;
 
@@ -32,20 +32,24 @@ public class GripssGermline extends Gripss {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
 
-        return buildCommand(metadata);
+        return buildCommand(metadata, false);
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
 
-        return buildCommand(metadata);
+        return buildCommand(metadata, true);
     }
 
-    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata) {
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, boolean refOnly) {
 
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.reference().sampleName()));
+
+        if(!refOnly)
+            arguments.add(String.format("-reference %s", metadata.tumor().sampleName()));
+
         arguments.add("-germline");
         arguments.add("-output_id germline");
         arguments.addAll(commonArguments());
@@ -60,17 +64,17 @@ public class GripssGermline extends Gripss {
 
     @Override
     public String filteredVcf(final SomaticRunMetadata metadata) {
-        return metadata.reference().sampleName() + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
+        return metadata.tumor().sampleName() + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
     @Override
     public String unfilteredVcf(final SomaticRunMetadata metadata) {
-        return metadata.reference().sampleName() + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
+        return metadata.tumor().sampleName() + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
     }
 
     @Override
-    public DataType filteredDatatype() { return GERMLINE_STRUCTURAL_VARIANTS_GRIPSS; }
+    public DataType filteredDatatype() { return GRIPSS_GERMLINE_STRUCTURAL_VARIANTS; }
 
     @Override
-    public DataType unfilteredDatatype() { return GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY; }
+    public DataType unfilteredDatatype() { return GRIPSS_GERMLINE_STRUCTURAL_VARIANTS_UNFILTERED; }
 }

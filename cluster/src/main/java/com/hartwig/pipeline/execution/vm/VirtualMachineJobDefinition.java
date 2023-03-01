@@ -168,7 +168,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(8, 32))
+                .performanceProfile(custom(16, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

@@ -28,7 +28,7 @@ public class ApiPersistedDatasetTest {
 
     @Test
     public void returnsEmptyIfSampleNotPresent() {
-        assertThat(victim.path(SAMPLE, DataType.SOMATIC_VARIANTS_SAGE)).isEmpty();
+        assertThat(victim.path(SAMPLE, DataType.SAGE_SOMATIC_VARIANTS)).isEmpty();
     }
 
     @Test

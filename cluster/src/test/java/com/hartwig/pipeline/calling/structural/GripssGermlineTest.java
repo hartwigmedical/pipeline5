@@ -19,8 +19,8 @@ import org.junit.Before;
 
 public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetadata> {
 
-    private static final String TUMOR_GRIPSS_VCF_GZ = "reference.gripss.germline.vcf.gz";
-    private static final String TUMOR_GRIPSS_FILTERED_VCF_GZ = "reference.gripss.filtered.germline.vcf.gz";
+    private static final String TUMOR_GRIPSS_VCF_GZ = "tumor.gripss.germline.vcf.gz";
+    private static final String TUMOR_GRIPSS_FILTERED_VCF_GZ = "tumor.gripss.filtered.germline.vcf.gz";
     private static final String GRIPSS = "gripss_germline/";
 
     @Override
@@ -54,8 +54,8 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.2/gripss.jar "
-                + "-sample reference "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.3/gripss.jar "
+                + "-sample reference -reference tumor "
                 + "-germline -output_id germline "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
@@ -96,8 +96,8 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
-        persistedDataset.addPath(DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS_UNFILTERED, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
     }
 
     @Override

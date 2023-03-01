@@ -22,6 +22,7 @@ public interface PurpleOutput extends StageOutput {
                 .structuralVariants(GoogleStorageLocation.empty())
                 .somaticVariants(GoogleStorageLocation.empty())
                 .germlineVariants(GoogleStorageLocation.empty())
+                .germlineStructuralVariants(GoogleStorageLocation.empty())
                 .qcFile(GoogleStorageLocation.empty())
                 .purity(GoogleStorageLocation.empty())
                 .germlineDriverCatalog(GoogleStorageLocation.empty())

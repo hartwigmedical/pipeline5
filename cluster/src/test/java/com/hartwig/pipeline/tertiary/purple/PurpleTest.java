@@ -26,7 +26,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     public static final String TUMOR_PURPLE_SOMATIC_VCF_GZ = "tumor.purple.somatic.vcf.gz";
     public static final String TUMOR_PURPLE_GERMLINE_VCF_GZ = "tumor.purple.germline.vcf.gz";
-    public static final String TUMOR_PURPLE_SV_VCF_GZ = "tumor.purple.sv.vcf.gz";
+    public static final String TUMOR_PURPLE_SOMATIC_SV_VCF_GZ = "tumor.purple.sv.vcf.gz";
+    public static final String TUMOR_PURPLE_GERMLINE_SV_VCF_GZ = "tumor.purple.sv.germline.vcf.gz";
     public static final String TUMOR_PURITY_TSV = "tumor.purple.purity.tsv";
     public static final String TUMOR_QC = "tumor.purple.qc";
     public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
@@ -45,7 +46,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticProcessOutput(),
+                TestInputs.gripssSomaticOutput(),
+                TestInputs.gripssGermlineOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
@@ -61,11 +63,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz.tbi",
-                        "tumor.gripss.filtered.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz.tbi", "tumor.gripss.full.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz", "tumor.gripss.filtered.somatic.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz.tbi",
+                        "tumor.gripss.filtered.somatic.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz", "tumor.gripss.somatic.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz.tbi", "tumor.gripss.somatic.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_germline/results/tumor.gripss.filtered.germline.vcf.gz", "tumor.gripss.filtered.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
@@ -73,39 +76,41 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx18G -jar /opt/tools/purple/3.7.1/purple.jar "
+                "java -Xmx18G -jar /opt/tools/purple/3.8.1/purple.jar "
                         + "-amber /data/input/results "
                         + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
-                        + "-run_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
                         + "-output_dir /data/output "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                         + "-tumor tumor "
                         + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
-                        + "-structural_vcf /data/input/tumor.gripss.filtered.vcf.gz "
-                        + "-sv_recovery_vcf /data/input/tumor.gripss.full.vcf.gz "
+                        + "-somatic_sv_vcf /data/input/tumor.gripss.filtered.somatic.vcf.gz "
+                        + "-sv_recovery_vcf /data/input/tumor.gripss.somatic.vcf.gz "
                         + "-somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
                         + "-circos /opt/tools/circos/0.69.6/bin/circos "
                         + "-reference reference "
                         + "-germline_vcf /data/input/tumor.germline.vcf.gz "
+                        + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
                         + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv");
     }
 
     @Override
     protected List<String> expectedReferenceOnlyCommands() {
-        return Collections.singletonList("java -Xmx18G -jar /opt/tools/purple/3.7.1/purple.jar "
+        return Collections.singletonList("java -Xmx18G -jar /opt/tools/purple/3.8.1/purple.jar "
                         + "-amber /data/input/results "
                         + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 -run_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-ref_genome_version V37 -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-reference reference "
                         + "-germline_vcf /data/input/tumor.germline.vcf.gz "
+                        + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
                         + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv -no_charts");
     }
@@ -115,7 +120,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         Purple victim = new Purple(new RefGenome37ResourceFiles(),
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticProcessOutput(),
+                TestInputs.gripssSomaticOutput(),
+                TestInputs.gripssGermlineOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new TestPersistedDataset(),
@@ -135,7 +141,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.outputLocations().somaticVariants().get().path()).isEqualTo("results/" + TUMOR_PURPLE_SOMATIC_VCF_GZ);
         assertThat(output.outputLocations().somaticVariants().get().isDirectory()).isFalse();
         assertThat(output.outputLocations().structuralVariants().get().bucket()).isEqualTo(bucketName);
-        assertThat(output.outputLocations().structuralVariants().get().path()).isEqualTo("results/" + TUMOR_PURPLE_SV_VCF_GZ);
+        assertThat(output.outputLocations().structuralVariants().get().path()).isEqualTo("results/" + TUMOR_PURPLE_SOMATIC_SV_VCF_GZ);
         assertThat(output.outputLocations().structuralVariants().get().isDirectory()).isFalse();
     }
 
@@ -145,20 +151,23 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.outputLocations().somaticVariants().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
         assertThat(output.outputLocations().structuralVariants().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/purple/" + TUMOR_PURPLE_SV_VCF_GZ));
+                "set/purple/" + TUMOR_PURPLE_SOMATIC_SV_VCF_GZ));
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
+        return List.of(new AddDatatype(DataType.PURPLE_GERMLINE_VARIANTS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_GERMLINE_VCF_GZ)),
-                new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
+                new AddDatatype(DataType.PURPLE_SOMATIC_VARIANTS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_VCF_GZ)),
-                new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                new AddDatatype(DataType.PURPLE_SOMATIC_STRUCTURAL_VARIANTS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SV_VCF_GZ)),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_SV_VCF_GZ)),
+                new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_GERMLINE_SV_VCF_GZ)),
                 new AddDatatype(DataType.PURPLE_PURITY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURITY_TSV)),

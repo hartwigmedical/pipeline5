@@ -18,7 +18,7 @@ public class PaveSomatic extends Pave {
     public static final String NAMESPACE = "pave_somatic";
 
     public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
-        super(resourceFiles, sageOutput, persistedDataset, DataType.SOMATIC_VARIANTS_PAVE);
+        super(resourceFiles, sageOutput, persistedDataset, DataType.PAVE_SOMATIC_VARIANTS);
     }
 
     @Override

@@ -26,13 +26,13 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
     @Override
     protected List<String> expectedInputs() {
         return Collections.singletonList(input(
-                "run-reference-tumor-test/gripss_germline/results/tumor.gripss.filtered.vcf.gz",
-                    "tumor.gripss.filtered.vcf.gz"));
+                "run-reference-tumor-test/purple/tumor.purple.sv.germline.vcf.gz",
+                    "tumor.purple.sv.germline.vcf.gz"));
     }
 
     @Override
     protected Stage<LinxGermlineOutput, SomaticRunMetadata> createVictim() {
-        return new LinxGermline(TestInputs.gripssGermlineOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new LinxGermline(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -40,9 +40,8 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/1.22.1/linx.jar -sample tumor -germline "
-                + "-sv_vcf /data/input/tumor.gripss.filtered.vcf.gz -ref_genome_version V37 -output_dir /data/output "
-                + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.23.2/linx.jar -sample tumor -germline "
+                + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz -ref_genome_version V37 -output_dir /data/output "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
 
@@ -55,6 +54,9 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
                 new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), LinxGermline.NAMESPACE, "tumor.linx.germline.disruption.tsv")),
+                new AddDatatype(DataType.LINX_GERMLINE_BREAKENDS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), LinxGermline.NAMESPACE, "tumor.linx.germline.breakend.tsv")),
                 new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), LinxGermline.NAMESPACE, "tumor.linx.germline.driver.catalog.tsv")));

@@ -56,7 +56,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.2/gripss.jar "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.3/gripss.jar "
                 + "-sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
@@ -98,8 +98,8 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
-        persistedDataset.addPath(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS_UNFILTERED, GRIPSS + TUMOR_GRIPSS_VCF_GZ);
+        persistedDataset.addPath(DataType.GRIPSS_SOMATIC_STRUCTURAL_VARIANTS, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ);
     }
 
     @Override

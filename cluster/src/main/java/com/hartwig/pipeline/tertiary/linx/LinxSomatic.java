@@ -88,8 +88,6 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         arguments.add(String.format("-purple_dir %s", purpleOutputDirDownload.getLocalTargetPath()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-fragile_site_file %s", resourceFiles.fragileSites()));
-        arguments.add(String.format("-line_element_file %s", resourceFiles.lineElements()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add("-check_fusions");
         arguments.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
