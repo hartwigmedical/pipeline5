@@ -18,10 +18,10 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -52,9 +52,9 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     public LinxGermline(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleGermlineSvsDownload = new InputDownload(
-                purpleOutputLocations.germlineStructuralVariants().isPresent() ?
-                        purpleOutputLocations.germlineStructuralVariants().get() : null);
+        purpleGermlineSvsDownload = new InputDownload(purpleOutputLocations.germlineStructuralVariants().isPresent()
+                ? purpleOutputLocations.germlineStructuralVariants().get()
+                : null);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -70,28 +70,18 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommand(metadata, TUMOR_REFERENCE); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return Stage.disabled();
+    }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return buildCommand(metadata, REFERENCE_ONLY); }
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return buildCommand(metadata, REFERENCE_ONLY);
+    }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
-
-    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
-
-        List<String> arguments = Lists.newArrayList();
-
-        arguments.add(String.format("-sample %s", metadata.sampleName()));
-
-        arguments.add("-germline");
-        arguments.add(String.format("-sv_vcf %s", purpleGermlineSvsDownload.getLocalTargetPath()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
-
-        return Collections.singletonList(new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments));
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommand(metadata, TUMOR_REFERENCE);
     }
 
     @Override
@@ -117,26 +107,8 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
-        return List.of(new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), disruptionsTsv(metadata))),
-                new AddDatatype(DataType.LINX_GERMLINE_BREAKENDS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), breakendsTsv(metadata))),
-                new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv(metadata))));
-    }
-
-    @Override
     public LinxGermlineOutput skippedOutput(final SomaticRunMetadata metadata) {
         return LinxGermlineOutput.builder().status(PipelineStatus.SKIPPED).build();
-    }
-
-    @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow();
     }
 
     @Override
@@ -151,18 +123,54 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
-                        .build())
-                .addAllDatatypes(addDatatypes(metadata))
-                .build();
+                        .build()).addAllDatatypes(addDatatypes(metadata)).build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), disruptionsTsv(metadata))),
+                new AddDatatype(DataType.LINX_GERMLINE_BREAKENDS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), breakendsTsv(metadata))),
+                new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv(metadata))));
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runTertiary() && !arguments.shallow();
+    }
+
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
+
+        List<String> arguments = Lists.newArrayList();
+
+        arguments.add(String.format("-sample %s", metadata.sampleName()));
+
+        arguments.add("-germline");
+        arguments.add(String.format("-sv_vcf %s", purpleGermlineSvsDownload.getLocalTargetPath()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
+        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+
+        return Collections.singletonList(new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments));
     }
 
     private String driverCatalogTsv(final SomaticRunMetadata metadata) {
         return metadata.sampleName() + GERMLINE_DRIVER_CATALOG_TSV;
     }
 
-    private String disruptionsTsv(final SomaticRunMetadata metadata) { return metadata.sampleName() + GERMLINE_DISRUPTION_TSV; }
+    private String disruptionsTsv(final SomaticRunMetadata metadata) {
+        return metadata.sampleName() + GERMLINE_DISRUPTION_TSV;
+    }
 
-    private String breakendsTsv(final SomaticRunMetadata metadata) { return metadata.sampleName() + GERMLINE_BREAKEND_TSV; }
+    private String breakendsTsv(final SomaticRunMetadata metadata) {
+        return metadata.sampleName() + GERMLINE_BREAKEND_TSV;
+    }
 
     @NotNull
     public GoogleStorageLocation persistedOrDefault(final SomaticRunMetadata metadata, final DataType dataType, final String path) {
