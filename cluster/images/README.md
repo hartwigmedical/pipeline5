@@ -1,22 +1,28 @@
-## What is this?
+# What is this directory?
 
-These are scripts and data for creating new base images for use in running PipelineV5 VMs on GCP. A base image is
-the image used in VM creation during stage execution. In other words, it is the image used by 
+These are scripts and data for creating new images for running PipelineV5 VMs on GCP. The image must include all of the tools that
+are required by the pipeline version being executed, and must be functional standalone OS. The images we create are based on the
+Debian image provided by Google.
 
-## Usage
+Resources and tools are copied in from buckets and other sources at imaging time. The image is created with a name and "family"
+that make it clear which version of the pipeline it should work with. The contract between the image and the pipeline code version
+is quite loose so production pipeline builds specify the exact image name in their arguments. Without this argument the latest
+image in the same family as the executing pipeline will be used.
 
-### Creating a public image
+## Creating a public image
 
-A public image contains all tools and resources with no licensing or confidentiality restriction. To create one
-run the following from this directory.
+A public image contains all tools and resources with no licensing or confidentiality restriction. The developer will need to make
+one of these when a new tool or version of an existing tool is added. To create one run from this directory:
 
 ```shell
 ./create_public_image.sh
 ```
 
-The image will be named for the current version in development, along with a timestamp of creation. 
+The image will be named for the current version in development, along with a timestamp of creation.
 
-### Creating a public image with overrides
+This image will be appropriate for development testing but production will need a private image, see below.
+
+## Creating a public image with overrides
 
 Creating a public image will use resources (static configuration of the pipeline like gene panels, reference genomes
 etc) from the common-resources-public repository and common-resources bucket (large files). To override the files in
@@ -34,10 +40,10 @@ gsutil cp /path/to/overridden/DriverGenePanel.38.tsv gs://common-resources-pmc-o
 ./create_public_image.sh --flavour pmc
 ```
 
-### Creating a public image with pilot jar
+## Creating a public image with pilot JAR
 
-Images can also be created using local pilot versions of tools jars. Source image is a previously created public
-image using `./create_public_image.sh`.
+Images can also be created using local pilot versions of tools JARs. The source image must be a previously-created public
+image as created by `./create_public_image.sh`.
 
 ```shell
 mkdir /path/to/pilot/jars/
@@ -45,16 +51,20 @@ cp sage_pilot.jar /path/to/pilot/jars/sage_pilot.jar
 ./create_pilot_image.sh -s ${source_image} -d /path/to/pilot/jars/
 ```
 
-### Creating a private image
+The resulting image will be created very quickly because it uses the public image as a base and overlays the pilot JARs, but is
+not designed for regular use. It can be utilised by passing the image argument to the Pipeline5 application but it will not have
+the same family as regular images so won't be auto-located.
 
-A private image overlays the contents of common-resources-private repository on a previously created public image.
+## Creating a private image
+
+A private image overlays the contents of the `common-resources-private` repository on a previously created public image.
 These images are meant for production sequencing services.
 
 ```shell
 ./create_private_image.sh {source_image}
 ```
 
-### Creating a custom docker container
+## Creating a custom Docker container
 
 The above scripts all deal in VM images, but in some cases (for instance to use pilot jars) we also need a custom 
 docker container image. There is no script for this but it can be done by execution the following commands:

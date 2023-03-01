@@ -45,6 +45,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> biopsy();
 
+    Optional<String> hmfApiUrl();
+
     String outputBucket();
 
     Optional<String> uploadPrivateKeyPath();
@@ -90,10 +92,8 @@ public interface Arguments extends CommonArguments {
     }
 
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
-    String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
-
     String DEFAULT_DOCKER_UPLOAD_KEY_PATH = "/secrets/upload-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 

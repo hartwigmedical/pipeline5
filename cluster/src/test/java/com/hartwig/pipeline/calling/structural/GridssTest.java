@@ -167,8 +167,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + "-cp /opt/tools/gridss/2.13.2/gridss.jar "
                 + "gridss.AnnotateInsertedSequence "
                 + "REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa "
-                + "INPUT=/data/output/tumor.gridss.driver.vcf.gz "
-                + "OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz "
+                + "INPUT=/data/output/tumor.gridss.driver.vcf.gz " + "OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz "
                 + "ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
         // @formatter:on
 
