@@ -68,7 +68,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("export PATH=\"${PATH}:/opt/tools/samtools/1.14\"");
 
         expectedCommands.add(
-                "java -Xmx48G -jar /opt/tools/sv-prep/1.0.1/sv-prep.jar "
+                "java -Xmx48G -jar /opt/tools/sv-prep/1.1/sv-prep.jar "
                 + "-sample tumor -bam_file /data/input/tumor.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
@@ -82,8 +82,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
 
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/tumor.sv_prep.sorted.bam");
 
-        expectedCommands.add(
-                "java -Xmx48G -jar /opt/tools/sv-prep/1.0.1/sv-prep.jar "
+        expectedCommands.add("java -Xmx48G -jar /opt/tools/sv-prep/1.1/sv-prep.jar "
                         + "-sample reference -bam_file /data/input/reference.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
@@ -98,7 +97,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
 
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index /data/output/reference.sv_prep.sorted.bam");
 
-        expectedCommands.add("/opt/tools/sv-prep/1.0.1/gridss.run.sh --steps all " + "--output /data/output/tumor.gridss.vcf.gz "
+        expectedCommands.add("/opt/tools/sv-prep/1.1/gridss.run.sh --steps all " + "--output /data/output/tumor.gridss.vcf.gz "
                 + "--workingdir /data/output " + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "--jar /opt/tools/gridss/2.13.2/gridss.jar " + "--blacklist /opt/resources/gridss/37/gridss_blacklist.37.bed.gz "
                 + "--configuration /opt/resources/gridss/gridss.properties " + "--labels reference,tumor "
@@ -106,7 +105,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + "--filtered_bams /data/output/reference.sv_prep.sorted.bam,/data/output/tumor.sv_prep.sorted.bam "
                 + "--jvmheap 48G --threads 10");
 
-        expectedCommands.add("java -Xmx48G -cp /opt/tools/sv-prep/1.0.1/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
+        expectedCommands.add("java -Xmx48G -cp /opt/tools/sv-prep/1.1/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
                 + "-input_vcf /data/output/tumor.gridss.vcf.gz " + "-output_vcf /data/output/tumor.gridss.driver.vcf.gz "
                 + "-samples reference,tumor -bam_files /data/input/reference.bam,/data/input/tumor.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "

@@ -28,7 +28,7 @@ public interface Versions {
     String ROSE = "1.3";
     String SAGE = "3.2.3";
     String SIGS = "1.1";
-    String SV_PREP = "1.0.1";
+    String SV_PREP = "1.1";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
 
