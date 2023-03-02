@@ -61,6 +61,7 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
 sudo chmod a+x /opt/tools/sv-prep/1.0.1/gridss.run.sh
+sudo chmod a+x /opt/tools/sv-prep/1.1/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
