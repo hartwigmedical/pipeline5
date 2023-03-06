@@ -136,16 +136,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String fragileSites() {
-        return formPath(LINX, "fragile_sites_hmf.38.csv");
-    }
-
-    @Override
-    public String lineElements() {
-        return formPath(LINX, "line_elements.38.csv");
-    }
-
-    @Override
     public String ensemblDataCache() {
         return formPath(ENSEMBL_DATA_CACHE, "");
     }
