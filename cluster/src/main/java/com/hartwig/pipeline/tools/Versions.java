@@ -15,9 +15,9 @@ public interface Versions {
     String BAM_TOOLS = "1.0";
     String CHORD = "2.00_1.14";
     String COBALT = "1.13";
-    String CUPPA = "1.7.2";
+    String CUPPA = "1.8";
     String GRIDSS = "2.13.2";
-    String GRIPSS = "2.3.3";
+    String GRIPSS = "2.3.4";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
     String LINX = "1.23.2";
@@ -29,7 +29,7 @@ public interface Versions {
     String ROSE = "1.3.1";
     String SAGE = "3.2.5";
     String SIGS = "1.1";
-    String SV_PREP = "1.0.1";
+    String SV_PREP = "1.1";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
 
