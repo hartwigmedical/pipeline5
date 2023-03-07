@@ -94,17 +94,11 @@ public class Driver extends SubStage {
         sampleArgument.SvPrepBamPath = format("%s/%s.sv_prep.sorted.bam", VmDirectories.OUTPUT, sampleArgument.SampleName);
 
         // sort
-        StringJoiner sortArguments = new StringJoiner(" ");
-        sortArguments.add("sort");
-        sortArguments.add(format("-@ %s", Bash.allCpus()));
-        sortArguments.add("-m 2G -T tmp");
-        sortArguments.add(format("-O bam %s", svPrepBam));
-        sortArguments.add(format("-o %s", sampleArgument.SvPrepBamPath));
-        commands.add(new SamtoolsCommand(sortArguments.toString()));
+        String sortArgs = format("sort -O bam %s -o %s", svPrepBam, sampleArgument.SvPrepBamPath);
+        commands.add(new SamtoolsCommand(sortArgs));
 
         // and index
-        String indexArgs = format("index -@ %s %s", Bash.allCpus(), sampleArgument.SvPrepBamPath);
-        commands.add(new SamtoolsCommand(indexArgs));
+        commands.add(SamtoolsCommand.index(sampleArgument.SvPrepBamPath));
     }
 
     private BashCommand buildSvPrepCommand(final SampleArgument sampleArgument, final String tumorJunctionsFile) {

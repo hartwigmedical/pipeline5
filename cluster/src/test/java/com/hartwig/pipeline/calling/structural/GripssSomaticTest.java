@@ -56,7 +56,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.4/gripss.jar "
+        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.3/gripss.jar "
                 + "-sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

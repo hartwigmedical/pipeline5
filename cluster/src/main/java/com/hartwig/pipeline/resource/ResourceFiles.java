@@ -71,6 +71,9 @@ public interface ResourceFiles {
     String sglBreakendPon();
     String svBreakpointPon();
 
+    String fragileSites();
+    String lineElements();
+
     String ensemblDataCache();
 
     String knownFusionData();
