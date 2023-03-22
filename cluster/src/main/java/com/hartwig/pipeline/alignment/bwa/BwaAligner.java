@@ -82,14 +82,10 @@ public class BwaAligner implements Aligner {
 
         SampleInput sample = Inputs.sampleFor(input, metadata);
         if (sample.bam().isPresent()) {
-            String noPrefix = sample.bam().orElseThrow().replace("gs://", "");
-            int firstSlash = noPrefix.indexOf("/");
-            String bucket = noPrefix.substring(0, firstSlash);
-            String path = noPrefix.substring(firstSlash + 1);
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)
-                    .maybeAlignments(GoogleStorageLocation.of(bucket, path))
+                    .maybeAlignments(GoogleStorageLocation.from(sample.bam().get(), arguments.project()))
                     .build();
         }
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);

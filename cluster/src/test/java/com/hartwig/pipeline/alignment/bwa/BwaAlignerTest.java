@@ -34,7 +34,6 @@ import org.mockito.ArgumentCaptor;
 public class BwaAlignerTest {
 
     private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
-    private static final AlignmentOutput ALIGNMENT_OUTPUT = TestInputs.referenceAlignmentOutput();
     private BwaAligner victim;
     private SampleUpload sampleUpload;
     private Storage storage;
@@ -105,12 +104,9 @@ public class BwaAlignerTest {
 
     @Test
     public void returnsProvidedBamIfInSample() throws Exception {
-        PipelineInput input = PipelineInput.builder()
-                .reference(SampleInput.builder()
-                        .name(METADATA.sampleName())
-                        .bam("gs://bucket/path/reference.bam")
-                        .build())
-                .build();
+        String gsUrl = "gs://bucket/path/reference.bam";
+        PipelineInput input =
+                PipelineInput.builder().reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build()).build();
         victim = new BwaAligner(arguments,
                 computeEngine,
                 storage,
@@ -120,7 +116,7 @@ public class BwaAlignerTest {
                 Executors.newSingleThreadExecutor(),
                 mock(Labels.class));
         AlignmentOutput output = victim.run(METADATA);
-        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(gsUrl, arguments.project()));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());
         assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
     }
