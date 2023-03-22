@@ -64,12 +64,17 @@ public class GripssGermline extends Gripss {
 
     @Override
     public String filteredVcf(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
+        return getFileSampleId(metadata) + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
     @Override
     public String unfilteredVcf(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
+        return getFileSampleId(metadata) + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
+    }
+
+    private String getFileSampleId(final SomaticRunMetadata metadata) {
+        // Gripss uses the tumor name for all output files if present, including in germline mode
+        return metadata.maybeTumor().isPresent() ? metadata.tumor().sampleName() : metadata.reference().sampleName();
     }
 
     @Override
