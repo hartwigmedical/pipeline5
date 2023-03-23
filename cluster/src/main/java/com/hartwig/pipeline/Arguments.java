@@ -41,7 +41,7 @@ public interface Arguments extends CommonArguments {
 
     DefaultsProfile profile();
 
-    String setId();
+    String setName();
 
     Optional<String> biopsy();
 
@@ -125,7 +125,7 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .setId(EMPTY)
+                    .setName(EMPTY)
                     .cmek(EMPTY)
                     .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(Optional.empty())
@@ -157,7 +157,7 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .setId(EMPTY)
+                    .setName(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
@@ -192,7 +192,7 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .setId(EMPTY)
+                    .setName(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
@@ -225,7 +225,7 @@ public interface Arguments extends CommonArguments {
                     .runGermlineCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .setId(EMPTY)
+                    .setName(EMPTY)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)

@@ -96,7 +96,7 @@ public class SmokeTest {
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(findCloudSdk())
-                .setId(setName)
+                .setName(setName)
                 .runTag(randomRunId)
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")

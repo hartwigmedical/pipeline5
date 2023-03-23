@@ -300,8 +300,7 @@ public class CommandLineOptions {
             CommandLine commandLine = defaultParser.parse(options(), args);
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
 
-            return Arguments.builder()
-                    .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
+            return Arguments.builder().setName(commandLine.getOptionValue(SET_ID_FLAG, defaults.setName()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))

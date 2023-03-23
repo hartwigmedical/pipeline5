@@ -35,7 +35,7 @@ public class CommandLineOptionsTest {
     @Test
     public void defaultOptionsCanBeOverridden() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-set_id", OVERRIDDEN_SET_ID });
-        assertThat(result.setId()).isEqualTo(OVERRIDDEN_SET_ID);
+        assertThat(result.setName()).isEqualTo(OVERRIDDEN_SET_ID);
     }
 
     @Test
