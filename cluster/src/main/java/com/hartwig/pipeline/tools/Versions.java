@@ -87,4 +87,8 @@ public interface Versions {
     static String imageVersion() {
         return "5-32";
     }
+
+    static void main(final String[] args) {
+        System.out.println(Versions.imageVersion());
+    }
 }
