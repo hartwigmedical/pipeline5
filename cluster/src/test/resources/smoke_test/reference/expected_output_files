@@ -66,10 +66,12 @@ lilac/COLO829v003R.candidates.coverage.csv
 lilac/COLO829v003R.lilac.csv
 lilac/COLO829v003R.lilac.qc.csv
 lilac/run.log
-linx_germline/COLO829v003R.linx.clusters.tsv
+linx_germline/COLO829v003R.linx.germline.clusters.tsv
 linx_germline/COLO829v003R.linx.germline.disruption.tsv
 linx_germline/COLO829v003R.linx.germline.driver.catalog.tsv
-linx_germline/COLO829v003R.linx.svs.tsv
+linx_germline/COLO829v003R.linx.germline.svs.tsv
+linx_germline/COLO829v003R.linx.germline.breakend.tsv
+linx_germline/COLO829v003R.linx.germline.links.tsv
 linx_germline/linx.version
 linx_germline/run.log
 metadata.json
@@ -87,6 +89,8 @@ purple/COLO829v003R.purple.germline.vcf.gz.tbi
 purple/COLO829v003R.purple.purity.tsv
 purple/COLO829v003R.purple.qc
 purple/COLO829v003R.purple.segment.tsv
+purple/COLO829v003R.purple.sv.germline.vcf.gz
+purple/COLO829v003R.purple.sv.germline.vcf.gz.tbi
 purple/purple.version
 purple/run.log
 sage_germline/COLO829v003R.sage.bqr.png
