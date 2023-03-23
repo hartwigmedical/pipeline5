@@ -53,9 +53,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public LinxSomatic(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = purpleOutputLocations.structuralVariants().isPresent()
-                ? new InputDownload(purpleOutputLocations.structuralVariants().get())
-                : null;
+        purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants().isPresent()
+                ? purpleOutputLocations.structuralVariants().get() : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }

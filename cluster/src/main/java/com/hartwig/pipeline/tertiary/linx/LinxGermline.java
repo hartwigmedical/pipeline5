@@ -54,7 +54,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleGermlineSvsDownload = new InputDownload(purpleOutputLocations.germlineStructuralVariants().isPresent()
                 ? purpleOutputLocations.germlineStructuralVariants().get()
-                : null);
+                : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
