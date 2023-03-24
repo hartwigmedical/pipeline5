@@ -23,15 +23,20 @@ public class MetadataProvider {
         Optional<SampleInput> reference = Inputs.sample(pipelineInput, SampleType.REFERENCE);
         Optional<SampleInput> tumor = Inputs.sample(pipelineInput, SampleType.TUMOR);
 
-        return SomaticRunMetadata.builder().set(setName)
+        return SomaticRunMetadata.builder()
+                .set(setName)
                 .bucket(arguments.outputBucket())
-                .maybeTumor(tumor.map(t -> SingleSampleRunMetadata.builder().bucket(arguments.outputBucket()).set(setName)
+                .maybeTumor(tumor.map(t -> SingleSampleRunMetadata.builder()
+                        .bucket(arguments.outputBucket())
+                        .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
                         .barcode(t.name())
                         .sampleName(t.name())
                         .primaryTumorDoids(t.primaryTumorDoids())
                         .build()))
-                .maybeReference(reference.map(r -> SingleSampleRunMetadata.builder().bucket(arguments.outputBucket()).set(setName)
+                .maybeReference(reference.map(r -> SingleSampleRunMetadata.builder()
+                        .bucket(arguments.outputBucket())
+                        .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                         .barcode(r.name())
                         .sampleName(r.name())
