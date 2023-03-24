@@ -19,16 +19,16 @@ public class MetadataProvider {
     }
 
     public SomaticRunMetadata get() {
-        String setId = RunTag.apply(arguments, arguments.setId());
+        String setName = RunTag.apply(arguments, pipelineInput.setName().orElse(arguments.setName()));
         Optional<SampleInput> reference = Inputs.sample(pipelineInput, SampleType.REFERENCE);
         Optional<SampleInput> tumor = Inputs.sample(pipelineInput, SampleType.TUMOR);
 
         return SomaticRunMetadata.builder()
-                .set(setId)
+                .set(setName)
                 .bucket(arguments.outputBucket())
                 .maybeTumor(tumor.map(t -> SingleSampleRunMetadata.builder()
                         .bucket(arguments.outputBucket())
-                        .set(setId)
+                        .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
                         .barcode(t.name())
                         .sampleName(t.name())
@@ -36,7 +36,7 @@ public class MetadataProvider {
                         .build()))
                 .maybeReference(reference.map(r -> SingleSampleRunMetadata.builder()
                         .bucket(arguments.outputBucket())
-                        .set(setId)
+                        .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                         .barcode(r.name())
                         .sampleName(r.name())
