@@ -50,7 +50,7 @@ public class CommandLineOptions {
     private static final String RUN_CUPPA_FLAG = "run_cuppa";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
-    private static final String SET_ID_FLAG = "set_id";
+    private static final String SET_NAME_FLAG = "set_id";
     private static final String NETWORK_FLAG = "network";
     private static final String SUBNET_FLAG = "subnet";
     private static final String NETWORK_TAGS_FLAG = "network_tags";
@@ -186,6 +186,7 @@ public class CommandLineOptions {
     private static Option biopsy() {
         return optionWithArg(BIOPSY_FLAG, "Name of the biopsy registered in the API.");
     }
+
     private static Option hmfApiUrl() {
         return optionWithArg(HMF_API_URL_FLAG, "URL of the HMF-API.");
     }
@@ -229,7 +230,7 @@ public class CommandLineOptions {
     }
 
     private static Option setId() {
-        return optionWithArg(SET_ID_FLAG,
+        return optionWithArg(SET_NAME_FLAG,
                 "The id of the set for which to run a somatic pipeline. A set represents a valid reference/tumor pair (ie CPCT12345678). "
                         + "Can only be used when mode is somatic and the single sample pipelines have been run for each sample");
     }
@@ -300,7 +301,8 @@ public class CommandLineOptions {
             CommandLine commandLine = defaultParser.parse(options(), args);
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
 
-            return Arguments.builder().setName(commandLine.getOptionValue(SET_ID_FLAG, defaults.setName()))
+            return Arguments.builder()
+                    .setName(commandLine.getOptionValue(SET_NAME_FLAG, defaults.setName()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
