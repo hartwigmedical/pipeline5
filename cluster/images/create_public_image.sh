@@ -5,7 +5,7 @@ set -o pipefail
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-VERSION=5-32
+PV5_JAR="$(dirname "$0")/../target/cluster-local-SNAPSHOT.jar"
 
 tools_only=false
 
@@ -35,7 +35,12 @@ while true; do
     esac
 done
 
-image_family="pipeline5-${VERSION}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
+[[ ! -f $PV5_JAR ]] && echo "Pipeline JAR is missing, build it and try again" && exit 1
+version="$(java -cp ${PV5_JAR} com.hartwig.pipeline.tools.Versions)"
+[[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
+
+echo "Building public image for pipeline version ${version}"
+image_family="pipeline5-${version}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
 source_instance="${image_family}-$(whoami)"
 image_name="${image_family}-$(date +%Y%m%d%H%M)"
 source_project="hmf-pipeline-development"
