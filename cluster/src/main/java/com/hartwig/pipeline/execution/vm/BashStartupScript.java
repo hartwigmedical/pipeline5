@@ -53,13 +53,13 @@ public class BashStartupScript {
                 format("  gsutil -m cp %s gs://%s", localLogFile, runtimeBucketName),
                 format("  echo $exit_code > %s", jobFailedFlag),
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
-                "  exit $exit_code\n" + "}\n"));
+                "  shutdown -h now\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
         preamble.add("ulimit -n 102400");
         addCompletionCommands();
         return String.join("\n", preamble) + "\n" + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty()
                 ? ""
-                : commandSuffix);
+                : commandSuffix) + "\nshutdown -h now";
     }
 
     BashStartupScript addLine(final String lineOne) {
