@@ -122,6 +122,16 @@ public class GoogleComputeEngine implements ComputeEngine {
             BucketCompletionWatcher.State currentState = bucketWatcher.currentState(bucket, flags);
             if (currentState == BucketCompletionWatcher.State.SUCCESS) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
+                lifecycleManager.findExistingInstance(vmName).ifPresent(instance -> {
+                    String zone = instance.getZone();
+                    if (arguments.useLocalSsds()) {
+                        LOGGER.info("Deleting running [{}] instance", vmName);
+                        lifecycleManager.delete(vmName, zone);
+                    } else {
+                        LOGGER.info("Stopping running [{}] instance", vmName);
+                        lifecycleManager.stop(zone, vmName);
+                    }
+                });
                 return PipelineStatus.SKIPPED;
             } else if (currentState == BucketCompletionWatcher.State.FAILURE) {
                 LOGGER.info("Compute engine job [{}] already exists, but failed. Deleting state and restarting.", vmName);
