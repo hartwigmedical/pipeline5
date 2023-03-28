@@ -131,7 +131,7 @@ public class GoogleComputeEngineTest {
     }
 
     @Test
-    public void attemptsToDeleteRunningSpotInstanceOnStartup() {
+    public void attemptsToDeleteLeftoverInstanceOnStartup() {
         returnSuccess();
         Instance mockedInstance = mock(Instance.class);
         when(lifecycleManager.findExistingInstance(INSTANCE_NAME)).thenReturn(Optional.of(mockedInstance));
@@ -139,20 +139,6 @@ public class GoogleComputeEngineTest {
         when(mockedInstance.getZone()).thenReturn(FIRST_ZONE_NAME);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
-    }
-
-    @Test
-    public void attemptsToStopRunningNonPreemptibleInstanceOnStartup() {
-        Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new GoogleComputeEngine(arguments, zonesClient, imagesClient, z -> {
-        }, lifecycleManager, bucketWatcher, mock(Labels.class));
-        returnSuccess();
-        Instance mockedInstance = mock(Instance.class);
-        when(lifecycleManager.findExistingInstance(INSTANCE_NAME)).thenReturn(Optional.of(mockedInstance));
-        when(mockedInstance.getName()).thenReturn(INSTANCE_NAME);
-        when(mockedInstance.getZone()).thenReturn(FIRST_ZONE_NAME);
-        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
