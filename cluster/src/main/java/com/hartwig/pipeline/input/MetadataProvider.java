@@ -2,6 +2,7 @@ package com.hartwig.pipeline.input;
 
 import java.util.Optional;
 
+import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
@@ -41,6 +42,7 @@ public class MetadataProvider {
                         .barcode(r.name())
                         .sampleName(r.name())
                         .build()))
+                .maybeExternalIds(pipelineInput.operationalReferences())
                 .build();
     }
 
