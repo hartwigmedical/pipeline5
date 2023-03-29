@@ -35,8 +35,11 @@ while true; do
     esac
 done
 
-[[ ! -f $PV5_JAR ]] && echo "Pipeline JAR is missing, build it and try again" && exit 1
+set -e
+echo "Rebuilding pipeline JAR to ensure correct version"
+mvn -f "$(dirname "$0")/../../pom.xml" clean package -DskipTests
 version="$(java -cp ${PV5_JAR} com.hartwig.pipeline.tools.Versions)"
+set +e
 [[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 
 echo "Building public image for pipeline version ${version}"
