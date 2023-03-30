@@ -14,7 +14,6 @@ import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
-import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -74,12 +73,10 @@ public class PipelineMain {
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
-            HmfApiStatusUpdate apiStatusUpdate = new HmfApiStatusUpdate(runApi);
+            HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
 
             LOGGER.info("Starting pipeline in [{}] mode", mode);
-            if (arguments.hmfApiUrl().isPresent()) {
-                apiStatusUpdate.start(input.operationalReferences().map(OperationalReferences::runId).orElseThrow());
-            }
+            apiStatusUpdateOrNot.start();
             String ini =
                     somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
@@ -140,18 +137,15 @@ public class PipelineMain {
                     referenceEventListener,
                     tumorEventListener,
                     CleanupProvider.from(arguments, storage).get(),
-                    outputPublisher).run();
+                    outputPublisher,
+                    apiStatusUpdateOrNot).run();
             completedEvent(eventSubjects,
                     turquoisePublisher,
                     state.status().toString(),
                     arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
 
-            if (arguments.hmfApiUrl().isPresent()) {
-                apiStatusUpdate.finish(input.operationalReferences().orElseThrow().runId(), state.status());
-            }
             return state;
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
