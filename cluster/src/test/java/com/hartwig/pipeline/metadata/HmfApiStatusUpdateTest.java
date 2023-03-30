@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.metadata;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -17,6 +18,9 @@ import com.hartwig.api.model.Run;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
+import com.hartwig.pdl.OperationalReferences;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
 import org.assertj.core.data.TemporalUnitLessThanOffset;
@@ -30,19 +34,29 @@ public class HmfApiStatusUpdateTest {
     private RunApi runApi;
     private Run run;
     private ArgumentCaptor<UpdateRun> argCaptor;
-    private HmfApiStatusUpdate apiStatusUpdate;
+    private PipelineInput pipelineInput;
 
     @Before
     public void setup() {
         runApi = mock(RunApi.class);
         run = new Run().id(RUN_ID);
         argCaptor = ArgumentCaptor.forClass(UpdateRun.class);
-        apiStatusUpdate = new HmfApiStatusUpdate(runApi);
+        pipelineInput =
+                PipelineInput.builder().operationalReferences(OperationalReferences.builder().runId(RUN_ID).setId(1L).build()).build();
+    }
+
+    private HmfApiStatusUpdate setupForNoOp() {
+        return HmfApiStatusUpdate.from(Arguments.testDefaults(), runApi, mock(PipelineInput.class));
+    }
+
+    private HmfApiStatusUpdate setupForRealUpdate() {
+        Arguments arguments = Arguments.testDefaultsBuilder().hmfApiUrl("http://api").build();
+        return HmfApiStatusUpdate.from(arguments, runApi, pipelineInput);
     }
 
     @Test
-    public void startSetsApiStatusToProcessing() {
-        apiStatusUpdate.start(run.getId());
+    public void startSetsApiStatusToProcessingWhenUrlProvided() {
+        setupForRealUpdate().start();
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.PROCESSING);
         assertThat(LocalDateTime.parse(Objects.requireNonNull(argCaptor.getValue().getStartTime()),
@@ -51,25 +65,43 @@ public class HmfApiStatusUpdateTest {
     }
 
     @Test
-    public void successSetsApiStatusToFinished() {
-        apiStatusUpdate.finish(run.getId(), PipelineStatus.SUCCESS);
+    public void successSetsApiStatusToFinishedWhenApiProvided() {
+        setupForRealUpdate().finish(PipelineStatus.SUCCESS);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Test
-    public void qcFailureSetsApiStatusToFailed() {
-        apiStatusUpdate.finish(run.getId(), PipelineStatus.QC_FAILED);
+    public void qcFailureSetsApiStatusToFailedWhenApiProvided() {
+        setupForRealUpdate().finish(PipelineStatus.QC_FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.QCFAILURE);
     }
 
     @Test
-    public void technicalFailureSetsApiStatusToFailed() {
-        apiStatusUpdate.finish(run.getId(), PipelineStatus.FAILED);
+    public void technicalFailureSetsApiStatusToFailedWhenApiProvided() {
+        setupForRealUpdate().finish(PipelineStatus.FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.TECHNICALFAILURE);
+    }
+
+    @Test
+    public void startDoesNoApiCallWhenNoUrlProvided() {
+        setupForNoOp().start();
+        verifyNoMoreInteractions(runApi);
+    }
+
+    @Test
+    public void finishDoesNoApiCallOnSuccessWhenNoUrlProvided() {
+        setupForNoOp().finish(PipelineStatus.SUCCESS);
+        verifyNoMoreInteractions(runApi);
+    }
+
+    @Test
+    public void finishDoesNoApiCallOnFailureWhenNoUrlProvided() {
+        setupForNoOp().finish(PipelineStatus.FAILED);
+        verifyNoMoreInteractions(runApi);
     }
 }

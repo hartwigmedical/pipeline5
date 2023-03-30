@@ -17,6 +17,7 @@ import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.OutputPublisher;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -56,7 +57,8 @@ public class FullPipelineTest {
                 referenceListener,
                 tumorListener,
                 cleanup,
-                outputPublisher);
+                outputPublisher,
+                mock(HmfApiStatusUpdate.class));
     }
 
     @Test
