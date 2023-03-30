@@ -9,6 +9,7 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.output.OutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -28,11 +29,12 @@ public class FullPipeline {
     private final SomaticRunMetadata metadata;
     private final Cleanup cleanup;
     private final OutputPublisher outputPublisher;
+    private HmfApiStatusUpdate hmfApiStatusUpdate;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
             final SomaticPipeline somaticPipeline, final SomaticRunMetadata metadata, final ExecutorService executorService,
             final SingleSampleEventListener referenceApi, final SingleSampleEventListener tumorApi, final Cleanup cleanup,
-            final OutputPublisher outputPublisher) {
+            final OutputPublisher outputPublisher, final HmfApiStatusUpdate hmfApiStatusUpdate) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
@@ -42,6 +44,7 @@ public class FullPipeline {
         this.metadata = metadata;
         this.cleanup = cleanup;
         this.outputPublisher = outputPublisher;
+        this.hmfApiStatusUpdate = hmfApiStatusUpdate;
     }
 
     public PipelineState run() {
@@ -72,6 +75,7 @@ public class FullPipeline {
             waitForSingleSamples(bothSingleSamplesPipelineComplete);
             PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
             PipelineState combinedState = singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
+            hmfApiStatusUpdate.finish(combinedState.status());
             outputPublisher.publish(combinedState, metadata);
             if (combinedState.shouldProceed()) {
                 cleanup.run(metadata);
