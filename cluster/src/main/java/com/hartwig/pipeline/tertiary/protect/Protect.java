@@ -188,6 +188,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow() && arguments.context() != Context.RESEARCH;
+        return arguments.runTertiary() && !arguments.shallow() && !(arguments.context() == Context.RESEARCH);
     }
 }

@@ -177,6 +177,6 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.context() != Context.RESEARCH && arguments.runTertiary();
+        return !arguments.shallow() && !(arguments.context() == Context.RESEARCH) && arguments.runTertiary();
     }
 }
