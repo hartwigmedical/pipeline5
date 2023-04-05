@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.protect;
 
+import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,9 +11,9 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -104,5 +105,15 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
         return List.of(new AddDatatype(DataType.PROTECT_EVIDENCE,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
                 new ArchivePath(Folder.root(), Protect.NAMESPACE, "tumor.protect.tsv")));
+    }
+
+    @Override
+    public void disabledAppropriately() {
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).shallow(false).build())).isFalse();
+    }
+
+    @Override
+    public void enabledAppropriately() {
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).shallow(false).build())).isTrue();
     }
 }
