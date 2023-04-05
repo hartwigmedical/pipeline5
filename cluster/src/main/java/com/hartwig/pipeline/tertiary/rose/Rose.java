@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptional
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.events.pipeline.Pipeline.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -15,8 +16,8 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -176,6 +177,6 @@ public class Rose implements Stage<RoseOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary();
+        return !arguments.shallow() && arguments.context() != Context.RESEARCH && arguments.runTertiary();
     }
 }

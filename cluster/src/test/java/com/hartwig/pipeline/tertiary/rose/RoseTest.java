@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.events.pipeline.Pipeline.Context;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -26,12 +27,12 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
 
     @Override
     public void disabledAppropriately() {
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).shallow(false).build())).isFalse();
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).shallow(false).context(Context.RESEARCH).build())).isFalse();
     }
 
     @Override
     public void enabledAppropriately() {
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).shallow(false).build())).isTrue();
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).shallow(false).context(Context.DIAGNOSTIC).build())).isTrue();
     }
 
     @Override
