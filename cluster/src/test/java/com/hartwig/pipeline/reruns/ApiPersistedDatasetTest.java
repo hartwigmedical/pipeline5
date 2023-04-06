@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.input.TestJson;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class ApiPersistedDatasetTest {
 
     @Test
     public void returnsEmptyIfSampleNotPresent() {
-        assertThat(victim.path(SAMPLE, DataType.SAGE_SOMATIC_VARIANTS)).isEmpty();
+        assertThat(victim.path(SAMPLE, DataType.SOMATIC_VARIANTS_SAGE)).isEmpty();
     }
 
     @Test

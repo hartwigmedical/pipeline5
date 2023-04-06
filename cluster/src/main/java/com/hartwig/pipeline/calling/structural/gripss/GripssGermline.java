@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS;
-import static com.hartwig.pipeline.datatypes.DataType.GRIPSS_GERMLINE_STRUCTURAL_VARIANTS_UNFILTERED;
+import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
+import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
 
 import java.util.List;
 
@@ -78,8 +78,12 @@ public class GripssGermline extends Gripss {
     }
 
     @Override
-    public DataType filteredDatatype() { return GRIPSS_GERMLINE_STRUCTURAL_VARIANTS; }
+    public DataType filteredDatatype() {
+        return GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
+    }
 
     @Override
-    public DataType unfilteredDatatype() { return GRIPSS_GERMLINE_STRUCTURAL_VARIANTS_UNFILTERED; }
+    public DataType unfilteredDatatype() {
+        return GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+    }
 }
