@@ -18,9 +18,9 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -250,12 +250,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         GoogleStorageLocation somaticVariantsLocation = persistedOrDefault(metadata.tumor().sampleName(),
                 metadata.set(),
                 metadata.bucket(),
-                DataType.PURPLE_SOMATIC_VARIANTS,
+                DataType.SOMATIC_VARIANTS_PURPLE,
                 somaticVcf);
         GoogleStorageLocation svsLocation = persistedOrDefault(metadata.tumor().sampleName(),
                 metadata.set(),
                 metadata.bucket(),
-                DataType.PURPLE_SOMATIC_STRUCTURAL_VARIANTS,
+                DataType.STRUCTURAL_VARIANTS_PURPLE,
                 somaticSvVcf);
         GoogleStorageLocation geneCopyNumberLocation = persistedOrDefault(metadata.tumor().sampleName(),
                 metadata.set(),
@@ -289,7 +289,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         GoogleStorageLocation germlineVariantsLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
-                DataType.PURPLE_GERMLINE_VARIANTS,
+                DataType.GERMLINE_VARIANTS_PURPLE,
                 germlineVcf);
         GoogleStorageLocation germlineSvsLocation = persistedOrDefault(metadata.tumor().sampleName(),
                 metadata.set(),
@@ -333,17 +333,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             String somaticVcf = somaticVcf(tumorSampleName);
             String somaticSvVcf = somaticSvVcf(tumorSampleName);
             String somaticCopyNumberTsv = somaticCopyNumberTsv(tumorSampleName);
-            datatypes.addAll(List.of(new AddDatatype(DataType.PURPLE_SOMATIC_VARIANTS,
+            datatypes.addAll(List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticVcf)),
-                    new AddDatatype(DataType.PURPLE_SOMATIC_STRUCTURAL_VARIANTS,
+                    new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticSvVcf)),
                     new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
-                            metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER, metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv)),
                     new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
                             metadata.barcode(),
@@ -355,7 +354,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             String germlineVcf = germlineVcf(metadata.sampleName());
             String germlineSvVcf = germlineSvVcf(metadata.sampleName());
 
-            datatypes.addAll(List.of(new AddDatatype(DataType.PURPLE_GERMLINE_VARIANTS,
+            datatypes.addAll(List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineVcf)),
                     new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS,
@@ -364,8 +363,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION,
-                            metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION, metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDeletionTsv))));
         });
         return datatypes;

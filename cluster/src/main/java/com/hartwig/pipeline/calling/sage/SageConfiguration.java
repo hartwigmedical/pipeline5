@@ -42,9 +42,7 @@ public interface SageConfiguration {
     BiFunction<BashStartupScript, ResultsDirectory, VirtualMachineJobDefinition> jobDefinition();
 
     static SageConfiguration germline(final ResourceFiles resourceFiles) {
-        return ImmutableSageConfiguration.builder()
-                .namespace(SAGE_GERMLINE_NAMESPACE)
-                .vcfDatatype(DataType.SAGE_GERMLINE_VARIANTS)
+        return ImmutableSageConfiguration.builder().namespace(SAGE_GERMLINE_NAMESPACE).vcfDatatype(DataType.GERMLINE_VARIANTS_SAGE)
                 .geneCoverageDatatype(DataType.GERMLINE_GENE_COVERAGE)
                 .tumorSampleBqrPlot(DataType.GERMLINE_TUMOR_SAMPLE_BQR_PLOT)
                 .refSampleBqrPlot(DataType.GERMLINE_REF_SAMPLE_BQR_PLOT)
@@ -60,9 +58,7 @@ public interface SageConfiguration {
     }
 
     static SageConfiguration somatic(final ResourceFiles resourceFiles, final Arguments arguments) {
-        return ImmutableSageConfiguration.builder()
-                .namespace(SAGE_SOMATIC_NAMESPACE)
-                .vcfDatatype(DataType.SAGE_SOMATIC_VARIANTS)
+        return ImmutableSageConfiguration.builder().namespace(SAGE_SOMATIC_NAMESPACE).vcfDatatype(DataType.SOMATIC_VARIANTS_SAGE)
                 .geneCoverageDatatype(DataType.SOMATIC_GENE_COVERAGE)
                 .tumorSampleBqrPlot(DataType.SOMATIC_TUMOR_SAMPLE_BQR_PLOT)
                 .refSampleBqrPlot(DataType.SOMATIC_REF_SAMPLE_BQR_PLOT)
