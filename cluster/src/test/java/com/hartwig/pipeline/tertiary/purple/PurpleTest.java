@@ -8,9 +8,9 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
@@ -156,17 +156,16 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.PURPLE_GERMLINE_VARIANTS,
+        return List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_GERMLINE_VCF_GZ)),
-                new AddDatatype(DataType.PURPLE_SOMATIC_VARIANTS,
+                new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_VCF_GZ)),
-                new AddDatatype(DataType.PURPLE_SOMATIC_STRUCTURAL_VARIANTS,
+                new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_SV_VCF_GZ)),
-                new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS,
-                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS, TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_GERMLINE_SV_VCF_GZ)),
                 new AddDatatype(DataType.PURPLE_PURITY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),

@@ -7,9 +7,9 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -71,7 +71,7 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.PAVE_GERMLINE_VARIANTS,
+        return List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PAVE,
                 TestInputs.tumorRunMetadata().barcode(),
                 new ArchivePath(Folder.root(), PaveGermline.NAMESPACE, "tumor.sage.germline.filtered.pave.vcf.gz")));
     }
