@@ -97,7 +97,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-convert_germline_to_somatic";
         String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
         String fileExistsCommand = "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand + " ; fi";
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.32' | tee /data/input/orange_pipeline.version.txt", fileExistsCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.33' | tee /data/input/orange_pipeline.version.txt", fileExistsCommand);
     }
 
     @Override
