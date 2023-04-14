@@ -92,9 +92,9 @@ public class InstanceLifecycleManagerTest {
     @Test
     public void shouldDelete() throws Exception {
         Operation deleteOperation = Operation.newBuilder().setName("delete").setStatus(Operation.Status.DONE).build();
-        OperationFuture<Operation, Operation> operationFuture = operationFuture();
-        when(operationFuture.get()).thenReturn(deleteOperation);
-        when(instances.deleteAsync(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(operationFuture);
+        OperationFuture<Operation, Operation> deleteOperationFuture = operationFuture();
+        when(deleteOperationFuture.get()).thenReturn(deleteOperation);
+        when(instances.deleteAsync(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(deleteOperationFuture);
 
         when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "delete")).thenReturn(deleteOperation);
 
