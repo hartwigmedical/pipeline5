@@ -2,7 +2,6 @@ package com.hartwig.pipeline.input;
 
 import java.util.Optional;
 
-import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
@@ -31,7 +30,7 @@ public class MetadataProvider {
                         .bucket(arguments.outputBucket())
                         .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                        .barcode(t.name())
+                        .barcode(t.barcode())
                         .sampleName(t.name())
                         .primaryTumorDoids(t.primaryTumorDoids())
                         .build()))
@@ -39,11 +38,10 @@ public class MetadataProvider {
                         .bucket(arguments.outputBucket())
                         .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                        .barcode(r.name())
+                        .barcode(r.barcode())
                         .sampleName(r.name())
                         .build()))
                 .maybeExternalIds(pipelineInput.operationalReferences())
                 .build();
     }
-
 }
