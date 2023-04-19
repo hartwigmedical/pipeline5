@@ -2,6 +2,7 @@
   "reference": {
     "type": "REFERENCE",
     "name": "COLO829v003R",
+    "barcode": "FR10101010",
     "lanes": [
       {
         "laneNumber": "1",
