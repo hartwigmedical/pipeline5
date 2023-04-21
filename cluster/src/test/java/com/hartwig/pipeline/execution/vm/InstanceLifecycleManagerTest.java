@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import com.google.api.gax.longrunning.OperationFuture;
 import com.google.cloud.compute.v1.Instance;
@@ -102,38 +101,11 @@ public class InstanceLifecycleManagerTest {
     }
 
     @Test
-    public void shouldRetryDeleteIfNotAtFirstSuccessful() throws ExecutionException, InterruptedException {
-        Operation deleteOperation = Operation.newBuilder().setName("delete").setStatus(Operation.Status.DONE).build();
-        OperationFuture<Operation, Operation> operationFuture = operationFuture();
-        when(operationFuture.get()).thenReturn(deleteOperation);
-        when(instances.deleteAsync(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new RuntimeException()).thenReturn(operationFuture);
-
-        Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "delete")).thenReturn(statusOperation);
-
-        victim.delete(zoneOne, vmName);
-    }
-
-    @Test
     public void shouldStop() throws Exception {
         Operation stopOperation = Operation.newBuilder().setName("stop").setStatus(Operation.Status.DONE).build();
         OperationFuture<Operation, Operation> operationFuture = operationFuture();
         when(operationFuture.get()).thenReturn(stopOperation);
         when(instances.stopAsync(ARGUMENTS.project(), zoneOne, vmName)).thenReturn(operationFuture);
-
-        Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
-        when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "stop")).thenReturn(statusOperation);
-
-        victim.stop(zoneOne, vmName);
-    }
-
-    @Test
-    public void shouldRetryStopIfNotAtFirstSuccessful() throws Exception {
-        Operation stopOperation = Operation.newBuilder().setName("stop").setStatus(Operation.Status.DONE).build();
-        OperationFuture<Operation, Operation> operationFuture = operationFuture();
-        when(operationFuture.get()).thenReturn(stopOperation);
-
-        when(instances.stopAsync(ARGUMENTS.project(), zoneOne, vmName)).thenThrow(new RuntimeException()).thenReturn(operationFuture);
 
         Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
         when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "stop")).thenReturn(statusOperation);

@@ -16,6 +16,7 @@ import com.google.cloud.compute.v1.Instance;
 import com.google.cloud.compute.v1.InstancesClient;
 import com.google.cloud.compute.v1.Metadata;
 import com.google.cloud.compute.v1.Operation;
+import com.google.cloud.compute.v1.Operation.Status;
 import com.google.cloud.compute.v1.Zone;
 import com.google.cloud.compute.v1.ZoneOperationsClient;
 import com.google.cloud.compute.v1.ZonesClient;
@@ -30,15 +31,13 @@ import net.jodah.failsafe.function.CheckedSupplier;
 
 class InstanceLifecycleManager {
     public static final String DELETE_VM = "deleteVm";
+    public static final String INSERT_VM = "insertVm";
     public static final String STOP_VM = "stopVm";
-    public static final String OPERATION_STATUS = "operationStatus";
     public static final String SET_METADATA = "setMetadata";
-    public static final String GET_ZONE_OPERATIONS = "getZoneOperations";
     public static final String LIST_ZONES = "listZones";
-    private static final String RUNNING_STATUS = "RUNNING";
-    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceLifecycleManager.class);
     private static final String LIST_INSTANCES = "listInstances";
-    private static final int MAX_RETRIES = 5;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceLifecycleManager.class);
+    private static final int MAX_RETRIES = 4;
 
     private final String project;
     private final InstancesClient instances;
@@ -59,7 +58,9 @@ class InstanceLifecycleManager {
 
     Optional<Instance> findExistingInstance(final String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
-            Iterable<Instance> instances = executeOperation(() -> this.instances.list(project, zone).iterateAll(), LIST_INSTANCES);
+            this.instances.list(project, zone);
+            Iterable<Instance> instances =
+                    executeSynchronouslyWithRetries(() -> this.instances.list(project, zone).iterateAll(), LIST_INSTANCES);
             if (instances != null) {
                 for (Instance instance : instances) {
                     if (instance.getName().equals(vmName)) {
@@ -76,28 +77,20 @@ class InstanceLifecycleManager {
             try {
                 String shortZone = new File(i.getZone()).getName();
                 LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
-                Operation delete =
-                        executeSynchronously(() -> instances.deleteAsync(project, shortZone, vmName), project, shortZone, DELETE_VM);
-                if (!delete.getError().getErrorsList().isEmpty()) {
-                    throw new RuntimeException(delete.getError()
-                            .getErrorsList()
-                            .stream()
-                            .map(Errors::getMessage)
-                            .collect(Collectors.joining(",")));
-                }
+                executeSynchronously(instances.deleteAsync(project, shortZone, vmName), shortZone, DELETE_VM);
             } catch (Exception e) {
                 throw new RuntimeException("Could not delete existing [" + vmName + "] instance", e);
             }
         });
-        return executeSynchronously(() -> instances.insertAsync(project, zone, instance), project, zone, "insertVm");
+        return executeSynchronously(instances.insertAsync(project, zone, instance), zone, INSERT_VM);
     }
 
     void delete(final String zone, final String vm) {
-        executeSynchronously(() -> instances.deleteAsync(project, zone, vm), project, zone, DELETE_VM);
+        executeSynchronously(instances.deleteAsync(project, zone, vm), zone, DELETE_VM);
     }
 
     void stop(final String zone, final String vm) {
-        executeSynchronously(() -> instances.stopAsync(project, zone, vm), project, zone, STOP_VM);
+        executeSynchronously(instances.stopAsync(project, zone, vm), zone, STOP_VM);
     }
 
     String instanceStatus(final String vm, final String zone) {
@@ -113,52 +106,45 @@ class InstanceLifecycleManager {
         }
     }
 
-    private List<Zone> fetchZones() {
-        return executeOperation(() -> StreamSupport.stream(zones.list(project).iterateAll().spliterator(), false)
+    void disableStartupScript(final String zone, final String vm) throws IOException {
+        String latestFingerprint = instances.get(project, zone, vm).getMetadata().getFingerprint();
+        executeSynchronously(instances.setMetadataAsync(project, zone, vm, Metadata.newBuilder().setFingerprint(latestFingerprint).build()),
+                zone,
+                SET_METADATA);
+    }
+
+    List<Zone> fetchZones() {
+        return executeSynchronouslyWithRetries(() -> StreamSupport.stream(zones.list(project).iterateAll().spliterator(), false)
                 .filter(zone -> zone.getRegion().endsWith(region))
                 .collect(Collectors.toList()), LIST_ZONES);
     }
 
-    void disableStartupScript(final String zone, final String vm) throws IOException {
-        String latestFingerprint = instances.get(project, zone, vm).getMetadata().getFingerprint();
-        executeSynchronously(() -> instances.setMetadataAsync(project,
-                zone,
-                vm,
-                Metadata.newBuilder().setFingerprint(latestFingerprint).build()), project, zone, SET_METADATA);
-    }
-
-    private String operationStatus(final String jobName, final String zoneName) {
-        return executeOperation(() -> zoneOperations.get(project, zoneName, jobName), OPERATION_STATUS).getStatus()
-                .getValueDescriptor()
-                .getName();
-    }
-
-    private Operation executeSynchronously(final CheckedSupplier<OperationFuture<Operation, Operation>> supplier, final String projectName,
-            final String zoneName, final String opName) {
+    private Operation executeSynchronously(final OperationFuture<Operation, Operation> future, final String zoneName, final String opName) {
         try {
-            Operation asyncOp = executeOperation(supplier, opName).get();
-            String logId = format("Operation [%s:%s]", asyncOp.getOperationType(), asyncOp.getName());
-            LOGGER.debug("{} is executing asynchronously", logId);
-            while (RUNNING_STATUS.equals(operationStatus(asyncOp.getName(), zoneName))) {
-                LOGGER.debug("{} not done yet", logId);
-                try {
-                    //noinspection BusyWait
-                    Thread.sleep(1000);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
+            Operation operation = future.get();
+            if (operation.getStatus() != Status.DONE) {
+                Operation waitForCompletion = zoneOperations.wait(project, zoneName, opName);
+                if (waitForCompletion.hasError()) {
+                    throw new RuntimeException(waitForCompletion.getError()
+                            .getErrorsList()
+                            .stream()
+                            .map(Errors::getMessage)
+                            .collect(Collectors.joining(",")));
                 }
             }
-            return executeOperation(() -> zoneOperations.get(projectName, zoneName, asyncOp.getName()), GET_ZONE_OPERATIONS);
+            return operation;
         } catch (Exception e) {
-            throw new RuntimeException(format("Failed synchronous execution of [%s]", opName), e);
+            String message = format("Failed synchronous execution of [%s]", opName);
+            LOGGER.error(message, e);
+            throw new RuntimeException(message, e);
         }
     }
 
-    private <T> T executeOperation(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
+    private <T> T executeSynchronouslyWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
         return Failsafe.with(new RetryPolicy<>().handle(Exception.class)
                 .withDelay(Duration.ofSeconds(pollInterval))
                 .withMaxRetries(MAX_RETRIES)
-                .onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.warn("[{}] failed: {}",
+                .onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.error("[{}] failed: {}",
                         opName,
                         rExecutionAttemptedEvent.getLastFailure().getMessage()))).get(operationCheckedSupplier);
     }
