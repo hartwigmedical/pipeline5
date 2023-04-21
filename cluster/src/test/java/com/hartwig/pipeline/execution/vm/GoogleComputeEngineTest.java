@@ -66,10 +66,8 @@ public class GoogleComputeEngineTest {
         lifecycleManager = mock(InstanceLifecycleManager.class);
         when(lifecycleManager.deleteOldInstancesAndStart(instanceArgumentCaptor.capture(), any(), any())).thenReturn(insertOperation);
 
-        ZonesClient.ListPagedResponse zoneListResponse = mock(ZonesClient.ListPagedResponse.class);
-        when(zoneListResponse.iterateAll()).thenReturn(List.of(zone(GoogleComputeEngineTest.FIRST_ZONE_NAME),
+        when(lifecycleManager.fetchZones()).thenReturn(List.of(zone(GoogleComputeEngineTest.FIRST_ZONE_NAME),
                 zone(GoogleComputeEngineTest.SECOND_ZONE_NAME)));
-        when(zonesClient.list(ARGUMENTS.project())).thenReturn(zoneListResponse);
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
         victim = new GoogleComputeEngine(ARGUMENTS, zonesClient, imagesClient, z -> {
