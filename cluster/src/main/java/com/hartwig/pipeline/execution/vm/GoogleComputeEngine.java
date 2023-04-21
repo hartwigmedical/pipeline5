@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -135,7 +133,7 @@ public class GoogleComputeEngine implements ComputeEngine {
             }
 
             String project = arguments.project();
-            List<Zone> zones = fetchZones();
+            List<Zone> zones = lifecycleManager.fetchZones();
             zoneRandomizer.accept(zones);
             int index = 0;
             boolean keepTrying = !zones.isEmpty();
@@ -353,11 +351,5 @@ public class GoogleComputeEngine implements ComputeEngine {
                 return null;
             }
         });
-    }
-
-    private List<Zone> fetchZones() throws IOException {
-        return StreamSupport.stream(zonesClient.list(arguments.project()).iterateAll().spliterator(), false)
-                .filter(zone -> zone.getRegion().endsWith(arguments.region()))
-                .collect(Collectors.toList());
     }
 }
