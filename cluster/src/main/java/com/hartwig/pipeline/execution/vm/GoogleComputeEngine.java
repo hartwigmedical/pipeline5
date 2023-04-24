@@ -121,7 +121,7 @@ public class GoogleComputeEngine implements ComputeEngine {
             if (currentState == BucketCompletionWatcher.State.SUCCESS) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
                 lifecycleManager.findExistingInstance(vmName).ifPresent(instance -> {
-                    String zone = instance.getZone();
+                    String zone = instance.getZone().replaceAll(".*/", "");
                     LOGGER.info("Deleting leftover [{}] instance after successful run", vmName);
                     lifecycleManager.delete(vmName, zone);
                 });
@@ -176,20 +176,20 @@ public class GoogleComputeEngine implements ComputeEngine {
                 addNetworkInterface(instanceBuilder, project);
 
                 Instance instance = instanceBuilder.build();
-                Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, currentZone.getName(), vmName);
+                Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, vmName, currentZone.getName());
                 if (result.getError().getErrorsList().isEmpty()) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
                     status = waitForCompletion(bucket, flags, currentZone, instance);
                     if (status != PipelineStatus.PREEMPTED) {
                         if (arguments.useLocalSsds()) {
                             // Instances with local SSDs cannot be stopped or restarted
-                            lifecycleManager.delete(currentZone.getName(), vmName);
+                            lifecycleManager.delete(vmName, currentZone.getName());
                         } else {
-                            lifecycleManager.stop(currentZone.getName(), vmName);
+                            lifecycleManager.stop(vmName, currentZone.getName());
                             if (status == PipelineStatus.SUCCESS) {
-                                lifecycleManager.delete(currentZone.getName(), vmName);
+                                lifecycleManager.delete(vmName, currentZone.getName());
                             } else {
-                                lifecycleManager.disableStartupScript(currentZone.getName(), instance.getName());
+                                lifecycleManager.disableStartupScript(instance.getName(), currentZone.getName());
                             }
                         }
                         LOGGER.info("Compute engine job [{}] is complete with status [{}]", vmName, status);

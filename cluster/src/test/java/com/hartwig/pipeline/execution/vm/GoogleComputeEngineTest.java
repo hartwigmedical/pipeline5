@@ -104,7 +104,7 @@ public class GoogleComputeEngineTest {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).disableStartupScript(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class GoogleComputeEngineTest {
     public void deletesVmAfterJobIsSuccessful() {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class GoogleComputeEngineTest {
         when(mockedInstance.getName()).thenReturn(INSTANCE_NAME);
         when(mockedInstance.getZone()).thenReturn(FIRST_ZONE_NAME);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -146,14 +146,14 @@ public class GoogleComputeEngineTest {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).stop(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
     public void deletesInstanceWithLocalSSdsUponFailure() {
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -232,13 +232,13 @@ public class GoogleComputeEngineTest {
     @Test
     public void triesMultipleZonesWhenResourcesExhausted() {
         Operation resourcesExhausted = operationWithError(GoogleComputeEngine.ZONE_EXHAUSTED_ERROR_CODE);
-        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME))).thenReturn(resourcesExhausted,
+        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME))).thenReturn(resourcesExhausted,
                 Operation.newBuilder().build());
         when(bucketWatcher.currentState(any(), any())).thenReturn(BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @NotNull
@@ -253,13 +253,13 @@ public class GoogleComputeEngineTest {
     @Test
     public void triesMultipleZonesWhenUnsupportedOperation() {
         Operation resourcesExhausted = operationWithError(GoogleComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE);
-        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME))).thenReturn(resourcesExhausted,
+        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME))).thenReturn(resourcesExhausted,
                 Operation.newBuilder().build());
         when(bucketWatcher.currentState(any(), any())).thenReturn(BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @Test
@@ -277,8 +277,8 @@ public class GoogleComputeEngineTest {
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME));
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @Test
