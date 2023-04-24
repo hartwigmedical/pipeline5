@@ -63,18 +63,15 @@ public class GoogleComputeEngine implements ComputeEngine {
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleComputeEngine.class);
 
     private final CommonArguments arguments;
-    private final ZonesClient zonesClient;
     private final ImagesClient images;
     private final Consumer<List<Zone>> zoneRandomizer;
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
     private final Labels labels;
 
-    GoogleComputeEngine(final CommonArguments arguments, final ZonesClient zonesClient, final ImagesClient images,
-            final Consumer<List<Zone>> zoneRandomizer, final InstanceLifecycleManager lifecycleManager,
-            final BucketCompletionWatcher bucketWatcher, final Labels labels) {
+    GoogleComputeEngine(final CommonArguments arguments, final ImagesClient images, final Consumer<List<Zone>> zoneRandomizer,
+            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher, final Labels labels) {
         this.arguments = arguments;
-        this.zonesClient = zonesClient;
         this.images = images;
         this.zoneRandomizer = zoneRandomizer;
         this.lifecycleManager = lifecycleManager;
@@ -92,7 +89,6 @@ public class GoogleComputeEngine implements ComputeEngine {
         final InstancesClient instances =
                 InstancesClient.create(InstancesSettings.newBuilder().setCredentialsProvider(() -> credentials).build());
         GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
-                ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
                 ImagesClient.create(ImagesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments,
@@ -121,9 +117,8 @@ public class GoogleComputeEngine implements ComputeEngine {
             if (currentState == BucketCompletionWatcher.State.SUCCESS) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
                 lifecycleManager.findExistingInstance(vmName).ifPresent(instance -> {
-                    String zone = instance.getZone().replaceAll(".*/", "");
                     LOGGER.info("Deleting leftover [{}] instance after successful run", vmName);
-                    lifecycleManager.delete(vmName, zone);
+                    lifecycleManager.delete(vmName, instance.getZone());
                 });
                 return PipelineStatus.SKIPPED;
             } else if (currentState == BucketCompletionWatcher.State.FAILURE) {

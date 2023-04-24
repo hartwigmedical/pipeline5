@@ -70,7 +70,7 @@ public class GoogleComputeEngineTest {
                 zone(GoogleComputeEngineTest.SECOND_ZONE_NAME)));
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
-        victim = new GoogleComputeEngine(ARGUMENTS, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(ARGUMENTS, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, Labels.of(Arguments.testDefaults(), TestInputs.defaultSomaticRunMetadata()));
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
@@ -100,7 +100,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new GoogleComputeEngine(arguments, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(arguments, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -142,7 +142,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new GoogleComputeEngine(arguments, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(arguments, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -170,7 +170,6 @@ public class GoogleComputeEngineTest {
     public void usesNetworkAndSubnetWhenSpecified() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -189,7 +188,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void usesNetworkAsSubnetWhenNotSpecified() {
         returnSuccess();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfacesList();
@@ -205,7 +204,6 @@ public class GoogleComputeEngineTest {
         String networkUrl = "projects/private";
         String subnetUrl = "projects/subnet";
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -223,7 +221,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void addsTagsToComputeEngineInstances() {
         returnSuccess();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         assertThat(instanceArgumentCaptor.getValue().getTags().getItemsList()).containsExactly("tag");
@@ -298,7 +296,7 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void attachesTwoPersisentDisksWhenLocalSSDDisabled() {
-        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -314,7 +312,7 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void usesLatestImageFromCurrentFamilyWhenNoImageGiven() {
-        victim = new GoogleComputeEngine(ARGUMENTS, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(ARGUMENTS, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -325,7 +323,6 @@ public class GoogleComputeEngineTest {
     public void usesLatestImageFromCurrentFamilyWithGivenProject() {
         String givenProject = "givenProject";
         victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -344,7 +341,7 @@ public class GoogleComputeEngineTest {
     public void usesGivenImageFromPublicImageProjectWhenProvided() {
         String imageName = "alternate_image";
         Image specificImage = Image.newBuilder().setName(imageName).setSelfLink(imageName).build();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         when(imagesClient.get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, imageName)).thenReturn(specificImage);
         returnSuccess();
@@ -356,7 +353,6 @@ public class GoogleComputeEngineTest {
     @Test
     public void appliesLabelsToInstanceAndDisks() {
         victim = new GoogleComputeEngine(ARGUMENTS,
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
