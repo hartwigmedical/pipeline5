@@ -58,7 +58,6 @@ class InstanceLifecycleManager {
 
     Optional<Instance> findExistingInstance(final String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
-            this.instances.list(project, zone);
             Iterable<Instance> instances =
                     executeSynchronouslyWithRetries(() -> this.instances.list(project, zone).iterateAll(), LIST_INSTANCES);
             if (instances != null) {
@@ -72,25 +71,25 @@ class InstanceLifecycleManager {
         return Optional.empty();
     }
 
-    Operation deleteOldInstancesAndStart(final Instance instance, final String zone, final String vmName) {
+    Operation deleteOldInstancesAndStart(final Instance instance, final String vmName, final String zone) {
         findExistingInstance(vmName).ifPresent(i -> {
             try {
                 String shortZone = new File(i.getZone()).getName();
                 LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
-                executeSynchronously(instances.deleteAsync(project, shortZone, vmName), shortZone, DELETE_VM);
+                executeSynchronously(instances.deleteAsync(project, shortZone, vmName), DELETE_VM, shortZone);
             } catch (Exception e) {
                 throw new RuntimeException("Could not delete existing [" + vmName + "] instance", e);
             }
         });
-        return executeSynchronously(instances.insertAsync(project, zone, instance), zone, INSERT_VM);
+        return executeSynchronously(instances.insertAsync(project, zone, instance), INSERT_VM, zone);
     }
 
-    void delete(final String zone, final String vm) {
-        executeSynchronously(instances.deleteAsync(project, zone, vm), zone, DELETE_VM);
+    void delete(final String vm, final String zone) {
+        executeSynchronously(instances.deleteAsync(project, zone, vm), DELETE_VM, zone);
     }
 
-    void stop(final String zone, final String vm) {
-        executeSynchronously(instances.stopAsync(project, zone, vm), zone, STOP_VM);
+    void stop(final String vm, final String zone) {
+        executeSynchronously(instances.stopAsync(project, zone, vm), STOP_VM, zone);
     }
 
     String instanceStatus(final String vm, final String zone) {
@@ -106,11 +105,11 @@ class InstanceLifecycleManager {
         }
     }
 
-    void disableStartupScript(final String zone, final String vm) throws IOException {
+    void disableStartupScript(final String vm, final String zone) throws IOException {
         String latestFingerprint = instances.get(project, zone, vm).getMetadata().getFingerprint();
         executeSynchronously(instances.setMetadataAsync(project, zone, vm, Metadata.newBuilder().setFingerprint(latestFingerprint).build()),
-                zone,
-                SET_METADATA);
+                SET_METADATA,
+                zone);
     }
 
     List<Zone> fetchZones() {
@@ -119,7 +118,7 @@ class InstanceLifecycleManager {
                 .collect(Collectors.toList()), LIST_ZONES);
     }
 
-    private Operation executeSynchronously(final OperationFuture<Operation, Operation> future, final String zoneName, final String opName) {
+    private Operation executeSynchronously(final OperationFuture<Operation, Operation> future, final String opName, final String zoneName) {
         try {
             Operation operation = future.get();
             if (operation.getStatus() != Status.DONE) {
