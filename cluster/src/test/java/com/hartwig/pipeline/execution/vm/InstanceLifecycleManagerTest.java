@@ -97,7 +97,7 @@ public class InstanceLifecycleManagerTest {
 
         when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "delete")).thenReturn(deleteOperation);
 
-        victim.delete(zoneOne, vmName);
+        victim.delete(vmName, zoneOne);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class InstanceLifecycleManagerTest {
         Operation statusOperation = Operation.newBuilder().setName("status").setStatus(Operation.Status.DONE).build();
         when(zoneOperations.get(ARGUMENTS.project(), zoneOne, "stop")).thenReturn(statusOperation);
 
-        victim.stop(zoneOne, vmName);
+        victim.stop(vmName, zoneOne);
     }
 
     private Zone zone(final String name) {
