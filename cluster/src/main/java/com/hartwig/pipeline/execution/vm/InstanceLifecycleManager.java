@@ -2,7 +2,6 @@ package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -74,9 +73,8 @@ class InstanceLifecycleManager {
     Operation deleteOldInstancesAndStart(final Instance instance, final String vmName, final String zone) {
         findExistingInstance(vmName).ifPresent(i -> {
             try {
-                String shortZone = new File(i.getZone()).getName();
-                LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
-                executeSynchronously(instances.deleteAsync(project, shortZone, vmName), DELETE_VM, shortZone);
+                LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), zone);
+                delete(vmName, zone);
             } catch (Exception e) {
                 throw new RuntimeException("Could not delete existing [" + vmName + "] instance", e);
             }
@@ -85,7 +83,8 @@ class InstanceLifecycleManager {
     }
 
     void delete(final String vm, final String zone) {
-        executeSynchronously(instances.deleteAsync(project, zone, vm), DELETE_VM, zone);
+        String shortZone = zone.replaceAll(".*/", "");
+        executeSynchronously(instances.deleteAsync(project, shortZone, vm), DELETE_VM, shortZone);
     }
 
     void stop(final String vm, final String zone) {
