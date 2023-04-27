@@ -93,6 +93,16 @@ the purple results and WGS metrics.
 
 ### Building and Testing Pipeline 5
 
+The first (and least-obvious) thing to do is make sure you've got your `gcloud` and `gsutil` installation done and then run:
+
+```
+gcloud auth application-default login
+```
+
+This is REQUIRED to build the pipeline since the private Maven repository is hosted in GCP and the plugin behaves as an
+application rather than using your user credentials. If you fail to do this you'll get an error relating to an "Anonymous caller"
+from Google storage.
+
 Pv5 is a Java application and builds with Maven. It is compatible with all builds of [Java 11](https://jdk.java.net/11/) and [Maven
 3](https://maven.apache.org/download.cgi). 
 
