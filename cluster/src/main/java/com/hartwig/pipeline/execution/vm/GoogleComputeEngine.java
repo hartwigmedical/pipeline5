@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -65,18 +63,15 @@ public class GoogleComputeEngine implements ComputeEngine {
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleComputeEngine.class);
 
     private final CommonArguments arguments;
-    private final ZonesClient zonesClient;
     private final ImagesClient images;
     private final Consumer<List<Zone>> zoneRandomizer;
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
     private final Labels labels;
 
-    GoogleComputeEngine(final CommonArguments arguments, final ZonesClient zonesClient, final ImagesClient images,
-            final Consumer<List<Zone>> zoneRandomizer, final InstanceLifecycleManager lifecycleManager,
-            final BucketCompletionWatcher bucketWatcher, final Labels labels) {
+    GoogleComputeEngine(final CommonArguments arguments, final ImagesClient images, final Consumer<List<Zone>> zoneRandomizer,
+            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher, final Labels labels) {
         this.arguments = arguments;
-        this.zonesClient = zonesClient;
         this.images = images;
         this.zoneRandomizer = zoneRandomizer;
         this.lifecycleManager = lifecycleManager;
@@ -94,7 +89,6 @@ public class GoogleComputeEngine implements ComputeEngine {
         final InstancesClient instances =
                 InstancesClient.create(InstancesSettings.newBuilder().setCredentialsProvider(() -> credentials).build());
         GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
-                ZonesClient.create(ZonesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
                 ImagesClient.create(ImagesSettings.newBuilder().setCredentialsProvider(() -> credentials).build()),
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments,
@@ -123,9 +117,8 @@ public class GoogleComputeEngine implements ComputeEngine {
             if (currentState == BucketCompletionWatcher.State.SUCCESS) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
                 lifecycleManager.findExistingInstance(vmName).ifPresent(instance -> {
-                    String zone = instance.getZone();
                     LOGGER.info("Deleting leftover [{}] instance after successful run", vmName);
-                    lifecycleManager.delete(vmName, zone);
+                    lifecycleManager.delete(vmName, instance.getZone());
                 });
                 return PipelineStatus.SKIPPED;
             } else if (currentState == BucketCompletionWatcher.State.FAILURE) {
@@ -135,7 +128,7 @@ public class GoogleComputeEngine implements ComputeEngine {
             }
 
             String project = arguments.project();
-            List<Zone> zones = fetchZones();
+            List<Zone> zones = lifecycleManager.fetchZones();
             zoneRandomizer.accept(zones);
             int index = 0;
             boolean keepTrying = !zones.isEmpty();
@@ -178,20 +171,20 @@ public class GoogleComputeEngine implements ComputeEngine {
                 addNetworkInterface(instanceBuilder, project);
 
                 Instance instance = instanceBuilder.build();
-                Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, currentZone.getName(), vmName);
+                Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, vmName, currentZone.getName());
                 if (result.getError().getErrorsList().isEmpty()) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
                     status = waitForCompletion(bucket, flags, currentZone, instance);
                     if (status != PipelineStatus.PREEMPTED) {
                         if (arguments.useLocalSsds()) {
                             // Instances with local SSDs cannot be stopped or restarted
-                            lifecycleManager.delete(currentZone.getName(), vmName);
+                            lifecycleManager.delete(vmName, currentZone.getName());
                         } else {
-                            lifecycleManager.stop(currentZone.getName(), vmName);
+                            lifecycleManager.stop(vmName, currentZone.getName());
                             if (status == PipelineStatus.SUCCESS) {
-                                lifecycleManager.delete(currentZone.getName(), vmName);
+                                lifecycleManager.delete(vmName, currentZone.getName());
                             } else {
-                                lifecycleManager.disableStartupScript(currentZone.getName(), instance.getName());
+                                lifecycleManager.disableStartupScript(instance.getName(), currentZone.getName());
                             }
                         }
                         LOGGER.info("Compute engine job [{}] is complete with status [{}]", vmName, status);
@@ -353,11 +346,5 @@ public class GoogleComputeEngine implements ComputeEngine {
                 return null;
             }
         });
-    }
-
-    private List<Zone> fetchZones() throws IOException {
-        return StreamSupport.stream(zonesClient.list(arguments.project()).iterateAll().spliterator(), false)
-                .filter(zone -> zone.getRegion().endsWith(arguments.region()))
-                .collect(Collectors.toList());
     }
 }

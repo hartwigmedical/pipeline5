@@ -66,13 +66,11 @@ public class GoogleComputeEngineTest {
         lifecycleManager = mock(InstanceLifecycleManager.class);
         when(lifecycleManager.deleteOldInstancesAndStart(instanceArgumentCaptor.capture(), any(), any())).thenReturn(insertOperation);
 
-        ZonesClient.ListPagedResponse zoneListResponse = mock(ZonesClient.ListPagedResponse.class);
-        when(zoneListResponse.iterateAll()).thenReturn(List.of(zone(GoogleComputeEngineTest.FIRST_ZONE_NAME),
+        when(lifecycleManager.fetchZones()).thenReturn(List.of(zone(GoogleComputeEngineTest.FIRST_ZONE_NAME),
                 zone(GoogleComputeEngineTest.SECOND_ZONE_NAME)));
-        when(zonesClient.list(ARGUMENTS.project())).thenReturn(zoneListResponse);
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
-        victim = new GoogleComputeEngine(ARGUMENTS, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(ARGUMENTS, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, Labels.of(Arguments.testDefaults(), TestInputs.defaultSomaticRunMetadata()));
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
@@ -102,11 +100,11 @@ public class GoogleComputeEngineTest {
     @Test
     public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new GoogleComputeEngine(arguments, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(arguments, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).disableStartupScript(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -127,7 +125,7 @@ public class GoogleComputeEngineTest {
     public void deletesVmAfterJobIsSuccessful() {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -138,24 +136,24 @@ public class GoogleComputeEngineTest {
         when(mockedInstance.getName()).thenReturn(INSTANCE_NAME);
         when(mockedInstance.getZone()).thenReturn(FIRST_ZONE_NAME);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new GoogleComputeEngine(arguments, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(arguments, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).stop(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
     public void deletesInstanceWithLocalSSdsUponFailure() {
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(INSTANCE_NAME, FIRST_ZONE_NAME);
     }
 
     @Test
@@ -172,7 +170,6 @@ public class GoogleComputeEngineTest {
     public void usesNetworkAndSubnetWhenSpecified() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -191,7 +188,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void usesNetworkAsSubnetWhenNotSpecified() {
         returnSuccess();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfacesList();
@@ -207,7 +204,6 @@ public class GoogleComputeEngineTest {
         String networkUrl = "projects/private";
         String subnetUrl = "projects/subnet";
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -225,7 +221,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void addsTagsToComputeEngineInstances() {
         returnSuccess();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         assertThat(instanceArgumentCaptor.getValue().getTags().getItemsList()).containsExactly("tag");
@@ -234,13 +230,13 @@ public class GoogleComputeEngineTest {
     @Test
     public void triesMultipleZonesWhenResourcesExhausted() {
         Operation resourcesExhausted = operationWithError(GoogleComputeEngine.ZONE_EXHAUSTED_ERROR_CODE);
-        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME))).thenReturn(resourcesExhausted,
+        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME))).thenReturn(resourcesExhausted,
                 Operation.newBuilder().build());
         when(bucketWatcher.currentState(any(), any())).thenReturn(BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @NotNull
@@ -255,13 +251,13 @@ public class GoogleComputeEngineTest {
     @Test
     public void triesMultipleZonesWhenUnsupportedOperation() {
         Operation resourcesExhausted = operationWithError(GoogleComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE);
-        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME))).thenReturn(resourcesExhausted,
+        when(lifecycleManager.deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME))).thenReturn(resourcesExhausted,
                 Operation.newBuilder().build());
         when(bucketWatcher.currentState(any(), any())).thenReturn(BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @Test
@@ -279,8 +275,8 @@ public class GoogleComputeEngineTest {
                 BucketCompletionWatcher.State.STILL_WAITING,
                 BucketCompletionWatcher.State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(FIRST_ZONE_NAME), eq(INSTANCE_NAME));
-        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(SECOND_ZONE_NAME), eq(INSTANCE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(FIRST_ZONE_NAME));
+        verify(lifecycleManager).deleteOldInstancesAndStart(any(), eq(INSTANCE_NAME), eq(SECOND_ZONE_NAME));
     }
 
     @Test
@@ -300,7 +296,7 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void attachesTwoPersisentDisksWhenLocalSSDDisabled() {
-        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -316,7 +312,7 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void usesLatestImageFromCurrentFamilyWhenNoImageGiven() {
-        victim = new GoogleComputeEngine(ARGUMENTS, zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(ARGUMENTS, imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -327,7 +323,6 @@ public class GoogleComputeEngineTest {
     public void usesLatestImageFromCurrentFamilyWithGivenProject() {
         String givenProject = "givenProject";
         victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(),
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
@@ -346,7 +341,7 @@ public class GoogleComputeEngineTest {
     public void usesGivenImageFromPublicImageProjectWhenProvided() {
         String imageName = "alternate_image";
         Image specificImage = Image.newBuilder().setName(imageName).setSelfLink(imageName).build();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), zonesClient, imagesClient, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), imagesClient, z -> {
         }, lifecycleManager, bucketWatcher, mock(Labels.class));
         when(imagesClient.get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, imageName)).thenReturn(specificImage);
         returnSuccess();
@@ -358,7 +353,6 @@ public class GoogleComputeEngineTest {
     @Test
     public void appliesLabelsToInstanceAndDisks() {
         victim = new GoogleComputeEngine(ARGUMENTS,
-                zonesClient,
                 imagesClient,
                 z -> {
                 },
