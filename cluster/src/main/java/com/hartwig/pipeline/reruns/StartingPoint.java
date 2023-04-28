@@ -70,6 +70,15 @@ public class StartingPoint {
                         LilacBamSlicer.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
+
+        // Note that as of 5.32 neither ROSE nor PROTECT are run for research pipelines
+        RERUN_532(concat(SKIP_GRIDSS.namespaces,
+                List.of(Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        VirusBreakend.NAMESPACE))),
+
         PROTECT_ONLY(concat(PURPLE_COMPLETE.namespaces,
                 List.of(LinxGermline.NAMESPACE,
                         LinxSomatic.NAMESPACE,
