@@ -370,7 +370,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand("purple", Versions.PURPLE, "purple.jar", "18G", arguments));
+        return Collections.singletonList(new JavaJarCommand("purple", Versions.PURPLE, "purple.jar", "31G", arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
