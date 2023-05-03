@@ -122,7 +122,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 32))
+                .performanceProfile(custom(6, 40))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
