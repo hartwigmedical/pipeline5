@@ -247,7 +247,7 @@ public class PipelineMain {
     private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher,
             final Pipeline.Context context, final Storage storage, final Arguments arguments) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
-        return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.useCrams());
+        return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.outputCram());
     }
 
     public static void main(final String[] args) {
