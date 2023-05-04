@@ -73,8 +73,8 @@ class InstanceLifecycleManager {
     Operation deleteOldInstancesAndStart(final Instance instance, final String vmName, final String zone) {
         findExistingInstance(vmName).ifPresent(i -> {
             try {
-                LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), zone);
-                delete(vmName, zone);
+                LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), i.getZone());
+                delete(i.getName(), i.getZone());
             } catch (Exception e) {
                 throw new RuntimeException("Could not delete existing [" + vmName + "] instance", e);
             }
