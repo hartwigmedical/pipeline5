@@ -126,7 +126,6 @@ public interface Arguments extends CommonArguments {
                     .runTertiary(true)
                     .shallow(false)
                     .setName(EMPTY)
-                    .cmek(EMPTY)
                     .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
                     .uploadPrivateKeyPath(Optional.empty())
                     .network(DEFAULT_NETWORK)
