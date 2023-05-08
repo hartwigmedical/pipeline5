@@ -13,7 +13,7 @@ public interface Versions {
     // HMF tools
     String AMBER = "3.9";
     String BAM_TOOLS = "1.0";
-    String CHORD = "2.00_1.14";
+    String CHORD = "2.02_1.14";
     String COBALT = "1.13";
     String CUPPA = "1.8";
     String GRIDSS = "2.13.2";
