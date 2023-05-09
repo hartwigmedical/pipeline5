@@ -51,7 +51,7 @@ import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.Versions;
 
-@Namespace(Orange.NAMESPACE_NO_GERMLINE)
+@Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
     public static final String NAMESPACE_NO_GERMLINE = "orange_no_germline";
