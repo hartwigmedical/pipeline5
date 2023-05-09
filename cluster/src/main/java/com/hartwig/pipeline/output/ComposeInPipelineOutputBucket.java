@@ -42,7 +42,7 @@ public class ComposeInPipelineOutputBucket implements PipelineOutputComposer {
     public void compose(final RunMetadata metadata, final Folder folder) {
         String name = metadata.set();
         writeMetadata(metadata, name, folder);
-        LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
+        LOGGER.info("Composing pipeline run results for {} in GCS path gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
         reportBucket.create(path(name, folder, "pipeline.version"), version.getBytes());
         try {
             reportBucket.create(path(name, folder, "run.log"), new FileInputStream("run.log"));
@@ -57,7 +57,7 @@ public class ComposeInPipelineOutputBucket implements PipelineOutputComposer {
                         component.getClass().getSimpleName()), e);
             }
         });
-        LOGGER.info("Composition complete for {} in bucket gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
+        LOGGER.info("Composition complete for {} in GCS path gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
     }
 
     private void writeMetadata(final Object metadata, final String name, final Folder folder) {
