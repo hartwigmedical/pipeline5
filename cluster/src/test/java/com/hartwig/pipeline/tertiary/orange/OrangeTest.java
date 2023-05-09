@@ -1,10 +1,15 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -12,6 +17,8 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.junit.Test;
 
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
@@ -32,7 +39,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.virusInterpreterOutput(),
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES);
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Pipeline.Context.DIAGNOSTIC);
     }
 
     @Override
@@ -66,38 +74,64 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        String jarRunCommand = "java -Xmx16G -jar /opt/tools/orange/2.3/orange.jar " + "-output_dir /data/output " + "-ref_genome_version 37 "
-                + "-tumor_sample_id tumor " + "-reference_sample_id reference " + "-doid_json /opt/resources/disease_ontology/doid.json "
-                + "-primary_tumor_doids \"01;02\" "
-                + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
-                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
-                + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv "
-                + "-sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
-                + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png "
-                + "-purple_data_directory /data/input/purple "
-                + "-purple_plot_directory /data/input/purple/plot "
-                + "-lilac_qc_csv /data/input/tumor.lilac.qc.csv "
-                + "-lilac_result_csv /data/input/tumor.lilac.csv "
-                + "-linx_germline_data_directory /data/input/linx_germline "
-                + "-linx_plot_directory /data/input/linx/plot "
-                + "-linx_somatic_data_directory /data/input/linx "
-                + "-cuppa_result_csv /data/input/tumor.cup.data.csv " + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
-                + "-cuppa_chart_plot /data/input/tumor.cuppa.chart.png "
-                + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
-                + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv "
-                + "-sigs_allocation_tsv /data/input/tumor.sig.allocation.tsv "
-                + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
-                + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
-                + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
-                + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
-                + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ "
-                + "-convert_germline_to_somatic";
+        String jarRunCommand =
+                "java -Xmx16G -jar /opt/tools/orange/2.4/orange.jar " + "-output_dir /data/output " + "-ref_genome_version 37 "
+                        + "-tumor_sample_id tumor " + "-reference_sample_id reference "
+                        + "-doid_json /opt/resources/disease_ontology/doid.json " + "-primary_tumor_doids \"01;02\" "
+                        + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
+                        + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                        + "-ref_sample_flagstat_file /data/input/reference.flagstat "
+                        + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
+                        + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv "
+                        + "-sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
+                        + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png "
+                        + "-purple_data_directory /data/input/purple " + "-purple_plot_directory /data/input/purple/plot "
+                        + "-lilac_qc_csv /data/input/tumor.lilac.qc.csv " + "-lilac_result_csv /data/input/tumor.lilac.csv "
+                        + "-linx_germline_data_directory /data/input/linx_germline " + "-linx_plot_directory /data/input/linx/plot "
+                        + "-linx_somatic_data_directory /data/input/linx " + "-cuppa_result_csv /data/input/tumor.cup.data.csv "
+                        + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
+                        + "-cuppa_chart_plot /data/input/tumor.cuppa.chart.png "
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
+                        + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv "
+                        + "-sigs_allocation_tsv /data/input/tumor.sig.allocation.tsv "
+                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
+                        + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
+                        + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
+                        + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
+                        + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
+                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ " + "-convert_germline_to_somatic";
         String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
-        String fileExistsCommand = "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand + " ; fi";
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.33' | tee /data/input/orange_pipeline.version.txt", fileExistsCommand);
+        String fileExistsCommand =
+                "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand
+                        + " ; fi";
+        return Arrays.asList("mkdir -p /data/input/linx/plot",
+                "echo '5.33' | tee /data/input/orange_pipeline.version.txt",
+                fileExistsCommand);
+    }
+
+    @Test
+    public void shouldAddResearchDisclaimerWhenResearchContext() {
+        Orange victim = new Orange(TestInputs.tumorMetricsOutput(),
+                TestInputs.referenceMetricsOutput(),
+                TestInputs.tumorFlagstatOutput(),
+                TestInputs.referenceFlagstatOutput(),
+                TestInputs.sageSomaticOutput(),
+                TestInputs.sageGermlineOutput(),
+                TestInputs.purpleOutput(),
+                TestInputs.chordOutput(),
+                TestInputs.lilacOutput(),
+                TestInputs.linxGermlineOutput(),
+                TestInputs.linxSomaticOutput(),
+                TestInputs.cuppaOutput(),
+                TestInputs.virusInterpreterOutput(),
+                TestInputs.peachOutput(),
+                TestInputs.sigsOutput(),
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Pipeline.Context.RESEARCH);
+        List<BashCommand> commands = victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata());
+        BashCommand orangeCommand = commands.get(2);
+        assertThat(orangeCommand.asBash()).contains("-add_disclaimer");
     }
 
     @Override
