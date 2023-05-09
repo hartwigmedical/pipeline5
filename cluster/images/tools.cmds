@@ -1,12 +1,12 @@
-sudo apt -y install libclone-perl libconfig-general-perl libfont-ttf-perl libgd-perl libsvg-perl libregexp-common-perl libtext-format-perl 
-sudo apt -y install libtext-soundex-perl libstatistics-basic-perl liblist-moreutils-perl libmath-bezier-perl libmath-round-perl
-sudo apt -y install libparams-validate-perl libreadonly-perl libset-intspan-perl
-
-sudo cpanm install GD::Polyline
-sudo cpanm install Math::VecStat
-
+#sudo apt -y install libclone-perl libconfig-general-perl libfont-ttf-perl libgd-perl libsvg-perl libregexp-common-perl libtext-format-perl 
+#sudo apt -y install libtext-soundex-perl libstatistics-basic-perl liblist-moreutils-perl libmath-bezier-perl libmath-round-perl
+#sudo apt -y install libparams-validate-perl libreadonly-perl libset-intspan-perl
+#
+#sudo cpanm install GD::Polyline
+#sudo cpanm install Math::VecStat
+#
 # Not currently a candidate for management by virtual environments, please leave intact
-sudo apt -y install python3-h5py
+#sudo apt -y install python3-h5py
 
 sudo rm -rf /opt/tools/*
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
