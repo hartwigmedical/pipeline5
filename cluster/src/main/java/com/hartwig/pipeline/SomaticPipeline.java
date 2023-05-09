@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -219,7 +220,7 @@ public class SomaticPipeline {
                                         linxGermlineOutput,
                                         linxSomaticOutput,
                                         cuppaOutput,
-                                        virusInterpreterOutput, peachOutput, sigsOutput, resourceFiles)));
+                                        virusInterpreterOutput, peachOutput, sigsOutput, resourceFiles, arguments.context())));
                         Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Rose(resourceFiles,
                                         purpleOutput,

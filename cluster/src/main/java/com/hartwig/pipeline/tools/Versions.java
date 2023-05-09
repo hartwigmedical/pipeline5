@@ -21,7 +21,7 @@ public interface Versions {
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
     String LINX = "1.23.2";
-    String ORANGE = "2.3";
+    String ORANGE = "2.4.0";
     String PAVE = "1.4.3";
     String PEACH = "1.7";
     String PROTECT = "2.3.1";
