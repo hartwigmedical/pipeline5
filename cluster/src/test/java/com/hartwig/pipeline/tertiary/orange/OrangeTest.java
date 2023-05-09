@@ -12,7 +12,6 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -40,7 +39,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Pipeline.Context.DIAGNOSTIC);
+                Pipeline.Context.DIAGNOSTIC,
+                true);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                         + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ " + "-convert_germline_to_somatic";
+                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/";
         String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
         String fileExistsCommand =
                 "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand
@@ -128,10 +128,37 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Pipeline.Context.RESEARCH);
-        List<BashCommand> commands = victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata());
-        BashCommand orangeCommand = commands.get(2);
-        assertThat(orangeCommand.asBash()).contains("-add_disclaimer");
+                Pipeline.Context.RESEARCH,
+                true);
+        assertThat(orangeCommand(victim).asBash()).contains("-add_disclaimer");
+    }
+
+    private static BashCommand orangeCommand(Orange victim) {
+        return victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata()).get(2);
+    }
+
+    @Test
+    public void shouldAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
+        Orange victim = new Orange(TestInputs.tumorMetricsOutput(),
+                TestInputs.referenceMetricsOutput(),
+                TestInputs.tumorFlagstatOutput(),
+                TestInputs.referenceFlagstatOutput(),
+                TestInputs.sageSomaticOutput(),
+                TestInputs.sageGermlineOutput(),
+                TestInputs.purpleOutput(),
+                TestInputs.chordOutput(),
+                TestInputs.lilacOutput(),
+                TestInputs.linxGermlineOutput(),
+                TestInputs.linxSomaticOutput(),
+                TestInputs.cuppaOutput(),
+                TestInputs.virusInterpreterOutput(),
+                TestInputs.peachOutput(),
+                TestInputs.sigsOutput(),
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Pipeline.Context.RESEARCH,
+                false);
+        assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
+        assertThat(orangeCommand(victim).asBash()).contains("-convert_germline_to_somatic");
     }
 
     @Override

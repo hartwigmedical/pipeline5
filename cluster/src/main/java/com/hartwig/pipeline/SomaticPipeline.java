@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -225,7 +224,27 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles,
-                                        arguments.context())));
+                                        arguments.context(),
+                                        true)));
+                        Future<OrangeOutput> orangeNoGermlineFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Orange(tumorMetrics,
+                                        referenceMetrics,
+                                        tumorFlagstat,
+                                        referenceFlagstat,
+                                        sageSomaticOutput,
+                                        sageGermlineOutput,
+                                        purpleOutput,
+                                        chordOutput,
+                                        lilacOutput,
+                                        linxGermlineOutput,
+                                        linxSomaticOutput,
+                                        cuppaOutput,
+                                        virusInterpreterOutput,
+                                        peachOutput,
+                                        sigsOutput,
+                                        resourceFiles,
+                                        arguments.context(),
+                                        false)));
                         Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Rose(resourceFiles,
                                         purpleOutput,
@@ -242,6 +261,7 @@ public class SomaticPipeline {
                                         resourceFiles,
                                         persistedDataset)));
                         composer.add(state.add(orangeOutputFuture.get()));
+                        composer.add(state.add(orangeNoGermlineFuture.get()));
                         composer.add(state.add(roseOutputFuture.get()));
                         composer.add(state.add(protectOutputFuture.get()));
 
