@@ -9,7 +9,7 @@ chordToolDir <- args[1]
   sampleName <- args[3]
    snvIndVcf <- args[4]
        svVcf <- args[5]
-refGenomeVsn <- args[6] # RG_37 or RG_38
+refGenomeVsn <- args[6] # HG19 or HG38
    sigOutTxt <- paste0( workingDir, '/', sampleName, '_chord_signatures.txt')
    prdOutTxt <- paste0( workingDir, '/', sampleName, '_chord_prediction.txt')
 
@@ -19,7 +19,7 @@ setwd(workingDir)
 suppressPackageStartupMessages(library('devtools'))
 suppressPackageStartupMessages(library('randomForest'))
 suppressPackageStartupMessages(load_all(paste0(chordToolDir, '/mutSigExtractor-1.14')))
-suppressPackageStartupMessages(load_all(paste0(chordToolDir, '/CHORD-2.00')))
+suppressPackageStartupMessages(load_all(paste0(chordToolDir, '/CHORD-2.02')))
 
 cat("[INFO] Package NamespaceVersions after loading:\n")
 for (pkgName in c("mutSigExtractor", "CHORD")){
@@ -28,14 +28,14 @@ for (pkgName in c("mutSigExtractor", "CHORD")){
 }
 
 ## Convert genome name to BSGenome name
-if (refGenomeVsn == "RG_37") {
+if (refGenomeVsn == "HG19") {
   suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg19))
   refGenome <- BSgenome.Hsapiens.UCSC.hg19
-} else if (refGenomeVsn == "RG_38") {
+} else if (refGenomeVsn == "HG38") {
   suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg38))
   refGenome <- BSgenome.Hsapiens.UCSC.hg38
 } else {
-  stop("Unsupported ref genome version: ", refGenomeVsn," (should be HG37 or HG38)\n")
+  stop("Unsupported ref genome version: ", refGenomeVsn," (should be HG19 or HG38)\n")
 }
 
 cat("[INFO] CHORD Settings:\n")
