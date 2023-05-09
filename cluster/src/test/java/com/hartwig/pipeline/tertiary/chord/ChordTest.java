@@ -10,10 +10,10 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -61,13 +61,11 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
     }
 
     @Override
     protected void validatePersistedOutput(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
     }
 }
