@@ -129,7 +129,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 Pipeline.Context.RESEARCH);
         List<BashCommand> commands = victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata());
-        assertThat(commands.get(2).asBash()).contains("-add_disclaimer");
+        BashCommand orangeCommand = commands.get(2);
+        assertThat(orangeCommand.asBash()).contains("-add_disclaimer");
     }
 
     @Override
