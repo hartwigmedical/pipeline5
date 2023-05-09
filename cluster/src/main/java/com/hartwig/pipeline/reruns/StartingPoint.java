@@ -23,7 +23,6 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
-import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
@@ -32,7 +31,6 @@ import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
-import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.rose.Rose;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
@@ -89,7 +87,9 @@ public class StartingPoint {
                         Orange.NAMESPACE,
                         Sigs.NAMESPACE,
                         Rose.NAMESPACE,
-                        VirusInterpreter.NAMESPACE)));
+                        VirusInterpreter.NAMESPACE))),
+
+        RESEARCH_AFTER_531_DIAGNOSTIC(concat(ALIGNMENT_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE)));
 
         private final List<String> namespaces;
 
