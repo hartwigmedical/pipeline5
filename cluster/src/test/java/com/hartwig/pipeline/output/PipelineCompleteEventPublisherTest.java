@@ -26,7 +26,6 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;

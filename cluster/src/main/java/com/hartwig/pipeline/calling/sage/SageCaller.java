@@ -16,13 +16,13 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.report.EntireOutputComponent;
-import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.report.ReportComponent;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
-import com.hartwig.pipeline.report.StartupScriptComponent;
-import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.OutputComponent;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
@@ -152,7 +152,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
         return datatypes;
     }
 
-    protected ReportComponent singleFileComponent(final String filename, final RuntimeBucket bucket,
+    protected OutputComponent singleFileComponent(final String filename, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
@@ -165,13 +165,13 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
         return metadata.maybeReference().map(r -> String.format("%s.%s", r.sampleName(), SAGE_BQR_PNG));
     }
 
-    private ReportComponent bqrComponent(final String extension, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
+    private OutputComponent bqrComponent(final String extension, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
             final String sampleName) {
         String filename = format("%s.sage.bqr.%s", sampleName, extension);
         return singleFileComponent(filename, bucket, resultsDirectory);
     }
 
-    private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+    private OutputComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
         return new ZippedVcfAndIndexComponent(bucket, namespace(), Folder.root(), filename, resultsDirectory);
     }
 }

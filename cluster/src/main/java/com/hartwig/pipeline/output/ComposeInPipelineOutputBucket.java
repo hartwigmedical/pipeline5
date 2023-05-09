@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import static java.lang.String.format;
 
@@ -11,27 +11,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.input.RunMetadata;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PipelineResults {
+public class ComposeInPipelineOutputBucket implements PipelineOutputComposer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComposeInPipelineOutputBucket.class);
 
     private final String version;
     private final Storage storage;
     private final Bucket reportBucket;
-    private final boolean isNoOp;
-    private final List<ReportComponent> components = new ArrayList<>();
+    private final List<OutputComponent> components = new ArrayList<>();
 
-    PipelineResults(final String version, final Storage storage, final Bucket reportBucket, final boolean isNoOp) {
+    ComposeInPipelineOutputBucket(final String version, final Storage storage, final Bucket reportBucket) {
         this.version = version;
         this.storage = storage;
         this.reportBucket = reportBucket;
-        this.isNoOp = isNoOp;
     }
 
     public <T extends StageOutput> T add(final T stageOutput) {
@@ -41,23 +39,10 @@ public class PipelineResults {
         return stageOutput;
     }
 
-    public void compose(final RunMetadata metadata, final String qualifier) {
-        if (!isNoOp) {
-            String name = metadata.set();
-            Folder folder = Folder.root();
-            writeMetadata(metadata, name, folder);
-            compose(name, folder, qualifier);
-        } else {
-            LOGGER.info("Skipping composition as this pipeline invocation will only publish events");
-        }
-    }
-
-    private void compose(final String name, final Folder folder, final String qualifier) {
-        LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{} with qualifier {}",
-                name,
-                reportBucket.getName(),
-                name,
-                qualifier);
+    public void compose(final RunMetadata metadata, final Folder folder) {
+        String name = metadata.set();
+        writeMetadata(metadata, name, folder);
+        LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
         reportBucket.create(path(name, folder, "pipeline.version"), version.getBytes());
         try {
             reportBucket.create(path(name, folder, "run.log"), new FileInputStream("run.log"));
@@ -66,13 +51,13 @@ public class PipelineResults {
         }
         components.forEach(component -> {
             try {
-                component.addToReport(storage, reportBucket, name);
+                component.addToOutput(storage, reportBucket, name);
             } catch (Exception e) {
-                throw new RuntimeException(format("Unable add component [%s] to the final patient report.",
+                throw new RuntimeException(format("Unable add component [%s] to the final patient output.",
                         component.getClass().getSimpleName()), e);
             }
         });
-        LOGGER.info("Composition complete for {} in bucket gs://{}/{} with qualifier {}", name, reportBucket.getName(), name, qualifier);
+        LOGGER.info("Composition complete for {} in bucket gs://{}/{}/{}", name, reportBucket.getName(), name, folder.name());
     }
 
     private void writeMetadata(final Object metadata, final String name, final Folder folder) {

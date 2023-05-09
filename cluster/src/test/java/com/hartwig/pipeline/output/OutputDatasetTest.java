@@ -12,7 +12,6 @@ import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;

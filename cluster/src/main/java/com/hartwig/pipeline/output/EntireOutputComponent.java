@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import java.util.function.Predicate;
 
@@ -8,7 +8,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class EntireOutputComponent implements ReportComponent {
+public class EntireOutputComponent implements OutputComponent {
 
     private final RuntimeBucket runtimeBucket;
     private final Folder folder;
@@ -38,14 +38,14 @@ public class EntireOutputComponent implements ReportComponent {
     }
 
     @Override
-    public void addToReport(final Storage storage, final Bucket reportBucket, final String setName) {
+    public void addToOutput(final Storage storage, final Bucket outputBucket, final String setName) {
         String rootPath = resultsDirectory.path(sourceDirectory);
         Iterable<Blob> blobs = runtimeBucket.list(rootPath);
         for (Blob blob : blobs) {
             String filename = parsePath(blob, rootPath);
             if (!exclusions.test(blob.getName())) {
                 runtimeBucket.copyOutOf(blob.getName(),
-                        reportBucket.getName(),
+                        outputBucket.getName(),
                         String.format("%s/%s%s/%s", setName, folder.name(), namespace, filename));
             }
         }

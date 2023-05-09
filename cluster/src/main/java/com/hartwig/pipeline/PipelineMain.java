@@ -36,8 +36,8 @@ import com.hartwig.pipeline.output.NoopOutputPublisher;
 import com.hartwig.pipeline.output.OutputPublisher;
 import com.hartwig.pipeline.output.PipelineCompleteEventPublisher;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
-import com.hartwig.pipeline.report.PipelineResultsProvider;
-import com.hartwig.pipeline.report.VmExecutionLogSummary;
+import com.hartwig.pipeline.output.PipelineOutputComposerProvider;
+import com.hartwig.pipeline.output.VmExecutionLogSummary;
 import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
@@ -212,7 +212,7 @@ public class PipelineMain {
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
                 metadata,
-                PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                PipelineOutputComposerProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 persistedDataset);
     }
@@ -235,7 +235,7 @@ public class PipelineMain {
                         labels,
                         mode),
                 AlignerProvider.from(input, credentials, storage, arguments, labels).get(),
-                PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                PipelineOutputComposerProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 arguments,
                 persistedDataset,
