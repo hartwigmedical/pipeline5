@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 

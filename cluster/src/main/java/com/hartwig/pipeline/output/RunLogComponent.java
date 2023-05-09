@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;

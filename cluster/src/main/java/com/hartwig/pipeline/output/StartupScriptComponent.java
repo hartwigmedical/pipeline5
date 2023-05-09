@@ -1,10 +1,10 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class StartupScriptComponent implements ReportComponent {
+public class StartupScriptComponent implements OutputComponent {
     private final RuntimeBucket runtimeBucket;
     private final String namespace;
     private final Folder folder;
@@ -16,8 +16,8 @@ public class StartupScriptComponent implements ReportComponent {
     }
 
     @Override
-    public void addToReport(final Storage storage, final Bucket reportBucket, final String setName) {
-        runtimeBucket.copyOutOf("copy_of_startup_script_for_run.sh", reportBucket.getName(),
+    public void addToOutput(final Storage storage, final Bucket outputBucket, final String setName) {
+        runtimeBucket.copyOutOf("copy_of_startup_script_for_run.sh", outputBucket.getName(),
                 String.format("%s/%s%s/%s", setName, folder.name(), namespace, "run.sh"));
     }
 }

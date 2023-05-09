@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -8,6 +8,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -15,12 +18,12 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class StartupScriptComponentTest {
+public class RunLogComponentTest {
 
     private static final String REPORT_BUCKET = "report_bucket";
 
     @Test
-    public void copiesStartupScriptIntoReportBucket() {
+    public void copiesRunLogIntoReportBucket() {
         Storage storage = mock(Storage.class);
         RuntimeBucket runtimeBucket = MockRuntimeBucket.test().getRuntimeBucket();
         Bucket reportBucket = mock(Bucket.class);
@@ -28,13 +31,14 @@ public class StartupScriptComponentTest {
         ArgumentCaptor<String> sourceBlobCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBucketCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBlobCaptor = ArgumentCaptor.forClass(String.class);
-        StartupScriptComponent victim = new StartupScriptComponent(runtimeBucket,
+        RunLogComponent victim = new RunLogComponent(runtimeBucket,
                 "test",
-                Folder.from(TestInputs.referenceRunMetadata()));
-        victim.addToReport(storage, reportBucket, "test_set");
+                Folder.from(TestInputs.referenceRunMetadata()),
+                ResultsDirectory.defaultDirectory());
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
-        assertThat(sourceBlobCaptor.getValue()).isEqualTo("copy_of_startup_script_for_run.sh");
+        assertThat(sourceBlobCaptor.getValue()).isEqualTo("results/run.log");
         assertThat(targetBucketCaptor.getValue()).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/run.sh");
+        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/run.log");
     }
 }

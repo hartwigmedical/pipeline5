@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.output.OutputComponent;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public interface StageOutput {
@@ -13,7 +13,7 @@ public interface StageOutput {
 
     PipelineStatus status();
 
-    List<ReportComponent> reportComponents();
+    List<OutputComponent> reportComponents();
 
     List<AddDatatype> datatypes();
 

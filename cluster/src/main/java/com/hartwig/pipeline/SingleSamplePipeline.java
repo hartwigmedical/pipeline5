@@ -20,7 +20,8 @@ import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.PipelineOutputComposer;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -37,7 +38,7 @@ public class SingleSamplePipeline {
     private final SingleSampleEventListener eventListener;
     private final StageRunner<SingleSampleRunMetadata> stageRunner;
     private final Aligner aligner;
-    private final PipelineResults report;
+    private final PipelineOutputComposer composer;
     private final ExecutorService executorService;
     private final Arguments arguments;
     private final PersistedDataset persistedDataset;
@@ -46,13 +47,13 @@ public class SingleSamplePipeline {
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Arguments arguments,
+            final Aligner aligner, final PipelineOutputComposer composer, final ExecutorService executorService, final Arguments arguments,
             final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
             final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
-        this.report = report;
+        this.composer = composer;
         this.executorService = executorService;
         this.arguments = arguments;
         this.persistedDataset = persistedDataset;
@@ -85,18 +86,18 @@ public class SingleSamplePipeline {
                         new GermlineCaller(alignmentOutput, resourceFiles, persistedDataset)));
                 GermlineCallerOutput germlineCallerOutput = futurePayload(germlineCallerFuture);
                 germlineCallerOutputQueue.put(germlineCallerOutput);
-                report.add(state.add(germlineCallerOutput));
+                composer.add(state.add(germlineCallerOutput));
             }
 
             BamMetricsOutput bamMetricsOutput = futurePayload(bamMetricsFuture);
             metricsOutputQueue.put(bamMetricsOutput);
             FlagstatOutput flagstatOutput = futurePayload(flagstatOutputFuture);
             flagstatOutputQueue.put(flagstatOutput);
-            report.add(state.add(bamMetricsOutput));
-            report.add(state.add(futurePayload(unifiedGenotyperFuture)));
-            report.add(state.add(flagstatOutput));
-            report.add(state.add(futurePayload(cramOutputFuture)));
-            report.compose(metadata, "SingleSample");
+            composer.add(state.add(bamMetricsOutput));
+            composer.add(state.add(futurePayload(unifiedGenotyperFuture)));
+            composer.add(state.add(flagstatOutput));
+            composer.add(state.add(futurePayload(cramOutputFuture)));
+            composer.compose(metadata,  Folder.from(metadata));
             eventListener.complete(state);
         }
         return state;
@@ -104,7 +105,7 @@ public class SingleSamplePipeline {
 
     private AlignmentOutput convertCramsIfNecessary(final Arguments arguments, final SingleSampleRunMetadata metadata,
             final PipelineState state) throws Exception {
-        AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
+        AlignmentOutput alignmentOutput = composer.add(state.add(aligner.run(metadata)));
         alignmentOutput =
                 state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM) ? state.add(
                         stageRunner.run(metadata, new Cram2Bam(alignmentOutput.alignments(), metadata.type()))) : alignmentOutput;

@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.output;
 
-import com.hartwig.pipeline.report.Folder;
-
 public class ArchivePath {
 
     private final Folder folder;

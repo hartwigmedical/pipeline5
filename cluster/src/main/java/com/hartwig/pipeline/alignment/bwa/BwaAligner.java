@@ -37,10 +37,10 @@ import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.report.ReportComponent;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.OutputComponent;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -93,7 +93,7 @@ public class BwaAligner implements Aligner {
 
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
-        List<ReportComponent> laneLogComponents = new ArrayList<>();
+        List<OutputComponent> laneLogComponents = new ArrayList<>();
         List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (LaneInput lane : sample.lanes()) {
 

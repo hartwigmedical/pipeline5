@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
 
@@ -13,6 +13,8 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -53,7 +55,7 @@ public class EntireOutputComponentTest {
                 Folder.root(),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
-        victim.addToReport(storage, reportBucket, "test_set");
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
@@ -74,7 +76,7 @@ public class EntireOutputComponentTest {
                 Folder.root(),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
-        victim.addToReport(storage, reportBucket, "test_set");
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/subdir1/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
@@ -94,7 +96,7 @@ public class EntireOutputComponentTest {
                 Folder.from(TestInputs.referenceRunMetadata()),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
-        victim.addToReport(storage, reportBucket, "test_set");
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
@@ -114,7 +116,7 @@ public class EntireOutputComponentTest {
                 "namespace",
                 ResultsDirectory.defaultDirectory(),
                 s -> s.endsWith(excludedFileName));
-        victim.addToReport(storage, reportBucket, "test_set");
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);

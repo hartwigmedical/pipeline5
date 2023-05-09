@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.report;
+package com.hartwig.pipeline.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -34,7 +36,7 @@ public class ZippedVcfAndIndexComponentTest {
                 "test",
                 Folder.from(TestInputs.referenceRunMetadata()), TEST_VCF, TEST_VCF,
                 ResultsDirectory.defaultDirectory());
-        victim.addToReport(storage, reportBucket, "test_set");
+        victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/test.vcf");
         assertThat(sourceBlobCaptor.getAllValues().get(1)).isEqualTo("results/test.vcf.tbi");

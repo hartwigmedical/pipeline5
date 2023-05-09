@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.output.OutputComponent;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +59,7 @@ public class PipelineStateTest {
             }
 
             @Override
-            public List<ReportComponent> reportComponents() {
+            public List<OutputComponent> reportComponents() {
                 return Collections.emptyList();
             }
 
