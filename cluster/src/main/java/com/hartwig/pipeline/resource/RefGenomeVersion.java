@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.resource;
 
 public enum RefGenomeVersion {
-    V37("37", "HG19"),
+    V37("37", "HG37"),
     V38("38", "HG38");
 
     private final String numeric;
