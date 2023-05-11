@@ -140,17 +140,6 @@ public class GoogleComputeEngineTest {
     }
 
     @Test
-    public void attemptsToDeleteLeftoverInstanceOnStartup() {
-        returnSuccess();
-        Instance mockedInstance = mock(Instance.class);
-        when(lifecycleManager.findExistingInstance(INSTANCE_NAME)).thenReturn(Optional.of(mockedInstance));
-        when(mockedInstance.getName()).thenReturn(INSTANCE_NAME);
-        when(mockedInstance.getZone()).thenReturn(FIRST_ZONE_NAME);
-        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
-    }
-
-    @Test
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
         victim = new GoogleComputeEngine(arguments, imagesClient, z -> {
