@@ -30,7 +30,7 @@ public class MetadataProvider {
                         .bucket(arguments.outputBucket())
                         .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                        .barcode(t.barcode())
+                        .barcode(barcodeOrSampleName(t))
                         .sampleName(t.name())
                         .primaryTumorDoids(t.primaryTumorDoids())
                         .build()))
@@ -38,10 +38,14 @@ public class MetadataProvider {
                         .bucket(arguments.outputBucket())
                         .set(setName)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                        .barcode(r.barcode())
+                        .barcode(barcodeOrSampleName(r))
                         .sampleName(r.name())
                         .build()))
                 .maybeExternalIds(pipelineInput.operationalReferences())
                 .build();
+    }
+
+    private static String barcodeOrSampleName(SampleInput sampleInput) {
+        return sampleInput.barcode().equals(SampleInput.NOT_APPLICABLE) ? sampleInput.name() : sampleInput.barcode();
     }
 }
