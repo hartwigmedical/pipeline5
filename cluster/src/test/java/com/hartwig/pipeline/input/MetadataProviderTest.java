@@ -93,4 +93,16 @@ public class MetadataProviderTest {
         assertThat(tumorMetadata.bucket()).isEqualTo(arguments.outputBucket());
         assertThat(tumorMetadata.primaryTumorDoids()).isEqualTo(doids);
     }
+
+    @Test
+    public void shouldUseSampleNameAsBarcodeIfBarcodeNotSet() {
+        String sampleName = "tumorSample";
+        List<String> doids = List.of("a", "b", "c");
+        SampleInput tumor = SampleInput.builder().name(sampleName).primaryTumorDoids(doids).build();
+        pipelineInput = PipelineInput.builder().from(pipelineInput).tumor(tumor).build();
+        victim = new MetadataProvider(arguments, pipelineInput);
+        assertThat(victim.get().maybeTumor()).isPresent();
+        SingleSampleRunMetadata tumorMetadata = victim.get().tumor();
+        assertThat(tumorMetadata.barcode()).isEqualTo(sampleName);
+    }
 }
