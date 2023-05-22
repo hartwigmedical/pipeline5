@@ -16,13 +16,14 @@ import org.junit.Test;
 
 public class MetadataProviderTest {
     private static final String EXPECTED_PDL_RUN_TAG = "pdlSet-test";
+    private static final String SET_NAME = "pdlSet";
     private PipelineInput pipelineInput;
     private ImmutableArguments arguments;
     private MetadataProvider victim;
 
     @Before
     public void setup() {
-        pipelineInput = PipelineInput.builder().setName("pdlSet").build();
+        pipelineInput = PipelineInput.builder().setName(SET_NAME).build();
         arguments = Arguments.testDefaultsBuilder().setName("argSet").build();
     }
 
@@ -34,7 +35,7 @@ public class MetadataProviderTest {
 
     @Test
     public void shouldSetRunTagFromArgumentsWhenNotInPdl() {
-        pipelineInput = PipelineInput.builder().build();
+        pipelineInput = PipelineInput.builder().setName(SET_NAME).build();
         victim = new MetadataProvider(arguments, pipelineInput);
         assertThat(victim.get().set()).isEqualTo("argSet-test");
     }
@@ -51,7 +52,7 @@ public class MetadataProviderTest {
         long runId = 1L;
         long setId = 42L;
         OperationalReferences setReferences = OperationalReferences.builder().runId(runId).setId(setId).build();
-        pipelineInput = PipelineInput.builder().operationalReferences(setReferences).build();
+        pipelineInput = PipelineInput.builder().operationalReferences(setReferences).setName(SET_NAME).build();
         victim = new MetadataProvider(arguments, pipelineInput);
         assertThat(victim.get().maybeExternalIds()).isPresent();
         OperationalReferences foundReferences = victim.get().maybeExternalIds().orElseThrow();
