@@ -100,7 +100,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                         + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ -experiment_date 2023-05-19";
+                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
         String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
         String fileExistsCommand =
                 "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand
