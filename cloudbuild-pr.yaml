@@ -1,0 +1,50 @@
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
+  - name: 'maven:3-jdk-11'
+    id: 'Set version for Maven'
+    entrypoint: mvn
+    args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: 'Prime Maven cache'
+    args:
+      - '-m'
+      - 'rsync'
+      - '-r'
+      - 'gs://hmf-build-caches/pipeline5/.m2'
+      - '/cache/.m2'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+  - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
+    id: 'Deploy artifacts to Maven repository'
+    entrypoint: mvn
+    timeout: 2400s
+    args:
+      - 'deploy'
+      - '-Drelease'
+      - '--batch-mode'
+    env:
+      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: 'Update Maven cache after dependency resolution'
+    args:
+      - '-m'
+      - 'rsync'
+      - '-r'
+      - '/cache/.m2'
+      - 'gs://hmf-build-caches/pipeline5/.m2/'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+logsBucket: 'gs://hmf-build-logs'
+timeout: 4800s
+options:
+  machineType: 'N1_HIGHCPU_32'
