@@ -40,7 +40,7 @@
         <java-client.version>1.31.1</java-client.version>
         <compar.version>0.0.3</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
-        <pdl.version>local-SNAPSHOT</pdl.version>
+        <pdl.version>1.3.0</pdl.version>
     </properties>
 
     <scm>
