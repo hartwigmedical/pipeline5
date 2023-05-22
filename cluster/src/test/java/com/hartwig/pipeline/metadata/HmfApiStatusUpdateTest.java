@@ -22,6 +22,7 @@ import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.assertj.core.data.TemporalUnitLessThanOffset;
 import org.junit.Before;
@@ -41,8 +42,10 @@ public class HmfApiStatusUpdateTest {
         runApi = mock(RunApi.class);
         run = new Run().id(RUN_ID);
         argCaptor = ArgumentCaptor.forClass(UpdateRun.class);
-        pipelineInput =
-                PipelineInput.builder().operationalReferences(OperationalReferences.builder().runId(RUN_ID).setId(1L).build()).build();
+        pipelineInput = PipelineInput.builder()
+                .setName(TestInputs.SET)
+                .operationalReferences(OperationalReferences.builder().runId(RUN_ID).setId(1L).build())
+                .build();
     }
 
     private HmfApiStatusUpdate setupForNoOp() {

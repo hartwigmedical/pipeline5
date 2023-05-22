@@ -96,6 +96,7 @@ public class TestInputs {
 
     public static PipelineInput pipelineInput() {
         return PipelineInput.builder()
+                .setName(SET)
                 .reference(SampleInput.builder().name(REFERENCE_SAMPLE).build())
                 .tumor(SampleInput.builder().name(TUMOR_SAMPLE).build())
                 .build();

@@ -24,7 +24,7 @@ public class MetadataProviderTest {
     @Before
     public void setup() {
         pipelineInput = PipelineInput.builder().setName(SET_NAME).build();
-        arguments = Arguments.testDefaultsBuilder().setName("argSet").build();
+        arguments = Arguments.testDefaultsBuilder().setName(SET_NAME).build();
     }
 
     @Test
@@ -37,7 +37,7 @@ public class MetadataProviderTest {
     public void shouldSetRunTagFromArgumentsWhenNotInPdl() {
         pipelineInput = PipelineInput.builder().setName(SET_NAME).build();
         victim = new MetadataProvider(arguments, pipelineInput);
-        assertThat(victim.get().set()).isEqualTo("argSet-test");
+        assertThat(victim.get().set()).isEqualTo("pdlSet-test");
     }
 
     @Test

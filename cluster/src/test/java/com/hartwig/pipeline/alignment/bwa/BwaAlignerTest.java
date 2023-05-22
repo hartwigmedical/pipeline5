@@ -47,11 +47,8 @@ public class BwaAlignerTest {
         storage = mock(Storage.class);
         sampleUpload = mock(SampleUpload.class);
         PipelineInput input = PipelineInput.builder()
-                .reference(SampleInput.builder()
-                        .name(METADATA.sampleName())
-                        .addLanes(lane(1))
-                        .addLanes(lane(2))
-                        .build())
+                .setName(TestInputs.SET)
+                .reference(SampleInput.builder().name(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
                 .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
@@ -70,8 +67,7 @@ public class BwaAlignerTest {
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(
-                PipelineStatus.SUCCESS);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(METADATA);
         assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/flowcell-L001");
         assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/flowcell-L002");
@@ -84,8 +80,7 @@ public class BwaAlignerTest {
     public void failsWhenAnyLaneFails() throws Exception {
         setupMocks();
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        when(computeEngine.submit(any(),
-                argThat(jobDef -> jobDef.name().contains("l001")))).thenReturn(PipelineStatus.FAILED);
+        when(computeEngine.submit(any(), argThat(jobDef -> jobDef.name().contains("l001")))).thenReturn(PipelineStatus.FAILED);
         assertThat(victim.run(METADATA).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -95,8 +90,7 @@ public class BwaAlignerTest {
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(
-                PipelineStatus.SUCCESS);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(METADATA);
         assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference-test/aligner");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-markdup");
@@ -105,8 +99,10 @@ public class BwaAlignerTest {
     @Test
     public void returnsProvidedBamIfInSample() throws Exception {
         String gsUrl = "gs://bucket/path/reference.bam";
-        PipelineInput input =
-                PipelineInput.builder().reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build()).build();
+        PipelineInput input = PipelineInput.builder()
+                .setName(METADATA.set())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build())
+                .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
                 storage,
