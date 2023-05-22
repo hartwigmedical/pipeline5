@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.orange;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -24,11 +25,11 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -54,6 +55,7 @@ import com.hartwig.pipeline.tools.Versions;
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
+    public static final String NAMESPACE_NO_GERMLINE = "orange_no_germline";
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
@@ -83,13 +85,14 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload sigsAllocationTsv;
     private final InputDownload annotatedVirusTsv;
     private final Pipeline.Context context;
+    private final boolean includeGermline;
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles, final Pipeline.Context context) {
+            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
@@ -97,6 +100,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
         this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
         this.context = context;
+        this.includeGermline = includeGermline;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
@@ -147,7 +151,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public String namespace() {
-        return NAMESPACE;
+        return includeGermline ? NAMESPACE : NAMESPACE_NO_GERMLINE;
     }
 
     @Override
@@ -238,11 +242,16 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                         "-known_fusion_file",
                         resourceFiles.knownFusionData(),
                         "-ensembl_data_directory",
-                        resourceFiles.ensemblDataCache(),
-                        "-convert_germline_to_somatic");
+                        resourceFiles.ensemblDataCache());
         if (context.equals(Pipeline.Context.RESEARCH)) {
             argumentListBuilder.add("-add_disclaimer");
         }
+        if (!includeGermline) {
+            argumentListBuilder.add("-convert_germline_to_somatic");
+        }
+        metadata.tumor()
+                .samplingDate()
+                .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand("orange", Versions.ORANGE, "orange.jar", "16G", argumentListBuilder.build());
         BashCommand withOptionalPlotCommand =
                 new JavaJarFileExistsCommand(orangeJarCommand, "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
@@ -255,7 +264,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
-                .name(NAMESPACE)
+                .name(namespace())
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))

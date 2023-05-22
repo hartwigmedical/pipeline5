@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.input;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -37,6 +39,8 @@ public interface SingleSampleRunMetadata extends RunMetadata {
     }
 
     List<String> primaryTumorDoids();
+
+    Optional<LocalDate> samplingDate();
 
     static ImmutableSingleSampleRunMetadata.Builder builder() {
         return ImmutableSingleSampleRunMetadata.builder();
