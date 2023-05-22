@@ -91,7 +91,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles, final Pipeline.Context context, boolean includeGermline) {
+            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
