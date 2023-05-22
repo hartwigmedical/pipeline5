@@ -40,7 +40,7 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/1.23.2/linx.jar -sample tumor -germline "
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.23.4/linx.jar -sample tumor -germline "
                 + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz -ref_genome_version V37 -output_dir /data/output "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");

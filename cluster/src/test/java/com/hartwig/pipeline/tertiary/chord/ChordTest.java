@@ -38,7 +38,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("/opt/tools/chord/2.02_1.14/extractSigPredictHRD.R /opt/tools/chord/2.02_1.14 /data/output tumor "
-                + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz HG19");
+                + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz HG37");
     }
 
     @Override
@@ -61,13 +61,11 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
     }
 
     @Override
     protected void validatePersistedOutput(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
     }
 }

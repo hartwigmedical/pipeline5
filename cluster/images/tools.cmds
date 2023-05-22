@@ -1,13 +1,3 @@
-sudo apt -y install libclone-perl libconfig-general-perl libfont-ttf-perl libgd-perl libsvg-perl libregexp-common-perl libtext-format-perl 
-sudo apt -y install libtext-soundex-perl libstatistics-basic-perl liblist-moreutils-perl libmath-bezier-perl libmath-round-perl
-sudo apt -y install libparams-validate-perl libreadonly-perl libset-intspan-perl
-
-sudo cpanm install GD::Polyline
-sudo cpanm install Math::VecStat
-
-# Not currently a candidate for management by virtual environments, please leave intact
-sudo apt -y install python3-h5py
-
 sudo rm -rf /opt/tools/*
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
 
@@ -59,11 +49,13 @@ sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
+sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
+sudo chmod a+x /opt/tools/sv-prep/1.0.1/gridss.run.sh
 sudo chmod a+x /opt/tools/sv-prep/1.1/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.9/samtools

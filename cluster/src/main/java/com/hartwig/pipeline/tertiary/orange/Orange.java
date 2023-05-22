@@ -248,6 +248,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         if (!includeGermline) {
             argumentListBuilder.add("-convert_germline_to_somatic");
         }
+        metadata.tumor().samplingDate().ifPresent(sd -> argumentListBuilder.add("-experiment_date", sd.toString()));
         JavaJarCommand orangeJarCommand = new JavaJarCommand("orange", Versions.ORANGE, "orange.jar", "16G", argumentListBuilder.build());
         BashCommand withOptionalPlotCommand =
                 new JavaJarFileExistsCommand(orangeJarCommand, "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
