@@ -21,7 +21,7 @@ steps:
     entrypoint: mvn
     timeout: 2400s
     args:
-      - 'deploy'
+      - 'install'
       - '-Drelease'
       - '--batch-mode'
     env:
