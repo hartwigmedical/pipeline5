@@ -20,7 +20,7 @@ public interface Versions {
     String GRIPSS = "2.3.5";
     String HEALTH_CHECKER = "3.4";
     String LILAC = "1.4.2";
-    String LINX = "1.23.5";
+    String LINX = "1.23.6";
     String ORANGE = "2.4.1";
     String PAVE = "1.4.3";
     String PEACH = "1.7";
