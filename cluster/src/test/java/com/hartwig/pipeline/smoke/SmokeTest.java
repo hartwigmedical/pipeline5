@@ -12,6 +12,8 @@ import java.util.stream.StreamSupport;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.events.pipeline.Pipeline;
+import com.hartwig.pdl.PdlJsonConversion;
+import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
@@ -87,16 +89,17 @@ public class SmokeTest {
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
             final RefGenomeVersion refGenomeVersion) throws Exception {
         final PipelineMain victim = new PipelineMain();
-        final String version = version();
-        final String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
         final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
+        String sampleJson = Resources.testResource(fixtureDir + "samples.json");
+        PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
+        final String setName = pipelineInput.setName() + "-" + randomRunId;
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
+                .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
-                .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
+                .sampleJson(sampleJson)
                 .cloudSdkPath(findCloudSdk())
-                .setName(setName)
                 .runTag(randomRunId)
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -111,24 +114,23 @@ public class SmokeTest {
         Arguments arguments = builder.build();
         Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
 
-        cleanupBucket(inputMode, arguments.outputBucket(), storage);
+        cleanupBucket(setName, arguments.outputBucket(), storage);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(expectedStatus);
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        final String outputDir = setName + "-" + randomRunId;
-        List<String> actualFiles = listOutput(outputDir, arguments.outputBucket(), storage);
+        List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
         if (inputMode.equals("tumor-reference")) {
-            ComparAssert.assertThat(storage, arguments.outputBucket(), outputDir)
+            ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
                     .isEqualToTruthset(Resources.testResource(fixtureDir + "/truthset"))
                     .cleanup();
         }
 
-        cleanupBucket(outputDir, arguments.outputBucket(), storage);
+        cleanupBucket(setName, arguments.outputBucket(), storage);
     }
 
     @NotNull
