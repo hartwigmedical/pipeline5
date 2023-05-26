@@ -17,10 +17,10 @@ USAGE: $0 [source image] [optional arguments]
 
 Optional arguments:
 
-  --resources-commit [sha1]     SHA1 in private resources repository to checkout instead of HEAD.
-                                No tagging will be done in the private resources repository.
-  --use-sha1-for-suffix         If using a particular commit instead of HEAD, make the final component of the name the
-                                SHA1 of the checked-out commit rather than the current date.
+  --checkout-target [target]    Checkout [target] instead of the HEAD of "master" and do not create any tags.
+                                May be anything accepted by "git checkout".
+  --use-sha1-for-suffix         If using a particular target instead of HEAD, make the final component of the name the
+                                target rather than the current date.
   --result-code-url [GCS url]   GCS (eg "gs://bucket/path") URL to write the exit code to (bucket must be writable).
                                 This script will interact with the bucket rather than with the imager instance over SSH.
   --non-interactive             Script is being run non-interactively so skip warnings and prompts when possible.
@@ -37,7 +37,7 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-commit:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes: -- "$@")
+args=$(getopt -o "" --longoptions resources-target:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes: -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
@@ -48,7 +48,7 @@ pubsub_attributes=""
 
 while true; do
     case "$1" in
-        --resources-commit) resources_commit=$2; shift 2 ;;
+        --resources-target) resources_target=$2; shift 2 ;;
         --use-sha1-for-suffix) use_sha1_for_suffix=true; shift 1 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
         --non-interactive) non_interactive=true; shift 1 ;;
@@ -67,12 +67,12 @@ fi
 suffix="$(date +%Y%m%d%H%M)"
 [[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
 if [[ -n $use_sha1_for_suffix ]]; then
-    if [[ -z $resources_commit ]]; then
+    if [[ -z $resources_target ]]; then
         echo "Must specify the resources commit if requesting a SHA1 be used in the name"
         print_usage
         exit 1
     else
-        suffix="$resources_commit"
+        suffix="$resources_target"
     fi
 fi
 
@@ -87,7 +87,7 @@ dest_image="${source_image}-${suffix}-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
-image_family="$(echo $json | jq -r '.family')${resources_commit:+"-unofficial"}"
+image_family="$(echo $json | jq -r '.family')${resources_target:+"-unofficial"}"
 imager_vm="${image_family}-imager"
 
 if [[ -z $non_interactive ]]; then
@@ -105,8 +105,8 @@ else
 fi
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
-if [[ -n $resources_commit ]]; then
-    additional_args="--checkout-commit $resources_commit"
+if [[ -n $resources_target ]]; then
+    additional_args="--checkout-commit $resources_target"
 else
     additional_args="--tag-as-version $dest_image"
 fi    
