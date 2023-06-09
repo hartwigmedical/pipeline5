@@ -27,6 +27,7 @@ Optional arguments:
   --pubsub-topic                Topic upon which to publish completion message. Uses current project if none specified.
   --pubsub-project              Project to use for pubsub topic, optional even if topic is provided.
   --pubsub-attributes           Attributes in the form [[key1=value1][,key2=value2]...] passed to by the gcloud publish call.
+  --official                    Do not use an "unofficial" family for the image. Designed for use with hotfix branches.
 EOM
 }
 
@@ -37,7 +38,7 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-target:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes: -- "$@")
+args=$(getopt -o "" --longoptions checkout-target:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes:,official -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
@@ -48,13 +49,14 @@ pubsub_attributes=""
 
 while true; do
     case "$1" in
-        --resources-target) resources_target=$2; shift 2 ;;
+        --checkout-target) checkout_target=$2; shift 2 ;;
         --use-sha1-for-suffix) use_sha1_for_suffix=true; shift 1 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
         --non-interactive) non_interactive=true; shift 1 ;;
         --pubsub-topic) pubsub_topic=$2; shift 2 ;;
         --pubsub-project) pubsub_project=$2; shift 2 ;;
         --pubsub-attributes) pubsub_attributes=$2; shift 2 ;;
+        --official) official="true"; shift 1 ;;
         --) shift; break ;;
     esac
 done
@@ -67,12 +69,12 @@ fi
 suffix="$(date +%Y%m%d%H%M)"
 [[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
 if [[ -n $use_sha1_for_suffix ]]; then
-    if [[ -z $resources_target ]]; then
+    if [[ -z $checkout_target ]]; then
         echo "Must specify the resources commit if requesting a SHA1 be used in the name"
         print_usage
         exit 1
     else
-        suffix="$resources_target"
+        suffix="$checkout_target"
     fi
 fi
 
@@ -87,7 +89,10 @@ dest_image="${source_image}-${suffix}-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
-image_family="$(echo $json | jq -r '.family')${resources_target:+"-unofficial"}"
+image_family="$(echo $json | jq -r '.family')"
+if [[ -n $checkout_target && -z $official ]]; then
+    image_family="${image_family}-unofficial"
+fi
 imager_vm="${image_family}-imager"
 
 if [[ -z $non_interactive ]]; then
@@ -105,8 +110,8 @@ else
 fi
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
-if [[ -n $resources_target ]]; then
-    additional_args="--checkout-commit $resources_target"
+if [[ -n $checkout_target ]]; then
+    additional_args="--checkout-commit $checkout_target"
 else
     additional_args="--tag-as-version $dest_image"
 fi    
