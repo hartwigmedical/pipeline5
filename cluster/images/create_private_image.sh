@@ -17,7 +17,7 @@ USAGE: $0 [source image] [optional arguments]
 
 Optional arguments:
 
-  --resources-target [target]   Checkout [target] instead of the HEAD of "master" and do not create any tags.
+  --checkout-target [target]    Checkout [target] instead of the HEAD of "master" and do not create any tags.
                                 May be anything accepted by "git checkout".
   --use-sha1-for-suffix         If using a particular target instead of HEAD, make the final component of the name the
                                 target rather than the current date.
@@ -38,7 +38,7 @@ set -o pipefail
 source_image="$1"
 shift
 
-args=$(getopt -o "" --longoptions resources-target:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes:,official -- "$@")
+args=$(getopt -o "" --longoptions checkout-target:,use-sha1-for-suffix,result-code-url:,non-interactive,pubsub-topic:,pubsub-project:,pubsub-attributes:,official -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
@@ -49,7 +49,7 @@ pubsub_attributes=""
 
 while true; do
     case "$1" in
-        --resources-target) resources_target=$2; shift 2 ;;
+        --checkout-target) checkout_target=$2; shift 2 ;;
         --use-sha1-for-suffix) use_sha1_for_suffix=true; shift 1 ;;
         --result-code-url) result_code_url=$2; shift 2 ;;
         --non-interactive) non_interactive=true; shift 1 ;;
@@ -69,12 +69,12 @@ fi
 suffix="$(date +%Y%m%d%H%M)"
 [[ $# -gt 0 ]] && echo "Unexpected arguments: $@" && print_usage && exit 1
 if [[ -n $use_sha1_for_suffix ]]; then
-    if [[ -z $resources_target ]]; then
+    if [[ -z $checkout_target ]]; then
         echo "Must specify the resources commit if requesting a SHA1 be used in the name"
         print_usage
         exit 1
     else
-        suffix="$resources_target"
+        suffix="$checkout_target"
     fi
 fi
 
@@ -90,7 +90,7 @@ gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
 image_family="$(echo $json | jq -r '.family')"
-if [[ -n $resources_target && -z $official ]]; then
+if [[ -n $checkout_target && -z $official ]]; then
     image_family="${image_family}-unofficial"
 fi
 imager_vm="${image_family}-imager"
@@ -110,8 +110,8 @@ else
 fi
 [[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 0
 
-if [[ -n $resources_target ]]; then
-    additional_args="--checkout-commit $resources_target"
+if [[ -n $checkout_target ]]; then
+    additional_args="--checkout-commit $checkout_target"
 else
     additional_args="--tag-as-version $dest_image"
 fi    
