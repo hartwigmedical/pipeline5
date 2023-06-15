@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.tools.ToolInfo.PAVE;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -26,11 +28,8 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
-
-    static final String PAVE_FILE_NAME = "pave";
 
     protected final ResourceFiles resourceFiles;
     protected final InputDownload vcfDownload;
@@ -49,7 +48,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected List<BashCommand> paveCommand(final SomaticRunMetadata metadata, final List<String> arguments)
     {
-        return Collections.singletonList(new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "16G", arguments));
+        return Collections.singletonList(new JavaJarCommand(PAVE, arguments));
     }
 
     @Override

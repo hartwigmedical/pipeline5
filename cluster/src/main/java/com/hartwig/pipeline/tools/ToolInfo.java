@@ -2,6 +2,8 @@ package com.hartwig.pipeline.tools;
 
 import static java.lang.String.format;
 
+import javax.validation.constraints.Max;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public enum ToolInfo {
@@ -32,6 +34,8 @@ public enum ToolInfo {
     public static final int DEFAULT_MAX_HEAP = 4;
     public static final int DEFAULT_MEMORY = 8;
 
+    public static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
+
     public final String ToolName;
     public final String Version;
     public final int MaxHeap;
@@ -52,9 +56,11 @@ public enum ToolInfo {
         UsePilot = usePilot;
     }
 
-    public String prodVersion() { return Version; }
+    public String runVersion() { return UsePilot ? PILOT_VERSION : Version; }
     public String directory() { return ToolName; }
 
     public String jar() { return format("%s.jar", ToolName); }
-    public String jarPath() { return format("%s/%s/%s/%s", VmDirectories.TOOLS, directory(), prodVersion(), jar()); }
+    public String maxHeapStr() { return format("%dG", MaxHeap); }
+
+    public String jarPath() { return format("%s/%s/%s/%s", VmDirectories.TOOLS, directory(), Version, jar()); }
 }

@@ -2,29 +2,23 @@ package com.hartwig.pipeline.metrics;
 
 import static java.lang.String.format;
 
-import java.util.Collections;
+import static com.hartwig.pipeline.tools.ToolInfo.BAM_TOOLS;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.Nullable;
 
-class BamMetricsCommand extends JavaClassCommand {
-
+class BamMetricsCommand extends JavaJarCommand
+{
     BamMetricsCommand(
             final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
             @Nullable final String targetRegionsBed) {
 
-        super("bam-tools",
-                Versions.BAM_TOOLS,
-                "bam-tools.jar",
-                "com.hartwig.hmftools.bamtools.metrics.BamMetrics",
-                "24G",
-                Collections.emptyList(),
-                formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
+        super(BAM_TOOLS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
     }
 
     private static List<String> formArguments(

@@ -1,22 +1,22 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.tools.ToolInfo;
 import com.hartwig.pipeline.tools.Versions;
 
 class LinxVisualisationsCommand extends JavaClassCommand {
 
     private static final String CIRCOS_PATH = VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos";
+    public static final String LINX_VISUALISER = "com.hartwig.hmftools.linx.visualiser.SvVisualiser";
 
     LinxVisualisationsCommand(final String sample, final String sampleVisDir, final RefGenomeVersion refGenomeVersion) {
 
-        super("linx",
-                Versions.LINX,
-                "linx.jar",
-                "com.hartwig.hmftools.linx.visualiser.SvVisualiser",
-                "8G",
-                "-sample",
+        super(ToolInfo.LINX, LINX_VISUALISER,
+                List.of("-sample",
                 sample,
                 "-ref_genome_version",
                 refGenomeVersion.toString(),
@@ -28,6 +28,11 @@ class LinxVisualisationsCommand extends JavaClassCommand {
                 sampleVisDir + "/circos/",
                 "-plot_out",
                 sampleVisDir + "/plot/",
-                "-plot_reportable");
+                "-plot_reportable"));
+    }
+
+    private static List<String> buildArguments()
+    {
+        return List.of();
     }
 }

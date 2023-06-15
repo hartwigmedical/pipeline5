@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.tools.ToolInfo.SAGE;
+
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -8,7 +10,6 @@ import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 public class SageCommandBuilder {
 
@@ -18,10 +19,6 @@ public class SageCommandBuilder {
     private final List<String> tumorBam = Lists.newArrayList();
     private final List<String> referenceBam = Lists.newArrayList();
 
-    private String wgsMaxHeap = "60G";
-    private String germlineMaxHeap = "31G";
-
-    private boolean coverage = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
@@ -38,7 +35,6 @@ public class SageCommandBuilder {
     public SageCommandBuilder germlineMode() {
         germlineMode = true;
         somaticMode = false;
-        maxHeap(germlineMaxHeap);
         return this;
     }
 
@@ -54,11 +50,6 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder addCoverage() {
-        this.coverage = true;
-        return this;
-    }
-
     public SageCommandBuilder shallowMode(final boolean enabled) {
         this.shallowSomaticMode = enabled;
         return this;
@@ -66,11 +57,6 @@ public class SageCommandBuilder {
 
     public SageCommandBuilder targetRegionsMode(final boolean enabled) {
         this.targetRegions = enabled;
-        return this;
-    }
-
-    public SageCommandBuilder maxHeap(final String maxHeap) {
-        this.wgsMaxHeap = maxHeap;
         return this;
     }
 
@@ -147,7 +133,7 @@ public class SageCommandBuilder {
         arguments.add(String.format("-out %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
-        result.add(new JavaJarCommand("sage", Versions.SAGE, "sage.jar", wgsMaxHeap, arguments));
+        result.add(new JavaJarCommand(SAGE, arguments));
 
         return result;
     }

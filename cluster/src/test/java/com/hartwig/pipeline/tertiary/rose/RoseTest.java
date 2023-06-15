@@ -47,8 +47,8 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
                         + " -ref_genome_version 37" + " -driver_gene_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
                         + " -purple_purity_tsv /data/input/tumor.purple.purity.tsv" + " -purple_qc_file /data/input/tumor.purple.qc"
                         + " -purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv"
-                        + " -purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv"
-                        + " -purple_germline_driver_catalog_tsv /data/input/tumor.driver.catalog.germline.tsv"
+                        + " -purple_somatic_driver_catalog_tsv /data/input/tumor.purple.driver.catalog.somatic.tsv"
+                        + " -purple_germline_driver_catalog_tsv /data/input/tumor.purple.driver.catalog.germline.tsv"
                         + " -purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz"
                         + " -purple_germline_variant_vcf /data/input/tumor.purple.germline.vcf.gz"
                         + " -linx_fusion_tsv /data/input/tumor.linx.fusion.tsv" + " -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv"
@@ -65,8 +65,8 @@ public class RoseTest extends TertiaryStageTest<RoseOutput> {
         return List.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.somatic.tsv", "tumor.driver.catalog.somatic.tsv"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.germline.tsv", "tumor.driver.catalog.germline.tsv"),
+                input(expectedRuntimeBucketName() + "/purple/tumor.purple.driver.catalog.somatic.tsv", "tumor.purple.driver.catalog.somatic.tsv"),
+                input(expectedRuntimeBucketName() + "/purple/tumor.purple.driver.catalog.germline.tsv", "tumor.purple.driver.catalog.germline.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.germline.vcf.gz", "tumor.purple.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),

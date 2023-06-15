@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.ToolInfo.SV_PREP;
+
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -18,13 +20,11 @@ import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
-import com.hartwig.pipeline.tools.Versions;
 
 public class Driver extends SubStage {
 
-    private static final String GRIDSS_SCRIPT = "gridss.run.sh";
-    private static final String SV_PREP = "sv-prep";
-    private static final String SV_PREP_JAR = "sv-prep.jar";
+    public static final String SV_PREP_DEPTH_ANNOTATION = "com.hartwig.hmftools.svprep.depth.DepthAnnotator";
+    public static final String GRIDSS_SCRIPT = "gridss.run.sh";
 
     private final ResourceFiles resourceFiles;
     private final List<SampleArgument> sampleArguments = Lists.newArrayList();
@@ -127,7 +127,7 @@ public class Driver extends SubStage {
 
         // arguments.add("-log_level INFO");
 
-        return new JavaJarCommand(SV_PREP, Versions.SV_PREP, SV_PREP_JAR, MAX_HEAP, arguments);
+        return new JavaJarCommand(SV_PREP, arguments);
     }
 
     private BashCommand buildGridsCommand(final String gridssVcf) {
@@ -155,7 +155,7 @@ public class Driver extends SubStage {
         arguments.add(String.format("--jvmheap %s", MAX_HEAP));
         arguments.add(String.format("--threads %d", GRIDSS_THREADS));
 
-        return new VersionedToolCommand(SV_PREP, GRIDSS_SCRIPT, Versions.SV_PREP, arguments.toString());
+        return new VersionedToolCommand(SV_PREP.ToolName, GRIDSS_SCRIPT, SV_PREP.runVersion(), arguments.toString());
     }
 
     private BashCommand buildRefDepthCommand(final String gridssVcf, final OutputFile output) {
@@ -163,7 +163,7 @@ public class Driver extends SubStage {
         // run SvPrep on the output again to populate reference depth
         // final String gridssDepthVcf = String.format("%s/%s.gridss.unfiltered.vcf.gz", VmDirectories.OUTPUT, mainSampleName());
 
-        final StringJoiner arguments = new StringJoiner(" ");
+        List<String> arguments = Lists.newArrayList();
         arguments.add(String.format("-input_vcf %s", gridssVcf));
         arguments.add(String.format("-output_vcf %s", output.path()));
 
@@ -178,9 +178,7 @@ public class Driver extends SubStage {
         // arguments.add("-log_level DEBUG");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        return new JavaClassCommand(
-                SV_PREP, Versions.SV_PREP, SV_PREP_JAR, "com.hartwig.hmftools.svprep.depth.DepthAnnotator",
-                MAX_HEAP, arguments.toString());
+        return new JavaClassCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION, arguments);
     }
 
     private String mainSampleName() {

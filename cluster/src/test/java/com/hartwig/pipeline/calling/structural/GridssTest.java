@@ -2,8 +2,12 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gridss.stage.Driver.GRIDSS_SCRIPT;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.Driver.SV_PREP_DEPTH_ANNOTATION;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.ToolInfo.SV_PREP;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,6 +24,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.ToolInfo;
 
 import org.junit.Before;
 
@@ -100,8 +105,9 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("export PATH=\"${PATH}:/opt/tools/samtools/1.14\"");
 
         // @formatter:off
-        expectedCommands.add("java -Xmx48G -jar /opt/tools/sv-prep/1.1/sv-prep.jar "
-                + "-sample tumor "
+        expectedCommands.add(
+                toolCommand(SV_PREP)
+                + " -sample tumor "
                 + "-bam_file /data/input/tumor.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
@@ -119,8 +125,9 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index "
                 + "-@ $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.sv_prep.sorted.bam");
 
-        expectedCommands.add("java -Xmx48G -jar /opt/tools/sv-prep/1.1/sv-prep.jar "
-                + "-sample reference "
+        expectedCommands.add(
+                toolCommand(SV_PREP)
+                + " -sample reference "
                 + "-bam_file /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
@@ -139,8 +146,9 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
         expectedCommands.add("/opt/tools/samtools/1.14/samtools index "
                 + "-@ $(grep -c '^processor' /proc/cpuinfo) /data/output/reference.sv_prep.sorted.bam");
 
-        expectedCommands.add("/opt/tools/sv-prep/1.1/gridss.run.sh --steps all "
-                + "--output /data/output/tumor.gridss.vcf.gz "
+        expectedCommands.add(
+                format("/opt/tools/%s/%s/%s --steps all", SV_PREP.directory(), SV_PREP.runVersion(), GRIDSS_SCRIPT)
+                + " --output /data/output/tumor.gridss.vcf.gz "
                 + "--workingdir /data/output "
                 + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "--jar /opt/tools/gridss/2.13.2/gridss.jar "
@@ -151,8 +159,9 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + "--filtered_bams /data/output/reference.sv_prep.sorted.bam,/data/output/tumor.sv_prep.sorted.bam "
                 + "--jvmheap 48G --threads 10");
 
-        expectedCommands.add("java -Xmx48G -cp /opt/tools/sv-prep/1.1/sv-prep.jar com.hartwig.hmftools.svprep.depth.DepthAnnotator "
-                + "-input_vcf /data/output/tumor.gridss.vcf.gz "
+        expectedCommands.add(
+                toolCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION)
+                + " -input_vcf /data/output/tumor.gridss.vcf.gz "
                 + "-output_vcf /data/output/tumor.gridss.driver.vcf.gz "
                 + "-samples reference,tumor "
                 + "-bam_files /data/input/reference.bam,/data/input/tumor.bam "

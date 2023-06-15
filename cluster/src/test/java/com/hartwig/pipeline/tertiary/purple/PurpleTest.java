@@ -33,8 +33,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_PURPLE_GERMLINE_SV_VCF_GZ = "tumor.purple.sv.germline.vcf.gz";
     public static final String TUMOR_PURITY_TSV = "tumor.purple.purity.tsv";
     public static final String TUMOR_QC = "tumor.purple.qc";
-    public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
-    public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
+    public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.purple.driver.catalog.somatic.tsv";
+    public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.purple.driver.catalog.germline.tsv";
     public static final String TUMOR_SOMATIC_COPY_NUMBER = "tumor.purple.cnv.somatic.tsv";
     public static final String TUMOR_CIRCOS_PLOT = "plot/tumor.circos.png";
     public static final String TUMOR_GERMLINE_DELETION = "tumor.purple.germline.deletion.tsv";

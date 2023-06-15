@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.ToolInfo.PAVE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -34,8 +37,8 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx16G -jar /opt/tools/pave/1.4.5/pave.jar "
-                        + "-sample tumor "
+                toolCommand(PAVE)
+                        + " -sample tumor "
                         + "-vcf_file /data/input/tumor.somatic.vcf.gz "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
@@ -73,7 +76,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PAVE,
                 TestInputs.tumorRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), PaveSomatic.NAMESPACE, "tumor.sage.somatic.filtered.pave.vcf.gz")));
+                new ArchivePath(Folder.root(), PaveSomatic.NAMESPACE, "tumor.pave.somatic.vcf.gz")));
     }
 
     @Override
@@ -84,6 +87,6 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
     @Override
     protected void validatePersistedOutput(final PaveOutput output) {
         assertThat(output.annotatedVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/pave_somatic/tumor.sage.somatic.filtered.pave.vcf.gz"));
+                "set/pave_somatic/tumor.pave.somatic.vcf.gz"));
     }
 }

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static com.hartwig.pipeline.tools.ToolInfo.GRIPSS;
+
 import java.io.File;
 import java.util.List;
 
@@ -30,7 +32,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
@@ -61,7 +62,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     protected List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand("gripss", Versions.GRIPSS, "gripss.jar", "16G", arguments));
+        commands.add(new JavaJarCommand(GRIPSS, arguments));
         return commands;
     }
 

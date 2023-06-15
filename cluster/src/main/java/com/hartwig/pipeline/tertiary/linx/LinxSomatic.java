@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.tools.ToolInfo.LINX;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +32,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -88,14 +89,12 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        arguments.add("-check_fusions");
         arguments.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
-        arguments.add("-check_drivers");
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add("-write_vis_data");
 
         return List.of(
-                new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments),
+                new JavaJarCommand(LINX, arguments),
                 new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 

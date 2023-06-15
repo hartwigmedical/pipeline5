@@ -16,6 +16,7 @@ import com.hartwig.pipeline.stages.Stage;
 @Namespace(PaveSomatic.NAMESPACE)
 public class PaveSomatic extends Pave {
     public static final String NAMESPACE = "pave_somatic";
+    private static final String PAVE_SOMATIC_FILE_ID = "pave.somatic";
 
     public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
         super(resourceFiles, sageOutput, persistedDataset, DataType.SOMATIC_VARIANTS_PAVE);
@@ -46,10 +47,7 @@ public class PaveSomatic extends Pave {
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s.%s",
-                metadata.tumor().sampleName(),
-                SageSomaticPostProcess.SAGE_SOMATIC_FILTERED,
-                PAVE_FILE_NAME,
-                FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s",
+                metadata.tumor().sampleName(), PAVE_SOMATIC_FILE_ID, FileTypes.GZIPPED_VCF);
     }
 }

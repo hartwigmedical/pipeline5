@@ -109,7 +109,12 @@ public class TestInputs {
 
     public static String toolCommand(final ToolInfo toolInfo) {
         return format("java -Xmx%dG -jar /opt/tools/%s/%s/%s",
-                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.Version, toolInfo.jar());
+                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.runVersion(), toolInfo.jar());
+    }
+
+    public static String toolCommand(final ToolInfo toolInfo, final String classPath) {
+        return format("java -Xmx%dG -cp /opt/tools/%s/%s/%s %s",
+                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.runVersion(), toolInfo.jar(), classPath);
     }
 
     public static String referenceSample() {

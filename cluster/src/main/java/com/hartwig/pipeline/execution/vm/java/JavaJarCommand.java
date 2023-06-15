@@ -2,6 +2,8 @@ package com.hartwig.pipeline.execution.vm.java;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.ToolInfo.PILOT_VERSION;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,7 @@ public class JavaJarCommand implements BashCommand {
     private final String version;
     private final String jar;
     private final String maxHeapSize;
+
     private final List<String> arguments;
 
     public JavaJarCommand(final String toolName, final String version, final String jar, final String maxHeapSize,
@@ -28,9 +31,9 @@ public class JavaJarCommand implements BashCommand {
 
     public JavaJarCommand(final ToolInfo toolInfo, final List<String> arguments) {
         this.toolName = toolInfo.ToolName;
-        this.version = toolInfo.Version;
+        this.version = toolInfo.runVersion();
         this.jar = toolInfo.jar();
-        this.maxHeapSize = format("%dG", toolInfo.MaxHeap);
+        this.maxHeapSize = toolInfo.maxHeapStr();
         this.arguments = arguments;
     }
 

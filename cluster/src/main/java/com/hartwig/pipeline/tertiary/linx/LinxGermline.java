@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.linx;
 
 import static com.hartwig.pipeline.input.InputMode.REFERENCE_ONLY;
 import static com.hartwig.pipeline.input.InputMode.TUMOR_REFERENCE;
+import static com.hartwig.pipeline.tools.ToolInfo.LINX;
 
 import java.io.File;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -157,7 +157,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
 
-        return Collections.singletonList(new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments));
+        return Collections.singletonList(new JavaJarCommand(LINX, arguments));
     }
 
     private String driverCatalogTsv(final SomaticRunMetadata metadata) {

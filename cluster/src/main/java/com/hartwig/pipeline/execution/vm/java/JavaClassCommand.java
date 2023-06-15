@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.tools.ToolInfo;
 
 public class JavaClassCommand implements BashCommand {
 
@@ -21,10 +23,12 @@ public class JavaClassCommand implements BashCommand {
     private final List<String> arguments;
     private final List<String> jvmArguments;
 
+    /*
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
             final String... arguments) {
         this(toolName, version, jar, mainClass, maxHeapSize, Collections.emptyList(), arguments);
     }
+    */
 
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
                             final List<String> jvmArguments, final List<String> arguments) {
@@ -35,6 +39,10 @@ public class JavaClassCommand implements BashCommand {
         this.maxHeapSize = maxHeapSize;
         this.jvmArguments = new ArrayList<>(jvmArguments);
         this.arguments = arguments;
+    }
+
+    public JavaClassCommand(final ToolInfo toolInfo, final String mainClass, final List<String> arguments) {
+        this(toolInfo.ToolName, toolInfo.runVersion(), toolInfo.jar(), mainClass, toolInfo.maxHeapStr(), Collections.emptyList(), arguments);
     }
 
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,

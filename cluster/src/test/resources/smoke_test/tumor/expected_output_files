@@ -70,9 +70,9 @@ health_checker/run.log
 lilac_slicer/COLO829v003T.hla.bam
 lilac_slicer/COLO829v003T.hla.bam.bai
 lilac_slicer/run.log
-lilac/COLO829v003T.candidates.coverage.csv
-lilac/COLO829v003T.lilac.csv
-lilac/COLO829v003T.lilac.qc.csv
+lilac/COLO829v003T.lilac.candidates.coverage.csv
+lilac/COLO829v003T.lilac.tsv
+lilac/COLO829v003T.lilac.qc.tsv
 lilac/run.log
 linx/COLO829v003T.linx.breakend.tsv
 linx/COLO829v003T.linx.clusters.tsv
@@ -134,11 +134,11 @@ linx/plot/COLO829v003T.cluster-1.sv1.003.png
 linx/linx.version
 linx/run.log
 metadata.json
-pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz
-pave_somatic/COLO829v003T.sage.somatic.filtered.pave.vcf.gz.tbi
+pave_somatic/COLO829v003T.pave.somatic.vcf.gz
+pave_somatic/COLO829v003T.pave.somatic.vcf.gz.tbi
 pave_somatic/run.log
 pipeline.version
-purple/COLO829v003T.driver.catalog.somatic.tsv
+purple/COLO829v003T.purple.driver.catalog.somatic.tsv
 purple/COLO829v003T.purple.cnv.gene.tsv
 purple/COLO829v003T.purple.cnv.somatic.tsv
 purple/COLO829v003T.purple.purity.range.tsv

@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.ToolInfo.LILAC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Lilac.NAMESPACE)
 public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
@@ -113,7 +113,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     private JavaJarCommand formCommand(final List<String> arguments) {
-        return new JavaJarCommand("lilac", Versions.LILAC, "lilac.jar", "15G", arguments);
+        return new JavaJarCommand(LILAC, arguments);
     }
 
     @Override
@@ -178,10 +178,10 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     private String lilacOutput(final String sampleName) {
-        return sampleName + ".lilac.csv";
+        return sampleName + ".lilac.tsv";
     }
 
     private String lilacQcMetrics(final String sampleName) {
-        return sampleName + ".lilac.qc.csv";
+        return sampleName + ".lilac.qc.tsv";
     }
 }

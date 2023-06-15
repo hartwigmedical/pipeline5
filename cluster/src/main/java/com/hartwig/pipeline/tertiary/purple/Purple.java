@@ -36,7 +36,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -48,8 +47,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_GERMLINE_SV_VCF = ".purple.sv.germline.vcf.gz";
     public static final String PURPLE_PURITY_TSV = ".purple.purity.tsv";
     public static final String PURPLE_QC = ".purple.qc";
-    public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
-    public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".driver.catalog.germline.tsv";
+    public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".purple.driver.catalog.somatic.tsv";
+    public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".purple.driver.catalog.germline.tsv";
     public static final String PURPLE_GERMLINE_DELETION_TSV = ".purple.germline.deletion.tsv";
     public static final String PURPLE_GENE_COPY_NUMBER_TSV = ".purple.cnv.gene.tsv";
     public static final String PURPLE_SOMATIC_COPY_NUMBER_TSV = ".purple.cnv.somatic.tsv";

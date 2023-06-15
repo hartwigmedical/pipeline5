@@ -1,5 +1,9 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.ToolInfo.LILAC;
+import static com.hartwig.pipeline.tools.ToolInfo.PAVE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -18,8 +22,8 @@ import org.junit.Before;
 
 public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
-    public static final String TUMOR_LILAC_CSV = "tumor.lilac.csv";
-    public static final String TUMOR_LILAC_QC_CSV = "tumor.lilac.qc.csv";
+    public static final String TUMOR_LILAC_CSV = "tumor.lilac.tsv";
+    public static final String TUMOR_LILAC_QC_CSV = "tumor.lilac.qc.tsv";
 
     @Before
     public void setUp() throws Exception {
@@ -46,8 +50,9 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx15G -jar /opt/tools/lilac/1.4.2/lilac.jar "
-                + "-sample tumor -reference_bam /data/input/reference.hla.bam "
+        return List.of(
+                toolCommand(LILAC) // "java -Xmx15G -jar /opt/tools/lilac/1.4.2/lilac.jar "
+                + " -sample tumor -reference_bam /data/input/reference.hla.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
                 + "-resource_dir /opt/resources/lilac/ "
                 + "-output_dir /data/output "

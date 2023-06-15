@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.ToolInfo.SIGS;
 
 import java.util.List;
 
@@ -29,7 +30,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Sigs.NAMESPACE)
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
@@ -74,18 +74,19 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaJarCommand("sigs",
-                Versions.SIGS,
-                "sigs.jar",
-                "4G",
-                List.of("-sample",
-                        metadata.tumor().sampleName(),
-                        "-signatures_file",
-                        resourceFiles.snvSignatures(),
-                        "-somatic_vcf_file",
-                        purpleSomaticVariantsDownload.getLocalTargetPath(),
-                        "-output_dir",
-                        VmDirectories.OUTPUT)));
+        return List.of(new JavaJarCommand(SIGS, buildArguments(metadata)));
+    }
+
+    private List<String> buildArguments(final SomaticRunMetadata metadata)
+    {
+        return List.of("-sample",
+                metadata.tumor().sampleName(),
+                "-signatures_file",
+                resourceFiles.snvSignatures(),
+                "-somatic_vcf_file",
+                purpleSomaticVariantsDownload.getLocalTargetPath(),
+                "-output_dir",
+                VmDirectories.OUTPUT);
     }
 
     @Override
