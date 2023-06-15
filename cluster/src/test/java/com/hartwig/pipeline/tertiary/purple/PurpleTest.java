@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.ToolInfo.PURPLE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
@@ -76,8 +79,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
-                        + "-amber /data/input/results "
+                toolCommand(PURPLE)
+                        + " -amber /data/input/results "
                         + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
@@ -102,7 +105,10 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedReferenceOnlyCommands() {
         return Collections.singletonList(
-                "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar " + "-amber /data/input/results " + "-cobalt /data/input/results "
+                // "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
+                toolCommand(PURPLE)
+                        + " -amber /data/input/results "
+                        + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "

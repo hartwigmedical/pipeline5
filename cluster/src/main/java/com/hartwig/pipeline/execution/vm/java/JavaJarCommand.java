@@ -1,10 +1,13 @@
 package com.hartwig.pipeline.execution.vm.java;
 
+import static java.lang.String.format;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.tools.ToolInfo;
 
 public class JavaJarCommand implements BashCommand {
 
@@ -23,9 +26,17 @@ public class JavaJarCommand implements BashCommand {
         this.arguments = arguments;
     }
 
+    public JavaJarCommand(final ToolInfo toolInfo, final List<String> arguments) {
+        this.toolName = toolInfo.ToolName;
+        this.version = toolInfo.Version;
+        this.jar = toolInfo.jar();
+        this.maxHeapSize = format("%dG", toolInfo.MaxHeap);
+        this.arguments = arguments;
+    }
+
     @Override
     public String asBash() {
-        return String.format("java -Xmx%s -jar %s/%s/%s/%s %s",
+        return format("java -Xmx%s -jar %s/%s/%s/%s %s",
                 maxHeapSize,
                 VmDirectories.TOOLS,
                 toolName,

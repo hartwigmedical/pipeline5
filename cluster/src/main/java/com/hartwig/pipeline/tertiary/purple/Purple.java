@@ -2,6 +2,8 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.ToolInfo.PURPLE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -370,7 +372,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand("purple", Versions.PURPLE, "purple.jar", "31G", arguments));
+        return Collections.singletonList(new JavaJarCommand(PURPLE, arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,

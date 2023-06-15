@@ -74,6 +74,7 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
+import com.hartwig.pipeline.tools.ToolInfo;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -104,6 +105,11 @@ public class TestInputs {
 
     public static String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
+    }
+
+    public static String toolCommand(final ToolInfo toolInfo) {
+        return format("java -Xmx%dG -jar /opt/tools/%s/%s/%s",
+                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.Version, toolInfo.jar());
     }
 
     public static String referenceSample() {
