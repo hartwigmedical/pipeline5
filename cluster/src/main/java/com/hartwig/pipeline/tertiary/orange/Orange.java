@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.ToolInfo.ORANGE;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -252,7 +253,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         metadata.tumor()
                 .samplingDate()
                 .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
-        JavaJarCommand orangeJarCommand = new JavaJarCommand("orange", Versions.ORANGE, "orange.jar", "16G", argumentListBuilder.build());
+        JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
         BashCommand withOptionalPlotCommand =
                 new JavaJarFileExistsCommand(orangeJarCommand, "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
 

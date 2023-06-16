@@ -440,8 +440,8 @@ public class TestInputs {
     public static LilacOutput lilacOutput() {
         return LilacOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.csv"))
-                .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.csv"))
+                .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.tsv"))
+                .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.tsv"))
                 .build();
     }
 

@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.ToolInfo.ORANGE;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.util.Arrays;
@@ -66,8 +69,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.report.summary.png", "tumor.cup.report.summary.png"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.chart.png", "tumor.cuppa.chart.png"),
-                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.csv", "tumor.lilac.csv"),
-                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.csv", "tumor.lilac.qc.csv"),
+                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.tsv", "tumor.lilac.tsv"),
+                input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.tsv", "tumor.lilac.qc.tsv"),
                 input(expectedRuntimeBucketName() + "/peach/tumor.peach.genotype.tsv", "tumor.peach.genotype.tsv"),
                 input(expectedRuntimeBucketName() + "/sigs/tumor.sig.allocation.tsv", "tumor.sig.allocation.tsv"));
     }
@@ -75,7 +78,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     @Override
     protected List<String> expectedCommands() {
         String jarRunCommand =
-                "java -Xmx16G -jar /opt/tools/orange/2.5.0/orange.jar " + "-output_dir /data/output " + "-ref_genome_version 37 "
+                toolCommand(ORANGE)
+                        + " -output_dir /data/output " + "-ref_genome_version 37 "
                         + "-tumor_sample_id tumor " + "-reference_sample_id reference "
                         + "-doid_json /opt/resources/disease_ontology/doid.json " + "-primary_tumor_doids \"01;02\" "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
@@ -86,7 +90,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
                         + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png "
                         + "-purple_data_directory /data/input/purple " + "-purple_plot_directory /data/input/purple/plot "
-                        + "-lilac_qc_csv /data/input/tumor.lilac.qc.csv " + "-lilac_result_csv /data/input/tumor.lilac.csv "
+                        + "-lilac_qc_csv /data/input/tumor.lilac.qc.tsv " + "-lilac_result_csv /data/input/tumor.lilac.tsv "
                         + "-linx_germline_data_directory /data/input/linx_germline " + "-linx_plot_directory /data/input/linx/plot "
                         + "-linx_somatic_data_directory /data/input/linx " + "-cuppa_result_csv /data/input/tumor.cup.data.csv "
                         + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
