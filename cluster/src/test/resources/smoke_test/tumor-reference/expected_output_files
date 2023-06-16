@@ -205,8 +205,6 @@ peach/COLO829v003T.peach.calls.tsv
 peach/COLO829v003T.peach.genotype.tsv
 peach/run.log
 pipeline.version
-protect/COLO829v003T.protect.tsv
-protect/run.log
 purple/COLO829v003T.purple.driver.catalog.germline.tsv
 purple/COLO829v003T.purple.driver.catalog.somatic.tsv
 purple/COLO829v003T.purple.cnv.gene.tsv

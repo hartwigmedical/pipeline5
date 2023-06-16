@@ -51,12 +51,8 @@ import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
-import com.hartwig.pipeline.tertiary.protect.Protect;
-import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.rose.Rose;
-import com.hartwig.pipeline.tertiary.rose.RoseOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
@@ -245,25 +241,8 @@ public class SomaticPipeline {
                                         resourceFiles,
                                         arguments.context(),
                                         false)));
-                        Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Rose(resourceFiles,
-                                        purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        cuppaOutput)));
-                        Future<ProtectOutput> protectOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Protect(purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        lilacOutput,
-                                        resourceFiles,
-                                        persistedDataset)));
                         composer.add(state.add(orangeOutputFuture.get()));
                         composer.add(state.add(orangeNoGermlineFuture.get()));
-                        composer.add(state.add(roseOutputFuture.get()));
-                        composer.add(state.add(protectOutputFuture.get()));
 
                         composer.compose(metadata, Folder.root());
                     }
