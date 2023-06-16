@@ -2,8 +2,6 @@ package com.hartwig.pipeline.tools;
 
 import static java.lang.String.format;
 
-import javax.validation.constraints.Max;
-
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public enum ToolInfo {
@@ -14,7 +12,7 @@ public enum ToolInfo {
     COBALT("1.13", 16, 24, 16, false),
     CUPPA("1.8"),
     GRIDSS("2.13.2"),
-    GRIPSS("2.4", 16, 24, 1, false), // 2.3.5 -> 2.4
+    GRIPSS("2.3.5", 16, 24, 1, false), // 2.3.5 -> 2.4
     HEALTH_CHECKER("3.4"),
     LILAC("1.5", 16, 24, 8, true), // 1.4.2 -> 1.5
     LINX("1.24", 8, 16, 1, true), // 1.23.6 -> 1.24
@@ -27,7 +25,7 @@ public enum ToolInfo {
     ROSE("1.3.1", 8, 10, 2, false),
     SAGE("3.3", 60, 64, 16, true), // 3.2.5 -> 3.3
     SIGS("1.1"),
-    SV_PREP("1.1", 48, 64, 24, true), // 1.1 -> 1.2
+    SV_PREP("1.1", 48, 64, 24, false), // 1.1 -> 1.2, upgrade with gridss script
     VIRUSBREAKEND_GRIDSS("2.13.2"),
     VIRUS_INTERPRETER("1.2");
 

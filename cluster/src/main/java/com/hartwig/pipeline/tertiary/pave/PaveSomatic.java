@@ -29,13 +29,15 @@ public class PaveSomatic extends Pave {
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath());
+        List<String> arguments = PaveArguments.somatic(
+                resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         return paveCommand(metadata, arguments);
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath());
+        List<String> arguments = PaveArguments.somatic(
+                resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         arguments.add("-write_pass_only");
         return paveCommand(metadata, arguments);
     }

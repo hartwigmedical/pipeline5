@@ -112,7 +112,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name(name)
                 .startupCommand(startupScript)
-                .performanceProfile(custom(1, 24))
+                .performanceProfile(custom(4, 24))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -214,7 +214,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("linx-" + type)
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(1, 12))
+                .performanceProfile(custom(4, 12))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }

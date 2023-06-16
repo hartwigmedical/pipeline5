@@ -36,7 +36,8 @@ public class PaveGermline extends Pave {
 
     private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArguments.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath());
+        List<String> arguments = PaveArguments.germline(
+                resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         return paveCommand(metadata, arguments);
     }
 
