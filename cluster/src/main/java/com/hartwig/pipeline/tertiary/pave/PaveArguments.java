@@ -24,11 +24,6 @@ public class PaveArguments {
         String ponFilters = resourceFiles.version() == RefGenomeVersion.V37 ? PON_FILTERS_V37 : PON_FILTERS_V38;
         arguments.add(String.format("-pon_filters \"%s\"", ponFilters));
 
-        if (resourceFiles.version() == RefGenomeVersion.V38) {
-            arguments.add(String.format("-gnomad_freq_dir %s", resourceFiles.gnomadPonCache()));
-            arguments.add("-gnomad_load_chr_on_demand");
-        }
-
         return arguments;
     }
 
@@ -41,6 +36,7 @@ public class PaveArguments {
         arguments.add(String.format("-clinvar_vcf %s", resourceFiles.clinvarVcf()));
         arguments.add(String.format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()));
         arguments.add(String.format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
+        arguments.add("-gnomad_pon_filter -1"); // disable filtering in germline mode while still annotating
 
         return arguments;
     }
@@ -57,6 +53,16 @@ public class PaveArguments {
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add(String.format("-mappability_bed %s", resourceFiles.mappabilityBed()));
+
+        if (resourceFiles.version() == RefGenomeVersion.V38) {
+            arguments.add(String.format("-gnomad_freq_dir %s", resourceFiles.gnomadPonCache()));
+            arguments.add("-gnomad_load_chr_on_demand");
+        }
+        else
+        {
+            arguments.add(String.format("-gnomad_freq_file %s", resourceFiles.gnomadPonCache()));
+        }
+
         arguments.add("-read_pass_only");
     }
 }

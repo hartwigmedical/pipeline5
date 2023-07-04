@@ -7,25 +7,25 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 public enum ToolInfo {
 
     AMBER("3.9", 32, 64, 16, false),
-    BAM_TOOLS("1.1", 16, 24, 16, true), // 1.0 -> 1.1
+    BAM_TOOLS("1.1.rc1", 16, 24, 16, false), // 1.0 -> 1.1
     CHORD("2.02_1.14"),
     COBALT("1.13", 16, 24, 16, false),
     CUPPA("1.8"),
     GRIDSS("2.13.2"),
     GRIPSS("2.3.5", 16, 24, 1, false), // 2.3.5 -> 2.4
     HEALTH_CHECKER("3.4"),
-    LILAC("1.5", 16, 24, 8, true), // 1.4.2 -> 1.5
-    LINX("1.24", 8, 16, 1, true), // 1.23.6 -> 1.24
-    MARK_DUPS("1.0"),
+    LILAC("1.5.rc1", 16, 24, 8, false), // 1.4.2 -> 1.5
+    LINX("1.24.rc1", 8, 16, 1, false), // 1.23.6 -> 1.24
+    MARK_DUPS("1.0", 16, 24, 16, true), // initial version
     ORANGE("2.5.0", 16, 18, 4, true), // 2.5.0 -> 2.5.1?
-    PAVE("1.5", 16, 24, 1, true), // 1.4.5 -> 1.5
+    PAVE("1.5.rc1", 16, 24, 1, false), // 1.4.5 -> 1.5
     PEACH("1.7"),
     PROTECT("2.3.1"),
     PURPLE("3.9", 24, 32, 8, true), // 3.8.4 -> 3.9
     ROSE("1.3.1", 8, 10, 2, false),
-    SAGE("3.3", 60, 64, 16, true), // 3.2.5 -> 3.3
+    SAGE("3.3.rc1   ", 60, 64, 16, false), // 3.2.5 -> 3.3
     SIGS("1.1"),
-    SV_PREP("1.1", 48, 64, 24, false), // 1.1 -> 1.2, upgrade with gridss script
+    SV_PREP("1.2.rc1", 48, 64, 24, false), // 1.1 -> 1.2, upgrade with gridss script
     VIRUSBREAKEND_GRIDSS("2.13.2"),
     VIRUS_INTERPRETER("1.2");
 

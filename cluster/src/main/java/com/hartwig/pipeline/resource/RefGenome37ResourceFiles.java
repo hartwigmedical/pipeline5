@@ -104,7 +104,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String gnomadPonCache() {
-        return formPath(GNOMAD, "");
+        return formPath(GNOMAD, "gnomad_variants_v37.csv.gz");
     }
 
     @Override
