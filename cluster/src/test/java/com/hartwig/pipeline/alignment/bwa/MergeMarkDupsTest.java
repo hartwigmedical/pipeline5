@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
@@ -12,7 +13,9 @@ public class MergeMarkDupsTest extends SubStageTest{
 
     @Override
     public SubStage createVictim() {
-        return new MergeMarkDups(Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"));
+        return new MergeMarkDups(
+                "", TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"), false);
     }
 
     @Override

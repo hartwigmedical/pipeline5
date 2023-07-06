@@ -30,9 +30,4 @@ class LinxVisualisationsCommand extends JavaClassCommand {
                 sampleVisDir + "/plot/",
                 "-plot_reportable"));
     }
-
-    private static List<String> buildArguments()
-    {
-        return List.of();
-    }
 }

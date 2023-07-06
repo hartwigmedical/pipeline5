@@ -17,7 +17,7 @@ public enum ToolInfo {
     LILAC("1.5.rc1", 16, 24, 8, false), // 1.4.2 -> 1.5
     LINX("1.24.rc1", 8, 16, 1, false), // 1.23.6 -> 1.24
     MARK_DUPS("1.0", 16, 24, 16, true), // initial version
-    ORANGE("2.5.0", 16, 18, 4, true), // 2.5.0 -> 2.5.1?
+    ORANGE("2.5.2", 16, 18, 4, true), // 2.5.0 -> 2.5.2
     PAVE("1.5.rc1", 16, 24, 1, false), // 1.4.5 -> 1.5
     PEACH("1.7"),
     PROTECT("2.3.1"),

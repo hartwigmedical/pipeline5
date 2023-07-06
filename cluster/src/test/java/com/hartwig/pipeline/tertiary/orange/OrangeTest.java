@@ -79,32 +79,26 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     protected List<String> expectedCommands() {
         String jarRunCommand =
                 toolCommand(ORANGE)
-                        + " -output_dir /data/output " + "-ref_genome_version 37 "
+                        + " -output_dir /data/output "
+                        + "-ref_genome_version 37 "
                         + "-tumor_sample_id tumor " + "-reference_sample_id reference "
                         + "-doid_json /opt/resources/disease_ontology/doid.json " + "-primary_tumor_doids \"01;02\" "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat "
                         + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                        + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv "
-                        + "-sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
-                        + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png "
-                        + "-purple_data_directory /data/input/purple " + "-purple_plot_directory /data/input/purple/plot "
-                        + "-lilac_qc_csv /data/input/tumor.lilac.qc.tsv " + "-lilac_result_csv /data/input/tumor.lilac.tsv "
-                        + "-linx_germline_data_directory /data/input/linx_germline " + "-linx_plot_directory /data/input/linx/plot "
-                        + "-linx_somatic_data_directory /data/input/linx " + "-cuppa_result_csv /data/input/tumor.cup.data.csv "
-                        + "-cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
-                        + "-cuppa_chart_plot /data/input/tumor.cuppa.chart.png "
-                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
-                        + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv "
-                        + "-sigs_allocation_tsv /data/input/tumor.sig.allocation.tsv "
-                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
+                        + "-sample_data_dir /data/input "
+                        + "-purple_dir /data/input/purple "
+                        + "-purple_plot_dir /data/input/purple/plot "
+                        + "-linx_germline_dir /data/input/linx_germline "
+                        + "-linx_plot_dir /data/input/linx/plot "
+                        + "-linx_dir /data/input/linx "
                         + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
-                        + "-driver_gene_panel_tsv /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-ensembl_data_directory /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
+                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
         String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
         String fileExistsCommand =
                 "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand
