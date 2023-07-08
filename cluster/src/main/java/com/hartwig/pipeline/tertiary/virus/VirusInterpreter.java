@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.ToolInfo.VIRUS_INTERPRETER;
 
 import java.util.List;
 
@@ -82,10 +83,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     }
 
     private List<BashCommand> generateCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaJarCommand("virus-interpreter",
-                Versions.VIRUS_INTERPRETER,
-                "virus-interpreter.jar",
-                "2G",
+        return List.of(new JavaJarCommand(
+                VIRUS_INTERPRETER,
                 List.of("-sample_id",
                         metadata.tumor().sampleName(),
                         "-purple_purity_tsv",

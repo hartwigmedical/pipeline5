@@ -1,11 +1,15 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
-import com.hartwig.pipeline.tools.Versions;
 
 public class GridssCommand extends JavaClassCommand {
     public static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",
@@ -15,7 +19,7 @@ public class GridssCommand extends JavaClassCommand {
             "-Dsamjdk.buffer_size=4194304");
 
     GridssCommand(final String className, final String maxHeap, final List<String> jvmArguments, final String... arguments) {
-        super("gridss", Versions.GRIDSS, "gridss.jar", className, maxHeap, mergeJvmArguments(jvmArguments), arguments);
+        super(GRIDSS.ToolName, GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), arguments);
     }
 
     private static List<String> mergeJvmArguments(final List<String> jvmArguments) {
@@ -23,5 +27,4 @@ public class GridssCommand extends JavaClassCommand {
         results.addAll(jvmArguments);
         return results;
     }
-
 }

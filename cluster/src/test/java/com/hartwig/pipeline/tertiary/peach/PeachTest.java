@@ -1,7 +1,10 @@
 package com.hartwig.pipeline.tertiary.peach;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+import static com.hartwig.pipeline.tools.ToolInfo.PEACH;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,6 +13,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -71,8 +75,10 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("/opt/tools/peach/1.7_venv/bin/python /opt/tools/peach/1.7/src/main.py "
-                + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.7 "
+        return Collections.singletonList(
+                format("%s/%s/%s_venv/bin/python ", VmDirectories.TOOLS, PEACH.ToolName, PEACH.runVersion())
+                + format("%s/%s/%s/src/main.py ", VmDirectories.TOOLS, PEACH.ToolName, PEACH.runVersion())
+                    + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.7 "
                 + "--outputdir /data/output --panel /opt/resources/peach/peach.json");
     }
 

@@ -1,18 +1,18 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUSBREAKEND_DB;
+import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
 
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 public class VirusBreakendCommand extends VersionedToolCommand {
 
     public VirusBreakendCommand(final ResourceFiles resourceFiles, final String tumorSample, final String tumorBamPath) {
-        super("gridss",
+        super(GRIDSS.ToolName,
                 "virusbreakend",
-                Versions.GRIDSS,
+                GRIDSS.runVersion(),
                 "--output",
                 VmDirectories.outputFile(tumorSample + ".virusbreakend.vcf"),
                 "--workingdir",
@@ -22,7 +22,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "--db",
                 VmDirectories.resourcesPath(VIRUSBREAKEND_DB),
                 "--jar",
-                VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS + "/gridss.jar"),
+                GRIDSS.jarPath(),
                 "--gridssargs",
                 "\"--jvmheap 60G\"",
                 tumorBamPath);

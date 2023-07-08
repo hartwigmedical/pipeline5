@@ -4,7 +4,9 @@ import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
+import static com.hartwig.pipeline.tools.ToolInfo.CUPPA;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,8 +108,8 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedCommands() {
         // @formatter:off
-        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.8/cuppa.jar "
-                        + "-categories DNA "
+        return List.of(toolCommand(CUPPA)
+                        + " -categories DNA "
                         + "-ref_data_dir /opt/resources/cuppa/ "
                         + "-ref_genome_version V37 "
                         + "-sample_data tumor "

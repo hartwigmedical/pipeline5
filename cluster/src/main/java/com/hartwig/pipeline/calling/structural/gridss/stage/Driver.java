@@ -2,6 +2,7 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
 import static com.hartwig.pipeline.tools.ToolInfo.SV_PREP;
 
 import java.util.List;
@@ -65,7 +66,7 @@ public class Driver extends SubStage {
         if(tumorSample != null)
         {
             addSvPrepCommands(commands, tumorSample, null);
-            tumorJunctionsFile = format("%s/%s.sv_prep.junctions.csv", VmDirectories.OUTPUT, tumorSample.SampleName);
+            tumorJunctionsFile = format("%s/%s.sv_prep.junctions.tsv", VmDirectories.OUTPUT, tumorSample.SampleName);
         }
 
         SampleArgument refSample = sampleArguments.stream().filter(x -> x.Type == SampleType.REFERENCE).findFirst().orElse(null);
@@ -139,7 +140,7 @@ public class Driver extends SubStage {
         arguments.add(String.format("--output %s", gridssVcf));
         arguments.add(String.format("--workingdir %s", VmDirectories.OUTPUT)); // or write to a subdirectory?
         arguments.add(String.format("--reference %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("--jar %s", GridssJar.path()));
+        arguments.add(String.format("--jar %s", GRIDSS.jarPath()));
         arguments.add(String.format("--blacklist %s", resourceFiles.gridssBlacklistBed()));
         arguments.add(String.format("--configuration %s", resourceFiles.gridssPropertiesFile()));
 

@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.tools.ToolInfo.HEALTH_CHECKER;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.tools.Versions;
 
 class HealthCheckerApplicationCommandBuilder {
 
@@ -38,6 +39,6 @@ class HealthCheckerApplicationCommandBuilder {
     }
 
     BashCommand build() {
-        return new JavaJarCommand("health-checker", Versions.HEALTH_CHECKER, "health-checker.jar", "10G", arguments);
+        return new JavaJarCommand(HEALTH_CHECKER, arguments);
     }
 }

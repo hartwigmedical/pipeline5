@@ -16,14 +16,14 @@ public enum ToolInfo {
     HEALTH_CHECKER("3.4"),
     LILAC("1.5.rc1", 16, 24, 8, false), // 1.4.2 -> 1.5
     LINX("1.24.rc1", 8, 16, 1, false), // 1.23.6 -> 1.24
-    MARK_DUPS("1.0", 16, 24, 16, true), // initial version
-    ORANGE("2.5.2", 16, 18, 4, true), // 2.5.0 -> 2.5.2
+    MARK_DUPS("1.0.rc1", 16, 24, 16, false), // initial version
+    ORANGE("2.5.2.rc1", 16, 18, 4, false), // 2.5.0 -> 2.5.2
     PAVE("1.5.rc1", 16, 24, 1, false), // 1.4.5 -> 1.5
     PEACH("1.7"),
     PROTECT("2.3.1"),
-    PURPLE("3.9", 24, 32, 8, true), // 3.8.4 -> 3.9
+    PURPLE("3.9.rc1", 24, 32, 8, false), // 3.8.4 -> 3.9
     ROSE("1.3.1", 8, 10, 2, false),
-    SAGE("3.3.rc1   ", 60, 64, 16, false), // 3.2.5 -> 3.3
+    SAGE("3.3.rc1", 60, 64, 16, false), // 3.2.5 -> 3.3
     SIGS("1.1"),
     SV_PREP("1.2.rc1", 48, 64, 24, false), // 1.1 -> 1.2, upgrade with gridss script
     VIRUSBREAKEND_GRIDSS("2.13.2"),

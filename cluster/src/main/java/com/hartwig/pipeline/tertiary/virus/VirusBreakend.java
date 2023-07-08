@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.tools.ToolInfo.VIRUSBREAKEND_GRIDSS;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +71,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String tumorSample = metadata.tumor().sampleName();
-        return List.of(new ExportPathCommand(VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS)),
+        return List.of(new ExportPathCommand(VmDirectories.toolPath("gridss/" + VIRUSBREAKEND_GRIDSS.runVersion())),
                 new ExportPathCommand(VmDirectories.toolPath("repeatmasker/" + Versions.REPEAT_MASKER)),
                 new ExportPathCommand(VmDirectories.toolPath("kraken2/" + Versions.KRAKEN)),
                 new ExportPathCommand(VmDirectories.toolPath("samtools/" + Versions.SAMTOOLS)),

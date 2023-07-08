@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.peach;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.ToolInfo.PEACH;
 
 import java.util.List;
 
@@ -29,7 +30,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -70,8 +70,8 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
-        return List.of(new Python3Command("peach",
-                Versions.PEACH,
+        return List.of(new Python3Command(PEACH.ToolName,
+                PEACH.runVersion(),
                 "src/main.py",
                 List.of("--vcf",
                         purpleGermlineVariantsDownload.getLocalTargetPath(),
@@ -80,7 +80,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                         "--sample_r_id",
                         referenceId,
                         "--tool_version",
-                        Versions.PEACH,
+                        PEACH.runVersion(),
                         "--outputdir",
                         VmDirectories.OUTPUT,
                         "--panel",

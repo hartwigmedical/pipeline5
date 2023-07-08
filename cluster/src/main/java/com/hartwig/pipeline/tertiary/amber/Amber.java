@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static com.hartwig.pipeline.tools.ToolInfo.AMBER;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -26,7 +28,6 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Amber.NAMESPACE)
 public class Amber extends TertiaryStage<AmberOutput> {
@@ -86,7 +87,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand("amber", Versions.AMBER, "amber.jar", "32G", arguments));
+        commands.add(new JavaJarCommand(AMBER, arguments));
         return commands;
     }
 
