@@ -91,7 +91,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 "-categories DNA",
                 format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
                 format("-ref_genome_version %s", resourceFiles.version().toString()),
-                format("-sample_data %s", metadata.tumor().sampleName()),
+                format("-sample %s", metadata.tumor().sampleName()),
                 format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
                 format("-output_dir %s", VmDirectories.OUTPUT),
                 "-create_pdf");

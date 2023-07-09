@@ -18,6 +18,11 @@ sudo unzip /opt/tools/cuppa/1.8/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.8
 sudo mv /tmp/cuppa-chart-1.8/cuppa-chart/* /opt/tools/cuppa-chart/1.8/
 sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.8 3.6.10
 
+sudo mkdir -p /opt/tools/cuppa-chart/1.8.1.rc1
+sudo unzip /opt/tools/cuppa/1.8.1.rc1/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.8.1.rc1
+sudo mv /tmp/cuppa-chart-1.8.1.rc1/cuppa-chart/* /opt/tools/cuppa-chart/1.8.1.rc1/
+sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.8.1.rc1 3.6.10
+
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
@@ -44,9 +49,8 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
-sudo chmod a+x /opt/tools/sv-prep/1.0.1/gridss.run.sh
 sudo chmod a+x /opt/tools/sv-prep/1.1/gridss.run.sh
-sudo chmod a+x /opt/tools/sv-prep/1.2.rc1/gridss.run.sh
+sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
