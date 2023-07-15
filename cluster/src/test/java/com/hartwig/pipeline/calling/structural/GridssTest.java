@@ -2,8 +2,8 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gridss.stage.Driver.GRIDSS_SCRIPT;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.Driver.SV_PREP_DEPTH_ANNOTATION;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.GRIDSS_SCRIPT;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_DEPTH_ANNOTATION;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;

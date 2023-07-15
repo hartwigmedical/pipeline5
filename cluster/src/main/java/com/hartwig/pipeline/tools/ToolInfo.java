@@ -20,9 +20,7 @@ public enum ToolInfo {
     ORANGE("2.5.2.rc1", 16, 18, 4, false), // 2.5.0 -> 2.5.2
     PAVE("1.5.rc1", 16, 24, 1, false), // 1.4.5 -> 1.5
     PEACH("1.7"),
-    PROTECT("2.3.1"),
     PURPLE("3.9.rc1", 24, 32, 8, false), // 3.8.4 -> 3.9
-    ROSE("1.3.1", 8, 10, 2, false),
     SAGE("3.3.rc1", 60, 64, 16, false), // 3.2.5 -> 3.3
     SIGS("1.1"),
     SV_PREP("1.2", 48, 64, 24, false),

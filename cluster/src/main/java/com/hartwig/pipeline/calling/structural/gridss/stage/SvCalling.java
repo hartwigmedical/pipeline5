@@ -22,7 +22,7 @@ import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
-public class Driver extends SubStage {
+public class SvCalling extends SubStage {
 
     public static final String SV_PREP_DEPTH_ANNOTATION = "com.hartwig.hmftools.svprep.depth.DepthAnnotator";
     public static final String GRIDSS_SCRIPT = "gridss.run.sh";
@@ -39,17 +39,17 @@ public class Driver extends SubStage {
         REFERENCE
     }
 
-    public Driver(final ResourceFiles resourceFiles) {
+    public SvCalling(final ResourceFiles resourceFiles) {
         super("gridss.driver", FileTypes.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
     }
 
-    public Driver tumorSample(final String tumorSampleName, final String tumorBamPath) {
+    public SvCalling tumorSample(final String tumorSampleName, final String tumorBamPath) {
         sampleArguments.add(new SampleArgument(SampleType.TUMOR, tumorSampleName, tumorBamPath));
         return this;
     }
 
-    public Driver referenceSample(final String referenceSampleName, final String referenceSamplePath) {
+    public SvCalling referenceSample(final String referenceSampleName, final String referenceSamplePath) {
         // ensure reference sample is processed first since this has a bearing on the order in the VCF where ref is first by convention
         sampleArguments.add(0, new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
         return this;
