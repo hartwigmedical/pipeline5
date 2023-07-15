@@ -31,13 +31,14 @@ final class PurpleArguments {
                 format("-germline_del_freq_file %s", resourceFiles.purpleCohortGermlineDeletions()));
     }
 
-
     public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
         return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()),
                 format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios()),
                 format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()),
                 "-min_diploid_tumor_ratio_count 3",
-                "-min_diploid_tumor_ratio_count_centromere 3");
+                "-min_diploid_tumor_ratio_count_centromere 3",
+                "-ploidy_penalty_factor 0.6",
+                "-ploidy_penalty_standard_deviation 0.15");
     }
 
     public static List<String> addCommonArguments(final String amberOutputPath, final String cobaltOutputPath,
