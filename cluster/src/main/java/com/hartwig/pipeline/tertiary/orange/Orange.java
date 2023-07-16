@@ -51,7 +51,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -173,7 +173,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
 
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
-        final String pipelineVersion = Versions.pipelineMajorMinorVersion();
+        final String pipelineVersion = VersionUtils.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";

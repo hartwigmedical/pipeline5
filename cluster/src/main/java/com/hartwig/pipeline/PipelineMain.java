@@ -43,7 +43,7 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 import com.hartwig.pipeline.turquoise.PipelineCompleted;
 import com.hartwig.pipeline.turquoise.PipelineProperties;
 import com.hartwig.pipeline.turquoise.PipelineStarted;
@@ -60,7 +60,7 @@ public class PipelineMain {
 
     public PipelineState start(final Arguments arguments) {
         LOGGER.info("Arguments are [{}]", arguments);
-        Versions.printAll();
+        VersionUtils.printAll();
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
@@ -212,7 +212,7 @@ public class PipelineMain {
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
                 metadata,
-                PipelineOutputComposerProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                PipelineOutputComposerProvider.from(storage, arguments, VersionUtils.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 persistedDataset);
     }
@@ -235,7 +235,7 @@ public class PipelineMain {
                         labels,
                         mode),
                 AlignerProvider.from(input, credentials, storage, arguments, labels).get(),
-                PipelineOutputComposerProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                PipelineOutputComposerProvider.from(storage, arguments, VersionUtils.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 arguments,
                 persistedDataset,

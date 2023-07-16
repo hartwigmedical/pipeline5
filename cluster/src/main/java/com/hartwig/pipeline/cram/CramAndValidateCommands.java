@@ -1,18 +1,18 @@
 package com.hartwig.pipeline.cram;
 
+import static com.hartwig.pipeline.tools.ExternalTool.BAMCOMP;
+import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
+import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.SambambaCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 public class CramAndValidateCommands {
     private final String inputBam;
@@ -27,9 +27,9 @@ public class CramAndValidateCommands {
     }
 
     public List<BashCommand> commands() {
-        return ImmutableList.of(new VersionedToolCommand("samtools",
-                        "samtools",
-                        Versions.SAMTOOLS,
+        return ImmutableList.of(new VersionedToolCommand(SAMTOOLS.ToolName,
+                        SAMTOOLS.Binary,
+                        SAMTOOLS.Version,
                         "view",
                         "-T",
                         resourceFiles.refGenomeFile(),
@@ -40,19 +40,21 @@ public class CramAndValidateCommands {
                         "-@",
                         Bash.allCpus(),
                         inputBam),
-                new VersionedToolCommand("samtools",
-                        "samtools",
-                        Versions.SAMTOOLS,
+                new VersionedToolCommand(SAMTOOLS.ToolName,
+                        SAMTOOLS.Binary,
+                        SAMTOOLS.Version,
                         "reheader",
                         "--no-PG",
                         "--in-place",
                         "--command",
                         "'grep -v ^@PG'",
                         outputCram),
-                new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS, "index", outputCram),
-                new JavaClassCommand("bamcomp",
-                        Versions.BAMCOMP,
-                        "bamcomp.jar",
+                new VersionedToolCommand(SAMTOOLS.ToolName,
+                        SAMTOOLS.Binary,
+                        SAMTOOLS.Version, "index", outputCram),
+                new JavaClassCommand(BAMCOMP.ToolName,
+                        BAMCOMP.Version,
+                        BAMCOMP.Binary,
                         "com.hartwig.bamcomp.BamCompMain",
                         "4G",
                         Collections.emptyList(),
@@ -65,12 +67,8 @@ public class CramAndValidateCommands {
                         "-n",
                         String.valueOf(CramConversion.NUMBER_OF_CORES),
                         "--samtools-binary",
-                        path(Versions.SAMTOOLS, SamtoolsCommand.SAMTOOLS),
+                        SAMTOOLS.binaryPath(),
                         "--sambamba-binary",
-                        path(Versions.SAMBAMBA, SambambaCommand.SAMBAMBA)));
-    }
-
-    private static String path(final String version, final String tool) {
-        return String.format("%s/%s/%s/%s", VmDirectories.TOOLS, tool, version, tool);
+                        SAMBAMBA.binaryPath()));
     }
 }

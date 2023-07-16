@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.tools.ExternalTool.BCF_TOOLS;
+import static com.hartwig.pipeline.tools.ExternalTool.BWA;
+import static com.hartwig.pipeline.tools.ExternalTool.KRAKEN;
+import static com.hartwig.pipeline.tools.ExternalTool.REPEAT_MASKER;
+import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
 import static com.hartwig.pipeline.tools.ToolInfo.VIRUSBREAKEND_GRIDSS;
 
 import java.util.ArrayList;
@@ -28,7 +33,6 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(VirusBreakend.NAMESPACE)
 public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
@@ -72,11 +76,11 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String tumorSample = metadata.tumor().sampleName();
         return List.of(new ExportPathCommand(VmDirectories.toolPath("gridss/" + VIRUSBREAKEND_GRIDSS.runVersion())),
-                new ExportPathCommand(VmDirectories.toolPath("repeatmasker/" + Versions.REPEAT_MASKER)),
-                new ExportPathCommand(VmDirectories.toolPath("kraken2/" + Versions.KRAKEN)),
-                new ExportPathCommand(VmDirectories.toolPath("samtools/" + Versions.SAMTOOLS)),
-                new ExportPathCommand(VmDirectories.toolPath("bcftools/" + Versions.BCF_TOOLS)),
-                new ExportPathCommand(VmDirectories.toolPath("bwa/" + Versions.BWA)),
+                new ExportPathCommand(REPEAT_MASKER.path()),
+                new ExportPathCommand(KRAKEN.path()),
+                new ExportPathCommand(SAMTOOLS.path()),
+                new ExportPathCommand(BCF_TOOLS.path()),
+                new ExportPathCommand(BWA.path()),
                 new VirusBreakendCommand(resourceFiles, tumorSample, getTumorBamDownload().getLocalTargetPath()));
     }
 

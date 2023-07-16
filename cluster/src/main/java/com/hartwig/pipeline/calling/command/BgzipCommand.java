@@ -1,14 +1,15 @@
 package com.hartwig.pipeline.calling.command;
 
-import com.hartwig.pipeline.tools.Versions;
+import static com.hartwig.pipeline.tools.ExternalTool.TABIX;
 
-public class BgzipCommand extends VersionedToolCommand {
+public class BgzipCommand extends VersionedToolCommand
+{
 
     public BgzipCommand() {
-        super("tabix", "bgzip", Versions.TABIX);
+        super(TABIX.ToolName,"bgzip",TABIX.Version);
     }
 
     public BgzipCommand(final String vcf) {
-        super("tabix", "bgzip", Versions.TABIX, "-f", vcf);
+        super(TABIX.ToolName, "bgzip", TABIX.Version, "-f", vcf);
     }
 }

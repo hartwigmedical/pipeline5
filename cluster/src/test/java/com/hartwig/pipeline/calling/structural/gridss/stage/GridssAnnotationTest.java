@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Test;
 

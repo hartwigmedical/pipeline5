@@ -29,7 +29,7 @@ import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -81,7 +81,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
                             .setId(metadata.maybeExternalIds().get().setId())
                             .context(context)
                             .addAnalyses(alignedReadsAnalysis.build(), somaticAnalysis.build(), germlineAnalysis.build())
-                            .version(Versions.pipelineMajorMinorVersion())
+                            .version(VersionUtils.pipelineMajorMinorVersion())
                             .build())
                     .build());
         }

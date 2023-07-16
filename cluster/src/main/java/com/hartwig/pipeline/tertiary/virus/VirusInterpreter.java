@@ -32,7 +32,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(VirusInterpreter.NAMESPACE)
 public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {

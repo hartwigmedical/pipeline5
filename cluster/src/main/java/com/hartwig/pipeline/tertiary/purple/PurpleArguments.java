@@ -2,15 +2,15 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.*;
 
+import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
+
 import java.util.List;
 
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 final class PurpleArguments {
-    private static final String CIRCOS_PATH = VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos";
 
     public static List<String> tumorArguments(final String tumorSampleName, final String somaticVcfPath, final String structuralVcfPath,
             final String svRecoveryVcfPath, final ResourceFiles resourceFiles) {
@@ -19,7 +19,7 @@ final class PurpleArguments {
                 format("-somatic_sv_vcf %s", structuralVcfPath),
                 format("-sv_recovery_vcf %s", svRecoveryVcfPath),
                 format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()),
-                format("-circos %s", CIRCOS_PATH));
+                format("-circos %s", CIRCOS.binaryPath()));
     }
 
     public static List<String> germlineArguments(
