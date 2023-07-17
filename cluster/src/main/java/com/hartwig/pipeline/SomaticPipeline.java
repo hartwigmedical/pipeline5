@@ -125,7 +125,7 @@ public class SomaticPipeline {
 
             if (state.shouldProceed()) {
                 Future<PaveOutput> paveSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
+                        new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset, arguments)));
                 Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
                 PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));

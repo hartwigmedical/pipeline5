@@ -121,6 +121,8 @@ public class SageCommandBuilder {
             arguments.add("-panel_min_tumor_qual 250");
             arguments.add("-high_confidence_min_tumor_qual 350");
             arguments.add("-low_confidence_min_tumor_qual 500");
+            arguments.add("-max_read_depth 100000");
+            arguments.add("-sync_fragments");
         }
 
         arguments.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));

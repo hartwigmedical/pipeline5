@@ -48,8 +48,6 @@ public interface ResourceFiles {
 
     String germlinePon();
 
-    String somaticPonArtefacts();
-
     String gnomadPonCache();
 
     String giabHighConfidenceBed();
@@ -79,20 +77,15 @@ public interface ResourceFiles {
 
     String driverGenePanel();
 
-    String actionabilityDir();
-
     String hlaRegionBed();
 
     String purpleCohortGermlineDeletions();
 
+    String targetRegionsPonArtefacts();
     String targetRegionsBed();
     String targetRegionsNormalisation();
     String targetRegionsRatios();
     String targetRegionsMsiIndels();
-
-    default String targetRegionsInterval() {
-        return targetRegionsBed().replace("bed", "intervals_list");
-    }
 
     default String cuppaRefData() {
         return of(CUPPA);

@@ -103,9 +103,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
                 germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
-        if (arguments.useTargetRegions()) {
-            purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
-        }
+
         if (arguments.shallow()) {
             PurpleArguments.addShallowArguments(purpleArguments);
         }

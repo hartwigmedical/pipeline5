@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static java.lang.String.format;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -19,7 +21,6 @@ public class PaveArguments {
         addCommonArguments(arguments, resourceFiles, tumorSampleName, inputVcf, outputVcf);
 
         arguments.add(String.format("-pon_file %s", resourceFiles.germlinePon()));
-        arguments.add(String.format("-pon_artefact_file %s", resourceFiles.somaticPonArtefacts()));
 
         String ponFilters = resourceFiles.version() == RefGenomeVersion.V37 ? PON_FILTERS_V37 : PON_FILTERS_V38;
         arguments.add(String.format("-pon_filters \"%s\"", ponFilters));
@@ -64,5 +65,9 @@ public class PaveArguments {
         }
 
         arguments.add("-read_pass_only");
+    }
+
+    public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
+        return List.of(format("-pon_artefact_file %s", resourceFiles.targetRegionsPonArtefacts()));
     }
 }

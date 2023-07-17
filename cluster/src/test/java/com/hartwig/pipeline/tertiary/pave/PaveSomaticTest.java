@@ -31,7 +31,8 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected Stage<PaveOutput, SomaticRunMetadata> createVictim() {
-        return new PaveSomatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(), new TestPersistedDataset());
+        return new PaveSomatic(
+                TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(), new TestPersistedDataset(), Arguments.testDefaults());
     }
 
     @Override

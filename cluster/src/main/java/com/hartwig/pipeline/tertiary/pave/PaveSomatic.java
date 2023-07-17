@@ -1,9 +1,11 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.tertiary.pave.PaveArguments.addTargetRegionsArguments;
+
 import java.util.List;
 
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.sage.SageOutput;
-import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -15,11 +17,15 @@ import com.hartwig.pipeline.stages.Stage;
 
 @Namespace(PaveSomatic.NAMESPACE)
 public class PaveSomatic extends Pave {
+    private final Arguments arguments;
+
     public static final String NAMESPACE = "pave_somatic";
     private static final String PAVE_SOMATIC_FILE_ID = "pave.somatic";
 
-    public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
+    public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
+            final Arguments arguments) {
         super(resourceFiles, sageOutput, persistedDataset, DataType.SOMATIC_VARIANTS_PAVE);
+        this.arguments = arguments;
     }
 
     @Override
@@ -38,6 +44,11 @@ public class PaveSomatic extends Pave {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = PaveArguments.somatic(
                 resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+
+        if (this.arguments.useTargetRegions()) {
+            arguments.addAll(addTargetRegionsArguments(resourceFiles));
+        }
+
         arguments.add("-write_pass_only");
         return paveCommand(metadata, arguments);
     }
