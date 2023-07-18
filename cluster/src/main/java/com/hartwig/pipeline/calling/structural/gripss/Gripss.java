@@ -37,7 +37,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
-    private final ResourceFiles resourceFiles;
+    protected final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
     private final String namespace;
