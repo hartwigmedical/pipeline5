@@ -13,7 +13,7 @@ public enum ToolInfo {
     CUPPA("1.8.1.rc1"),
     GRIDSS("2.13.2"),
     GRIPSS("2.3.5", 16, 24, 1, false), // 2.3.5 -> 2.4
-    HEALTH_CHECKER("3.4"),
+    HEALTH_CHECKER("3.5.rc1"),
     LILAC("1.5.rc1", 16, 24, 8, false), // 1.4.2 -> 1.5
     LINX("1.24.rc1", 8, 16, 1, false), // 1.23.6 -> 1.24
     MARK_DUPS("1.0.rc1", 16, 24, 16, false), // initial version

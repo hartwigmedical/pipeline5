@@ -67,7 +67,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
 
     public List<BashCommand> flagstatCommands(final SingleSampleRunMetadata metadata) {
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
-        return Collections.singletonList(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
+        return Collections.singletonList(new SubShellCommand(new FlagstatCommand(bamDownload.getLocalTargetPath(),
                 VmDirectories.OUTPUT + "/" + outputFile)));
     }
 
