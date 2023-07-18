@@ -93,6 +93,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-linx_germline_dir /data/input/linx_germline "
                         + "-linx_plot_dir /data/input/linx/plot "
                         + "-linx_dir /data/input/linx "
+                        + "-lilac_dir /data/input "
+                        + "-sage_dir /data/input "
                         + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "

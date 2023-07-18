@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.ToolInfo.COBALT;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
@@ -160,7 +161,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("cobalt")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(16, 16))
+                .performanceProfile(custom(COBALT.CPUs, COBALT.MemoryGb))
                 .build();
     }
 

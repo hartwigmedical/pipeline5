@@ -50,7 +50,6 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
                         + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
                         + "-read_pass_only "
                         + "-pon_file /opt/resources/sage/37/SageGermlinePon.1000x.37.tsv.gz "
-                        + "-pon_artefact_file /opt/resources/sage/37/PanelArtefacts.37.tsv "
                         + "-pon_filters \"HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0\"");
     }
 
