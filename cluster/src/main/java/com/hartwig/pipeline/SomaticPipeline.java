@@ -128,13 +128,14 @@ public class SomaticPipeline {
                         new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset, arguments)));
                 Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
-                PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));
-                PaveOutput paveGermlineOutput = composer.add(state.add(paveGermlineOutputFuture.get()));
 
                 Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles, arguments)));
                 Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
+
+                PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));
+                PaveOutput paveGermlineOutput = composer.add(state.add(paveGermlineOutputFuture.get()));
                 GripssOutput gripssSomaticProcessOutput = composer.add(state.add(gripssSomaticOutputFuture.get()));
                 GripssOutput gripssGermlineProcessOutput = composer.add(state.add(gripssGermlineOutputFuture.get()));
 

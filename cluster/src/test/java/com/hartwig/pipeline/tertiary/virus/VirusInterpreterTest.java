@@ -83,11 +83,12 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
     protected List<String> expectedCommands() {
         return List.of(
                 toolCommand(ToolInfo.VIRUS_INTERPRETER)
-                        + " -sample_id tumor "
-                        + "-purple_purity_tsv /data/input/tumor.purple.purity.tsv " + "-purple_qc_file /data/input/tumor.purple.qc "
+                        + " -sample tumor "
+                        + "-purple_dir /data/input "
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-virus_breakend_tsv /data/input/tumor.virusbreakend.vcf.summary.tsv "
                         + "-taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv "
-                        + "-virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv " + "-output_dir /data/output");
+                        + "-virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv "
+                        + "-output_dir /data/output");
     }
 }

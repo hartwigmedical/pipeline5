@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.smoke;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -41,6 +43,9 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
+    private static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
+    private static final String INPUT_MODE_TUMOR_ONLY = "tumor";
+    private static final String INPUT_MODE_REF_ONLY = "reference";
     private File resultsDir;
     private String whoami;
 
@@ -59,17 +64,17 @@ public class SmokeTest {
 
     @Test
     public void tumorReference() throws Exception {
-        runFullPipelineAndCheckFinalStatus("tumor-reference", PipelineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_REF, PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void tumorOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus("tumor", PipelineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_ONLY, PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void referenceOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_REF_ONLY, PipelineStatus.QC_FAILED);
     }
 
     @Ignore
@@ -92,6 +97,8 @@ public class SmokeTest {
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
         final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
+        String inputModeId = inputMode.equals(INPUT_MODE_TUMOR_REF) ? "tr" : (inputMode.equals(INPUT_MODE_TUMOR_ONLY) ? "t" : "r");
+        String runTag = format("sm_%s_%s", inputModeId, randomRunId);
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
         final String setName = pipelineInput.setName() + "-" + randomRunId;
@@ -100,7 +107,7 @@ public class SmokeTest {
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson(sampleJson)
                 .cloudSdkPath(findCloudSdk())
-                .runTag(randomRunId)
+                .runTag(runTag)
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .useTargetRegions(false)
@@ -124,7 +131,7 @@ public class SmokeTest {
         List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
-        if (inputMode.equals("tumor-reference")) {
+        if (inputMode.equals(INPUT_MODE_TUMOR_REF)) {
             ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
                     .isEqualToTruthset(Resources.testResource(fixtureDir + "/truthset"))
                     .cleanup();
@@ -179,7 +186,7 @@ public class SmokeTest {
         } catch (Exception e) {
             // Fall through to using the default
         }
-        return String.format("/Users/%s/google-cloud-sdk/bin", whoami);
+        return format("/Users/%s/google-cloud-sdk/bin", whoami);
     }
 
 }

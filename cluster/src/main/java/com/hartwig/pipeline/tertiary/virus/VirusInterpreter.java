@@ -84,12 +84,10 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     private List<BashCommand> generateCommands(final SomaticRunMetadata metadata) {
         return List.of(new JavaJarCommand(
                 VIRUS_INTERPRETER,
-                List.of("-sample_id",
+                List.of("-sample",
                         metadata.tumor().sampleName(),
-                        "-purple_purity_tsv",
-                        purplePurity.getLocalTargetPath(),
-                        "-purple_qc_file",
-                        purpleQc.getLocalTargetPath(),
+                        "-purple_dir",
+                        VmDirectories.INPUT,
                         "-tumor_sample_wgs_metrics_file",
                         tumorBamMetrics.getLocalTargetPath(),
                         "-virus_breakend_tsv",
