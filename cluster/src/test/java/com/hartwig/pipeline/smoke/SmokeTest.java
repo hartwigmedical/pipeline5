@@ -101,7 +101,7 @@ public class SmokeTest {
         String runTag = format("sm_%s_%s", inputModeId, randomRunId);
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
-        final String setName = pipelineInput.setName() + "-" + randomRunId;
+        final String setName = pipelineInput.setName() + "-" + runTag;
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
