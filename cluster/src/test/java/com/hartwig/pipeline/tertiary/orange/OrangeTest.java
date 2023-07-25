@@ -101,13 +101,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
-        String cuppaFile = " -cuppa_feature_plot /data/input/tumor.cup.report.features.png";
-        String fileExistsCommand =
-                "if [ -e /data/input/tumor.cup.report.features.png ]; then " + jarRunCommand + cuppaFile + " ; else " + jarRunCommand
-                        + " ; fi";
+
         return Arrays.asList("mkdir -p /data/input/linx/plot",
                 "echo '5.33' | tee /data/input/orange_pipeline.version.txt",
-                fileExistsCommand);
+                jarRunCommand);
     }
 
     @Test

@@ -238,12 +238,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .samplingDate()
                 .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
-        BashCommand withOptionalPlotCommand =
-                new JavaJarFileExistsCommand(orangeJarCommand, "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
 
         return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                withOptionalPlotCommand);
+                orangeJarCommand);
     }
 
     @Override

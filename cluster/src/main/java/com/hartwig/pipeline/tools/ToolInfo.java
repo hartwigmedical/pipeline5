@@ -9,7 +9,7 @@ public enum ToolInfo {
     AMBER("3.9", 32, 64, 16, false),
     BAM_TOOLS("1.1.rc1", 16, 24, 16, false), // 1.0 -> 1.1
     CHORD("2.02_1.14"),
-    COBALT("1.15.2.rc1", 20, 24, 16, false),
+    COBALT("1.15.2", 20, 24, 16, false),
     CUPPA("1.8.1.rc1"),
     GRIDSS("2.13.2"),
     GRIPSS("2.3.5", 16, 24, 1, false), // 2.3.5 -> 2.4
