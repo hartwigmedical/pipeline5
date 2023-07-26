@@ -2,6 +2,10 @@ package com.hartwig.pipeline.smoke;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
+import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
+import static com.hartwig.pipeline.tools.VersionUtils.pipelineVersion;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -13,6 +17,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pdl.PdlJsonConversion;
 import com.hartwig.pdl.PipelineInput;
@@ -40,12 +45,13 @@ import org.junit.runner.RunWith;
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
-    private static final String FILE_ENCODING = "UTF-8";
-    private static final String STAGED_FLAG_FILE = "STAGED";
-    private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
-    private static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
-    private static final String INPUT_MODE_TUMOR_ONLY = "tumor";
-    private static final String INPUT_MODE_REF_ONLY = "reference";
+    protected static final String FILE_ENCODING = "UTF-8";
+    protected static final String STAGED_FLAG_FILE = "STAGED";
+    protected static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
+    protected static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
+    protected static final String INPUT_MODE_TUMOR_ONLY = "tumor";
+    protected static final String INPUT_MODE_REF_ONLY = "reference";
+
     private File resultsDir;
     private String whoami;
 
@@ -87,7 +93,7 @@ public class SmokeTest {
     }
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
-        runFullPipelineAndCheckFinalStatus(inputMode, expectedStatus, Optional.empty(), RefGenomeVersion.V37);
+        runFullPipelineAndCheckFinalStatus(inputMode, expectedStatus, Optional.empty(), V37);
     }
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
@@ -96,9 +102,12 @@ public class SmokeTest {
         final PipelineMain victim = new PipelineMain();
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
-        final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
+        final String randomRunId = noDots(RandomStringUtils.random(3, true, false));
+
         String inputModeId = inputMode.equals(INPUT_MODE_TUMOR_REF) ? "tr" : (inputMode.equals(INPUT_MODE_TUMOR_ONLY) ? "t" : "r");
-        String runTag = format("sm_%s_%s", inputModeId, randomRunId);
+
+        String runTag = format("st_%s_%s_%s", imageVersion(), inputModeId, randomRunId);
+
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
         final String setName = pipelineInput.setName() + "-" + runTag;
@@ -149,7 +158,7 @@ public class SmokeTest {
         return version;
     }
 
-    private List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
+    protected static List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
         return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName)
                 .map(n -> n.replace(setName + "/", ""))
                 .filter(n -> !n.equals(STAGED_FLAG_FILE))
@@ -157,7 +166,7 @@ public class SmokeTest {
     }
 
     @NotNull
-    private Stream<Blob> archiveBlobs(final String setName, final String archiveBucket, final Storage storage) {
+    protected static Stream<Blob> archiveBlobs(final String setName, final String archiveBucket, final Storage storage) {
         return StreamSupport.stream(storage.get(archiveBucket).list(Storage.BlobListOption.prefix(setName)).iterateAll().spliterator(),
                 true);
     }
@@ -175,6 +184,10 @@ public class SmokeTest {
     }
 
     private String findCloudSdk() {
+        return findCloudSdk(whoami);
+    }
+
+    protected static String findCloudSdk(final String whoami) {
         if (whoami.equals("root")) {
             return CLOUD_SDK_PATH;
         }

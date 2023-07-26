@@ -73,22 +73,25 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
 
     private class ComparWrapper {
         void run(final File victim, final File truthset, final File outputDir) throws ParseException {
-            String boilerplate = "linx_dir=linx;purple_dir=purple";
-            String fileSources = format("TRUTHSET;sample_dir=%s;%s,VICTIM;sample_dir=%s;%s",
-                    victim.getAbsolutePath(),
-                    boilerplate,
-                    truthset.getAbsolutePath(),
-                    boilerplate);
-            List<String> arguments = List.of("-match_level",
-                    "KEY_FIELDS",
+
+            String fileSourceRef = format("sample_dir=%s",truthset.getAbsolutePath());
+
+            String fileSourceNew = format("sample_dir=%s",victim.getAbsolutePath());
+
+            List<String> arguments = List.of(
+                    "-match_level",
+                    "REPORTABLE", // KEY_FIELDS
                     "-categories",
-                    "GERMLINE_VARIANT,SOMATIC_VARIANT",
+                    "PURPLE,LINX,LILAC,CUPPA", // GERMLINE_VARIANT,SOMATIC_VARIANT
                     "-sample",
                     "COLO829v003T",
                     "-output_dir",
                     outputDir.getAbsolutePath(),
-                    "-file_sources",
-                    fileSources);
+                    "-file_source_ref",
+                    fileSourceRef,
+                    "-file_source_new",
+                    fileSourceNew);
+
             com.hartwig.hmftools.compar.Compar.main(arguments.toArray(new String[] {}));
         }
     }

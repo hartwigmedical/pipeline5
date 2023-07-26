@@ -1,0 +1,3 @@
+clusterId	category	synthetic	resolvedType	clusterCount	clusterDesc
+0	SIMPLE	false	UNBAL_TRANS	1	BND
+1	SIMPLE	false	DEL	1	DEL

@@ -1,0 +1,3 @@
+fivePrimeBreakendId	threePrimeBreakendId	name	reported	reportedType	reportableReasons	phased	likelihood	chainLength	chainLinks	chainTerminated	domainsKept	domainsLost	skippedExonsUp	skippedExonsDown	fusedExonUp	fusedExonDown	geneStart	geneContextStart	transcriptStart	geneEnd	geneContextEnd	transcriptEnd	junctionCopyNumber
+2	5	PTEN_PTEN	false	NONE	NOT_KNOWN	OUT_OF_FRAME	NA	0	0	false			0	0	5	7	PTEN	Exon 5	ENST00000371953	PTEN	Exon 7	ENST00000371953	0.0075
+12	13	ITIH5_TXNDC2	false	NONE	NOT_KNOWN	INFRAME	NA	0	0	false			0	0	4	2	ITIH5	Exon 4	ENST00000434980	TXNDC2	Promoter Region	ENST00000536353	0.2415

@@ -250,8 +250,6 @@ purple/plot/COLO829v003T.somatic.png
 purple/plot/COLO829v003T.somatic.rainfall.png
 purple/purple.version
 purple/run.log
-rose/COLO829v003T.rose.tsv
-rose/run.log
 sage_germline/COLO829v003R.sage.bqr.png
 sage_germline/COLO829v003R.sage.bqr.tsv
 sage_germline/COLO829v003R.sage.exon.medians.tsv
