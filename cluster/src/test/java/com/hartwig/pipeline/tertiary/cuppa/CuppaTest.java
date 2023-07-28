@@ -8,7 +8,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
-import static com.hartwig.pipeline.tools.ToolInfo.CUPPA;
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

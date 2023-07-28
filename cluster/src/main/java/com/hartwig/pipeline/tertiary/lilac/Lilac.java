@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.ToolInfo.LILAC;
+import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
 import java.util.ArrayList;
 import java.util.List;

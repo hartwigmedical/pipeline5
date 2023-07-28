@@ -6,12 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 public class JavaClassCommand implements BashCommand {
 
@@ -24,7 +22,7 @@ public class JavaClassCommand implements BashCommand {
     private final List<String> jvmArguments;
 
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
-                            final List<String> jvmArguments, final List<String> arguments) {
+            final List<String> jvmArguments, final List<String> arguments) {
         this.toolName = toolName;
         this.version = version;
         this.classPath = jar;
@@ -34,8 +32,14 @@ public class JavaClassCommand implements BashCommand {
         this.arguments = arguments;
     }
 
-    public JavaClassCommand(final ToolInfo toolInfo, final String mainClass, final List<String> arguments) {
-        this(toolInfo.ToolName, toolInfo.runVersion(), toolInfo.jar(), mainClass, toolInfo.maxHeapStr(), Collections.emptyList(), arguments);
+    public JavaClassCommand(final HmfTool hmfTool, final String mainClass, final List<String> arguments) {
+        this(hmfTool.getToolName(),
+                hmfTool.runVersion(),
+                hmfTool.jar(),
+                mainClass,
+                hmfTool.maxHeapStr(),
+                Collections.emptyList(),
+                arguments);
     }
 
     public JavaClassCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeapSize,
@@ -45,7 +49,7 @@ public class JavaClassCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        String jvmArgsJoined = jvmArguments.stream().collect(Collectors.joining(" ")).trim();
+        String jvmArgsJoined = String.join(" ", jvmArguments).trim();
         List<String> tokens = new ArrayList<>();
         tokens.add(format("java -Xmx%s", maxHeapSize));
         if (!jvmArgsJoined.isEmpty()) {
@@ -53,7 +57,7 @@ public class JavaClassCommand implements BashCommand {
         }
         tokens.add(String.format("-cp %s/%s/%s/%s", VmDirectories.TOOLS, toolName, version, classPath));
         tokens.add(mainClass);
-        tokens.add(arguments.stream().collect(Collectors.joining(" ")).trim());
-        return tokens.stream().collect(Collectors.joining(" "));
+        tokens.add(String.join(" ", arguments).trim());
+        return String.join(" ", tokens);
     }
 }

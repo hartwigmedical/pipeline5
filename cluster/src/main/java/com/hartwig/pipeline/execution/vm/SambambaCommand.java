@@ -7,6 +7,6 @@ import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 public class SambambaCommand extends VersionedToolCommand {
 
     public SambambaCommand(final String... arguments) {
-        super(SAMBAMBA.ToolName, SAMBAMBA.Binary, SAMBAMBA.Version, arguments);
+        super(SAMBAMBA.getToolName(), SAMBAMBA.getBinary(), SAMBAMBA.getVersion(), arguments);
     }
 }

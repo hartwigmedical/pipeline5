@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 class LinxVisualisationsCommand extends JavaClassCommand {
 
@@ -14,7 +14,7 @@ class LinxVisualisationsCommand extends JavaClassCommand {
 
     LinxVisualisationsCommand(final String sample, final String sampleVisDir, final RefGenomeVersion refGenomeVersion) {
 
-        super(ToolInfo.LINX, LINX_VISUALISER,
+        super(HmfTool.LINX, LINX_VISUALISER,
                 List.of("-sample",
                 sample,
                 "-ref_genome_version",

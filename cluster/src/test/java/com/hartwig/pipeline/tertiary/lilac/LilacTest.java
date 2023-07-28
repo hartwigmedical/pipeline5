@@ -1,8 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.LILAC;
-import static com.hartwig.pipeline.tools.ToolInfo.PAVE;
+import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

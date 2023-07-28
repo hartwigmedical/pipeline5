@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.peach;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.ToolInfo.PEACH;
+import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 
 import java.util.List;
 
@@ -70,7 +70,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
-        return List.of(new Python3Command(PEACH.ToolName,
+        return List.of(new Python3Command(PEACH.getToolName(),
                 PEACH.runVersion(),
                 "src/main.py",
                 List.of("--vcf",

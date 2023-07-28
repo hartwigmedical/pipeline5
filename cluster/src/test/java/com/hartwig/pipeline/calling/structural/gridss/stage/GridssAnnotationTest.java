@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

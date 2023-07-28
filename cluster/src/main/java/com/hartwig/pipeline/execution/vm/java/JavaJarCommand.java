@@ -2,14 +2,11 @@ package com.hartwig.pipeline.execution.vm.java;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.ToolInfo.PILOT_VERSION;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 public class JavaJarCommand implements BashCommand {
 
@@ -29,11 +26,11 @@ public class JavaJarCommand implements BashCommand {
         this.arguments = arguments;
     }
 
-    public JavaJarCommand(final ToolInfo toolInfo, final List<String> arguments) {
-        this.toolName = toolInfo.ToolName;
-        this.version = toolInfo.runVersion();
-        this.jar = toolInfo.jar();
-        this.maxHeapSize = toolInfo.maxHeapStr();
+    public JavaJarCommand(final HmfTool hmfTool, final List<String> arguments) {
+        this.toolName = hmfTool.getToolName();
+        this.version = hmfTool.runVersion();
+        this.jar = hmfTool.jar();
+        this.maxHeapSize = hmfTool.maxHeapStr();
         this.arguments = arguments;
     }
 
@@ -45,6 +42,6 @@ public class JavaJarCommand implements BashCommand {
                 toolName,
                 version,
                 jar,
-                arguments.stream().collect(Collectors.joining(" ")));
+                String.join(" ", arguments));
     }
 }

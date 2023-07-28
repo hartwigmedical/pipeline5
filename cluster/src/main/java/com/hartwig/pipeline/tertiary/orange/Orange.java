@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.ToolInfo.ORANGE;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -22,7 +21,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarFileExistsCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -40,7 +38,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
-import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
@@ -160,16 +157,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return buildCommands(metadata);
-    }
-
-    @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
-    }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
     }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {

@@ -5,7 +5,7 @@ import static com.hartwig.pipeline.tools.ExternalTool.BWA;
 import static com.hartwig.pipeline.tools.ExternalTool.KRAKEN;
 import static com.hartwig.pipeline.tools.ExternalTool.REPEAT_MASKER;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
-import static com.hartwig.pipeline.tools.ToolInfo.VIRUSBREAKEND_GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.ToolInfo.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
 
 import java.util.List;
 

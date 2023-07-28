@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.ToolInfo.SIGS;
+import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -40,7 +40,6 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-
 
     public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         purpleSomaticVariantsDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
@@ -68,17 +67,11 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
         return buildCommands(metadata);
     }
 
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
-    }
-
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
         return List.of(new JavaJarCommand(SIGS, buildArguments(metadata)));
     }
 
-    private List<String> buildArguments(final SomaticRunMetadata metadata)
-    {
+    private List<String> buildArguments(final SomaticRunMetadata metadata) {
         return List.of("-sample",
                 metadata.tumor().sampleName(),
                 "-signatures_file",
@@ -96,7 +89,8 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
-                .workingDiskSpaceGb(375).build();
+                .workingDiskSpaceGb(375)
+                .build();
     }
 
     @Override

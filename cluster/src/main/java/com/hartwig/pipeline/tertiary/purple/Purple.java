@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.ToolInfo.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -8,6 +8,14 @@ import com.hartwig.pipeline.execution.vm.Bash;
 class FlagstatCommand extends VersionedToolCommand {
 
     FlagstatCommand(final String bamLocation, final String flagstatFile) {
-        super(SAMTOOLS.ToolName, SAMTOOLS.Binary, SAMTOOLS.Version, "flagstat", "-@", Bash.allCpus(), bamLocation, ">", flagstatFile);
+        super(SAMTOOLS.getToolName(),
+                SAMTOOLS.getBinary(),
+                SAMTOOLS.getVersion(),
+                "flagstat",
+                "-@",
+                Bash.allCpus(),
+                bamLocation,
+                ">",
+                flagstatFile);
     }
 }

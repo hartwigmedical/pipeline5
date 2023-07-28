@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.util.Collections;
 import java.util.List;

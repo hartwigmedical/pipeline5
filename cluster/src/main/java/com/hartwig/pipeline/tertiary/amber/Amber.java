@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import static com.hartwig.pipeline.tools.ToolInfo.AMBER;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -158,8 +158,4 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 true));
     }
 
-    @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary();
-    }
 }

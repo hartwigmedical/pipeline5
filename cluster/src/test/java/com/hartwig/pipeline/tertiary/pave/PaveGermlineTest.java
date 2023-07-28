@@ -1,8 +1,7 @@
 package com.hartwig.pipeline.tertiary.pave;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.PAVE;
-import static com.hartwig.pipeline.tools.ToolInfo.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.SAGE;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

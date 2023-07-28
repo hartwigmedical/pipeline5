@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.HEALTH_CHECKER;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -39,11 +39,6 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
                 TestInputs.referenceFlagstatOutput(),
                 TestInputs.tumorFlagstatOutput(),
                 TestInputs.purpleOutput());
-    }
-
-    @Override
-    protected SomaticRunMetadata input() {
-        return TestInputs.defaultSomaticRunMetadata();
     }
 
     @Override

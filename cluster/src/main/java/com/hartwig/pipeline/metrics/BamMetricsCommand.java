@@ -2,7 +2,7 @@ package com.hartwig.pipeline.metrics;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.ToolInfo.BAM_TOOLS;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
 import java.util.List;
 

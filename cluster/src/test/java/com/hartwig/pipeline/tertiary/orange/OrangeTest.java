@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.ORANGE;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 

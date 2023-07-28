@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.ToolInfo.VIRUS_INTERPRETER;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import java.util.List;
 

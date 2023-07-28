@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
 
@@ -22,14 +22,15 @@ final class PurpleArguments {
                 format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()),
                 format("-circos %s", CIRCOS.binaryPath()));
 
-        if(useUnfilteredVcf)
+        if (useUnfilteredVcf) {
             arguments.add(format("-sv_recovery_vcf %s", unfilteredVcfPath));
+        }
 
         return arguments;
     }
 
-    public static List<String> germlineArguments(
-            final String sampleName, final String germlineVcfPath, final String germlineSvVcfPath, final ResourceFiles resourceFiles) {
+    public static List<String> germlineArguments(final String sampleName, final String germlineVcfPath, final String germlineSvVcfPath,
+            final ResourceFiles resourceFiles) {
         return List.of(format("-reference %s", sampleName),
                 format("-germline_vcf %s", germlineVcfPath),
                 format("-germline_sv_vcf %s", germlineSvVcfPath),

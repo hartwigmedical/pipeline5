@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.tools.ToolInfo.SAGE;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -78,12 +78,12 @@ public class SageCommandBuilder {
 
         if (somaticMode) {
 
-            arguments.add(String.format("-tumor %s", tumor.toString()));
+            arguments.add(String.format("-tumor %s", tumor));
             arguments.add(String.format("-tumor_bam %s", tumorBamFiles));
 
             if (reference.length() > 0) {
 
-                arguments.add(String.format("-reference %s", reference.toString()));
+                arguments.add(String.format("-reference %s", reference));
                 arguments.add(String.format("-reference_bam %s", referenceBamFiles));
             }
 
@@ -95,11 +95,11 @@ public class SageCommandBuilder {
 
         } else if (germlineMode) {
 
-            arguments.add(String.format("-tumor %s", reference.toString()));
+            arguments.add(String.format("-tumor %s", reference));
             arguments.add(String.format("-tumor_bam %s", referenceBamFiles));
 
             if (tumor.length() > 0) {
-                arguments.add(String.format("-reference %s", tumor.toString()));
+                arguments.add(String.format("-reference %s", tumor));
                 arguments.add(String.format("-reference_bam %s", tumorBamFiles));
             }
 

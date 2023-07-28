@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.AMBER;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

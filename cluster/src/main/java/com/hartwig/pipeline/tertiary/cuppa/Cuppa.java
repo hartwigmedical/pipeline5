@@ -34,7 +34,7 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -104,8 +104,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 format("-output_dir %s", VmDirectories.OUTPUT));
 
         return List.of(
-                new JavaJarCommand(ToolInfo.CUPPA, cuppaArguments),
-                new Python3Command("cuppa-chart", ToolInfo.CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
+                new JavaJarCommand(HmfTool.CUPPA, cuppaArguments),
+                new Python3Command("cuppa-chart", HmfTool.CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
     }
 
     @Override

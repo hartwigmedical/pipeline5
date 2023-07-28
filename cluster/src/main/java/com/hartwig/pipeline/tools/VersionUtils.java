@@ -7,8 +7,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class VersionUtils
-{
+public final class VersionUtils {
 
     public static void printAll() {
         Logger logger = LoggerFactory.getLogger(VersionUtils.class);
@@ -16,15 +15,13 @@ public final class VersionUtils
 
         logger.info("HMF tool versions:");
 
-        for(ToolInfo tool : ToolInfo.values())
-        {
+        for (HmfTool tool : HmfTool.values()) {
             logger.info(String.format("%s: %s", tool.toString(), tool.runVersion()));
         }
 
         logger.info("External tools versions:");
-        for(ExternalTool tool : ExternalTool.values())
-        {
-            logger.info(String.format("%s: %s", tool.toString(), tool.Version));
+        for (ExternalTool tool : ExternalTool.values()) {
+            logger.info(String.format("%s: %s", tool.toString(), tool.getVersion()));
         }
 
         Stream.of(VersionUtils.class.getDeclaredFields())

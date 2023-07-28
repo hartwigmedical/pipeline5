@@ -1,14 +1,11 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 
 import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 
 public class GridssCommand extends JavaClassCommand {
@@ -19,7 +16,7 @@ public class GridssCommand extends JavaClassCommand {
             "-Dsamjdk.buffer_size=4194304");
 
     GridssCommand(final String className, final String maxHeap, final List<String> jvmArguments, final String... arguments) {
-        super(GRIDSS.ToolName, GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), arguments);
+        super(GRIDSS.getToolName(), GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), arguments);
     }
 
     private static List<String> mergeJvmArguments(final List<String> jvmArguments) {

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.tools.ToolInfo.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.io.File;
 import java.util.Collections;
@@ -17,9 +17,9 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -55,7 +55,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
         purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants().isPresent()
-                ? purpleOutputLocations.structuralVariants().get() : GoogleStorageLocation.empty());
+                ? purpleOutputLocations.structuralVariants().get()
+                : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -71,13 +72,14 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
 
@@ -93,8 +95,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add("-write_vis_data");
 
-        return List.of(
-                new JavaJarCommand(LINX, arguments),
+        return List.of(new JavaJarCommand(LINX, arguments),
                 new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 
@@ -182,7 +183,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
-                        .build()).addAllDatatypes(addDatatypes(metadata))
+                        .build())
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 

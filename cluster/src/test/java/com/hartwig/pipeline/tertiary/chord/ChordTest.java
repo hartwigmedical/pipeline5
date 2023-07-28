@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.chord;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.tools.ToolInfo.CHORD;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,9 +14,9 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
@@ -41,9 +41,8 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        String chordPath = format("%s/%s/%s", VmDirectories.TOOLS, CHORD.ToolName, CHORD.runVersion());
-        return Collections.singletonList(
-                chordPath + "/extractSigPredictHRD.R " + chordPath + " /data/output tumor "
+        String chordPath = format("%s/%s/%s", VmDirectories.TOOLS, CHORD.getToolName(), CHORD.runVersion());
+        return Collections.singletonList(chordPath + "/extractSigPredictHRD.R " + chordPath + " /data/output tumor "
                 + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz HG37");
     }
 

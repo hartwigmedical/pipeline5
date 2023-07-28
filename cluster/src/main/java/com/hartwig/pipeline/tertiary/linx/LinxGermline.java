@@ -1,8 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.input.InputMode.REFERENCE_ONLY;
-import static com.hartwig.pipeline.input.InputMode.TUMOR_REFERENCE;
-import static com.hartwig.pipeline.tools.ToolInfo.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.io.File;
 import java.util.Collections;
@@ -19,7 +17,6 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -70,18 +67,13 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
-    }
-
-    @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return buildCommand(metadata, REFERENCE_ONLY);
+        return buildCommand(metadata);
     }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return buildCommand(metadata, TUMOR_REFERENCE);
+        return buildCommand(metadata);
     }
 
     @Override
@@ -123,7 +115,9 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
-                        .build()).addAllDatatypes(addDatatypes(metadata)).build();
+                        .build())
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
     }
 
     @Override
@@ -144,7 +138,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
         return arguments.runTertiary() && !arguments.shallow();
     }
 
-    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata, final InputMode inputMode) {
+    private List<BashCommand> buildCommand(final SomaticRunMetadata metadata) {
 
         List<String> arguments = Lists.newArrayList();
 

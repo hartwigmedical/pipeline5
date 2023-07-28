@@ -16,7 +16,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -60,7 +60,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                toolCommand(ToolInfo.GRIPSS)
+                toolCommand(HmfTool.GRIPSS)
                 + " -sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

@@ -7,7 +7,7 @@ import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.SV_PREP;
+import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

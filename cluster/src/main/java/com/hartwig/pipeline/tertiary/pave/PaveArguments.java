@@ -13,8 +13,8 @@ public class PaveArguments {
     private static final String PON_FILTERS_V37 = "HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0";
     private static final String PON_FILTERS_V38 = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
 
-    public static List<String> somatic(
-            final ResourceFiles resourceFiles, final String tumorSampleName, final String inputVcf, final String outputVcf) {
+    public static List<String> somatic(final ResourceFiles resourceFiles, final String tumorSampleName, final String inputVcf,
+            final String outputVcf) {
 
         List<String> arguments = Lists.newArrayList();
 
@@ -28,8 +28,8 @@ public class PaveArguments {
         return arguments;
     }
 
-    public static List<String> germline(
-            final ResourceFiles resourceFiles, final String tumorSampleName, final String inputVcf, final String outputVcf) {
+    public static List<String> germline(final ResourceFiles resourceFiles, final String tumorSampleName, final String inputVcf,
+            final String outputVcf) {
 
         List<String> arguments = Lists.newArrayList();
 
@@ -58,9 +58,7 @@ public class PaveArguments {
         if (resourceFiles.version() == RefGenomeVersion.V38) {
             arguments.add(String.format("-gnomad_freq_dir %s", resourceFiles.gnomadPonCache()));
             arguments.add("-gnomad_load_chr_on_demand");
-        }
-        else
-        {
+        } else {
             arguments.add(String.format("-gnomad_freq_file %s", resourceFiles.gnomadPonCache()));
         }
 

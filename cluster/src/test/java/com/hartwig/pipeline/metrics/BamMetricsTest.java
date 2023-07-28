@@ -2,7 +2,7 @@ package com.hartwig.pipeline.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.BAM_TOOLS;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
 import java.util.List;
 

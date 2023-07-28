@@ -18,7 +18,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -82,7 +82,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
     @Override
     protected List<String> expectedCommands() {
         return List.of(
-                toolCommand(ToolInfo.VIRUS_INTERPRETER)
+                toolCommand(HmfTool.VIRUS_INTERPRETER)
                         + " -sample tumor "
                         + "-purple_dir /data/input "
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "

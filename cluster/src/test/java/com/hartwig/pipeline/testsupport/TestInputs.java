@@ -72,10 +72,11 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class TestInputs {
 
     private static final String RESULTS = "results/";
@@ -105,14 +106,21 @@ public class TestInputs {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
     }
 
-    public static String toolCommand(final ToolInfo toolInfo) {
+    public static String toolCommand(final HmfTool hmfTool) {
         return format("java -Xmx%dG -jar /opt/tools/%s/%s/%s",
-                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.runVersion(), toolInfo.jar());
+                hmfTool.getMaxHeap(),
+                hmfTool.directory(),
+                hmfTool.runVersion(),
+                hmfTool.jar());
     }
 
-    public static String toolCommand(final ToolInfo toolInfo, final String classPath) {
+    public static String toolCommand(final HmfTool hmfTool, final String classPath) {
         return format("java -Xmx%dG -cp /opt/tools/%s/%s/%s %s",
-                toolInfo.MaxHeap, toolInfo.directory(), toolInfo.runVersion(), toolInfo.jar(), classPath);
+                hmfTool.getMaxHeap(),
+                hmfTool.directory(),
+                hmfTool.runVersion(),
+                hmfTool.jar(),
+                classPath);
     }
 
     public static String referenceSample() {

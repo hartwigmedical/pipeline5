@@ -1,8 +1,7 @@
 package com.hartwig.pipeline.alignment.bwa;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.ToolInfo.MARK_DUPS;
-import static com.hartwig.pipeline.tools.ToolInfo.SAGE;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

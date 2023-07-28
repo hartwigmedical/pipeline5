@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.tools.ToolInfo.HEALTH_CHECKER;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
 import java.util.List;
 

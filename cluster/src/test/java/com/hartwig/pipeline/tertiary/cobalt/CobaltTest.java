@@ -17,7 +17,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.ToolInfo;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -36,7 +36,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                toolCommand(ToolInfo.COBALT)
+                toolCommand(HmfTool.COBALT)
                         + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                         + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

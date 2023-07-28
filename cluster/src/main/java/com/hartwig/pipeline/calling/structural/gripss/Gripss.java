@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.pipeline.tools.ToolInfo.GRIPSS;
+import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 
 import java.io.File;
 import java.util.List;

@@ -2,8 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.ToolInfo.GRIDSS;
-import static com.hartwig.pipeline.tools.ToolInfo.SV_PREP;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -156,7 +156,7 @@ public class SvCalling extends SubStage {
         arguments.add(String.format("--jvmheap %s", MAX_HEAP));
         arguments.add(String.format("--threads %d", GRIDSS_THREADS));
 
-        return new VersionedToolCommand(SV_PREP.ToolName, GRIDSS_SCRIPT, SV_PREP.runVersion(), arguments.toString());
+        return new VersionedToolCommand(SV_PREP.getToolName(), GRIDSS_SCRIPT, SV_PREP.runVersion(), arguments.toString());
     }
 
     private BashCommand buildRefDepthCommand(final String gridssVcf, final OutputFile output) {
