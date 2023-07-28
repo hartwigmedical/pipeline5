@@ -2,7 +2,6 @@ package com.hartwig.pipeline.tertiary.pave;
 
 import java.util.List;
 
-import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -38,7 +37,7 @@ public class PaveGermline extends Pave {
 
         List<String> arguments = PaveArguments.germline(
                 resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
-        return paveCommand(metadata, arguments);
+        return paveCommand(arguments);
     }
 
     @Override

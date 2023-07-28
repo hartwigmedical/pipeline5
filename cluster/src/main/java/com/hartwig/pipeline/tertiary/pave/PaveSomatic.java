@@ -37,7 +37,7 @@ public class PaveSomatic extends Pave {
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = PaveArguments.somatic(
                 resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
-        return paveCommand(metadata, arguments);
+        return paveCommand(arguments);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PaveSomatic extends Pave {
         }
 
         arguments.add("-write_pass_only");
-        return paveCommand(metadata, arguments);
+        return paveCommand(arguments);
     }
 
     @Override
