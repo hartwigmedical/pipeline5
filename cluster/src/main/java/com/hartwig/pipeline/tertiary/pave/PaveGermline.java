@@ -2,7 +2,6 @@ package com.hartwig.pipeline.tertiary.pave;
 
 import java.util.List;
 
-import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -15,7 +14,9 @@ import com.hartwig.pipeline.stages.Stage;
 
 @Namespace(PaveGermline.NAMESPACE)
 public class PaveGermline extends Pave {
+
     public static final String NAMESPACE = "pave_germline";
+    private static final String PAVE_GERMLINE_FILE_ID = "pave.germline";
 
     public PaveGermline(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset) {
         super(resourceFiles, sageOutput, persistedDataset, DataType.GERMLINE_VARIANTS_PAVE);
@@ -34,8 +35,9 @@ public class PaveGermline extends Pave {
 
     private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArguments.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath());
-        return paveCommand(metadata, arguments);
+        List<String> arguments = PaveArguments.germline(
+                resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+        return paveCommand(arguments);
     }
 
     @Override
@@ -43,9 +45,7 @@ public class PaveGermline extends Pave {
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s.%s",
-                metadata.sampleName(),
-                SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_NAME,
-                FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s",
+                metadata.sampleName(), PAVE_GERMLINE_FILE_ID, FileTypes.GZIPPED_VCF);
     }
 }

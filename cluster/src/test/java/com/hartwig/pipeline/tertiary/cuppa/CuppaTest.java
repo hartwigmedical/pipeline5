@@ -1,10 +1,14 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,6 +16,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -106,18 +111,20 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedCommands() {
         // @formatter:off
-        return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.8/cuppa.jar "
-                        + "-categories DNA "
-                        + "-ref_data_dir /opt/resources/cuppa/ "
-                        + "-ref_genome_version V37 "
-                        + "-sample_data tumor "
-                        + "-sample_data_dir /data/input/results "
-                        + "-output_dir /data/output "
-                        + "-create_pdf",
-                "/opt/tools/cuppa-chart/1.8_venv/bin/python /opt/tools/cuppa-chart/1.8/cuppa-chart.py "
-                        + "-sample tumor "
-                        + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV
-                        + " -output_dir /data/output");
+        String cuppaCharPath = format("%s/%s/%s", VmDirectories.TOOLS, "cuppa-chart", CUPPA.runVersion());
+
+        return List.of(toolCommand(CUPPA)
+                + " -categories DNA "
+                + "-ref_data_dir /opt/resources/cuppa/ "
+                + "-ref_genome_version V37 "
+                + "-sample tumor "
+                + "-sample_data_dir /data/input/results "
+                + "-output_dir /data/output "
+                + "-create_pdf",
+                cuppaCharPath + "_venv/bin/python " + cuppaCharPath + "/cuppa-chart.py "
+                + "-sample tumor "
+                + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV
+                + " -output_dir /data/output");
         // @formatter:on
     }
 

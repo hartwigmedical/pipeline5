@@ -6,7 +6,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
-import static com.hartwig.pipeline.resource.ResourceNames.ROSE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
@@ -49,8 +48,6 @@ public interface ResourceFiles {
 
     String germlinePon();
 
-    String somaticPonArtefacts();
-
     String gnomadPonCache();
 
     String giabHighConfidenceBed();
@@ -80,20 +77,15 @@ public interface ResourceFiles {
 
     String driverGenePanel();
 
-    String actionabilityDir();
-
     String hlaRegionBed();
 
     String purpleCohortGermlineDeletions();
 
+    String targetRegionsPonArtefacts();
     String targetRegionsBed();
     String targetRegionsNormalisation();
     String targetRegionsRatios();
     String targetRegionsMsiIndels();
-
-    default String targetRegionsInterval() {
-        return targetRegionsBed().replace("bed", "intervals_list");
-    }
 
     default String cuppaRefData() {
         return of(CUPPA);
@@ -129,10 +121,6 @@ public interface ResourceFiles {
 
     default String peachFilterBed() {
         return of(PEACH, "peach.json");
-    }
-
-    default String roseActionabilityDb() {
-        return of(ROSE, "actionability.tsv");
     }
 
     default String formPath(final String name, final String file) {

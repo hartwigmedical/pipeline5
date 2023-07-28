@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
 import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
 
@@ -74,7 +76,6 @@ public class GripssSomatic extends Gripss {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(String.format("-sample %s", metadata.tumor().sampleName()));
-        arguments.add("-filter_sgls");
         arguments.add("-output_id somatic");
         arguments.addAll(commonArguments());
 
@@ -83,6 +84,7 @@ public class GripssSomatic extends Gripss {
             arguments.add("-hard_min_tumor_qual 200");
             arguments.add("-min_qual_break_point 1000");
             arguments.add("-min_qual_break_end 1000");
+            arguments.add(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()));
         }
 
         return formCommand(arguments);

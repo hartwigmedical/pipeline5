@@ -1,0 +1,15 @@
+id	svId	isStart	gene	transcriptId	canonical	geneOrientation	disruptive	reportedDisruption	undisruptedCopyNumber	regionType	codingType	biotype	exonicBasePhase	nextSpliceExonRank	nextSpliceExonPhase	nextSpliceDistance	totalExonCount	type	chromosome	orientation	strand	chrBand	exonUp	exonDown	junctionCopyNumber
+0	0	true	ATAD1	ENST00000308448	true	Downstream	false	false	0.0001	UPSTREAM	UTR_5P	protein_coding	-1	2	-1	122382	10	DEL	10	1	-1	q23.31	0	2	0.0075
+1	0	true	KLLN	ENST00000445946	true	Downstream	false	false	0.0001	UPSTREAM	UTR_5P	protein_coding	-1	1	-1	77105	1	DEL	10	1	-1	q23.31	0	1	0.0075
+2	0	true	PTEN	ENST00000371953	true	Upstream	true	true	0.0001	INTRONIC	CODING	protein_coding	0	5	0	7291	9	DEL	10	1	1	q23.31	5	6	0.0075
+3	0	true	RPL11P3	ENST00000395256	true	Upstream	false	false	0.0001	UPSTREAM	NON_CODING	processed_pseudogene	-1	0	-1	7529	1	DEL	10	1	1	q23.31	0	1	0.0075
+4	0	false	KLLN	ENST00000445946	true	Upstream	false	false	0.0001	UPSTREAM	UTR_5P	protein_coding	-1	0	-1	-1	1	DEL	10	-1	-1	q23.31	0	1	0.0075
+5	0	false	PTEN	ENST00000371953	true	Downstream	true	true	0.0001	INTRONIC	CODING	protein_coding	1	7	1	5269	9	DEL	10	-1	1	q23.31	6	7	0.0075
+6	1	true	ITIH5	ENST00000256861	true	Upstream	true	false	2.0000	INTRONIC	CODING	protein_coding	0	7	0	23572	14	BND	10	-1	-1	p14	7	8	0.2415
+7	1	false	RN7SL862P	ENST00000491550	true	Upstream	false	false	2.0000	UPSTREAM	NON_CODING	misc_RNA	-1	0	-1	-1	1	BND	18	-1	-1	p11.22	0	1	0.2415
+8	1	false	RNA5SP449	ENST00000516871	true	Upstream	false	false	2.0000	UPSTREAM	NON_CODING	rRNA	-1	0	-1	-1	1	BND	18	-1	-1	p11.22	0	1	0.2415
+9	1	false	TXNDC2	ENST00000306084	true	Downstream	false	false	2.0000	UPSTREAM	CODING	protein_coding	1	2	1	17969	2	BND	18	-1	1	p11.22	0	2	0.2415
+10	1	false	VAPA	ENST00000340541	true	Downstream	false	false	2.0000	UPSTREAM	CODING	protein_coding	1	2	1	63190	7	BND	18	-1	1	p11.22	0	2	0.2415
+11	1	false	RNA5SP450	ENST00000411206	true	Downstream	false	false	2.0000	UPSTREAM	NON_CODING	rRNA	-1	1	-1	55300	1	BND	18	-1	1	p11.22	0	1	0.2415
+12	1	true	ITIH5	ENST00000434980	false	Upstream	true	false	2.0000	INTRONIC	NON_CODING	processed_transcript	-1	4	-1	23572	9	BND	10	-1	-1	p14	4	5	0.2415
+13	1	false	TXNDC2	ENST00000536353	false	Downstream	false	false	2.0000	UPSTREAM	UTR_5P	protein_coding	-1	2	-1	17969	3	BND	18	-1	1	p11.22	0	2	0.2415

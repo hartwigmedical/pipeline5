@@ -2,6 +2,8 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +36,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -46,8 +47,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_GERMLINE_SV_VCF = ".purple.sv.germline.vcf.gz";
     public static final String PURPLE_PURITY_TSV = ".purple.purity.tsv";
     public static final String PURPLE_QC = ".purple.qc";
-    public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
-    public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".driver.catalog.germline.tsv";
+    public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".purple.driver.catalog.somatic.tsv";
+    public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".purple.driver.catalog.germline.tsv";
     public static final String PURPLE_GERMLINE_DELETION_TSV = ".purple.germline.deletion.tsv";
     public static final String PURPLE_GENE_COPY_NUMBER_TSV = ".purple.cnv.gene.tsv";
     public static final String PURPLE_SOMATIC_COPY_NUMBER_TSV = ".purple.cnv.somatic.tsv";
@@ -97,14 +98,13 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
-                svRecoveryVcfDownload.getLocalTargetPath(),
-                resourceFiles));
+                resourceFiles,
+                true, svRecoveryVcfDownload.getLocalTargetPath()));
+
         purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
                 germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
-        if (arguments.useTargetRegions()) {
-            purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
-        }
+
         if (arguments.shallow()) {
             PurpleArguments.addShallowArguments(purpleArguments);
         }
@@ -120,8 +120,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
-                svRecoveryVcfDownload.getLocalTargetPath(),
-                resourceFiles));
+                resourceFiles,
+                false, svRecoveryVcfDownload.getLocalTargetPath()));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -370,7 +370,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand("purple", Versions.PURPLE, "purple.jar", "31G", arguments));
+        return Collections.singletonList(new JavaJarCommand(PURPLE, arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,

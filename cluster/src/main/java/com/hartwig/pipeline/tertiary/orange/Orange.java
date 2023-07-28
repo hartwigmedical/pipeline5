@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,7 +21,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarFileExistsCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -50,7 +50,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -159,20 +159,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         return buildCommands(metadata);
     }
 
-    @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
-    }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return Stage.disabled();
-    }
-
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
 
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
-        final String pipelineVersion = Versions.pipelineMajorMinorVersion();
+        final String pipelineVersion = VersionUtils.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";
@@ -197,51 +187,33 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                         refFlagstat.getLocalTargetPath(),
                         "-tumor_sample_flagstat_file",
                         tumFlagstat.getLocalTargetPath(),
-                        "-sage_germline_gene_coverage_tsv",
-                        sageGermlineGeneCoverageTsv.getLocalTargetPath(),
-                        "-sage_somatic_ref_sample_bqr_plot",
-                        sageSomaticRefSampleBqrPlot.getLocalTargetPath(),
-                        "-sage_somatic_tumor_sample_bqr_plot",
-                        sageSomaticTumorSampleBqrPlot.getLocalTargetPath(),
-                        "-purple_data_directory",
+                        "-sample_data_dir",
+                        VmDirectories.INPUT,
+                        "-purple_dir",
                         purpleOutputDir.getLocalTargetPath(),
-                        "-purple_plot_directory",
+                        "-purple_plot_dir",
                         purpleOutputDir.getLocalTargetPath() + "/plot",
-                        "-lilac_qc_csv",
-                        lilacQc.getLocalTargetPath(),
-                        "-lilac_result_csv",
-                        lilacResult.getLocalTargetPath(),
-                        "-linx_germline_data_directory",
+                        "-linx_germline_dir",
                         linxGermlineDataDir.getLocalTargetPath(),
-                        "-linx_plot_directory",
+                        "-linx_plot_dir",
                         linxPlotDir,
-                        "-linx_somatic_data_directory",
+                        "-linx_dir",
                         linxSomaticOutputDir.getLocalTargetPath(),
-                        "-cuppa_result_csv",
-                        cuppaResultCsv.getLocalTargetPath(),
-                        "-cuppa_summary_plot",
-                        cuppaSummaryPlot.getLocalTargetPath(),
-                        "-cuppa_chart_plot",
-                        cuppaChartPlot.getLocalTargetPath(),
-                        "-chord_prediction_txt",
-                        chordPredictionTxt.getLocalTargetPath(),
-                        "-peach_genotype_tsv",
-                        peachGenotypeTsv.getLocalTargetPath(),
-                        "-sigs_allocation_tsv",
-                        sigsAllocationTsv.getLocalTargetPath(),
-                        "-annotated_virus_tsv",
-                        annotatedVirusTsv.getLocalTargetPath(),
+                        "-lilac_dir",
+                        VmDirectories.INPUT,
+                        "-sage_dir",
+                        VmDirectories.INPUT,
                         "-pipeline_version_file",
                         pipelineVersionFilePath,
                         "-cohort_mapping_tsv",
                         resourceFiles.orangeCohortMapping(),
                         "-cohort_percentiles_tsv",
                         resourceFiles.orangeCohortPercentiles(),
-                        "-driver_gene_panel_tsv",
+                        "-driver_gene_panel",
                         resourceFiles.driverGenePanel(),
                         "-known_fusion_file",
                         resourceFiles.knownFusionData(),
-                        "-ensembl_data_directory",
+                        "-ensembl_data_dir",
                         resourceFiles.ensemblDataCache());
         if (context.equals(Pipeline.Context.RESEARCH)) {
             argumentListBuilder.add("-add_disclaimer");
@@ -252,13 +224,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         metadata.tumor()
                 .samplingDate()
                 .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
-        JavaJarCommand orangeJarCommand = new JavaJarCommand("orange", Versions.ORANGE, "orange.jar", "16G", argumentListBuilder.build());
-        BashCommand withOptionalPlotCommand =
-                new JavaJarFileExistsCommand(orangeJarCommand, "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath());
+        JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
 
         return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                withOptionalPlotCommand);
+                orangeJarCommand);
     }
 
     @Override

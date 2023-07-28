@@ -63,8 +63,6 @@ import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
-import com.hartwig.pipeline.tertiary.protect.Protect;
-import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
@@ -74,9 +72,11 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class TestInputs {
 
     private static final String RESULTS = "results/";
@@ -104,6 +104,23 @@ public class TestInputs {
 
     public static String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
+    }
+
+    public static String toolCommand(final HmfTool hmfTool) {
+        return format("java -Xmx%dG -jar /opt/tools/%s/%s/%s",
+                hmfTool.getMaxHeap(),
+                hmfTool.directory(),
+                hmfTool.runVersion(),
+                hmfTool.jar());
+    }
+
+    public static String toolCommand(final HmfTool hmfTool, final String classPath) {
+        return format("java -Xmx%dG -cp /opt/tools/%s/%s/%s %s",
+                hmfTool.getMaxHeap(),
+                hmfTool.directory(),
+                hmfTool.runVersion(),
+                hmfTool.jar(),
+                classPath);
     }
 
     public static String referenceSample() {
@@ -429,8 +446,8 @@ public class TestInputs {
     public static LilacOutput lilacOutput() {
         return LilacOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.csv"))
-                .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.csv"))
+                .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.tsv"))
+                .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.tsv"))
                 .build();
     }
 
@@ -441,13 +458,6 @@ public class TestInputs {
                 .referenceIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam.bai"))
                 .tumor(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam"))
                 .tumorIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam.bai"))
-                .build();
-    }
-
-    public static ProtectOutput protectOutput() {
-        return ProtectOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .maybeEvidence(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
                 .build();
     }
 

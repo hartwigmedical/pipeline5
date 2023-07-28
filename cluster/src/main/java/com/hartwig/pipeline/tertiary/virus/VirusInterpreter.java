@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import java.util.List;
 
@@ -31,7 +32,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(VirusInterpreter.NAMESPACE)
 public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
@@ -82,16 +82,12 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     }
 
     private List<BashCommand> generateCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaJarCommand("virus-interpreter",
-                Versions.VIRUS_INTERPRETER,
-                "virus-interpreter.jar",
-                "2G",
-                List.of("-sample_id",
+        return List.of(new JavaJarCommand(
+                VIRUS_INTERPRETER,
+                List.of("-sample",
                         metadata.tumor().sampleName(),
-                        "-purple_purity_tsv",
-                        purplePurity.getLocalTargetPath(),
-                        "-purple_qc_file",
-                        purpleQc.getLocalTargetPath(),
+                        "-purple_dir",
+                        VmDirectories.INPUT,
                         "-tumor_sample_wgs_metrics_file",
                         tumorBamMetrics.getLocalTargetPath(),
                         "-virus_breakend_tsv",

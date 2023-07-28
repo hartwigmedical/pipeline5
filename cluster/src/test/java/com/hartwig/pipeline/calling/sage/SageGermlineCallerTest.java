@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -31,8 +34,8 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx31G -jar /opt/tools/sage/3.2.5/sage.jar "
-                        + "-tumor reference -tumor_bam /data/input/reference.bam "
+                toolCommand(SAGE)
+                        + " -tumor reference -tumor_bam /data/input/reference.bam "
                         + "-reference tumor -reference_bam /data/input/tumor.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-hotspot_min_tumor_qual 50 -panel_min_tumor_qual 75 -hotspot_max_germline_vaf 100 "

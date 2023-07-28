@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
@@ -15,6 +17,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -33,8 +36,8 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/cobalt/1.13/cobalt.jar "
-                        + "-tumor tumor -tumor_bam /data/input/tumor.bam "
+                toolCommand(HmfTool.COBALT)
+                        + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                         + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "

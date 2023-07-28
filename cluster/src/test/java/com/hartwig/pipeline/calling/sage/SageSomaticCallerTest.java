@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -40,7 +43,9 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx60G -jar /opt/tools/sage/3.2.5/sage.jar " + "-tumor tumor -tumor_bam /data/input/tumor.bam "
+        return ImmutableList.of(
+                toolCommand(SAGE)
+                        + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                         + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "

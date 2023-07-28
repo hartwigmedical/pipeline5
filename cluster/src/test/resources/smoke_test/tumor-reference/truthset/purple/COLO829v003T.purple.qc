@@ -1,11 +1,11 @@
-QCStatus	PASS
+QCStatus	WARN_DELETED_GENES,WARN_GENDER_MISMATCH
 Method	NORMAL
 CopyNumberSegments	48
 UnsupportedCopyNumberSegments	0
 Purity	1.0000
 AmberGender	MALE
-CobaltGender	MALE
-DeletedGenes	0
+CobaltGender	FEMALE
+DeletedGenes	8721
 Contamination	0.0
 GermlineAberrations	NONE
 AmberMeanDepth	128

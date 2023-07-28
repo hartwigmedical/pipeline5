@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.calling.command;
 
-import com.hartwig.pipeline.tools.Versions;
+import static com.hartwig.pipeline.tools.ExternalTool.BWA;
 
 public class BwaCommand extends VersionedToolCommand {
     public BwaCommand(final String... arguments) {
-        super("bwa", "bwa", Versions.BWA, arguments);
+        super(BWA.getToolName(), BWA.getBinary(), BWA.getVersion(), arguments);
     }
 }

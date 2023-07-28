@@ -1,17 +1,18 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "pipeline5-" + Versions.imageVersion();
+    String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
     String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
 
@@ -108,7 +109,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition gripss(final String name, final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition gripss(final String name, final BashStartupScript startupScript,
+            final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name(name)
                 .startupCommand(startupScript)
@@ -160,7 +162,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("cobalt")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(16, 16))
+                .performanceProfile(custom(COBALT.getCpus(), COBALT.getMemoryGb()))
                 .build();
     }
 
@@ -191,7 +193,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition alignment(final String lane, final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition alignment(final String lane, final BashStartupScript startupScript,
+            final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("aligner-" + lane)
                 .startupCommand(startupScript)
@@ -209,7 +212,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition linx(final String type, final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition linx(final String type, final BashStartupScript startupScript,
+            final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("linx-" + type)
                 .startupCommand(startupScript)

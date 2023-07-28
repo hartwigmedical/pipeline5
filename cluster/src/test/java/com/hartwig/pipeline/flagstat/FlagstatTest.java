@@ -57,7 +57,7 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "($TOOLS_DIR/sambamba/0.6.8/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
+                "($TOOLS_DIR/samtools/1.14/samtools flagstat -@ $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
                         + "/data/output/reference.flagstat)");
     }
 

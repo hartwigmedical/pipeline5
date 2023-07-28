@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -201,7 +201,7 @@ public class CommandLineOptions {
     }
 
     private static Option imageName() {
-        return optionWithArg(IMAGE_NAME_FLAG, String.format("Image to use instead of the latest %s image", Versions.imageVersion()));
+        return optionWithArg(IMAGE_NAME_FLAG, String.format("Image to use instead of the latest %s image", VersionUtils.imageVersion()));
     }
 
     private static Option maxConcurrentLanes() {

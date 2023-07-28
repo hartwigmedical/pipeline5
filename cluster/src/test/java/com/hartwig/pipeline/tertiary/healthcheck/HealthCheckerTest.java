@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -39,11 +42,6 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     }
 
     @Override
-    protected SomaticRunMetadata input() {
-        return TestInputs.defaultSomaticRunMetadata();
-    }
-
-    @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of("mkdir -p /data/input/metrics",
                 "mkdir -p /data/input/flagstat",
@@ -58,7 +56,8 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx10G -jar /opt/tools/health-checker/3.4/health-checker.jar -purple_dir /data/input/purple -output_dir /data/output "
+                toolCommand(HEALTH_CHECKER)
+                        + " -purple_dir /data/input/purple -output_dir /data/output "
                         + "-tumor tumor -tum_wgs_metrics_file /data/input/metrics/tumor.wgsmetrics -tum_flagstat_file "
                         + "/data/input/flagstat/tumor.flagstat -reference reference "
                         + "-ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -ref_flagstat_file "

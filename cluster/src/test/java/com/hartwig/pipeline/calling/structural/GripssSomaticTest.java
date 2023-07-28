@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -56,8 +59,9 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx16G -jar /opt/tools/gripss/2.3.5/gripss.jar "
-                + "-sample tumor -reference reference "
+        return ImmutableList.of(
+                toolCommand(HmfTool.GRIPSS)
+                + " -sample tumor -reference reference "
                 + "-output_id somatic "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "

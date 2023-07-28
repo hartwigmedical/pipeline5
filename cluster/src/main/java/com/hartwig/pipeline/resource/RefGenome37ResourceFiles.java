@@ -98,13 +98,8 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String somaticPonArtefacts() {
-        return formPath(SAGE, "PanelArtefacts.37.tsv");
-    }
-
-    @Override
     public String gnomadPonCache() {
-        return formPath(GNOMAD, "");
+        return formPath(GNOMAD, "gnomad_variants_v37.csv.gz");
     }
 
     @Override
@@ -163,11 +158,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String actionabilityDir() {
-        return formPath(SERVE, "");
-    }
-
-    @Override
     public String hlaRegionBed() {
         return formPath(LILAC, "hla.37.bed");
     }
@@ -175,6 +165,11 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String purpleCohortGermlineDeletions() {
         return formPath(PURPLE, "cohort_germline_del_freq.37.csv");
+    }
+
+    @Override
+    public String targetRegionsPonArtefacts() {
+        throw targetRegionsNotSupported();
     }
 
     @Override

@@ -51,7 +51,7 @@ public interface SageConfiguration {
                         SageGermlinePostProcess.SAGE_GERMLINE_FILTERED,
                         FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
-                .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode().addCoverage())
+                .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode())
                 .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
                 .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
                 .build();
@@ -68,8 +68,7 @@ public interface SageConfiguration {
                         FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
-                        .targetRegionsMode(arguments.useTargetRegions())
-                        .addCoverage())
+                        .targetRegionsMode(arguments.useTargetRegions()))
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName()))
                 .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
                 .build();

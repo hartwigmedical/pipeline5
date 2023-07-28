@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -34,19 +37,22 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx16G -jar /opt/tools/pave/1.4.5/pave.jar "
-                        + "-sample tumor "
+                // "java -Xmx16G -jar /opt/tools/pave/1.4.5/pave.jar "
+                toolCommand(PAVE)
+                        + " -sample tumor "
                         + "-vcf_file /data/input/tumor.germline.vcf.gz "
+                        + "-output_vcf_file /data/output/tumor.pave.germline.vcf.gz "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
                         + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
-                        + "-output_dir /data/output "
+                        + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
                         + "-read_pass_only "
                         + "-clinvar_vcf /opt/resources/sage/37/clinvar.37.vcf.gz "
                         + "-blacklist_bed /opt/resources/sage/37/KnownBlacklist.germline.37.bed "
-                        + "-blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz");
+                        + "-blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz "
+                        + "-gnomad_pon_filter -1");
     }
 
     @Override
@@ -73,7 +79,7 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.GERMLINE_VARIANTS_PAVE,
                 TestInputs.tumorRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), PaveGermline.NAMESPACE, "tumor.sage.germline.filtered.pave.vcf.gz")));
+                new ArchivePath(Folder.root(), PaveGermline.NAMESPACE, "tumor.pave.germline.vcf.gz")));
     }
 
     @Override
@@ -84,6 +90,6 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected void validatePersistedOutput(final PaveOutput output) {
         assertThat(output.annotatedVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/pave_germline/tumor.sage.germline.filtered.pave.vcf.gz"));
+                "set/pave_germline/tumor.pave.germline.vcf.gz"));
     }
 }

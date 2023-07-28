@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -13,9 +15,9 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -26,7 +28,6 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tools.Versions;
 
 @Namespace(Amber.NAMESPACE)
 public class Amber extends TertiaryStage<AmberOutput> {
@@ -86,7 +87,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand("amber", Versions.AMBER, "amber.jar", "32G", arguments));
+        commands.add(new JavaJarCommand(AMBER, arguments));
         return commands;
     }
 
@@ -157,8 +158,4 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 true));
     }
 
-    @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary();
-    }
 }

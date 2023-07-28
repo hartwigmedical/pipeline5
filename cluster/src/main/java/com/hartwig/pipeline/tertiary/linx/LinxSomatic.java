@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -15,9 +17,9 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -30,7 +32,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +55,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
         purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants().isPresent()
-                ? purpleOutputLocations.structuralVariants().get() : GoogleStorageLocation.empty());
+                ? purpleOutputLocations.structuralVariants().get()
+                : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -70,13 +72,14 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return buildCommands(metadata); }
-
-    @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
+    }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
 
@@ -88,14 +91,11 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        arguments.add("-check_fusions");
         arguments.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
-        arguments.add("-check_drivers");
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add("-write_vis_data");
 
-        return List.of(
-                new JavaJarCommand("linx", Versions.LINX, "linx.jar", "8G", arguments),
+        return List.of(new JavaJarCommand(LINX, arguments),
                 new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 
@@ -183,7 +183,8 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
-                        .build()).addAllDatatypes(addDatatypes(metadata))
+                        .build())
+                .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 

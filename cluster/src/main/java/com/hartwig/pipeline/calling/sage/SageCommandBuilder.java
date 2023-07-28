@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -8,7 +10,6 @@ import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.tools.Versions;
 
 public class SageCommandBuilder {
 
@@ -18,10 +19,6 @@ public class SageCommandBuilder {
     private final List<String> tumorBam = Lists.newArrayList();
     private final List<String> referenceBam = Lists.newArrayList();
 
-    private String wgsMaxHeap = "60G";
-    private String germlineMaxHeap = "31G";
-
-    private boolean coverage = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
@@ -38,7 +35,6 @@ public class SageCommandBuilder {
     public SageCommandBuilder germlineMode() {
         germlineMode = true;
         somaticMode = false;
-        maxHeap(germlineMaxHeap);
         return this;
     }
 
@@ -54,11 +50,6 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder addCoverage() {
-        this.coverage = true;
-        return this;
-    }
-
     public SageCommandBuilder shallowMode(final boolean enabled) {
         this.shallowSomaticMode = enabled;
         return this;
@@ -66,11 +57,6 @@ public class SageCommandBuilder {
 
     public SageCommandBuilder targetRegionsMode(final boolean enabled) {
         this.targetRegions = enabled;
-        return this;
-    }
-
-    public SageCommandBuilder maxHeap(final String maxHeap) {
-        this.wgsMaxHeap = maxHeap;
         return this;
     }
 
@@ -92,12 +78,12 @@ public class SageCommandBuilder {
 
         if (somaticMode) {
 
-            arguments.add(String.format("-tumor %s", tumor.toString()));
+            arguments.add(String.format("-tumor %s", tumor));
             arguments.add(String.format("-tumor_bam %s", tumorBamFiles));
 
             if (reference.length() > 0) {
 
-                arguments.add(String.format("-reference %s", reference.toString()));
+                arguments.add(String.format("-reference %s", reference));
                 arguments.add(String.format("-reference_bam %s", referenceBamFiles));
             }
 
@@ -109,11 +95,11 @@ public class SageCommandBuilder {
 
         } else if (germlineMode) {
 
-            arguments.add(String.format("-tumor %s", reference.toString()));
+            arguments.add(String.format("-tumor %s", reference));
             arguments.add(String.format("-tumor_bam %s", referenceBamFiles));
 
             if (tumor.length() > 0) {
-                arguments.add(String.format("-reference %s", tumor.toString()));
+                arguments.add(String.format("-reference %s", tumor));
                 arguments.add(String.format("-reference_bam %s", tumorBamFiles));
             }
 
@@ -129,11 +115,14 @@ public class SageCommandBuilder {
         }
 
         if (targetRegions) {
+            arguments.add("-hard_min_tumor_vaf 0.005");
             arguments.add("-hotspot_min_tumor_vaf 0.01");
-            arguments.add("-hotspot_min_tumor_qual 150");
+            arguments.add("-hotspot_min_tumor_qual 100");
             arguments.add("-panel_min_tumor_qual 250");
             arguments.add("-high_confidence_min_tumor_qual 350");
             arguments.add("-low_confidence_min_tumor_qual 500");
+            arguments.add("-max_read_depth 100000");
+            arguments.add("-sync_fragments");
         }
 
         arguments.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
@@ -147,7 +136,7 @@ public class SageCommandBuilder {
         arguments.add(String.format("-out %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
-        result.add(new JavaJarCommand("sage", Versions.SAGE, "sage.jar", wgsMaxHeap, arguments));
+        result.add(new JavaJarCommand(SAGE, arguments));
 
         return result;
     }

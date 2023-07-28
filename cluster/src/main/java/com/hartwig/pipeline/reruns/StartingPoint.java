@@ -20,22 +20,12 @@ import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
-import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
-import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
-import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
-import com.hartwig.pipeline.tertiary.linx.LinxGermline;
-import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
-import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
-import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
-import com.hartwig.pipeline.tertiary.rose.Rose;
-import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
-import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -69,25 +59,12 @@ public class StartingPoint {
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
 
-        // Note that as of 5.32 neither ROSE nor PROTECT are run for research pipelines
         RERUN_532(concat(SKIP_GRIDSS.namespaces,
                 List.of(Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE,
                         SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         VirusBreakend.NAMESPACE))),
-
-        PROTECT_ONLY(concat(PURPLE_COMPLETE.namespaces,
-                List.of(LinxGermline.NAMESPACE,
-                        LinxSomatic.NAMESPACE,
-                        Chord.NAMESPACE,
-                        Lilac.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Cuppa.NAMESPACE,
-                        Orange.NAMESPACE,
-                        Sigs.NAMESPACE,
-                        Rose.NAMESPACE,
-                        VirusInterpreter.NAMESPACE))),
 
         RESEARCH_AFTER_531_DIAGNOSTIC(concat(ALIGNMENT_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE)));
 

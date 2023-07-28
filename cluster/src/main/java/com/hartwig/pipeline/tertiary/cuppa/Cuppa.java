@@ -34,7 +34,7 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -91,7 +91,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 "-categories DNA",
                 format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
                 format("-ref_genome_version %s", resourceFiles.version().toString()),
-                format("-sample_data %s", metadata.tumor().sampleName()),
+                format("-sample %s", metadata.tumor().sampleName()),
                 format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
                 format("-output_dir %s", VmDirectories.OUTPUT),
                 "-create_pdf");
@@ -104,8 +104,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 format("-output_dir %s", VmDirectories.OUTPUT));
 
         return List.of(
-                new JavaJarCommand("cuppa", Versions.CUPPA, "cuppa.jar", "4G", cuppaArguments),
-                new Python3Command("cuppa-chart", Versions.CUPPA, "cuppa-chart.py", chartArguments));
+                new JavaJarCommand(HmfTool.CUPPA, cuppaArguments),
+                new Python3Command("cuppa-chart", HmfTool.CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
     }
 
     @Override

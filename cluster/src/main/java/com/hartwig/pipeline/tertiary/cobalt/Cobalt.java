@@ -27,7 +27,7 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tools.HmfTool;
 
 @Namespace(Cobalt.NAMESPACE)
 public class Cobalt extends TertiaryStage<CobaltOutput> {
@@ -91,7 +91,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand("cobalt", Versions.COBALT, "cobalt.jar", "8G", arguments));
+        commands.add(new JavaJarCommand(HmfTool.COBALT, arguments));
         return commands;
     }
 

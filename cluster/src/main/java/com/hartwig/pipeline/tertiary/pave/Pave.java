@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -13,9 +15,9 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.OutputComponent;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -26,19 +28,16 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
-
-    static final String PAVE_FILE_NAME = "pave";
 
     protected final ResourceFiles resourceFiles;
     protected final InputDownload vcfDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
-    public Pave(
-            final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset, final DataType vcfDatatype) {
+    public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
+            final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownload(sageOutput.variants());
         this.persistedDataset = persistedDataset;
@@ -47,9 +46,8 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
-    protected List<BashCommand> paveCommand(final SomaticRunMetadata metadata, final List<String> arguments)
-    {
-        return Collections.singletonList(new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "16G", arguments));
+    protected List<BashCommand> paveCommand(final List<String> arguments) {
+        return Collections.singletonList(new JavaJarCommand(PAVE, arguments));
     }
 
     @Override

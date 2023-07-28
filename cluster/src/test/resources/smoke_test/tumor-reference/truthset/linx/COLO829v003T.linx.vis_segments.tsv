@@ -1,0 +1,5 @@
+SampleId	ClusterId	ChainId	Chromosome	PosStart	PosEnd	LinkPloidy	InDoubleMinute
+COLO829v003T	0	1	10	7634373	C	0.2415	false
+COLO829v003T	0	1	18	9868617	C	0.2415	false
+COLO829v003T	1	1	10	C	89700299	0.0075	false
+COLO829v003T	1	1	10	89712341	T	0.0075	false

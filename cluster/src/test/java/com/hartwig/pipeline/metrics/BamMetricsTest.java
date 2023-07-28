@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
 import java.util.List;
 
@@ -68,8 +70,8 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     protected List<String> expectedCommands() {
 
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/bam-tools/1.0/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
-                + "-sample reference "
+                toolCommand(BAM_TOOLS)
+                + " -sample reference "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
                 + "-bam_file /data/input/reference.bam "
@@ -88,8 +90,8 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 Arguments.testDefaultsBuilder().useTargetRegions(true).build());
 
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
-                "java -Xmx24G -cp /opt/tools/bam-tools/1.0/bam-tools.jar com.hartwig.hmftools.bamtools.metrics.BamMetrics "
-                        + "-sample tumor "
+                toolCommand(BAM_TOOLS)
+                        + " -sample tumor "
                         + "-ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
                         + "-ref_genome_version V38 "
                         + "-bam_file /data/input/tumor.bam "

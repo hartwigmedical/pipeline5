@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
@@ -30,8 +33,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_PURPLE_GERMLINE_SV_VCF_GZ = "tumor.purple.sv.germline.vcf.gz";
     public static final String TUMOR_PURITY_TSV = "tumor.purple.purity.tsv";
     public static final String TUMOR_QC = "tumor.purple.qc";
-    public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
-    public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
+    public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.purple.driver.catalog.somatic.tsv";
+    public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.purple.driver.catalog.germline.tsv";
     public static final String TUMOR_SOMATIC_COPY_NUMBER = "tumor.purple.cnv.somatic.tsv";
     public static final String TUMOR_CIRCOS_PLOT = "plot/tumor.circos.png";
     public static final String TUMOR_GERMLINE_DELETION = "tumor.purple.germline.deletion.tsv";
@@ -55,54 +58,44 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     }
 
     @Override
-    protected SomaticRunMetadata input() {
-        return TestInputs.defaultSomaticRunMetadata();
-    }
-
-    @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz", "tumor.gripss.filtered.somatic.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz",
+                        "tumor.gripss.filtered.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz.tbi",
                         "tumor.gripss.filtered.somatic.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz", "tumor.gripss.somatic.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz.tbi", "tumor.gripss.somatic.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gripss_germline/results/tumor.gripss.filtered.germline.vcf.gz", "tumor.gripss.filtered.germline.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz.tbi",
+                        "tumor.gripss.somatic.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_germline/results/tumor.gripss.filtered.germline.vcf.gz",
+                        "tumor.gripss.filtered.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList(
-                "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
-                        + "-amber /data/input/results "
-                        + "-cobalt /data/input/results "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
-                        + "-output_dir /data/output "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-tumor tumor "
-                        + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
-                        + "-somatic_sv_vcf /data/input/tumor.gripss.filtered.somatic.vcf.gz "
-                        + "-sv_recovery_vcf /data/input/tumor.gripss.somatic.vcf.gz "
-                        + "-somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
-                        + "-circos /opt/tools/circos/0.69.6/bin/circos "
-                        + "-reference reference "
-                        + "-germline_vcf /data/input/tumor.germline.vcf.gz "
-                        + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
-                        + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
-                        + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv");
+        return Collections.singletonList(toolCommand(PURPLE) + " -amber /data/input/results " + "-cobalt /data/input/results "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
+                + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
+                + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-tumor tumor " + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
+                + "-somatic_sv_vcf /data/input/tumor.gripss.filtered.somatic.vcf.gz "
+                + "-somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
+                + "-circos /opt/tools/circos/0.69.6/bin/circos " + "-sv_recovery_vcf /data/input/tumor.gripss.somatic.vcf.gz "
+                + "-reference reference " + "-germline_vcf /data/input/tumor.germline.vcf.gz "
+                + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
+                + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
+                + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv");
     }
 
     @Override
     protected List<String> expectedReferenceOnlyCommands() {
         return Collections.singletonList(
-                "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar " + "-amber /data/input/results " + "-cobalt /data/input/results "
+                // "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
+                toolCommand(PURPLE) + " -amber /data/input/results " + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
@@ -147,9 +140,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected void validatePersistedOutput(final PurpleOutput output) {
         assertThat(output.outputLocations().outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/purple", true));
-        assertThat(output.outputLocations().somaticVariants().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.outputLocations().somaticVariants().orElseThrow()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
-        assertThat(output.outputLocations().structuralVariants().get()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.outputLocations().structuralVariants().orElseThrow()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/purple/" + TUMOR_PURPLE_SOMATIC_SV_VCF_GZ));
     }
 
@@ -164,7 +157,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_SV_VCF_GZ)),
-                new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS, TestInputs.defaultSomaticRunMetadata().barcode(),
+                new AddDatatype(DataType.PURPLE_GERMLINE_STRUCTURAL_VARIANTS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_GERMLINE_SV_VCF_GZ)),
                 new AddDatatype(DataType.PURPLE_PURITY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),

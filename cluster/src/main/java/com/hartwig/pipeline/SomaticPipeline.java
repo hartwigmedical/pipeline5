@@ -51,12 +51,8 @@ import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
-import com.hartwig.pipeline.tertiary.protect.Protect;
-import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.rose.Rose;
-import com.hartwig.pipeline.tertiary.rose.RoseOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
@@ -129,16 +125,17 @@ public class SomaticPipeline {
 
             if (state.shouldProceed()) {
                 Future<PaveOutput> paveSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
+                        new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset, arguments)));
                 Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
-                PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));
-                PaveOutput paveGermlineOutput = composer.add(state.add(paveGermlineOutputFuture.get()));
 
                 Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles, arguments)));
                 Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
+
+                PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));
+                PaveOutput paveGermlineOutput = composer.add(state.add(paveGermlineOutputFuture.get()));
                 GripssOutput gripssSomaticProcessOutput = composer.add(state.add(gripssSomaticOutputFuture.get()));
                 GripssOutput gripssGermlineProcessOutput = composer.add(state.add(gripssGermlineOutputFuture.get()));
 
@@ -245,25 +242,8 @@ public class SomaticPipeline {
                                         resourceFiles,
                                         arguments.context(),
                                         false)));
-                        Future<RoseOutput> roseOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Rose(resourceFiles,
-                                        purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        cuppaOutput)));
-                        Future<ProtectOutput> protectOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Protect(purpleOutput,
-                                        linxSomaticOutput,
-                                        virusInterpreterOutput,
-                                        chordOutput,
-                                        lilacOutput,
-                                        resourceFiles,
-                                        persistedDataset)));
                         composer.add(state.add(orangeOutputFuture.get()));
                         composer.add(state.add(orangeNoGermlineFuture.get()));
-                        composer.add(state.add(roseOutputFuture.get()));
-                        composer.add(state.add(protectOutputFuture.get()));
 
                         composer.compose(metadata, Folder.root());
                     }

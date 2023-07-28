@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -60,8 +63,8 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx32G -jar /opt/tools/amber/3.9/amber.jar "
-                + "-tumor tumor -tumor_bam /data/input/tumor.bam "
+        return List.of(toolCommand(AMBER)
+                + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                 + "-reference reference -reference_bam /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "

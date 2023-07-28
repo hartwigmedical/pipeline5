@@ -136,10 +136,13 @@ public class BwaAligner implements Aligner {
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
             laneBams.forEach(mergeMarkdupsBash::addCommand);
 
-            SubStageInputOutput merged = new MergeMarkDups(laneBams.stream()
+            List<String> laneBamPaths = laneBams.stream()
                     .map(InputDownload::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
-                    .collect(Collectors.toList())).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                    .collect(Collectors.toList());
+
+            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths, arguments.useTargetRegions())
+                    .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 

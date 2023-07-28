@@ -38,7 +38,7 @@ done
 set -e
 echo "Rebuilding pipeline JAR to ensure correct version"
 mvn -f "$(dirname "$0")/../../pom.xml" clean package -DskipTests
-version="$(java -cp ${PV5_JAR} com.hartwig.pipeline.tools.Versions)"
+version="$(java -cp ${PV5_JAR} com.hartwig.pipeline.tools.VersionUtils)"
 set +e
 [[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 

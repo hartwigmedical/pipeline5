@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -40,8 +43,12 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/1.23.6/linx.jar -sample tumor -germline "
-                + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz -ref_genome_version V37 -output_dir /data/output "
+        commands.add(
+                toolCommand(LINX)
+                + " -sample tumor -germline "
+                + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz "
+                + "-ref_genome_version V37 "
+                + "-output_dir /data/output "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
 
