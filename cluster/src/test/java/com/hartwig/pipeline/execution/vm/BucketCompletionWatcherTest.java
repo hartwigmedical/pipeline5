@@ -62,24 +62,6 @@ public class BucketCompletionWatcherTest {
         assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.STILL_WAITING);
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldWaitAndEventuallyReturnFailureState() {
-        mockFlagFile(FAILURE_FLAG);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
-        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.FAILURE);
-        verify(runtimeBucket.getRuntimeBucket(), atLeast(2)).list();
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldWaitAndEventuallyReturnSuccessState() {
-        mockFlagFile(SUCCESS_FLAG);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
-        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.SUCCESS);
-        verify(runtimeBucket.getRuntimeBucket(), atLeast(2)).list();
-    }
-
     private void mockFlagFile(final String flagFile) {
         mockReadChannel(mockBlob, NAMESPACE + flagFile);
         blobs.add(mockBlob);

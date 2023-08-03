@@ -31,15 +31,4 @@ public interface OutputFile {
     static OutputFile empty() {
         return ImmutableOutputFile.of("not.a.file");
     }
-
-    default String copyToRemoteLocation(final GoogleStorageLocation remoteLocation) {
-        String remoteDestination = remoteLocation.bucket() + File.separator + remoteLocation.path();
-        if (remoteLocation.isDirectory()) {
-            remoteDestination = remoteDestination + File.separator + fileName();
-        }
-        return String.format(
-                "gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q cp %s gs://%s",
-                path(),
-                remoteDestination);
-    }
 }

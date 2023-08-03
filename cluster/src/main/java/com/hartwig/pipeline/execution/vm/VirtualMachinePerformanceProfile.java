@@ -1,12 +1,11 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.MachineType;
-import com.hartwig.pipeline.execution.PerformanceProfile;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface VirtualMachinePerformanceProfile extends PerformanceProfile {
+public interface VirtualMachinePerformanceProfile {
 
     @Value.Default
     default String uri() {
