@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 

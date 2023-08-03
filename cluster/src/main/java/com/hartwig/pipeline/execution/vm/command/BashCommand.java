@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.command;
 
 public interface BashCommand {
 

@@ -2,7 +2,7 @@ package com.hartwig.pipeline.execution.vm.command.unix;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 
 public class MvCommand implements BashCommand {
     private final String source;

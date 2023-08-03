@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.command.unix.PipeCommands;
 import com.hartwig.pipeline.stages.SubStage;

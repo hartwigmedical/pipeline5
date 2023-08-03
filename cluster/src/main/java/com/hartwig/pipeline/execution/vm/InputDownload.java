@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class InputDownload implements BashCommand {

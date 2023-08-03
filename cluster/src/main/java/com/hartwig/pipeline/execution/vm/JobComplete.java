@@ -2,6 +2,8 @@ package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
 
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
+
 public class JobComplete implements BashCommand {
 
     private final String flag;

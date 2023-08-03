@@ -2,7 +2,7 @@ package com.hartwig.pipeline.execution.vm.command.python;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class Python3Command implements BashCommand {

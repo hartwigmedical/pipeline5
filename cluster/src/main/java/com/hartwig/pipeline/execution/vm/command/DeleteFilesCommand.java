@@ -2,8 +2,6 @@ package com.hartwig.pipeline.execution.vm.command;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-
 public class DeleteFilesCommand implements BashCommand {
     private final List<String> files;
 
