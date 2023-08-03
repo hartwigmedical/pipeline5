@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm.unix;
+package com.hartwig.pipeline.execution.vm.command.unix;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 

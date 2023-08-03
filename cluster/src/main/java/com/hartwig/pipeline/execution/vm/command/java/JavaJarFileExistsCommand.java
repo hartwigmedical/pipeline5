@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm.java;
+package com.hartwig.pipeline.execution.vm.command.java;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 

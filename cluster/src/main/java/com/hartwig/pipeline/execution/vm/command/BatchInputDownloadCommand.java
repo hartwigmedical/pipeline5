@@ -1,13 +1,17 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.command;
 
 import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 
-public class BatchInputDownload implements BashCommand {
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
+public class BatchInputDownloadCommand implements BashCommand {
     private final InputDownload[] inputs;
 
-    public BatchInputDownload(final InputDownload... inputs) {
+    public BatchInputDownloadCommand(final InputDownload... inputs) {
         this.inputs = inputs;
     }
 

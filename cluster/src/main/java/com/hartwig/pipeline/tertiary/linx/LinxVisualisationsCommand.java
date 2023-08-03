@@ -4,7 +4,7 @@ import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.HmfTool;
 

@@ -10,7 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    static final String LOCAL_LOG_DIR = "/var/log";
+    public static final String LOCAL_LOG_DIR = "/var/log";
     private final List<String> commands;
     private final String runtimeBucketName;
     private final RuntimeFiles runtimeFiles;

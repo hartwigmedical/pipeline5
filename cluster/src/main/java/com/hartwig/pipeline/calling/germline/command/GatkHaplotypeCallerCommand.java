@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.germline.command;
 
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.execution.vm.ParallelGatkCommand;
+import com.hartwig.pipeline.gatk.ParallelGatkCommand;
 
 public class GatkHaplotypeCallerCommand extends ParallelGatkCommand {
 
