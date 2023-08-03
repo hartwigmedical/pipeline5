@@ -11,10 +11,6 @@ public interface VmDirectories {
         return filePath(OUTPUT, path);
     }
 
-    static String inputFile(final String path) {
-        return filePath(INPUT, path);
-    }
-
     static String resourcesPath(final String path) {
         return filePath(RESOURCES, path);
     }

@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.ExternalTool.BCF_TOOLS;
 import static com.hartwig.pipeline.tools.ExternalTool.BWA;
 import static com.hartwig.pipeline.tools.ExternalTool.KRAKEN;
@@ -15,6 +16,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -60,7 +62,12 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.virusbreakend(startupScript, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("virusbreakend")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(12, 64))
+                .build();
     }
 
     @Override

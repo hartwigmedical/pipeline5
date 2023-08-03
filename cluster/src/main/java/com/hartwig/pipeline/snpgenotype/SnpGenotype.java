@@ -2,6 +2,8 @@ package com.hartwig.pipeline.snpgenotype;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
@@ -79,7 +82,12 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.snpGenotyping(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("snpgenotype")
+                .startupCommand(bash)
+                .performanceProfile(custom(4, 16))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override

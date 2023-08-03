@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -8,6 +10,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -53,7 +56,12 @@ public interface SageConfiguration {
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode())
                 .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
-                .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
+                .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
+                        .name("sage-germline")
+                        .performanceProfile(custom(4, 20))
+                        .startupCommand(startupScript)
+                        .namespacedResults(resultsDirectory)
+                        .build())
                 .build();
     }
 
@@ -70,7 +78,12 @@ public interface SageConfiguration {
                 .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
                         .targetRegionsMode(arguments.useTargetRegions()))
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName()))
-                .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
+                .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
+                        .name("sage-somatic")
+                        .startupCommand(startupScript)
+                        .performanceProfile(custom(16, 64))
+                        .namespacedResults(resultsDirectory)
+                        .build())
                 .build();
     }
 }

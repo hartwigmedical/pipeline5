@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.COBALT;
+
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -9,6 +12,7 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -121,7 +125,12 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.cobalt(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("cobalt")
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(COBALT.getCpus(), COBALT.getMemoryGb()))
+                .build();
     }
 
     @Override
