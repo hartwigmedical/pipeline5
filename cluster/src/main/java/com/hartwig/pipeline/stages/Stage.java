@@ -7,7 +7,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.output.AddDatatype;

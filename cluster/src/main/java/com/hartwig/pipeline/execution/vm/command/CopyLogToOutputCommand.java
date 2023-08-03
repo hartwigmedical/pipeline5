@@ -2,7 +2,6 @@ package com.hartwig.pipeline.execution.vm.command;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VmDirectories;

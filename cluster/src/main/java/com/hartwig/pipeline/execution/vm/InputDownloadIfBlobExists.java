@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class InputDownloadIfBlobExists implements BashCommand {

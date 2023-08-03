@@ -3,7 +3,7 @@ package com.hartwig.pipeline.calling.sage;
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 

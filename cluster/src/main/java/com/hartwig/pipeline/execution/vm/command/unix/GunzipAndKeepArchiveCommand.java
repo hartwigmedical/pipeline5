@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.execution.vm.command.unix;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 
 public class GunzipAndKeepArchiveCommand implements BashCommand {
     private final String archive;

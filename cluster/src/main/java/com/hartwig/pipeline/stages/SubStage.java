@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public abstract class SubStage implements Function<SubStageInputOutput, SubStageInputOutput> {

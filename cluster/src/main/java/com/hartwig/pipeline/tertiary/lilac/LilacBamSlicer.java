@@ -14,7 +14,7 @@ import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.alignment.bwa.SambambaCommand;

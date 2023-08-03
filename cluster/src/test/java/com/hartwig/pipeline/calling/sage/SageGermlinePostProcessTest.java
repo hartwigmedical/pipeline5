@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 

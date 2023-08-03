@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.joining;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {

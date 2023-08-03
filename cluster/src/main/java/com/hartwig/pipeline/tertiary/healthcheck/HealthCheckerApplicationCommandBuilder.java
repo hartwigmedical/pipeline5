@@ -5,7 +5,7 @@ import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 
 class HealthCheckerApplicationCommandBuilder {
