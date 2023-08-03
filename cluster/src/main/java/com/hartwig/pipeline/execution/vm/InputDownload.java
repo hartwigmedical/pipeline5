@@ -44,7 +44,7 @@ public class InputDownload implements BashCommand {
         return localTargetPath;
     }
 
-    String getRemoteSourcePath() {
+    public String getRemoteSourcePath() {
         return format("gs://%s/%s", sourceLocation.bucket(), sourceLocation.path());
     }
 

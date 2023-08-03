@@ -4,6 +4,8 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import com.hartwig.pipeline.execution.vm.command.unix.PipeCommands;
+
 import org.junit.Test;
 
 public class PipeCommandsTest {

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 
-import com.hartwig.pipeline.execution.vm.DeleteFilesCommand;
+import com.hartwig.pipeline.execution.vm.command.DeleteFilesCommand;
 
 import org.junit.Test;
 

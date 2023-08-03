@@ -7,7 +7,7 @@ import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 import org.jetbrains.annotations.Nullable;

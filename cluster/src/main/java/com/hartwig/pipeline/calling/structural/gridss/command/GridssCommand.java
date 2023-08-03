@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
 
 public class GridssCommand extends JavaClassCommand {
     public static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",

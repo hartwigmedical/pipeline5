@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class CramAndValidateCommands {

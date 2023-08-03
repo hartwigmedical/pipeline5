@@ -6,7 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
+import com.hartwig.pipeline.execution.vm.command.unix.PipeCommands;
 
 public class BcfToolsCommandListBuilder {
 

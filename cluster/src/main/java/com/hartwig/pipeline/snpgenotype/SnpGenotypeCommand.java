@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.snpgenotype;
 
-import com.hartwig.pipeline.execution.vm.ParallelGatkCommand;
+import com.hartwig.pipeline.gatk.ParallelGatkCommand;
 
 class SnpGenotypeCommand extends ParallelGatkCommand {
 
