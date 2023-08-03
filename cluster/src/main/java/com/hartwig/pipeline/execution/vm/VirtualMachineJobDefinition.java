@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.VersionUtils;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
+public interface VirtualMachineJobDefinition {
 
     String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
@@ -34,6 +33,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     ResultsDirectory namespacedResults();
 
+    String name();
+
     @Value.Derived
     default long totalPersistentDiskSizeGb() {
         return baseImageDiskSizeGb() + workingDiskSpaceGb();
@@ -51,7 +52,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return floor;
     }
 
-    @Override
     @Value.Default
     default VirtualMachinePerformanceProfile performanceProfile() {
         return VirtualMachinePerformanceProfile.defaultVm();
