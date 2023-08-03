@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
@@ -88,7 +90,12 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.gripss(namespace().replace("_", "-"), bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name(namespace().replace("_", "-"))
+                .startupCommand(bash)
+                .performanceProfile(custom(4, 24))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override

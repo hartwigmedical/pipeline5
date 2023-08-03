@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.datatypes.FileTypes.bai;
 import static com.hartwig.pipeline.datatypes.FileTypes.bam;
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.command.OutputUploadCommand;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
@@ -120,7 +122,12 @@ public class BwaAligner implements Aligner {
                             RuntimeFiles.typical()));
             futures.add(executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
-                    VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
+                    ImmutableVirtualMachineJobDefinition.builder()
+                            .name("aligner-" + laneId(lane).toLowerCase())
+                            .startupCommand(bash)
+                            .performanceProfile(custom(96, 96))
+                            .namespacedResults(resultsDirectory)
+                            .build())));
             laneLogComponents.add(new RunLogComponent(laneBucket,
                     laneNamespace(lane),
                     Folder.from(metadata),
@@ -151,7 +158,12 @@ public class BwaAligner implements Aligner {
 
             PipelineStatus status = runWithRetries(metadata,
                     rootBucket,
-                    VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+                    ImmutableVirtualMachineJobDefinition.builder()
+                            .name("merge-markdup")
+                            .startupCommand(mergeMarkdupsBash)
+                            .performanceProfile(custom(32, 120))
+                            .namespacedResults(resultsDirectory)
+                            .build());
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())

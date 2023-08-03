@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
@@ -8,6 +10,7 @@ import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
@@ -96,7 +99,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("health-checker")
+                .startupCommand(bash)
+                .performanceProfile(custom(8, 32))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override

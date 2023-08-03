@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
@@ -125,7 +128,12 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.germlineCalling(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("germline")
+                .startupCommand(bash)
+                .performanceProfile(custom(32, 40))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override

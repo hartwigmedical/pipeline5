@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 
 import java.util.Collections;
@@ -10,6 +11,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
@@ -77,7 +79,13 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.chord(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("chord")
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(4, 12))
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
+                .build();
     }
 
     @Override

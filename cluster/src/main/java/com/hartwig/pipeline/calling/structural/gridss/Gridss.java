@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,7 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -103,7 +106,12 @@ public class Gridss extends TertiaryStage<GridssOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("gridss")
+                .startupCommand(bash)
+                .performanceProfile(custom(24, 64))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override
