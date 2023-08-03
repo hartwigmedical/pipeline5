@@ -13,7 +13,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+import com.hartwig.pipeline.execution.vm.command.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.input.SomaticRunMetadata;

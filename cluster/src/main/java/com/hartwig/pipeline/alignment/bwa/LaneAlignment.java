@@ -7,7 +7,7 @@ import com.hartwig.pdl.LaneInput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
+import com.hartwig.pipeline.execution.vm.command.unix.PipeCommands;
 import com.hartwig.pipeline.stages.SubStage;
 
 public class LaneAlignment extends SubStage {

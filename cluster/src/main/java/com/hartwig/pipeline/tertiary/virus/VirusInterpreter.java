@@ -16,7 +16,7 @@ import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.AddDatatype;

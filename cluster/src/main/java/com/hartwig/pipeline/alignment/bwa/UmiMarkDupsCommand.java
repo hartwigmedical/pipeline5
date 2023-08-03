@@ -7,7 +7,7 @@ import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class UmiMarkDupsCommand extends JavaJarCommand

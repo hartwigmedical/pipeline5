@@ -19,7 +19,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.unix.MvCommand;
+import com.hartwig.pipeline.execution.vm.command.unix.MvCommand;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
