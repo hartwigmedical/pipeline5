@@ -10,7 +10,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.unix.MkDirCommand;
@@ -39,20 +39,20 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
     private static final String LOCAL_FLAGSTAT_DIR = VmDirectories.INPUT + "/flagstat";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/purple";
-    private final InputDownload referenceMetricsDownload;
-    private final InputDownload tumorMetricsDownload;
-    private final InputDownload referenceFlagstatDownload;
-    private final InputDownload tumorFlagstatDownload;
-    private final InputDownload purpleDownload;
+    private final InputDownloadCommand referenceMetricsDownload;
+    private final InputDownloadCommand tumorMetricsDownload;
+    private final InputDownloadCommand referenceFlagstatDownload;
+    private final InputDownloadCommand tumorFlagstatDownload;
+    private final InputDownloadCommand purpleDownload;
 
     public HealthChecker(final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput,
             final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
-        referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
-        tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
+        referenceMetricsDownload = new InputDownloadCommand(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
+        tumorMetricsDownload = new InputDownloadCommand(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload =
-                new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
-        tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
-        purpleDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
+                new InputDownloadCommand(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
+        tumorFlagstatDownload = new InputDownloadCommand(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
+        purpleDownload = new InputDownloadCommand(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -42,10 +42,10 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     private final ResourceFiles resourceFiles;
     private final LilacBamSliceOutput slicedOutput;
-    private final InputDownload purpleGeneCopyNumber;
-    private final InputDownload purpleSomaticVariants;
-    private final InputDownload slicedReference;
-    private final InputDownload slicedTumor;
+    private final InputDownloadCommand purpleGeneCopyNumber;
+    private final InputDownloadCommand purpleSomaticVariants;
+    private final InputDownloadCommand slicedReference;
+    private final InputDownloadCommand slicedTumor;
     private final PersistedDataset persistedDataset;
 
     public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,

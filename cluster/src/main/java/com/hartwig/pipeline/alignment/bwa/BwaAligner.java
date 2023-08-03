@@ -27,8 +27,8 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
+import com.hartwig.pipeline.execution.vm.command.OutputUploadCommand;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
@@ -101,9 +101,9 @@ public class BwaAligner implements Aligner {
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
-            InputDownload first = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+            InputDownloadCommand first = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     fastQFileName(sample.name(), lane.firstOfPairPath())));
-            InputDownload second = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+            InputDownloadCommand second = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
 
@@ -116,7 +116,7 @@ public class BwaAligner implements Aligner {
                     resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
-                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
+                    .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
                             RuntimeFiles.typical()));
             futures.add(executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
@@ -131,13 +131,13 @@ public class BwaAligner implements Aligner {
         AlignmentOutput output;
         if (lanesSuccessfullyComplete(futures)) {
 
-            List<InputDownload> laneBams = perLaneBams.stream().map(InputDownload::new).collect(Collectors.toList());
+            List<InputDownloadCommand> laneBams = perLaneBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
 
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
             laneBams.forEach(mergeMarkdupsBash::addCommand);
 
             List<String> laneBamPaths = laneBams.stream()
-                    .map(InputDownload::getLocalTargetPath)
+                    .map(InputDownloadCommand::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
@@ -146,7 +146,7 @@ public class BwaAligner implements Aligner {
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
-            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(),
+            mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     resultsDirectory.path()), RuntimeFiles.typical()));
 
             PipelineStatus status = runWithRetries(metadata,

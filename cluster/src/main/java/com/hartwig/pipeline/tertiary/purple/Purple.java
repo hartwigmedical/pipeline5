@@ -17,7 +17,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -55,15 +55,15 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_CIRCOS_PLOT = ".circos.png";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload somaticVcfDownload;
-    private final InputDownload germlineVcfDownload;
-    private final InputDownload somaticSvVcfDownload;
-    private final InputDownload somaticSvVcfIndexDownload;
-    private final InputDownload germlineSvVcfDownload;
-    private final InputDownload svRecoveryVcfDownload;
-    private final InputDownload svRecoveryVcfIndexDownload;
-    private final InputDownload amberOutputDownload;
-    private final InputDownload cobaltOutputDownload;
+    private final InputDownloadCommand somaticVcfDownload;
+    private final InputDownloadCommand germlineVcfDownload;
+    private final InputDownloadCommand somaticSvVcfDownload;
+    private final InputDownloadCommand somaticSvVcfIndexDownload;
+    private final InputDownloadCommand germlineSvVcfDownload;
+    private final InputDownloadCommand svRecoveryVcfDownload;
+    private final InputDownloadCommand svRecoveryVcfIndexDownload;
+    private final InputDownloadCommand amberOutputDownload;
+    private final InputDownloadCommand cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
 
@@ -71,15 +71,15 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
             final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
-        this.somaticVcfDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
-        this.germlineVcfDownload = new InputDownload(paveGermlineOutput.annotatedVariants());
-        this.somaticSvVcfDownload = new InputDownload(gripssSomaticOutput.filteredVariants());
-        this.somaticSvVcfIndexDownload = new InputDownload(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
-        this.svRecoveryVcfDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload = new InputDownload(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
-        this.germlineSvVcfDownload = new InputDownload(gripssGermlineOutput.filteredVariants());
-        this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
-        this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
+        this.somaticVcfDownload = new InputDownloadCommand(paveSomaticOutput.annotatedVariants());
+        this.germlineVcfDownload = new InputDownloadCommand(paveGermlineOutput.annotatedVariants());
+        this.somaticSvVcfDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants());
+        this.somaticSvVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVcfDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants());
+        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.germlineSvVcfDownload = new InputDownloadCommand(gripssGermlineOutput.filteredVariants());
+        this.amberOutputDownload = new InputDownloadCommand(amberOutput.outputDirectory());
+        this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
     }

@@ -13,7 +13,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
@@ -43,13 +43,13 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     public static final String GERMLINE_DISRUPTION_TSV = ".linx.germline.disruption.tsv";
     public static final String GERMLINE_BREAKEND_TSV = ".linx.germline.breakend.tsv";
 
-    private final InputDownload purpleGermlineSvsDownload;
+    private final InputDownloadCommand purpleGermlineSvsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public LinxGermline(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleGermlineSvsDownload = new InputDownload(purpleOutputLocations.germlineStructuralVariants().isPresent()
+        purpleGermlineSvsDownload = new InputDownloadCommand(purpleOutputLocations.germlineStructuralVariants().isPresent()
                 ? purpleOutputLocations.germlineStructuralVariants().get()
                 : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;

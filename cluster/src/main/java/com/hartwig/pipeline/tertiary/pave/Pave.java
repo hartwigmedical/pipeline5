@@ -12,7 +12,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -32,14 +32,14 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected final ResourceFiles resourceFiles;
-    protected final InputDownload vcfDownload;
+    protected final InputDownloadCommand vcfDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
     public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
             final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
-        this.vcfDownload = new InputDownload(sageOutput.variants());
+        this.vcfDownload = new InputDownloadCommand(sageOutput.variants());
         this.persistedDataset = persistedDataset;
         this.vcfDatatype = vcfDatatype;
     }

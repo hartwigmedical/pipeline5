@@ -1,22 +1,22 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.command;
 
 import static java.lang.String.format;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
-public class InputDownload implements BashCommand {
+public class InputDownloadCommand implements BashCommand {
 
     private final GoogleStorageLocation sourceLocation;
     private final String localTargetPath;
 
-    public InputDownload(final GoogleStorageLocation sourceLocation) {
+    public InputDownloadCommand(final GoogleStorageLocation sourceLocation) {
         this(sourceLocation, localPath(sourceLocation));
     }
 
-    public InputDownload(final GoogleStorageLocation sourceLocation, final String localTargetPath) {
+    public InputDownloadCommand(final GoogleStorageLocation sourceLocation, final String localTargetPath) {
         this.sourceLocation = sourceLocation;
         this.localTargetPath = localTargetPath;
     }
@@ -50,7 +50,7 @@ public class InputDownload implements BashCommand {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static InputDownload initialiseOptionalLocation(final Optional<GoogleStorageLocation> sourceLocation) {
-        return new InputDownload(sourceLocation.orElse(GoogleStorageLocation.empty()));
+    public static InputDownloadCommand initialiseOptionalLocation(final Optional<GoogleStorageLocation> sourceLocation) {
+        return new InputDownloadCommand(sourceLocation.orElse(GoogleStorageLocation.empty()));
     }
 }

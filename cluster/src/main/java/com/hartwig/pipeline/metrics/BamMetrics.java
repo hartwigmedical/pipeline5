@@ -14,7 +14,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -38,16 +38,16 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     public static final String NAMESPACE = "bam_metrics";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload bamDownload;
-    private final InputDownload bamBaiDownload;
+    private final InputDownloadCommand bamDownload;
+    private final InputDownloadCommand bamBaiDownload;
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
 
     public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset,
             final Arguments arguments) {
         this.resourceFiles = resourceFiles;
-        bamDownload = new InputDownload(alignmentOutput.alignments());
-        bamBaiDownload = new InputDownload(alignmentOutput  .alignments().transform(FileTypes::toAlignmentIndex));
+        bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
+        bamBaiDownload = new InputDownloadCommand(alignmentOutput  .alignments().transform(FileTypes::toAlignmentIndex));
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
     }

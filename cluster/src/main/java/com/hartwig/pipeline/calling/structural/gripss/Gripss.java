@@ -15,7 +15,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
@@ -35,8 +35,8 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
-    private final InputDownload gridssVcf;
-    private final InputDownload gridssVcfIndex;
+    private final InputDownloadCommand gridssVcf;
+    private final InputDownloadCommand gridssVcfIndex;
     protected final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
@@ -46,8 +46,8 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
             final String namespace) {
 
         this.resourceFiles = resourceFiles;
-        this.gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
-        this.gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.gridssVcf = new InputDownloadCommand(gridssOutput.unfilteredVariants());
+        this.gridssVcfIndex = new InputDownloadCommand(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.namespace = namespace;
     }

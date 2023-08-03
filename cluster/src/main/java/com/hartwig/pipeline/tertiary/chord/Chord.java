@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.chord;
 
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +12,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -37,8 +37,8 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String PREDICTION_TXT = "_chord_prediction.txt";
 
     private final RefGenomeVersion refGenomeVersion;
-    private final InputDownload purpleStructuralVcfDownload;
-    private final InputDownload purpleSomaticVcfDownload;
+    private final InputDownloadCommand purpleStructuralVcfDownload;
+    private final InputDownloadCommand purpleSomaticVcfDownload;
     private final PersistedDataset persistedDataset;
 
     public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {

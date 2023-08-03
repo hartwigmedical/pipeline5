@@ -11,7 +11,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -25,11 +25,11 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 @Namespace("cram2bam")
 public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata> {
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final SingleSampleRunMetadata.SampleType sampleType;
 
     public Cram2Bam(final GoogleStorageLocation bamLocation, final SingleSampleRunMetadata.SampleType sampleType) {
-        this.bamDownload = new InputDownload(bamLocation);
+        this.bamDownload = new InputDownloadCommand(bamLocation);
         this.sampleType = sampleType;
     }
 

@@ -1,15 +1,14 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.command;
 
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
-public class InputDownloadIfBlobExists implements BashCommand {
+public class InputDownloadIfBlobExistsCommand implements BashCommand {
 
-    private final InputDownload download;
+    private final InputDownloadCommand download;
     private final GoogleStorageLocation googleStorageLocation;
 
-    public InputDownloadIfBlobExists(final GoogleStorageLocation googleStorageLocation) {
-        this.download = new InputDownload(googleStorageLocation);
+    public InputDownloadIfBlobExistsCommand(final GoogleStorageLocation googleStorageLocation) {
+        this.download = new InputDownloadCommand(googleStorageLocation);
         this.googleStorageLocation = googleStorageLocation;
     }
 

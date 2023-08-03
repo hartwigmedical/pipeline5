@@ -11,7 +11,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -48,18 +48,18 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT = "_cup_report.pdf";
     public static final String NAMESPACE = "cuppa";
 
-    private final InputDownload purpleOutputDirectory;
-    private final InputDownload linxOutputDirectory;
-    private final InputDownload virusInterpreterAnnotations;
+    private final InputDownloadCommand purpleOutputDirectory;
+    private final InputDownloadCommand linxOutputDirectory;
+    private final InputDownloadCommand virusInterpreterAnnotations;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
             final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
-        this.linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
-        this.virusInterpreterAnnotations = new InputDownload(virusInterpreterOutput.virusAnnotations());
+        this.purpleOutputDirectory = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
+        this.linxOutputDirectory = new InputDownloadCommand(linxOutput.linxOutputLocations().outputDirectory());
+        this.virusInterpreterAnnotations = new InputDownloadCommand(virusInterpreterOutput.virusAnnotations());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }

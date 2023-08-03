@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -36,7 +36,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     public static final String ALLOCATION_TSV = ".sig.allocation.tsv";
     public static final String NAMESPACE = "sigs";
 
-    private final InputDownload purpleSomaticVariantsDownload;
+    private final InputDownloadCommand purpleSomaticVariantsDownload;
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
