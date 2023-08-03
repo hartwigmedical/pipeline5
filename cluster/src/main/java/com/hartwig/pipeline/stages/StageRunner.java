@@ -11,7 +11,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.command.OutputUploadCommand;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.labels.Labels;
@@ -54,7 +54,7 @@ public class StageRunner<M extends RunMetadata> {
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(commands)
-                        .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
+                        .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
                 PipelineStatus status =
                         Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.runName(), stage.namespace())))

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.peach;
 
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -39,7 +39,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     public static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
 
-    private final InputDownload purpleGermlineVariantsDownload;
+    private final InputDownloadCommand purpleGermlineVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 

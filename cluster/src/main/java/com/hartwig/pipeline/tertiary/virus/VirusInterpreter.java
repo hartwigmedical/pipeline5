@@ -13,7 +13,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
@@ -40,20 +40,20 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private final InputDownload virusBreakendOutput;
-    private final InputDownload tumorBamMetrics;
-    private final InputDownload purpleQc;
-    private final InputDownload purplePurity;
+    private final InputDownloadCommand virusBreakendOutput;
+    private final InputDownloadCommand tumorBamMetrics;
+    private final InputDownloadCommand purpleQc;
+    private final InputDownloadCommand purplePurity;
 
     public VirusInterpreter(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
             final VirusBreakendOutput virusBreakendOutput, final PurpleOutput purpleOutput, final BamMetricsOutput tumorBamMetricsOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
-        this.virusBreakendOutput = new InputDownload(virusBreakendOutput.summary());
-        this.purpleQc = new InputDownload(purpleOutput.outputLocations().qcFile());
-        this.purplePurity = new InputDownload(purpleOutput.outputLocations().purity());
-        this.tumorBamMetrics = InputDownload.initialiseOptionalLocation(tumorBamMetricsOutput.maybeMetricsOutputFile());
+        this.virusBreakendOutput = new InputDownloadCommand(virusBreakendOutput.summary());
+        this.purpleQc = new InputDownloadCommand(purpleOutput.outputLocations().qcFile());
+        this.purplePurity = new InputDownloadCommand(purpleOutput.outputLocations().purity());
+        this.tumorBamMetrics = InputDownloadCommand.initialiseOptionalLocation(tumorBamMetricsOutput.maybeMetricsOutputFile());
     }
 
     @Override

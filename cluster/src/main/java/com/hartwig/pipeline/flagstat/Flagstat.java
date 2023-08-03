@@ -10,7 +10,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.unix.SubShellCommand;
@@ -32,11 +32,11 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "flagstat";
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final PersistedDataset persistedDataset;
 
     public Flagstat(final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
-        bamDownload = new InputDownload(alignmentOutput.alignments());
+        bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         this.persistedDataset = persistedDataset;
     }
 

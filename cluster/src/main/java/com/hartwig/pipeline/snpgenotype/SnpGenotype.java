@@ -13,7 +13,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -36,13 +36,13 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload bamDownload;
-    private final InputDownload baiDownload;
+    private final InputDownloadCommand bamDownload;
+    private final InputDownloadCommand baiDownload;
 
     public SnpGenotype(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
         this.resourceFiles = resourceFiles;
-        this.bamDownload = new InputDownload(alignmentOutput.alignments());
-        this.baiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
+        this.bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
+        this.baiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
     }
 
     @Override

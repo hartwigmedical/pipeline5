@@ -13,7 +13,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
@@ -46,15 +46,15 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
 
-    private final InputDownload purpleOutputDirDownload;
-    private final InputDownload purpleStructuralVariantsDownload;
+    private final InputDownloadCommand purpleOutputDirDownload;
+    private final InputDownloadCommand purpleStructuralVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public LinxSomatic(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants().isPresent()
+        purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
+        purpleStructuralVariantsDownload = new InputDownloadCommand(purpleOutputLocations.structuralVariants().isPresent()
                 ? purpleOutputLocations.structuralVariants().get()
                 : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;

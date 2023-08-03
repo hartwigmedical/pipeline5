@@ -13,7 +13,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -36,13 +36,13 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     public static final String NAMESPACE = "cram";
     static final int NUMBER_OF_CORES = 6;
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final String outputCram;
     private final SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, final ResourceFiles resourceFiles) {
-        bamDownload = new InputDownload(alignmentOutput.alignments());
+        bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
