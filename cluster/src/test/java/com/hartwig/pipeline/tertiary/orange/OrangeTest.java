@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -19,13 +11,29 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
+    private static BashCommand orangeCommand(Orange victim) {
+        return victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata()).get(2);
+    }
+
     @Override
     protected Stage<OrangeOutput, SomaticRunMetadata> createVictim() {
+        return constructOrange(Pipeline.Context.DIAGNOSTIC, true);
+    }
+
+    private Orange constructOrange(final Pipeline.Context context, final boolean includeGermline) {
         return new Orange(TestInputs.tumorMetricsOutput(),
                 TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorFlagstatOutput(),
@@ -42,8 +50,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Pipeline.Context.DIAGNOSTIC,
-                true);
+                context,
+                includeGermline);
     }
 
     @Override
@@ -109,53 +117,21 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Test
     public void shouldAddResearchDisclaimerWhenResearchContext() {
-        Orange victim = new Orange(TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceMetricsOutput(),
-                TestInputs.tumorFlagstatOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.sageSomaticOutput(),
-                TestInputs.sageGermlineOutput(),
-                TestInputs.purpleOutput(),
-                TestInputs.chordOutput(),
-                TestInputs.lilacOutput(),
-                TestInputs.linxGermlineOutput(),
-                TestInputs.linxSomaticOutput(),
-                TestInputs.cuppaOutput(),
-                TestInputs.virusInterpreterOutput(),
-                TestInputs.peachOutput(),
-                TestInputs.sigsOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Pipeline.Context.RESEARCH,
-                true);
+        Orange victim = constructOrange(Pipeline.Context.RESEARCH, true);
         assertThat(orangeCommand(victim).asBash()).contains("-add_disclaimer");
-    }
-
-    private static BashCommand orangeCommand(Orange victim) {
-        return victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata()).get(2);
     }
 
     @Test
     public void shouldAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
-        Orange victim = new Orange(TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceMetricsOutput(),
-                TestInputs.tumorFlagstatOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.sageSomaticOutput(),
-                TestInputs.sageGermlineOutput(),
-                TestInputs.purpleOutput(),
-                TestInputs.chordOutput(),
-                TestInputs.lilacOutput(),
-                TestInputs.linxGermlineOutput(),
-                TestInputs.linxSomaticOutput(),
-                TestInputs.cuppaOutput(),
-                TestInputs.virusInterpreterOutput(),
-                TestInputs.peachOutput(),
-                TestInputs.sigsOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Pipeline.Context.RESEARCH,
-                false);
+        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeCommand(victim).asBash()).contains("-convert_germline_to_somatic");
+    }
+
+    @Test
+    public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
+        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
+        assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
     @Override
