@@ -14,6 +14,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
@@ -128,16 +129,9 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     }
 
     @Test
-    public void shouldReturnFurtherOperationsWhenGermlineNotIncluded() {
+    public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
         Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
-        assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(
-                List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
-                                TestInputs.defaultSomaticRunMetadata().barcode(),
-                                new ArchivePath(Folder.root(), Orange.NAMESPACE_NO_GERMLINE, "tumor.orange.json")),
-                        new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
-                                TestInputs.defaultSomaticRunMetadata().barcode(),
-                                new ArchivePath(Folder.root(), Orange.NAMESPACE_NO_GERMLINE, "tumor.orange.pdf"))));
-
+        assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
     @Override
@@ -157,6 +151,11 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of();
+        return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Orange.NAMESPACE, "tumor.orange.json")),
+                new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Orange.NAMESPACE, "tumor.orange.pdf")));
     }
 }

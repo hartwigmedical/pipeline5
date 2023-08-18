@@ -33,7 +33,6 @@ import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
@@ -258,14 +257,14 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         if (includeGermline) {
-            return Collections.emptyList();
-        } else {
             final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
             final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
             return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), orangeJson)),
                     new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf)));
+        } else {
+            return List.of();
         }
     }
 }
