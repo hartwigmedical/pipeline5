@@ -32,53 +32,6 @@ public class StartingPoint {
 
     private final StartingPoints startingPoint;
 
-    enum StartingPoints {
-        BEGINNING(Collections.emptyList()),
-        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE, BamMetrics.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE)),
-        CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
-        SKIP_GRIDSS(List.of(Aligner.NAMESPACE,
-                BamMetrics.NAMESPACE,
-                GermlineCaller.NAMESPACE,
-                Flagstat.NAMESPACE,
-                SnpGenotype.NAMESPACE,
-                Gridss.NAMESPACE,
-                CramConversion.NAMESPACE,
-                LilacBamSlicer.NAMESPACE)),
-        CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
-                List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
-                        GermlineCaller.NAMESPACE,
-                        Gridss.NAMESPACE,
-                        Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
-                        PaveSomatic.NAMESPACE,
-                        PaveGermline.NAMESPACE,
-                        VirusBreakend.NAMESPACE,
-                        LilacBamSlicer.NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
-        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
-
-        RERUN_532(concat(SKIP_GRIDSS.namespaces,
-                List.of(Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
-                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
-                        VirusBreakend.NAMESPACE))),
-
-        RESEARCH_AFTER_531_DIAGNOSTIC(concat(ALIGNMENT_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE))),
-        BWA_COMPLETE(List.of(Aligner.NAMESPACE));
-
-        private final List<String> namespaces;
-
-        StartingPoints(final List<String> namespaces) {
-            this.namespaces = namespaces;
-        }
-
-        static List<String> concat(final List<String> first, final List<String> second) {
-            return ImmutableList.<String>builder().addAll(first).addAll(second).build();
-        }
-    }
-
     public StartingPoint(final Arguments arguments) {
         this.startingPoint = arguments.startingPoint().map(String::toUpperCase).map(toEnum()).orElse(StartingPoints.BEGINNING);
     }
@@ -98,5 +51,34 @@ public class StartingPoint {
 
     public boolean usePersisted(final String namespace) {
         return startingPoint.namespaces.contains(namespace);
+    }
+
+    enum StartingPoints {
+        BEGINNING(Collections.emptyList()),
+        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE, BamMetrics.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE)),
+        CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
+        SKIP_GRIDSS(concat(CRAM_COMPLETE.namespaces,
+                List.of(GermlineCaller.NAMESPACE, Gridss.NAMESPACE, LilacBamSlicer.NAMESPACE))),
+        PAVE_GRIPSS_ONWARD(concat(SKIP_GRIDSS.namespaces,
+                List.of(Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        SageConfiguration.SAGE_GERMLINE_NAMESPACE,
+                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        VirusBreakend.NAMESPACE))),
+        CALLING_COMPLETE(concat(PAVE_GRIPSS_ONWARD.namespaces,
+                List.of(PaveSomatic.NAMESPACE,
+                        PaveGermline.NAMESPACE))),
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
+        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
+        RESEARCH_AFTER_531_DIAGNOSTIC(concat(ALIGNMENT_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE)));
+        private final List<String> namespaces;
+
+        StartingPoints(final List<String> namespaces) {
+            this.namespaces = namespaces;
+        }
+
+        static List<String> concat(final List<String> first, final List<String> second) {
+            return ImmutableList.<String>builder().addAll(first).addAll(second).build();
+        }
     }
 }
