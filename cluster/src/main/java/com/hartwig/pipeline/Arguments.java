@@ -1,12 +1,11 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -210,7 +209,6 @@ public interface Arguments extends CommonArguments {
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputBucket(EMPTY)
                     .region(EMPTY)
                     .project(EMPTY)
