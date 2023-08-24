@@ -108,7 +108,7 @@ public class ComparSmokeTester {
         Arguments arguments = builder.build();
 
         try {
-            Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+            Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
             List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
             assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 

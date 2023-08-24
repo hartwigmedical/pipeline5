@@ -128,7 +128,7 @@ public class SmokeTest {
         }
 
         Arguments arguments = builder.build();
-        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
 
         cleanupBucket(setName, arguments.outputBucket(), storage);
 

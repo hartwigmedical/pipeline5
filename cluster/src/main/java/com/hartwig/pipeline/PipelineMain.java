@@ -62,7 +62,7 @@ public class PipelineMain {
         LOGGER.info("Arguments are [{}]", arguments);
         VersionUtils.printAll();
         try {
-            GoogleCredentials credentials = CredentialProvider.from(arguments).get();
+            GoogleCredentials credentials = CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             PipelineInput input = JsonPipelineInput.read(arguments.sampleJson());
