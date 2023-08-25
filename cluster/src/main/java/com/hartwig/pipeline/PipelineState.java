@@ -1,15 +1,14 @@
 package com.hartwig.pipeline;
 
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.hartwig.pipeline.execution.PipelineStatus;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PipelineState {
 
@@ -47,20 +46,20 @@ public class PipelineState {
     }
 
     public boolean shouldProceed() {
-        boolean shouldProceed = status() != PipelineStatus.FAILED;
+        boolean shouldProceed = status() != ComputeEngineStatus.FAILED;
         if (!shouldProceed) {
             LOGGER.warn("Halting pipeline due to required stage failure [{}]", this);
         }
         return shouldProceed;
     }
 
-    public PipelineStatus status() {
-        boolean failed = statusStream().anyMatch(status -> status.equals(PipelineStatus.FAILED));
-        boolean qcFailed = statusStream().anyMatch(status -> status.equals(PipelineStatus.QC_FAILED));
-        return failed ? PipelineStatus.FAILED : qcFailed ? PipelineStatus.QC_FAILED : PipelineStatus.SUCCESS;
+    public ComputeEngineStatus status() {
+        boolean failed = statusStream().anyMatch(status -> status.equals(ComputeEngineStatus.FAILED));
+        boolean qcFailed = statusStream().anyMatch(status -> status.equals(ComputeEngineStatus.QC_FAILED));
+        return failed ? ComputeEngineStatus.FAILED : qcFailed ? ComputeEngineStatus.QC_FAILED : ComputeEngineStatus.SUCCESS;
     }
 
-    private Stream<PipelineStatus> statusStream() {
+    private Stream<ComputeEngineStatus> statusStream() {
         return stageOutputs().stream().filter(Objects::nonNull).map(StageOutput::status);
     }
 

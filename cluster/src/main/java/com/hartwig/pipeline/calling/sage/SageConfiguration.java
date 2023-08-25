@@ -1,22 +1,21 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStage;
+import org.immutables.value.Value;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.SubStage;
-
-import org.immutables.value.Value;
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 @Value.Immutable
 public interface SageConfiguration {

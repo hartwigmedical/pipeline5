@@ -1,21 +1,19 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.SAGE;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.stages.TestPersistedDataset;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.stages.TestPersistedDataset;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
 

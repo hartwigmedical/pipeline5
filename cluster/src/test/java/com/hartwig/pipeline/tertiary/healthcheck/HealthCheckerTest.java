@@ -1,28 +1,26 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import com.google.cloud.storage.Blob;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.testsupport.TestBlobs;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.google.cloud.storage.Blob;
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.TestBlobs;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.stubbing.OngoingStubbing;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
@@ -67,15 +65,15 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     @Test
     public void returnsStatusQcFailsWhenHealthCheckerReportsFailure() {
         returnHealthCheck(runtimeBucket, "tumor.HealthCheckFailed");
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
-                PipelineStatus.QC_FAILED);
+        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                ComputeEngineStatus.QC_FAILED);
     }
 
     @Test
     public void returnsStatusFailsWhenHealthCheckerReportsFailureNothingFailed() {
         whenBucketChecked(runtimeBucket).thenReturn(Collections.emptyList());
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
-                PipelineStatus.FAILED);
+        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                ComputeEngineStatus.FAILED);
     }
 
     @Override

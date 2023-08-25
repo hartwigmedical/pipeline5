@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+import com.google.api.client.util.Lists;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 
 import java.util.List;
 
-import com.google.api.client.util.Lists;
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 
 public class GridssCommand extends JavaClassCommand {
     public static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",

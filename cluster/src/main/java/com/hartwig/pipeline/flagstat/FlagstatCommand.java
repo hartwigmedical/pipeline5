@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.flagstat;
 
-import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
-
+import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
+
+import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
 
 class FlagstatCommand extends VersionedToolCommand {
 

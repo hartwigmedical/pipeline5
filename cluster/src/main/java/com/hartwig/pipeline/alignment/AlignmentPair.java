@@ -1,10 +1,9 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.Optional;
-
-import com.hartwig.pipeline.execution.PipelineStatus;
-
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface AlignmentPair {
@@ -14,11 +13,11 @@ public interface AlignmentPair {
     Optional<AlignmentOutput> maybeTumor();
 
     default AlignmentOutput reference() {
-        return maybeReference().orElse(AlignmentOutput.builder().sample("empty").status(PipelineStatus.SKIPPED).build());
+        return maybeReference().orElse(AlignmentOutput.builder().sample("empty").status(ComputeEngineStatus.SKIPPED).build());
     }
 
     default AlignmentOutput tumor() {
-        return maybeTumor().orElse(AlignmentOutput.builder().sample("empty").status(PipelineStatus.SKIPPED).build());
+        return maybeTumor().orElse(AlignmentOutput.builder().sample("empty").status(ComputeEngineStatus.SKIPPED).build());
     }
 
     static ImmutableAlignmentPair.Builder builder() {

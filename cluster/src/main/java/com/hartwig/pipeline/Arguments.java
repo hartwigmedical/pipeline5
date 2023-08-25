@@ -1,12 +1,10 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import com.hartwig.events.pipeline.Pipeline;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -100,6 +98,8 @@ public interface Arguments extends CommonArguments {
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
+
+    String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
 
     RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.V37;
 
@@ -234,7 +234,7 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
+                    .imageName(PUBLIC_IMAGE_NAME)
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)

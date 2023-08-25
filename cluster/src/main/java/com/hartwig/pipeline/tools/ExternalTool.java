@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tools;
 
-import static java.lang.String.format;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static java.lang.String.format;
 
 public enum ExternalTool {
     BAMCOMP("bamcomp", "bamcomp.jar", "1.3"),

@@ -1,16 +1,8 @@
 package com.hartwig.pipeline.resource;
 
-import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
-import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
-import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
-import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
-import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
-import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static com.hartwig.pipeline.resource.ResourceNames.*;
 
 public interface ResourceFiles {
 
@@ -35,11 +27,15 @@ public interface ResourceFiles {
     String amberHeterozygousLoci();
 
     String sageSomaticHotspots();
+
     String sagePanelBed();
+
     String sageGermlineHotspots();
+
     String sageGeneCoverageBed();
 
     String germlineBlacklistVcf();
+
     String germlineBlacklistBed();
 
     String clinvarVcf();
@@ -63,14 +59,17 @@ public interface ResourceFiles {
     }
 
     String gridssBlacklistBed();
+
     String svPrepBlacklistBed();
 
     String sglBreakendPon();
+
     String svBreakpointPon();
 
     String ensemblDataCache();
 
     String knownFusionData();
+
     String knownFusionPairBedpe();
 
     String genotypeSnpsDB();
@@ -82,9 +81,13 @@ public interface ResourceFiles {
     String purpleCohortGermlineDeletions();
 
     String targetRegionsPonArtefacts();
+
     String targetRegionsBed();
+
     String targetRegionsNormalisation();
+
     String targetRegionsRatios();
+
     String targetRegionsMsiIndels();
 
     default String cuppaRefData() {

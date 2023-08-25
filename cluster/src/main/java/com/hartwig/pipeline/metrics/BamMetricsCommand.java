@@ -1,30 +1,25 @@
 package com.hartwig.pipeline.metrics;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.resource.ResourceFiles;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+import static java.lang.String.format;
 
-import org.jetbrains.annotations.Nullable;
-
-class BamMetricsCommand extends JavaJarCommand
-{
+class BamMetricsCommand extends JavaJarCommand {
     BamMetricsCommand(
             final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
             @Nullable final String targetRegionsBed) {
-
-        super(BAM_TOOLS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
+        super(BAM_TOOLS.getToolName(), BAM_TOOLS.getVersion(), BAM_TOOLS.jar(), BAM_TOOLS.maxHeapStr(), formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
     }
 
     private static List<String> formArguments(
             final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
-            @Nullable final String targetRegionsBed)
-    {
+            @Nullable final String targetRegionsBed) {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(format("-sample %s", sampleId));
@@ -36,7 +31,7 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add(format("-threads %s", threads));
         arguments.add("-write_old_style");
 
-        if(targetRegionsBed != null)
+        if (targetRegionsBed != null)
             arguments.add(format("-regions_bed_file %s", targetRegionsBed));
 
         return arguments;

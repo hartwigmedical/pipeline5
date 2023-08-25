@@ -1,21 +1,20 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Before
@@ -54,7 +53,7 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     }
 
     private void assertOutputFile(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<GoogleStorageLocation> maybeOutput,
-            final String pathFromResults) {
+                                  final String pathFromResults) {
         String outputDir = expectedRuntimeBucketName() + "/" + LilacBamSlicer.NAMESPACE;
         assertThat(maybeOutput.isPresent()).isTrue();
         GoogleStorageLocation reference = maybeOutput.get();

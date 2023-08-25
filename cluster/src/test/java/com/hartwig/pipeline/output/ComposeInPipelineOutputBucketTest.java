@@ -1,33 +1,25 @@
 package com.hartwig.pipeline.output;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ComposeInPipelineOutputBucket;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.OutputComponent;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class ComposeInPipelineOutputBucketTest {
 
@@ -60,7 +52,7 @@ public class ComposeInPipelineOutputBucketTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata(),  Folder.root());
+        victim.compose(TestInputs.referenceRunMetadata(), Folder.root());
     }
 
     @Test
@@ -86,8 +78,8 @@ public class ComposeInPipelineOutputBucketTest {
             }
 
             @Override
-            public PipelineStatus status() {
-                return PipelineStatus.SUCCESS;
+            public ComputeEngineStatus status() {
+                return ComputeEngineStatus.SUCCESS;
             }
 
             @Override

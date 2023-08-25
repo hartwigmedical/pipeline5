@@ -1,26 +1,24 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.HmfTool;
+import org.junit.Before;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.HmfTool;
-
-import org.junit.Before;
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutput> {
 

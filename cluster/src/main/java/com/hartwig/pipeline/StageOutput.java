@@ -1,17 +1,17 @@
 package com.hartwig.pipeline;
 
-import java.util.List;
-
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.OutputComponent;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+
+import java.util.List;
 
 public interface StageOutput {
 
     String name();
 
-    PipelineStatus status();
+    ComputeEngineStatus status();
 
     List<OutputComponent> reportComponents();
 

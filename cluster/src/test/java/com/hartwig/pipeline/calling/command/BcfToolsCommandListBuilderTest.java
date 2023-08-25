@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.calling.command;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BcfToolsCommandListBuilderTest {
 

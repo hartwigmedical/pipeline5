@@ -1,12 +1,11 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.storage.GoogleStorageLocation.empty;
+import com.hartwig.pipeline.StageOutput;
+import org.immutables.value.Value;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.StageOutput;
-
-import org.immutables.value.Value;
+import static com.hartwig.computeengine.storage.GoogleStorageLocation.empty;
 
 @Value.Immutable
 public interface LinxGermlineOutput extends StageOutput {

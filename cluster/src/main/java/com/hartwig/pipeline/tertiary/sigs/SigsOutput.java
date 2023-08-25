@@ -1,8 +1,7 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-
 import org.immutables.value.Value;
 
 import java.util.Optional;

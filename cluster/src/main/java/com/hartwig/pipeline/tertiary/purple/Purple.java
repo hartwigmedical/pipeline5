@@ -1,43 +1,38 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
-import com.hartwig.pipeline.tertiary.pave.PaveOutput;
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static java.lang.String.format;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -70,8 +65,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final Arguments arguments;
 
     public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
-            final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
-            final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
+                  final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
+                  final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         this.somaticVcfDownload = new InputDownloadCommand(paveSomaticOutput.annotatedVariants());
         this.germlineVcfDownload = new InputDownloadCommand(paveGermlineOutput.annotatedVariants());
@@ -177,12 +172,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public PurpleOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PurpleOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return PurpleOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
     }
 
     @Override
-    public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+    public PurpleOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+                               final ResultsDirectory resultsDirectory) {
 
         String purityTsv = purityTsv(metadata.sampleName());
         String qcFile = purpleQC(metadata.sampleName());
@@ -321,7 +316,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .germlineDeletions(germlineDeletionLocation);
 
         return PurpleOutput.builder()
-                .status(PipelineStatus.PERSISTED)
+                .status(ComputeEngineStatus.PERSISTED)
                 .addAllDatatypes(addDatatypes(metadata))
                 .maybeOutputLocations(outputLocationsBuilder.build())
                 .build();
@@ -378,11 +373,11 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand(PURPLE, arguments));
+        return Collections.singletonList(new JavaJarCommand(PURPLE.getToolName(), PURPLE.getVersion(), PURPLE.jar(), PURPLE.maxHeapStr(), arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType somaticVariantsPurple, final String s) {
+                                                     final DataType somaticVariantsPurple, final String s) {
         return persistedDataset.path(sample, somaticVariantsPurple)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), s)));
     }
@@ -403,9 +398,13 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return tumorSampleName + PURPLE_SOMATIC_COPY_NUMBER_TSV;
     }
 
-    private static String somaticSvVcf(final String tumorSampleName) { return tumorSampleName + PURPLE_SOMATIC_SV_VCF; }
+    private static String somaticSvVcf(final String tumorSampleName) {
+        return tumorSampleName + PURPLE_SOMATIC_SV_VCF;
+    }
 
-    private static String germlineSvVcf(final String tumorSampleName) { return tumorSampleName + PURPLE_GERMLINE_SV_VCF; }
+    private static String germlineSvVcf(final String tumorSampleName) {
+        return tumorSampleName + PURPLE_GERMLINE_SV_VCF;
+    }
 
     private static String somaticVcf(final String tumorSampleName) {
         return tumorSampleName + PURPLE_SOMATIC_VCF;

@@ -1,20 +1,19 @@
 package com.hartwig.pipeline;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Supplier;
-
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.output.OutputPublisher;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 public class FullPipeline {
 
@@ -32,9 +31,9 @@ public class FullPipeline {
     private HmfApiStatusUpdate hmfApiStatusUpdate;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
-            final SomaticPipeline somaticPipeline, final SomaticRunMetadata metadata, final ExecutorService executorService,
-            final SingleSampleEventListener referenceApi, final SingleSampleEventListener tumorApi, final Cleanup cleanup,
-            final OutputPublisher outputPublisher, final HmfApiStatusUpdate hmfApiStatusUpdate) {
+                 final SomaticPipeline somaticPipeline, final SomaticRunMetadata metadata, final ExecutorService executorService,
+                 final SingleSampleEventListener referenceApi, final SingleSampleEventListener tumorApi, final Cleanup cleanup,
+                 final OutputPublisher outputPublisher, final HmfApiStatusUpdate hmfApiStatusUpdate) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
@@ -88,7 +87,7 @@ public class FullPipeline {
 
     @NotNull
     private PipelineState runPipeline(final CountDownAndTrapStatus trapReferenceAlignmentComplete,
-            final CountDownAndTrapStatus trapTumorAlignmentComplete) {
+                                      final CountDownAndTrapStatus trapTumorAlignmentComplete) {
         return somaticPipeline.run(AlignmentPair.builder()
                 .maybeReference(metadata.maybeReference().map(r -> trapReferenceAlignmentComplete.trappedAlignmentOutput))
                 .maybeTumor(metadata.maybeTumor().map(r -> trapTumorAlignmentComplete.trappedAlignmentOutput))
@@ -96,7 +95,7 @@ public class FullPipeline {
     }
 
     private static Supplier<PipelineState> countdown(final CountDownLatch bothSingleSamplesAlignmentComplete,
-            final CountDownLatch bothSingleSamplesPipelineComplete) {
+                                                     final CountDownLatch bothSingleSamplesPipelineComplete) {
         return () -> {
             bothSingleSamplesAlignmentComplete.countDown();
             bothSingleSamplesPipelineComplete.countDown();
@@ -105,7 +104,7 @@ public class FullPipeline {
     }
 
     private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata,
-            final CountDownLatch latch) {
+                                      final CountDownLatch latch) {
         try {
             return pipeline.run(metadata);
         } catch (Exception e) {
@@ -120,7 +119,7 @@ public class FullPipeline {
     }
 
     private PipelineState combine(final CountDownAndTrapStatus trapReference, final CountDownAndTrapStatus trapTumor,
-            final SomaticRunMetadata metadata) {
+                                  final SomaticRunMetadata metadata) {
         PipelineState combined = empty();
         metadata.maybeReference().ifPresent(reference -> {
             checkState(trapReference, "Reference");

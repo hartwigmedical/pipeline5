@@ -1,21 +1,11 @@
 package com.hartwig.pipeline.output;
 
-import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Analysis;
 import com.hartwig.events.pipeline.AnalysisOutputBlob;
 import com.hartwig.events.pipeline.Pipeline;
@@ -24,13 +14,18 @@ import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class PipelineCompleteEventPublisherTest {
 
@@ -50,7 +45,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void doesNothingOnFailedState() {
-        when(state.status()).thenReturn(PipelineStatus.FAILED);
+        when(state.status()).thenReturn(ComputeEngineStatus.FAILED);
         victim.publish(state, TestInputs.defaultSomaticRunMetadata());
         verify(publisher, never()).publish(any());
     }
@@ -68,7 +63,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void publishesDnaTertiaryAnalysisOnVcf() throws Exception {
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
@@ -99,7 +94,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void usesReferenceSampleWhenNoTumor() {
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSingleSampleRunMetadata());
@@ -108,7 +103,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void usesDatatypeAndBarcodeWhenFileMatched() throws Exception {
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
         String path = TestInputs.referenceSample() + "/germline_caller/reference.germline.vcf.gz";
         Blob vcf = withBucketAndMd5(blob(path));
         Page<Blob> page = pageOf(vcf);
@@ -123,7 +118,7 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     public void verifyGermline(final String filename, final String expectedFile, final String namespace) {
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob(namespace + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
@@ -132,7 +127,7 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     private void verifySecondaryAnalysis(final String extension, final String indexExtension, final String namespace) {
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
         Blob tumorBamBlob =
                 withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension));
         Blob tumorBaiBlob = withBucketAndMd5(blob(

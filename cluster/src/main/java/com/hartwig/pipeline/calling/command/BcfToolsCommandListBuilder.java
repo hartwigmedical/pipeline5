@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.calling.command;
 
-import java.util.List;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.command.unix.PipeCommands;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.PipeCommands;
+
+import java.util.List;
 
 public class BcfToolsCommandListBuilder {
 
@@ -68,7 +68,7 @@ public class BcfToolsCommandListBuilder {
         return this;
     }
 
-    public BcfToolsCommandListBuilder selectSample(final String ... tumorSampleNames) {
+    public BcfToolsCommandListBuilder selectSample(final String... tumorSampleNames) {
         if (tumorSampleNames.length == 0) {
             throw new IllegalArgumentException("At least one sample must be provided");
         }

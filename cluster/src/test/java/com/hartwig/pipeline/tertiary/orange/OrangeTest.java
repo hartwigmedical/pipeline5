@@ -1,26 +1,24 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 

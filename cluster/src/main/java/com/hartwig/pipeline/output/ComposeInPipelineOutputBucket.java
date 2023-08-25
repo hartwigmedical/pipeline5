@@ -1,21 +1,20 @@
 package com.hartwig.pipeline.output;
 
-import static java.lang.String.format;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.input.RunMetadata;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.jackson.ObjectMappers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.input.RunMetadata;
-import com.hartwig.pipeline.jackson.ObjectMappers;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.String.format;
 
 public class ComposeInPipelineOutputBucket implements PipelineOutputComposer {
 

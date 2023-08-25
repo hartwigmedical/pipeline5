@@ -1,31 +1,25 @@
 package com.hartwig.pipeline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.concurrent.Executors;
-
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.OutputPublisher;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
+
+import java.util.concurrent.Executors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class FullPipelineTest {
 
@@ -67,7 +61,7 @@ public class FullPipelineTest {
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
 
         when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.SUCCESS);
     }
 
     @Test
@@ -76,7 +70,7 @@ public class FullPipelineTest {
                 failedAlignment(TestInputs.referenceAlignmentOutput()),
                 succeeded()));
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.FAILED);
         verify(somatic, never()).run(TestInputs.defaultPair());
     }
 
@@ -86,7 +80,7 @@ public class FullPipelineTest {
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener,
                 failedAlignment(TestInputs.tumorAlignmentOutput()),
                 succeeded()));
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.FAILED);
         verify(somatic, never()).run(TestInputs.defaultPair());
     }
 
@@ -95,7 +89,7 @@ public class FullPipelineTest {
         when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), failed()));
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
         when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.FAILED);
     }
 
     @Test
@@ -103,7 +97,7 @@ public class FullPipelineTest {
         when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), failed()));
         when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.FAILED);
     }
 
     @Test
@@ -111,7 +105,7 @@ public class FullPipelineTest {
         when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
         when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
         when(somatic.run(TestInputs.defaultPair())).thenReturn(failed());
-        assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run().status()).isEqualTo(ComputeEngineStatus.FAILED);
     }
 
     @Test
@@ -124,7 +118,7 @@ public class FullPipelineTest {
 
         ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(outputPublisher, times(1)).publish(stateCaptor.capture(), eq(METADATA));
-        assertThat(stateCaptor.getValue().status()).isEqualTo(PipelineStatus.SUCCESS);
+        assertThat(stateCaptor.getValue().status()).isEqualTo(ComputeEngineStatus.SUCCESS);
     }
 
     @Test
@@ -137,7 +131,7 @@ public class FullPipelineTest {
 
         ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(outputPublisher, times(1)).publish(stateCaptor.capture(), eq(METADATA));
-        assertThat(stateCaptor.getValue().status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(stateCaptor.getValue().status()).isEqualTo(ComputeEngineStatus.FAILED);
     }
 
     @Test
@@ -183,16 +177,16 @@ public class FullPipelineTest {
 
     private static PipelineState failed() {
         PipelineState failedState = succeeded();
-        failedState.add(BamMetricsOutput.builder().status(PipelineStatus.FAILED).sample("test").build());
+        failedState.add(BamMetricsOutput.builder().status(ComputeEngineStatus.FAILED).sample("test").build());
         return failedState;
     }
 
     private static ImmutableAlignmentOutput failedAlignment(final AlignmentOutput from) {
-        return AlignmentOutput.builder().from(from).status(PipelineStatus.FAILED).build();
+        return AlignmentOutput.builder().from(from).status(ComputeEngineStatus.FAILED).build();
     }
 
     private static Answer<PipelineState> callHandlers(final SingleSampleEventListener listener, final AlignmentOutput alignmentState,
-            final PipelineState pipelineState) {
+                                                      final PipelineState pipelineState) {
         return invocation -> {
             listener.getHandlers().forEach(handler -> handler.handleAlignmentComplete(alignmentState));
             listener.getHandlers().forEach(handler -> handler.handleSingleSampleComplete(pipelineState));

@@ -1,38 +1,35 @@
 package com.hartwig.pipeline.stages;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.inputDownload;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.CopyWriter;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.input.RunMetadata;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.CopyWriter;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.input.RunMetadata;
-import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.hartwig.pipeline.testsupport.TestInputs.inputDownload;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
@@ -102,8 +99,8 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void returnsExpectedOutput() {
-        S output = victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory());
-        assertThat(output.status()).isEqualTo(PipelineStatus.SUCCESS);
+        S output = victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory());
+        assertThat(output.status()).isEqualTo(ComputeEngineStatus.SUCCESS);
         assertThat(output.name()).isEqualTo(victim.namespace());
         validateOutput(output);
     }
@@ -131,13 +128,13 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void returnsExpectedFurtherOperations() {
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .datatypes()).containsExactlyInAnyOrder(expectedFurtherOperations().toArray(AddDatatype[]::new));
     }
 
     @Test
     public void addsLogs() {
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .failedLogLocations()).isNotEmpty();
     }
 

@@ -1,21 +1,19 @@
 package com.hartwig.pipeline.tertiary;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Test;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Test;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest<S, SomaticRunMetadata> {
 
@@ -45,7 +43,7 @@ public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest
     @Test
     public void persistedOutputDatatypesMatchOutputDatatypes() {
         SomaticRunMetadata metadata = defaultSomaticRunMetadata();
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .datatypes()).isEqualTo(victim.persistedOutput(metadata).datatypes());
     }
 }

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.output;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
 
 public interface Folder {
 

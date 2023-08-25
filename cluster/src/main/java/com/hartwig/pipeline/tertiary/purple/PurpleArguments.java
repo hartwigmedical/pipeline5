@@ -1,20 +1,19 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
+import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.ResourceFiles;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.ResourceFiles;
+import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
+import static java.lang.String.format;
 
 final class PurpleArguments {
 
     public static List<String> tumorArguments(final String tumorSampleName, final String somaticVcfPath, final String structuralVcfPath,
-            final ResourceFiles resourceFiles, boolean useUnfilteredVcf, final String unfilteredVcfPath) {
+                                              final ResourceFiles resourceFiles, boolean useUnfilteredVcf, final String unfilteredVcfPath) {
 
         List<String> arguments = Lists.newArrayList(format("-tumor %s", tumorSampleName),
                 format("-somatic_vcf %s", somaticVcfPath),
@@ -30,7 +29,7 @@ final class PurpleArguments {
     }
 
     public static List<String> germlineArguments(final String sampleName, final String germlineVcfPath, final String germlineSvVcfPath,
-            final ResourceFiles resourceFiles) {
+                                                 final ResourceFiles resourceFiles) {
         return List.of(format("-reference %s", sampleName),
                 format("-germline_vcf %s", germlineVcfPath),
                 format("-germline_sv_vcf %s", germlineSvVcfPath),
@@ -49,7 +48,7 @@ final class PurpleArguments {
     }
 
     public static List<String> addCommonArguments(final String amberOutputPath, final String cobaltOutputPath,
-            final ResourceFiles resourceFiles) {
+                                                  final ResourceFiles resourceFiles) {
         return List.of(format("-amber %s", amberOutputPath),
                 format("-cobalt %s", cobaltOutputPath),
                 format("-ref_genome %s", resourceFiles.refGenomeFile()),

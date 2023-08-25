@@ -1,13 +1,7 @@
 package com.hartwig.pipeline;
 
-import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -17,9 +11,7 @@ import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.PipelineOutputComposer;
@@ -59,9 +51,12 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.*;
+
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 public class SomaticPipeline {
 
@@ -79,11 +74,11 @@ public class SomaticPipeline {
     private final PersistedDataset persistedDataset;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
-            final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
-            final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final SomaticRunMetadata metadata, final PipelineOutputComposer composer, final ExecutorService executorService,
-            final PersistedDataset persistedDataset) {
+                    final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
+                    final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
+                    final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
+                    final SomaticRunMetadata metadata, final PipelineOutputComposer composer, final ExecutorService executorService,
+                    final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
@@ -256,11 +251,11 @@ public class SomaticPipeline {
     }
 
     private BamMetricsOutput skippedMetrics(final String sample) {
-        return BamMetricsOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
+        return BamMetricsOutput.builder().sample(sample).status(ComputeEngineStatus.SKIPPED).build();
     }
 
     private FlagstatOutput skippedFlagstat(final String sample) {
-        return FlagstatOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
+        return FlagstatOutput.builder().sample(sample).status(ComputeEngineStatus.SKIPPED).build();
     }
 
     public static <T> T pollOrThrow(final BlockingQueue<T> tumourBamMetricsOutput, final String name) {

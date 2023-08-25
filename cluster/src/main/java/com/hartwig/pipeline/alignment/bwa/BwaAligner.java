@@ -1,11 +1,34 @@
 package com.hartwig.pipeline.alignment.bwa;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.datatypes.FileTypes.bai;
-import static com.hartwig.pipeline.datatypes.FileTypes.bam;
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.labels.Labels;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RunIdentifier;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pdl.LaneInput;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
+import com.hartwig.pipeline.input.Inputs;
+import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
+import com.hartwig.pipeline.storage.SampleUpload;
+import com.hartwig.pipeline.storage.StorageUtil;
+import com.hartwig.pipeline.tools.VersionUtils;
+import com.hartwig.pipeline.trace.StageTrace;
+import net.jodah.failsafe.Failsafe;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,44 +38,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import com.google.cloud.storage.Storage;
-import com.hartwig.pdl.LaneInput;
-import com.hartwig.pdl.PipelineInput;
-import com.hartwig.pdl.SampleInput;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.Aligner;
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
-import com.hartwig.pipeline.execution.vm.command.OutputUploadCommand;
-import com.hartwig.pipeline.execution.vm.RuntimeFiles;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
-import com.hartwig.pipeline.input.Inputs;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.OutputComponent;
-import com.hartwig.pipeline.output.RunLogComponent;
-import com.hartwig.pipeline.output.SingleFileComponent;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.trace.StageTrace;
-
-import net.jodah.failsafe.Failsafe;
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.datatypes.FileTypes.bai;
+import static com.hartwig.pipeline.datatypes.FileTypes.bam;
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+import static java.lang.String.format;
 
 public class BwaAligner implements Aligner {
+
+    private static final String IMAGE_FAMILY = "pipeline5-" + VersionUtils.imageVersion();
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
@@ -64,8 +58,8 @@ public class BwaAligner implements Aligner {
     private final Labels labels;
 
     public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-            final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-            final ExecutorService executorService, final Labels labels) {
+                      final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+                      final ExecutorService executorService, final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -80,26 +74,26 @@ public class BwaAligner implements Aligner {
 
         StageTrace trace =
                 new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments, labels);
+        RunIdentifier runIdentifier = StorageUtil.runIdentifierFromArguments(metadata, arguments);
+        RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, arguments.region(), labels, runIdentifier, arguments.cmek().orElse(null));
 
         SampleInput sample = Inputs.sampleFor(input, metadata);
         if (sample.bam().isPresent()) {
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
-                    .status(PipelineStatus.PROVIDED)
+                    .status(ComputeEngineStatus.PROVIDED)
                     .maybeAlignments(GoogleStorageLocation.from(sample.bam().get(), arguments.project()))
                     .build();
         }
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         sampleUpload.run(sample, rootBucket);
 
-        List<Future<PipelineStatus>> futures = new ArrayList<>();
+        List<Future<ComputeEngineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<OutputComponent> laneLogComponents = new ArrayList<>();
         List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (LaneInput lane : sample.lanes()) {
-
-            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments, labels);
+            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), arguments.region(), labels, runIdentifier, arguments.cmek().orElse(null));
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
@@ -127,6 +121,7 @@ public class BwaAligner implements Aligner {
                             .startupCommand(bash)
                             .performanceProfile(custom(96, 96))
                             .namespacedResults(resultsDirectory)
+                            .imageFamily(IMAGE_FAMILY)
                             .build())));
             laneLogComponents.add(new RunLogComponent(laneBucket,
                     laneNamespace(lane),
@@ -156,13 +151,14 @@ public class BwaAligner implements Aligner {
             mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     resultsDirectory.path()), RuntimeFiles.typical()));
 
-            PipelineStatus status = runWithRetries(metadata,
+            ComputeEngineStatus status = runWithRetries(metadata,
                     rootBucket,
                     ImmutableVirtualMachineJobDefinition.builder()
                             .name("merge-markdup")
                             .startupCommand(mergeMarkdupsBash)
                             .performanceProfile(custom(32, 120))
                             .namespacedResults(resultsDirectory)
+                            .imageFamily(IMAGE_FAMILY)
                             .build());
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
@@ -203,15 +199,15 @@ public class BwaAligner implements Aligner {
             }
             output = outputBuilder.build();
         } else {
-            output = AlignmentOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.FAILED).build();
+            output = AlignmentOutput.builder().sample(metadata.sampleName()).status(ComputeEngineStatus.FAILED).build();
         }
         trace.stop();
         executorService.shutdown();
         return output;
     }
 
-    public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
-            final VirtualMachineJobDefinition jobDefinition) {
+    public ComputeEngineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
+                                              final VirtualMachineJobDefinition jobDefinition) {
         return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
                 metadata.toString(),
                 Aligner.NAMESPACE))).get(() -> computeEngine.submit(laneBucket, jobDefinition));
@@ -225,15 +221,15 @@ public class BwaAligner implements Aligner {
         return lane.flowCellId() + "-" + lane.laneNumber();
     }
 
-    private boolean lanesSuccessfullyComplete(final List<Future<PipelineStatus>> futures) {
-        return futures.stream().map(BwaAligner::getFuture).noneMatch(status -> status.equals(PipelineStatus.FAILED));
+    private boolean lanesSuccessfullyComplete(final List<Future<ComputeEngineStatus>> futures) {
+        return futures.stream().map(BwaAligner::getFuture).noneMatch(status -> status.equals(ComputeEngineStatus.FAILED));
     }
 
     private static String fastQFileName(final String sample, final String fullFastQPath) {
         return format("samples/%s/%s", sample, new File(fullFastQPath).getName());
     }
 
-    private static PipelineStatus getFuture(final Future<PipelineStatus> future) {
+    private static ComputeEngineStatus getFuture(final Future<ComputeEngineStatus> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {

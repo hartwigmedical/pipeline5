@@ -1,19 +1,19 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.tertiary.pave.PaveArguments.addTargetRegionsArguments;
-
-import java.util.List;
-
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.tertiary.pave.PaveArguments.addTargetRegionsArguments;
 
 @Namespace(PaveSomatic.NAMESPACE)
 public class PaveSomatic extends Pave {
@@ -23,7 +23,7 @@ public class PaveSomatic extends Pave {
     private static final String PAVE_SOMATIC_FILE_ID = "pave.somatic";
 
     public PaveSomatic(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
-            final Arguments arguments) {
+                       final Arguments arguments) {
         super(resourceFiles, sageOutput, persistedDataset, DataType.SOMATIC_VARIANTS_PAVE);
         this.arguments = arguments;
     }

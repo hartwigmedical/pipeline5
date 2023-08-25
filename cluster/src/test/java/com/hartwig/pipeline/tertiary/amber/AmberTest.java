@@ -1,24 +1,22 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.AMBER;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
@@ -35,8 +33,8 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.AMBER,
-                        TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv.gz"), true));
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv.gz"), true));
     }
 
     @Override

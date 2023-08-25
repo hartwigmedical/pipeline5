@@ -1,8 +1,9 @@
 package com.hartwig.pipeline.storage;
 
-import java.io.IOException;
-
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pdl.SampleInput;
+
+import java.io.IOException;
 
 public interface SampleUpload {
 

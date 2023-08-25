@@ -1,6 +1,10 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static java.lang.String.format;
+import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.gatk.GatkCommand;
+import com.hartwig.pipeline.stages.SubStage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,11 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.gatk.GatkCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.stages.SubStage;
+import static java.lang.String.format;
 
 public class VariantFiltration extends SubStage {
 

@@ -1,10 +1,19 @@
 package com.hartwig.pipeline.metadata;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import com.hartwig.api.RunApi;
+import com.hartwig.api.model.Run;
+import com.hartwig.api.model.RunFailure;
+import com.hartwig.api.model.Status;
+import com.hartwig.api.model.UpdateRun;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pdl.OperationalReferences;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.assertj.core.data.TemporalUnitLessThanOffset;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -13,21 +22,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import com.hartwig.api.RunApi;
-import com.hartwig.api.model.Run;
-import com.hartwig.api.model.RunFailure;
-import com.hartwig.api.model.Status;
-import com.hartwig.api.model.UpdateRun;
-import com.hartwig.pdl.OperationalReferences;
-import com.hartwig.pdl.PipelineInput;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.assertj.core.data.TemporalUnitLessThanOffset;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class HmfApiStatusUpdateTest {
 
@@ -69,14 +66,14 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void successSetsApiStatusToFinishedWhenApiProvided() {
-        setupForRealUpdate().finish(PipelineStatus.SUCCESS);
+        setupForRealUpdate().finish(ComputeEngineStatus.SUCCESS);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Test
     public void qcFailureSetsApiStatusToFailedWhenApiProvided() {
-        setupForRealUpdate().finish(PipelineStatus.QC_FAILED);
+        setupForRealUpdate().finish(ComputeEngineStatus.QC_FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.QCFAILURE);
@@ -84,7 +81,7 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void technicalFailureSetsApiStatusToFailedWhenApiProvided() {
-        setupForRealUpdate().finish(PipelineStatus.FAILED);
+        setupForRealUpdate().finish(ComputeEngineStatus.FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.TECHNICALFAILURE);
@@ -98,13 +95,13 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void finishDoesNoApiCallOnSuccessWhenNoUrlProvided() {
-        setupForNoOp().finish(PipelineStatus.SUCCESS);
+        setupForNoOp().finish(ComputeEngineStatus.SUCCESS);
         verifyNoMoreInteractions(runApi);
     }
 
     @Test
     public void finishDoesNoApiCallOnFailureWhenNoUrlProvided() {
-        setupForNoOp().finish(PipelineStatus.FAILED);
+        setupForNoOp().finish(ComputeEngineStatus.FAILED);
         verifyNoMoreInteractions(runApi);
     }
 }

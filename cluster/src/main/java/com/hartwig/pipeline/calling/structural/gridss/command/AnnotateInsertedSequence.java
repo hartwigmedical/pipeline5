@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import java.util.Collections;
+import com.hartwig.computeengine.execution.vm.Bash;
 
-import com.hartwig.pipeline.execution.vm.Bash;
+import java.util.Collections;
 
 public class AnnotateInsertedSequence extends GridssCommand {
 
@@ -16,7 +16,7 @@ public class AnnotateInsertedSequence extends GridssCommand {
     }
 
     private AnnotateInsertedSequence(final String inputVcf, final String outputVcf, final String referencesSequence,
-            final Alignment alignment, final String additional) {
+                                     final Alignment alignment, final String additional) {
         super("gridss.AnnotateInsertedSequence",
                 "8G",
                 Collections.emptyList(),

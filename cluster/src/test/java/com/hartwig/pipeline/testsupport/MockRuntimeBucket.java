@@ -1,16 +1,16 @@
 package com.hartwig.pipeline.testsupport;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.cloud.ReadChannel;
+import com.google.cloud.storage.Blob;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.cloud.ReadChannel;
-import com.google.cloud.storage.Blob;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class MockRuntimeBucket {

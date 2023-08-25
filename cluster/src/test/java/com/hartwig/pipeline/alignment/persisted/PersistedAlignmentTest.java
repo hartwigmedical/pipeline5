@@ -1,26 +1,25 @@
 package com.hartwig.pipeline.alignment.persisted;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.stages.TestPersistedDataset;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistedAlignmentTest {
 
@@ -43,7 +42,7 @@ public class PersistedAlignmentTest {
         PersistedAlignment victim = new PersistedAlignment(persistedDataset, Arguments.testDefaults(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
-        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
+        assertThat(output.status()).isEqualTo(ComputeEngineStatus.PERSISTED);
         assertThat(output.alignments()).isEqualTo(PERSISTED_REFERENCE_CRAM);
     }
 
@@ -55,7 +54,7 @@ public class PersistedAlignmentTest {
         PersistedAlignment victim = new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaults(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
-        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
+        assertThat(output.status()).isEqualTo(ComputeEngineStatus.PERSISTED);
         assertThat(output.alignments()).isEqualTo(PERSISTED_REFERENCE_BAM);
     }
 
@@ -66,7 +65,7 @@ public class PersistedAlignmentTest {
         PersistedAlignment victim = new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaults(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
-        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
+        assertThat(output.status()).isEqualTo(ComputeEngineStatus.PERSISTED);
         assertThat(output.alignments()).isEqualTo(PERSISTED_REFERENCE_CRAM);
     }
 
@@ -76,7 +75,7 @@ public class PersistedAlignmentTest {
                 new PersistedAlignment(new TestPersistedDataset(), Arguments.testDefaultsBuilder().useCrams(true).build(), storage);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
-        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
+        assertThat(output.status()).isEqualTo(ComputeEngineStatus.PERSISTED);
         assertThat(output.alignments()).isEqualTo(PERSISTED_REFERENCE_CRAM);
     }
 }

@@ -1,23 +1,22 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
-
-import java.util.List;
-
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
+import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+import static java.lang.String.format;
 
 @Namespace(GripssSomatic.GRIPSS_SOMATIC_NAMESPACE)
 public class GripssSomatic extends Gripss {
@@ -30,7 +29,7 @@ public class GripssSomatic extends Gripss {
     private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
     public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-            final Arguments arguments) {
+                         final Arguments arguments) {
         super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
         useTargetRegions = arguments.useTargetRegions();
     }
@@ -49,14 +48,12 @@ public class GripssSomatic extends Gripss {
     }
 
     @Override
-    public String filteredVcf(final SomaticRunMetadata metadata)
-    {
+    public String filteredVcf(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + GRIPSS_SOMATIC_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
     @Override
-    public String unfilteredVcf(final SomaticRunMetadata metadata)
-    {
+    public String unfilteredVcf(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + GRIPSS_SOMATIC_UNFILTERED + FileTypes.GZIPPED_VCF;
     }
 
@@ -79,8 +76,7 @@ public class GripssSomatic extends Gripss {
         arguments.add("-output_id somatic");
         arguments.addAll(commonArguments());
 
-        if(useTargetRegions)
-        {
+        if (useTargetRegions) {
             arguments.add("-hard_min_tumor_qual 200");
             arguments.add("-min_qual_break_point 1000");
             arguments.add("-min_qual_break_end 1000");

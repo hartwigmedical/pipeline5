@@ -4,10 +4,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
+import com.hartwig.computeengine.input.RunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.input.RunMetadata;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

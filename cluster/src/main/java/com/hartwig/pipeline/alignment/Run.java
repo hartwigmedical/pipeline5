@@ -1,12 +1,11 @@
 package com.hartwig.pipeline.alignment;
 
-import static java.lang.String.format;
-
+import com.hartwig.computeengine.input.RunMetadata;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.RunTag;
-import com.hartwig.pipeline.input.RunMetadata;
-
 import org.immutables.value.Value;
+
+import static java.lang.String.format;
 
 @Value.Immutable
 public interface Run {

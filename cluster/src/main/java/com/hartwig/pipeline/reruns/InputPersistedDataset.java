@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.reruns;
 
-import static java.util.Optional.ofNullable;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pipeline.datatypes.DataType;
 
 import java.util.Map;
 import java.util.Optional;
 
-import com.hartwig.pdl.PipelineInput;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import static java.util.Optional.ofNullable;
 
 public class InputPersistedDataset implements PersistedDataset {
 

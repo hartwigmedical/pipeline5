@@ -1,18 +1,16 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.SAGE;
-
-import static org.junit.Assert.assertEquals;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Test;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+import static org.junit.Assert.assertEquals;
 
 public class SageCommandBuilderTest {
 

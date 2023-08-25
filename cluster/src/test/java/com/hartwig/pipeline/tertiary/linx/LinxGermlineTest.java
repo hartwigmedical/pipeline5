@@ -1,22 +1,21 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
@@ -30,7 +29,7 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
     protected List<String> expectedInputs() {
         return Collections.singletonList(input(
                 "run-reference-tumor-test/purple/tumor.purple.sv.germline.vcf.gz",
-                    "tumor.purple.sv.germline.vcf.gz"));
+                "tumor.purple.sv.germline.vcf.gz"));
     }
 
     @Override
@@ -45,12 +44,12 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
         commands.add(
                 toolCommand(LINX)
-                + " -sample tumor -germline "
-                + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz "
-                + "-ref_genome_version V37 "
-                + "-output_dir /data/output "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
+                        + " -sample tumor -germline "
+                        + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz "
+                        + "-ref_genome_version V37 "
+                        + "-output_dir /data/output "
+                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
 
         return commands;
     }

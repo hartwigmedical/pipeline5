@@ -1,19 +1,18 @@
 package com.hartwig.pipeline.snpgenotype;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRunMetadata> {
 
@@ -65,6 +64,6 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
 
     @Override
     protected void validatePersistedOutput(final SnpGenotypeOutput output) {
-        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build());
+        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(ComputeEngineStatus.PERSISTED).build());
     }
 }

@@ -1,29 +1,28 @@
 package com.hartwig.pipeline.stages;
 
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.vm.ComputeEngine;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.ExportVariableCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.input.InputMode;
+import com.hartwig.pipeline.labels.LabelsUtil;
+import com.hartwig.pipeline.reruns.StartingPoint;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.command.unix.ExportVariableCommand;
-import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.input.InputMode;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.reruns.StartingPoint;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class StageRunnerTest {
 
@@ -52,7 +51,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                Labels.of(ARGUMENTS),
+                LabelsUtil.fromArguments(ARGUMENTS),
                 InputMode.TUMOR_REFERENCE);
         when(stage.namespace()).thenReturn(NAMESPACE);
         output = mock(StageOutput.class);
@@ -74,7 +73,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                Labels.of(ARGUMENTS),
+                LabelsUtil.fromArguments(ARGUMENTS),
                 InputMode.REFERENCE_ONLY);
         when(startingPoint.usePersisted(NAMESPACE)).thenReturn(false);
         when(stage.shouldRun(ARGUMENTS)).thenReturn(true);
@@ -89,7 +88,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                Labels.of(ARGUMENTS),
+                LabelsUtil.fromArguments(ARGUMENTS),
                 InputMode.TUMOR_ONLY);
         when(startingPoint.usePersisted(NAMESPACE)).thenReturn(false);
         when(stage.shouldRun(ARGUMENTS)).thenReturn(true);

@@ -1,19 +1,18 @@
 package com.hartwig.pipeline.metrics;
 
-import java.util.Optional;
-
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface BamMetricsOutput extends StageOutput {
 
     String sample();
 
-    PipelineStatus status();
+    ComputeEngineStatus status();
 
     @Override
     default String name() {

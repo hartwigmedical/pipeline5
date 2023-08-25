@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.stages;
 
+import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import org.immutables.value.Value;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-
-import org.immutables.value.Value;
 
 @Value.Immutable
 public interface SubStageInputOutput {

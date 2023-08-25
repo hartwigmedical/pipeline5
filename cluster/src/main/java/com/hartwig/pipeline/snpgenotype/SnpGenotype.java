@@ -1,25 +1,20 @@
 package com.hartwig.pipeline.snpgenotype;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
@@ -28,8 +23,12 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static java.lang.String.format;
 
 @Namespace(SnpGenotype.NAMESPACE)
 public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
@@ -92,12 +91,12 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public SnpGenotypeOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        return SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return SnpGenotypeOutput.builder().status(ComputeEngineStatus.PERSISTED).build();
     }
 
     @Override
-    public SnpGenotypeOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+    public SnpGenotypeOutput output(final SingleSampleRunMetadata metadata, final ComputeEngineStatus status, final RuntimeBucket bucket,
+                                    final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()
                 .status(status)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -114,7 +113,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public SnpGenotypeOutput skippedOutput(final SingleSampleRunMetadata metadata) {
-        return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return SnpGenotypeOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
     }
 
     @Override

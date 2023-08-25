@@ -1,26 +1,25 @@
 package com.hartwig.pipeline.metrics;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
-
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
@@ -71,14 +70,14 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
         return ImmutableList.of(
                 toolCommand(BAM_TOOLS)
-                + " -sample reference "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-bam_file /data/input/reference.bam "
-                + "-output_dir /data/output "
-                + "-log_level INFO "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                + "-write_old_style");
+                        + " -sample reference "
+                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "-ref_genome_version V37 "
+                        + "-bam_file /data/input/reference.bam "
+                        + "-output_dir /data/output "
+                        + "-log_level INFO "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
+                        + "-write_old_style");
     }
 
     @Test

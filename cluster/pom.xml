@@ -114,6 +114,10 @@
             <artifactId>reflections</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig.cloud-sdk</groupId>
+            <artifactId>compute-engine</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

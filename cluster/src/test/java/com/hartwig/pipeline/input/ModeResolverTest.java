@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.input;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import com.hartwig.computeengine.input.ImmutableSomaticRunMetadata;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Test;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Test;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class ModeResolverTest {
 

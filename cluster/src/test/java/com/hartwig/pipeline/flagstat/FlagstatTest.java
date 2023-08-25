@@ -1,21 +1,21 @@
 package com.hartwig.pipeline.flagstat;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetadata> {
 
@@ -86,6 +86,6 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
     protected void validatePersistedOutputFromPersistedDataset(final FlagstatOutput output) {
         assertThat(output.flagstatOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "flagstat/" + REFERENCE_FLAGSTAT));
-                assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
+        assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
     }
 }

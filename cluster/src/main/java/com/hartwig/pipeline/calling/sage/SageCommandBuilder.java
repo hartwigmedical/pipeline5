@@ -1,15 +1,15 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.resource.ResourceFiles;
 
 import java.util.List;
 import java.util.StringJoiner;
 
-import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.resource.ResourceFiles;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 public class SageCommandBuilder {
 
@@ -135,8 +135,7 @@ public class SageCommandBuilder {
         arguments.add("-write_bqr_plot");
         arguments.add(String.format("-out %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
-
-        result.add(new JavaJarCommand(SAGE, arguments));
+        result.add(new JavaJarCommand(SAGE.getToolName(), SAGE.getVersion(), SAGE.jar(), SAGE.maxHeapStr(), arguments));
 
         return result;
     }

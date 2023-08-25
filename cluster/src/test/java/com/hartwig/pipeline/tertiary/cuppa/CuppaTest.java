@@ -1,30 +1,24 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
-import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
+import static com.hartwig.pipeline.testsupport.TestInputs.*;
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 

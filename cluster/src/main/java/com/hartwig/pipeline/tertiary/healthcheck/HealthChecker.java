@@ -1,38 +1,37 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
-import java.util.List;
-
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 @Namespace(HealthChecker.NAMESPACE)
 public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadata> {
@@ -49,7 +48,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     private final InputDownloadCommand purpleDownload;
 
     public HealthChecker(final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput,
-            final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
+                         final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
         referenceMetricsDownload = new InputDownloadCommand(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
         tumorMetricsDownload = new InputDownloadCommand(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload =
@@ -108,8 +107,8 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
-    public HealthCheckOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+    public HealthCheckOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+                                    final ResultsDirectory resultsDirectory) {
         return HealthCheckOutput.builder()
                 .status(checkHealthCheckerOutput(metadata.sampleName(), bucket, jobStatus, resultsDirectory))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -120,12 +119,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public HealthCheckOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return HealthCheckOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
     }
 
     @Override
     public HealthCheckOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return HealthCheckOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return HealthCheckOutput.builder().status(ComputeEngineStatus.PERSISTED).build();
     }
 
     @Override
@@ -135,29 +134,29 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @NotNull
-    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status,
-            final ResultsDirectory resultsDirectory) {
+    private ComputeEngineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, ComputeEngineStatus status,
+                                                         final ResultsDirectory resultsDirectory) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
-        if ((status == PipelineStatus.SKIPPED || status == PipelineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
+        if ((status == ComputeEngineStatus.SKIPPED || status == ComputeEngineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);
             if (healthCheckStatus.getName().endsWith("HealthCheckSucceeded")) {
                 LOGGER.debug("Health check reported success");
-                status = PipelineStatus.SUCCESS;
+                status = ComputeEngineStatus.SUCCESS;
             } else if (healthCheckStatus.getName().endsWith("HealthCheckFailed")) {
                 LOGGER.warn("Health check reported failure. Check run.log in health checker out for reason");
-                status = PipelineStatus.QC_FAILED;
+                status = ComputeEngineStatus.QC_FAILED;
             } else {
                 LOGGER.warn(
                         "Health check completed with unknown status [{}]. Failing the run. Check run.log in health checker out for more "
                                 + "detail",
                         healthCheckStatus.getName());
-                status = PipelineStatus.FAILED;
+                status = ComputeEngineStatus.FAILED;
 
             }
         } else {
             LOGGER.error("Found [{}] files in the health checker output. Unable to determine status, this is likely a bug in the pipeline",
                     healthCheckStatuses.size());
-            status = PipelineStatus.FAILED;
+            status = ComputeEngineStatus.FAILED;
         }
         return status;
     }

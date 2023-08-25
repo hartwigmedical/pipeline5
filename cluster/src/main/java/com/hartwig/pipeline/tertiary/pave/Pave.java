@@ -1,35 +1,30 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.PAVE;
-
-import java.util.Collections;
-import java.util.List;
-
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.command.InputDownloadCommand;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.OutputComponent;
-import com.hartwig.pipeline.output.RunLogComponent;
-import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
@@ -39,7 +34,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     private final DataType vcfDatatype;
 
     public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
-            final DataType vcfDatatype) {
+                final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownloadCommand(sageOutput.variants());
         this.persistedDataset = persistedDataset;
@@ -49,7 +44,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
     protected List<BashCommand> paveCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand(PAVE, arguments));
+        return Collections.singletonList(new JavaJarCommand(PAVE.getToolName(), PAVE.getVersion(), PAVE.jar(), PAVE.maxHeapStr(), arguments));
     }
 
     @Override
@@ -76,12 +71,12 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public PaveOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PaveOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
+        return PaveOutput.builder(namespace()).status(ComputeEngineStatus.SKIPPED).build();
     }
 
     @Override
-    public PaveOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+    public PaveOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+                             final ResultsDirectory resultsDirectory) {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
                 .status(jobStatus)
@@ -97,7 +92,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     public PaveOutput persistedOutput(final SomaticRunMetadata metadata) {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
-                .status(PipelineStatus.PERSISTED)
+                .status(ComputeEngineStatus.PERSISTED)
                 .maybeAnnotatedVariants(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), outputFile))))

@@ -1,23 +1,22 @@
 package com.hartwig.pipeline.cram;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import java.util.List;
+
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMetadata> {
     private static final String BUCKET_NAME = "run-reference-test";
@@ -63,10 +62,10 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
         return ImmutableList.of(format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                samtools,
-                TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
-                output,
-                input),
+                        samtools,
+                        TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
+                        output,
+                        input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
@@ -84,7 +83,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected void validatePersistedOutput(final CramOutput output) {
-        assertThat(output).isEqualTo(CramOutput.builder().status(PipelineStatus.PERSISTED).build());
+        assertThat(output).isEqualTo(CramOutput.builder().status(ComputeEngineStatus.PERSISTED).build());
     }
 
     @Override

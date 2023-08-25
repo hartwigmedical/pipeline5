@@ -3,17 +3,17 @@ package com.hartwig.pipeline.alignment.persisted;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class PersistedAlignment implements Aligner {
 
@@ -33,7 +33,7 @@ public class PersistedAlignment implements Aligner {
                 persistedDataset.path(metadata.sampleName(), DataType.ALIGNED_READS).orElse(existingRun(metadata));
         return AlignmentOutput.builder()
                 .sample(metadata.sampleName())
-                .status(PipelineStatus.PERSISTED)
+                .status(ComputeEngineStatus.PERSISTED)
                 .maybeAlignments(alignmentMapLocation)
                 .build();
     }

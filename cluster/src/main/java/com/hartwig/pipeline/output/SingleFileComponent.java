@@ -2,8 +2,8 @@ package com.hartwig.pipeline.output;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 public class SingleFileComponent implements OutputComponent {
 
@@ -15,7 +15,7 @@ public class SingleFileComponent implements OutputComponent {
     private final ResultsDirectory resultsDirectory;
 
     public SingleFileComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
-            final String sourceFileName, final String targetFileName, final ResultsDirectory resultsDirectory) {
+                               final String sourceFileName, final String targetFileName, final ResultsDirectory resultsDirectory) {
         this.runtimeBucket = runtimeBucket;
         this.namespace = namespace;
         this.folder = folder;

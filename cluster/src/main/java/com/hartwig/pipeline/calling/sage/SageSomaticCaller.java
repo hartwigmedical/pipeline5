@@ -1,22 +1,22 @@
 package com.hartwig.pipeline.calling.sage;
 
-import java.util.List;
-
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
+import java.util.List;
+
 @Namespace(SageConfiguration.SAGE_SOMATIC_NAMESPACE)
 public class SageSomaticCaller extends SageCaller {
 
     public SageSomaticCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-            final Arguments arguments) {
+                             final Arguments arguments) {
         super(alignmentPair, persistedDataset, SageConfiguration.somatic(resourceFiles, arguments));
     }
 

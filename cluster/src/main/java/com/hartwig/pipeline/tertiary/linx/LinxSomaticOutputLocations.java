@@ -1,12 +1,10 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface LinxSomaticOutputLocations
-{
+public interface LinxSomaticOutputLocations {
 
     GoogleStorageLocation fusions();
 
