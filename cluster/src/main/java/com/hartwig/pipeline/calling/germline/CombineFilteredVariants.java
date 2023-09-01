@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.calling.germline;
 
-import com.hartwig.pipeline.storage.OutputFile;
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.gatk.GatkCommand;
 import com.hartwig.pipeline.stages.SubStage;
-
-import java.util.Collections;
-import java.util.List;
+import com.hartwig.pipeline.storage.OutputFile;
 
 public class CombineFilteredVariants extends SubStage {
 

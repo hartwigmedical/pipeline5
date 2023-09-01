@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.calling.germline;
 
-import com.hartwig.pipeline.storage.OutputFile;
+import java.util.Optional;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import org.immutables.value.Value;
+import com.hartwig.pipeline.storage.OutputFile;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface GermlineCallerOutput extends StageOutput {

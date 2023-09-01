@@ -1,13 +1,15 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.Arguments;
-import org.junit.Test;
-
 import static com.hartwig.pipeline.testsupport.TestInputs.BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.SET;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+
+import org.junit.Test;
 
 public class RunTest {
 

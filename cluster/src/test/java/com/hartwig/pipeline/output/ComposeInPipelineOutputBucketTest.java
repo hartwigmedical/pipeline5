@@ -1,25 +1,29 @@
 package com.hartwig.pipeline.output;
 
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.testsupport.TestInputs;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class ComposeInPipelineOutputBucketTest {
 

@@ -1,16 +1,17 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.storage.OutputFile;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.stages.SubStage;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.storage.OutputFile;
+
+import org.junit.Test;
 
 public class SageGermlinePostProcessTest extends SubStageTest {
 

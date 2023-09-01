@@ -1,26 +1,34 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.computeengine.storage.RuntimeBucket;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.output.*;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.pipeline.tertiary.TertiaryStage;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.OutputComponent;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
+import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
@@ -31,7 +39,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     protected final SageConfiguration sageConfiguration;
 
     public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,
-                      final SageConfiguration sageConfiguration) {
+            final SageConfiguration sageConfiguration) {
         super(alignmentPair);
         this.persistedDataset = persistedDataset;
         this.sageConfiguration = sageConfiguration;
@@ -59,12 +67,12 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
     @Override
     public SageOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                             final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return outputBuilder(metadata, jobStatus, bucket, resultsDirectory).build();
     }
 
     protected ImmutableSageOutput.Builder outputBuilder(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
-                                                        final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+            final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
 
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
         final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
@@ -145,7 +153,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     }
 
     protected OutputComponent singleFileComponent(final String filename, final RuntimeBucket bucket,
-                                                  final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return new SingleFileComponent(bucket, namespace(), Folder.root(), filename, filename, resultsDirectory);
     }
 
@@ -158,7 +166,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     }
 
     private OutputComponent bqrComponent(final String extension, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
-                                         final String sampleName) {
+            final String sampleName) {
         String filename = format("%s.sage.bqr.%s", sampleName, extension);
         return singleFileComponent(filename, bucket, resultsDirectory);
     }

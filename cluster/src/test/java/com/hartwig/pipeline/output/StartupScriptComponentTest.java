@@ -1,15 +1,19 @@
 package com.hartwig.pipeline.output;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class StartupScriptComponentTest {
 
@@ -24,9 +28,7 @@ public class StartupScriptComponentTest {
         ArgumentCaptor<String> sourceBlobCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBucketCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBlobCaptor = ArgumentCaptor.forClass(String.class);
-        StartupScriptComponent victim = new StartupScriptComponent(runtimeBucket,
-                "test",
-                Folder.from(TestInputs.referenceRunMetadata()));
+        StartupScriptComponent victim = new StartupScriptComponent(runtimeBucket, "test", Folder.from(TestInputs.referenceRunMetadata()));
         victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getValue()).isEqualTo("copy_of_startup_script_for_run.sh");

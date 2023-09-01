@@ -1,10 +1,6 @@
 package com.hartwig.pipeline.calling.germline;
 
-import com.hartwig.pipeline.storage.OutputFile;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.gatk.GatkCommand;
-import com.hartwig.pipeline.stages.SubStage;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +9,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.gatk.GatkCommand;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.storage.OutputFile;
 
 public class VariantFiltration extends SubStage {
 
@@ -46,9 +46,7 @@ public class VariantFiltration extends SubStage {
         arguments.add("3");
         arguments.add("--clusterWindowSize");
         arguments.add("35");
-        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
-                "VariantFiltration",
-                arguments.toArray(new String[0])));
+        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP, "VariantFiltration", arguments.toArray(new String[0])));
     }
 
     private static String wrapInQuotes(final String string) {

@@ -1,16 +1,17 @@
 package com.hartwig.pipeline.output;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.StageOutput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.StageOutput;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VmExecutionLogSummary {
 

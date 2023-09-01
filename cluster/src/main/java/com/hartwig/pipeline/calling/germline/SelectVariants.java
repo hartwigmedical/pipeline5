@@ -1,15 +1,15 @@
 package com.hartwig.pipeline.calling.germline;
 
-import com.hartwig.pipeline.storage.OutputFile;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.gatk.GatkCommand;
-import com.hartwig.pipeline.stages.SubStage;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.gatk.GatkCommand;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.storage.OutputFile;
 
 public class SelectVariants extends SubStage {
 
@@ -31,8 +31,6 @@ public class SelectVariants extends SubStage {
         arguments.add(input.path());
         arguments.add("-o");
         arguments.add(output.path());
-        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
-                "SelectVariants",
-                arguments.toArray(new String[0])));
+        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP, "SelectVariants", arguments.toArray(new String[0])));
     }
 }

@@ -1,8 +1,11 @@
 package com.hartwig.pipeline.alignment.bwa;
 
+import static java.lang.String.format;
+
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
-import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.DeleteFilesCommand;
@@ -11,11 +14,9 @@ import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.storage.OutputFile;
+
 import joptsimple.internal.Strings;
-
-import java.util.List;
-
-import static java.lang.String.format;
 
 public class MergeMarkDups extends SubStage {
 
@@ -24,8 +25,7 @@ public class MergeMarkDups extends SubStage {
     private final List<String> inputBamPaths;
     private final boolean useTargetRegions;
 
-    MergeMarkDups(
-            final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths, boolean useTargetRegions) {
+    MergeMarkDups(final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths, boolean useTargetRegions) {
         super("", FileTypes.BAM);
         this.sampleId = sampleId;
         this.resourceFiles = resourceFiles;
@@ -36,10 +36,11 @@ public class MergeMarkDups extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
 
-        if (useTargetRegions)
+        if (useTargetRegions) {
             return formTargetedMarkDupCommands(output);
-        else
+        } else {
             return formStandardMarkDupCommands(output);
+        }
     }
 
     private List<BashCommand> formStandardMarkDupCommands(final OutputFile output) {

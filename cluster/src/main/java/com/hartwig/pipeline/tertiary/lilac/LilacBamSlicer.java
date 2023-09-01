@@ -1,31 +1,40 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import com.hartwig.computeengine.execution.vm.*;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.computeengine.storage.RuntimeBucket;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.alignment.bwa.SambambaCommand;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.*;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tertiary.lilac.ImmutableLilacBamSliceOutput.Builder;
+import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.alignment.bwa.SambambaCommand;
+import com.hartwig.pipeline.calling.command.SamtoolsCommand;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.Namespace;
+import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.lilac.ImmutableLilacBamSliceOutput.Builder;
 
 @Namespace(LilacBamSlicer.NAMESPACE)
 public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
@@ -75,7 +84,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public LilacBamSliceOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                                      final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         Builder output = LilacBamSliceOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))

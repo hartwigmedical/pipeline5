@@ -1,14 +1,13 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.pipeline.PipelineStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PipelineState {
 

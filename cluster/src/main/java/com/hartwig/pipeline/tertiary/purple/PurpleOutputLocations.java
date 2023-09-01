@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface PurpleOutputLocations {

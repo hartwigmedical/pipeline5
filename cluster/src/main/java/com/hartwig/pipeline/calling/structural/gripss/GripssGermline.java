@@ -1,20 +1,20 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
+import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+
+import java.util.List;
+
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
 
 @Namespace(GripssGermline.GRIPSS_GERMLINE_NAMESPACE)
 public class GripssGermline extends Gripss {
@@ -24,8 +24,7 @@ public class GripssGermline extends Gripss {
     private static final String GRIPSS_GERMLINE_FILTERED = ".gripss.filtered.germline.";
     private static final String GRIPSS_GERMLINE_UNFILTERED = ".gripss.germline.";
 
-    public GripssGermline(final GridssOutput gridssOutput, final PersistedDataset persistedDataset,
-                          final ResourceFiles resourceFiles) {
+    public GripssGermline(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles) {
         super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_GERMLINE_NAMESPACE);
     }
 
@@ -47,8 +46,9 @@ public class GripssGermline extends Gripss {
 
         arguments.add(String.format("-sample %s", metadata.reference().sampleName()));
 
-        if (!refOnly)
+        if (!refOnly) {
             arguments.add(String.format("-reference %s", metadata.tumor().sampleName()));
+        }
 
         arguments.add("-germline");
         arguments.add("-output_id germline");

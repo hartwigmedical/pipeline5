@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.output;
 
-import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.input.RunMetadata;
 
 public interface PipelineOutputComposer {
 

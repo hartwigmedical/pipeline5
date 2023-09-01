@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.calling.command;
 
-import com.hartwig.computeengine.execution.vm.Bash;
+import static java.lang.String.format;
 
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
-import static java.lang.String.format;
+
+import com.hartwig.computeengine.execution.vm.Bash;
 
 public class SamtoolsCommand extends VersionedToolCommand {
 

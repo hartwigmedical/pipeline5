@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.PipelineStatus;
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import com.hartwig.pipeline.PipelineStatus;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface AlignmentPair {

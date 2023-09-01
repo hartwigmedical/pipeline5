@@ -1,28 +1,36 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.COBALT;
+
+import java.util.List;
+
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 
 @Namespace(Cobalt.NAMESPACE)
 public class Cobalt extends TertiaryStage<CobaltOutput> {
@@ -34,7 +42,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     private final Arguments arguments;
 
     public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
-                  final Arguments arguments) {
+            final Arguments arguments) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -126,7 +134,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public CobaltOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                               final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return CobaltOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))

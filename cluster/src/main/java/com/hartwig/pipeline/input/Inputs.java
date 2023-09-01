@@ -1,10 +1,9 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import java.util.Optional;
+
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
-
-import java.util.Optional;
 
 public class Inputs {
 
@@ -12,8 +11,7 @@ public class Inputs {
         return sample(pipelineInput, metadata.type()).orElseThrow();
     }
 
-    public static Optional<SampleInput> sample(final PipelineInput pipelineInput,
-                                               final SingleSampleRunMetadata.SampleType sampleType) {
+    public static Optional<SampleInput> sample(final PipelineInput pipelineInput, final SingleSampleRunMetadata.SampleType sampleType) {
         try {
             if (sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 return pipelineInput.reference();

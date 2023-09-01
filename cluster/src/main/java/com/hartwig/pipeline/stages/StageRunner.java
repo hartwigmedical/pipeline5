@@ -1,29 +1,30 @@
 package com.hartwig.pipeline.stages;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
-import com.hartwig.pipeline.input.RunMetadata;
-import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RunIdentifier;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.InputMode;
+import com.hartwig.pipeline.input.RunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.StorageUtil;
 import com.hartwig.pipeline.trace.StageTrace;
-import net.jodah.failsafe.Failsafe;
 
-import java.util.Collections;
-import java.util.List;
+import net.jodah.failsafe.Failsafe;
 
 public class StageRunner<M extends RunMetadata> {
 
@@ -36,7 +37,7 @@ public class StageRunner<M extends RunMetadata> {
     private final InputMode mode;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-                       final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels, final InputMode mode) {
+            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels, final InputMode mode) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;
@@ -52,7 +53,12 @@ public class StageRunner<M extends RunMetadata> {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE);
                 RunIdentifier runIdentifier = StorageUtil.runIdentifierFromArguments(metadata, arguments);
-                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), arguments.region(), labels.asMap(), runIdentifier, arguments.cmek().orElse(null));
+                RuntimeBucket bucket = RuntimeBucket.from(storage,
+                        stage.namespace(),
+                        arguments.region(),
+                        labels.asMap(),
+                        runIdentifier,
+                        arguments.cmek().orElse(null));
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(commands)

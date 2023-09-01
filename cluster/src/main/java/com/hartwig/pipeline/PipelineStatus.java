@@ -2,8 +2,6 @@ package com.hartwig.pipeline;
 
 import java.util.Objects;
 
-import javax.validation.constraints.NotNull;
-
 import com.hartwig.computeengine.execution.ComputeEngineStatus;
 
 public enum PipelineStatus {
@@ -15,7 +13,6 @@ public enum PipelineStatus {
     SKIPPED,
     SUCCESS,
     UNKNOWN;
-
 
     public static PipelineStatus of(ComputeEngineStatus computeEngineStatus) {
         Objects.requireNonNull(computeEngineStatus, "Invalid conversion, computeEngineStatus was null");

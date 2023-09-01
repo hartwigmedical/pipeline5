@@ -1,14 +1,12 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import java.util.Optional;
+
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
-
-import java.util.Optional;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
 
 public class MetadataProvider {
 

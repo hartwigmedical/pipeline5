@@ -1,16 +1,16 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.OutputComponent;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.OutputComponent;
+
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
 
 public class PipelineStateTest {
 

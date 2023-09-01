@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUSBREAKEND_DB;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUSBREAKEND_DB;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 
 public class VirusBreakendCommand extends VersionedToolCommand {
 

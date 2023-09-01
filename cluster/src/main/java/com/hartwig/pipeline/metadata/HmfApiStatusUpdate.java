@@ -1,19 +1,20 @@
 package com.hartwig.pipeline.metadata;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import com.hartwig.api.RunApi;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 public interface HmfApiStatusUpdate {
     static HmfApiStatusUpdate from(final Arguments arguments, final RunApi runApi, final PipelineInput input) {
@@ -43,7 +44,7 @@ public interface HmfApiStatusUpdate {
         private static final String PIPELINE_SOURCE = "Pipeline";
         private static final String HEALTH_CHECK = "HealthCheck";
         private final RunApi runApi;
-        private Long runId;
+        private final Long runId;
 
         public RealApiStatusUpdate(final RunApi runApi, final Long runId) {
             this.runApi = runApi;

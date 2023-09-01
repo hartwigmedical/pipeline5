@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -9,14 +15,18 @@ import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.computeengine.execution.vm.command.python.Python3Command;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -26,12 +36,8 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
+
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-import static java.lang.String.format;
 
 @Namespace(Cuppa.NAMESPACE)
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
@@ -50,7 +56,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
-                 final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDirectory = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
         this.linxOutputDirectory = new InputDownloadCommand(linxOutput.linxOutputLocations().outputDirectory());
@@ -82,8 +88,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @NotNull
     private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
 
-        List<String> cuppaArguments = Lists.newArrayList(
-                "-categories DNA",
+        List<String> cuppaArguments = Lists.newArrayList("-categories DNA",
                 format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
                 format("-ref_genome_version %s", resourceFiles.version().toString()),
                 format("-sample %s", metadata.tumor().sampleName()),
@@ -93,13 +98,11 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
         String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
 
-        List<String> chartArguments = Lists.newArrayList(
-                format("-sample %s", metadata.tumor().sampleName()),
+        List<String> chartArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
                 format("-sample_data %s", cuppaOutputFile),
                 format("-output_dir %s", VmDirectories.OUTPUT));
 
-        return List.of(
-                new JavaJarCommand(CUPPA.getToolName(), CUPPA.getVersion(), CUPPA.jar(), CUPPA.maxHeapStr(), cuppaArguments),
+        return List.of(new JavaJarCommand(CUPPA.getToolName(), CUPPA.getVersion(), CUPPA.jar(), CUPPA.maxHeapStr(), cuppaArguments),
                 new Python3Command("cuppa-chart", CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
     }
 
@@ -116,7 +119,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public CuppaOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                              final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return CuppaOutput.builder()
                 .status(jobStatus)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()

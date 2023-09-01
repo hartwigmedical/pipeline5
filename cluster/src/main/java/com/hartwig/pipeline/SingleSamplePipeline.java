@@ -1,6 +1,12 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
@@ -11,6 +17,7 @@ import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.Folder;
@@ -20,15 +27,9 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 public class SingleSamplePipeline {
 
@@ -46,9 +47,9 @@ public class SingleSamplePipeline {
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
-                         final Aligner aligner, final PipelineOutputComposer composer, final ExecutorService executorService, final Arguments arguments,
-                         final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-                         final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
+            final Aligner aligner, final PipelineOutputComposer composer, final ExecutorService executorService, final Arguments arguments,
+            final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
@@ -103,7 +104,7 @@ public class SingleSamplePipeline {
     }
 
     private AlignmentOutput convertCramsIfNecessary(final Arguments arguments, final SingleSampleRunMetadata metadata,
-                                                    final PipelineState state) throws Exception {
+            final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = composer.add(state.add(aligner.run(metadata)));
         alignmentOutput =
                 state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM) ? state.add(

@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
 import java.util.List;
 
-import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 
 class HealthCheckerApplicationCommandBuilder {
 
@@ -17,7 +17,7 @@ class HealthCheckerApplicationCommandBuilder {
     }
 
     HealthCheckerApplicationCommandBuilder withTumor(final String tumorSampleName, final String tumorMetricsPath,
-                                                     final String tumorFlagstatPath) {
+            final String tumorFlagstatPath) {
         arguments.addAll(List.of("-tumor",
                 tumorSampleName,
                 "-tum_wgs_metrics_file",
@@ -28,7 +28,7 @@ class HealthCheckerApplicationCommandBuilder {
     }
 
     HealthCheckerApplicationCommandBuilder withReference(final String refSampleName, final String refMetricsPath,
-                                                         final String refFlagstatPath) {
+            final String refFlagstatPath) {
         arguments.addAll(List.of("-reference",
                 refSampleName,
                 "-ref_wgs_metrics_file",
@@ -39,6 +39,10 @@ class HealthCheckerApplicationCommandBuilder {
     }
 
     BashCommand build() {
-        return new JavaJarCommand(HEALTH_CHECKER.getToolName(), HEALTH_CHECKER.getVersion(), HEALTH_CHECKER.jar(), HEALTH_CHECKER.maxHeapStr(), arguments);
+        return new JavaJarCommand(HEALTH_CHECKER.getToolName(),
+                HEALTH_CHECKER.getVersion(),
+                HEALTH_CHECKER.jar(),
+                HEALTH_CHECKER.maxHeapStr(),
+                arguments);
     }
 }

@@ -2,12 +2,13 @@ package com.hartwig.pipeline.cram.cleanup;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.storage.GSUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

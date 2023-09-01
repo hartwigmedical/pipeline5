@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.credentials;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.hartwig.pipeline.storage.GSUtil;
-
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import javax.annotation.Nullable;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.hartwig.pipeline.storage.GSUtil;
 
 public class CredentialProvider {
 
@@ -19,9 +20,8 @@ public class CredentialProvider {
     }
 
     public GoogleCredentials get() throws IOException, InterruptedException {
-        GoogleCredentials credentials = privateKeyPath != null ?
-                GoogleCredentials.fromStream(new FileInputStream(privateKeyPath)).createScoped("https://www.googleapis.com/auth/cloud-platform") :
-                GoogleCredentials.getApplicationDefault();
+        GoogleCredentials credentials = privateKeyPath != null ? GoogleCredentials.fromStream(new FileInputStream(privateKeyPath))
+                .createScoped("https://www.googleapis.com/auth/cloud-platform") : GoogleCredentials.getApplicationDefault();
         GSUtil.configure(true, 4);
         if (privateKeyPath != null) {
             authorize(cloudSdkPath, privateKeyPath);
@@ -32,7 +32,6 @@ public class CredentialProvider {
     public static void authorize(String cloudSdkPath, String privateKeyPath) throws IOException, InterruptedException {
         GSUtil.auth(cloudSdkPath, privateKeyPath);
     }
-
 
     public static CredentialProvider from(String cloudSdkPath) {
         return new CredentialProvider(cloudSdkPath, null);

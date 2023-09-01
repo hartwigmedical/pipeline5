@@ -1,18 +1,33 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.LILAC;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -20,12 +35,6 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
 @Namespace(Lilac.NAMESPACE)
 public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
@@ -40,7 +49,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
 
     public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
-                 final PersistedDataset persistedDataset) {
+            final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
@@ -119,7 +128,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public LilacOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                              final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         String lilacOutput = lilacOutput(metadata.sampleName());
         String lilacQc = lilacQcMetrics(metadata.sampleName());
         return LilacOutput.builder()

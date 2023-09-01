@@ -1,16 +1,17 @@
 package com.hartwig.pipeline.calling;
 
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.storage.OutputFile;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.stages.SubStage;
-import com.hartwig.pipeline.stages.SubStageInputOutput;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
+import com.hartwig.pipeline.storage.OutputFile;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public abstract class SubStageTest {
 
@@ -18,8 +19,7 @@ public abstract class SubStageTest {
 
     @Before
     public void setUp() {
-        output = createVictim().apply(SubStageInputOutput.of(sampleName(), input(),
-                Lists.newArrayList()));
+        output = createVictim().apply(SubStageInputOutput.of(sampleName(), input(), Lists.newArrayList()));
     }
 
     protected OutputFile input() {

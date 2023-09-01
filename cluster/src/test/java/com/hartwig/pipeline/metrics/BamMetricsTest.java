@@ -1,10 +1,17 @@
 package com.hartwig.pipeline.metrics;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
@@ -12,14 +19,9 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
@@ -55,8 +57,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(
-                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
+        return ImmutableList.of(input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
                 input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
@@ -68,16 +69,10 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<String> expectedCommands() {
 
-        return ImmutableList.of(
-                toolCommand(BAM_TOOLS)
-                        + " -sample reference "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 "
-                        + "-bam_file /data/input/reference.bam "
-                        + "-output_dir /data/output "
-                        + "-log_level INFO "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-write_old_style");
+        return ImmutableList.of(toolCommand(BAM_TOOLS) + " -sample reference "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
+                + "-bam_file /data/input/reference.bam " + "-output_dir /data/output " + "-log_level INFO "
+                + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-write_old_style");
     }
 
     @Test
@@ -89,15 +84,10 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 Arguments.testDefaultsBuilder().useTargetRegions(true).build());
 
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
-                toolCommand(BAM_TOOLS)
-                        + " -sample tumor "
+                toolCommand(BAM_TOOLS) + " -sample tumor "
                         + "-ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
-                        + "-ref_genome_version V38 "
-                        + "-bam_file /data/input/tumor.bam "
-                        + "-output_dir /data/output "
-                        + "-log_level INFO "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-write_old_style "
+                        + "-ref_genome_version V38 " + "-bam_file /data/input/tumor.bam " + "-output_dir /data/output " + "-log_level INFO "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-write_old_style "
                         + "-regions_bed_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
     }
 

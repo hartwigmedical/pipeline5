@@ -1,12 +1,18 @@
 package com.hartwig.pipeline.testsupport;
 
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GRIPSS_GERMLINE_NAMESPACE;
+import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPSS_SOMATIC_NAMESPACE;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -22,6 +28,8 @@ import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
@@ -43,7 +51,12 @@ import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSliceOutput;
 import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
-import com.hartwig.pipeline.tertiary.linx.*;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
@@ -60,14 +73,8 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.HmfTool;
+
 import org.jetbrains.annotations.NotNull;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GRIPSS_GERMLINE_NAMESPACE;
-import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPSS_SOMATIC_NAMESPACE;
-import static java.lang.String.format;
 
 @SuppressWarnings("unused")
 public class TestInputs {

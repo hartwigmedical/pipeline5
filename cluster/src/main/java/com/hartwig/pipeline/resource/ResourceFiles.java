@@ -1,8 +1,16 @@
 package com.hartwig.pipeline.resource;
 
-import com.hartwig.computeengine.execution.vm.VmDirectories;
+import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
+import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
+import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
+import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
+import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
+import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
-import static com.hartwig.pipeline.resource.ResourceNames.*;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public interface ResourceFiles {
 

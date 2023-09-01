@@ -1,21 +1,23 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.LILAC;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.LILAC;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
@@ -47,16 +49,12 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of(
-                toolCommand(LILAC) // "java -Xmx15G -jar /opt/tools/lilac/1.4.2/lilac.jar "
-                        + " -sample tumor -reference_bam /data/input/reference.hla.bam "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
-                        + "-resource_dir /opt/resources/lilac/ "
-                        + "-output_dir /data/output "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-tumor_bam /data/input/tumor.hla.bam "
-                        + "-gene_copy_number /data/input/tumor.purple.cnv.gene.tsv "
-                        + "-somatic_vcf /data/input/tumor.purple.somatic.vcf.gz");
+        return List.of(toolCommand(LILAC) // "java -Xmx15G -jar /opt/tools/lilac/1.4.2/lilac.jar "
+                + " -sample tumor -reference_bam /data/input/reference.hla.bam "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
+                + "-resource_dir /opt/resources/lilac/ " + "-output_dir /data/output " + "-threads $(grep -c '^processor' /proc/cpuinfo) "
+                + "-tumor_bam /data/input/tumor.hla.bam " + "-gene_copy_number /data/input/tumor.purple.cnv.gene.tsv "
+                + "-somatic_vcf /data/input/tumor.purple.somatic.vcf.gz");
     }
 
     @Override

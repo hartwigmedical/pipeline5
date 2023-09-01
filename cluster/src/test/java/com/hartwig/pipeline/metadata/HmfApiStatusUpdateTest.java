@@ -1,19 +1,10 @@
 package com.hartwig.pipeline.metadata;
 
-import com.hartwig.api.RunApi;
-import com.hartwig.api.model.Run;
-import com.hartwig.api.model.RunFailure;
-import com.hartwig.api.model.Status;
-import com.hartwig.api.model.UpdateRun;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pdl.OperationalReferences;
-import com.hartwig.pdl.PipelineInput;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.testsupport.TestInputs;
-import org.assertj.core.data.TemporalUnitLessThanOffset;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -22,9 +13,21 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import com.hartwig.api.RunApi;
+import com.hartwig.api.model.Run;
+import com.hartwig.api.model.RunFailure;
+import com.hartwig.api.model.Status;
+import com.hartwig.api.model.UpdateRun;
+import com.hartwig.pdl.OperationalReferences;
+import com.hartwig.pdl.PipelineInput;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.assertj.core.data.TemporalUnitLessThanOffset;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class HmfApiStatusUpdateTest {
 

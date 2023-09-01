@@ -2,9 +2,9 @@ package com.hartwig.pipeline.labels;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 public final class LabelsUtil {
     private LabelsUtil() {
@@ -22,6 +22,9 @@ public final class LabelsUtil {
                     .orElseGet(() -> metadata.maybeReference().map(SingleSampleRunMetadata::sampleName).orElseThrow());
         }
 
-        return ImmutableLabels.of(Optional.ofNullable(sampleString), arguments.runTag(), arguments.userLabel(), arguments.costCenterLabel());
+        return ImmutableLabels.of(Optional.ofNullable(sampleString),
+                arguments.runTag(),
+                arguments.userLabel(),
+                arguments.costCenterLabel());
     }
 }

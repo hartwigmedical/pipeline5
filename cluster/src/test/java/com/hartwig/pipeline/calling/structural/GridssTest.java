@@ -1,26 +1,31 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.GRIDSS_SCRIPT;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_DEPTH_ANNOTATION;
+import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.GRIDSS_SCRIPT;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_DEPTH_ANNOTATION;
-import static com.hartwig.pipeline.testsupport.TestInputs.*;
-import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
     private static final String TUMOR_GRIDSS_UNFILTERED_VCF_GZ = "tumor.gridss.unfiltered.vcf.gz";

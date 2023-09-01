@@ -1,22 +1,23 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
+import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
+
+import java.util.List;
+
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS;
-import static com.hartwig.pipeline.datatypes.DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY;
-import static java.lang.String.format;
 
 @Namespace(GripssSomatic.GRIPSS_SOMATIC_NAMESPACE)
 public class GripssSomatic extends Gripss {
@@ -29,7 +30,7 @@ public class GripssSomatic extends Gripss {
     private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
     public GripssSomatic(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-                         final Arguments arguments) {
+            final Arguments arguments) {
         super(gridssOutput, persistedDataset, resourceFiles, GRIPSS_SOMATIC_NAMESPACE);
         useTargetRegions = arguments.useTargetRegions();
     }

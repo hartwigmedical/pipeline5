@@ -1,7 +1,12 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -11,17 +16,22 @@ import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadIfBlobExistsCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -29,7 +39,11 @@ import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
-import com.hartwig.pipeline.tertiary.linx.*;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -37,12 +51,6 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -80,11 +88,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final boolean includeGermline;
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
-                  final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
-                  final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
-                  final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
-                  final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-                  final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
+            final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
+            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
+            final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
+            final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
+            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownloadCommand(referenceMetrics.metricsOutputFile());
@@ -100,7 +108,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.sageSomaticTumorSampleBqrPlot = new InputDownloadCommand(sageSomaticOutput.somaticTumorSampleBqrPlot());
         LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
         this.linxSomaticOutputDir = new InputDownloadCommand(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
-        this.linxGermlineDataDir = new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
+        this.linxGermlineDataDir =
+                new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
         this.chordPredictionTxt = new InputDownloadCommand(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownloadCommand(cuppaOutputLocations.resultCsv());
@@ -216,7 +225,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         metadata.tumor()
                 .samplingDate()
                 .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
-        var orangeJarCommand = new JavaJarCommand(ORANGE.getToolName(), ORANGE.getVersion(), ORANGE.jar(), ORANGE.maxHeapStr(), argumentListBuilder.build());
+        var orangeJarCommand = new JavaJarCommand(ORANGE.getToolName(),
+                ORANGE.getVersion(),
+                ORANGE.jar(),
+                ORANGE.maxHeapStr(),
+                argumentListBuilder.build());
         return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 orangeJarCommand);
@@ -235,7 +248,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                               final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return OrangeOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))

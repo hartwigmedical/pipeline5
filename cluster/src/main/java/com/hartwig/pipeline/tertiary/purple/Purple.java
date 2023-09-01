@@ -1,21 +1,35 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import com.hartwig.pipeline.PipelineStatus;
+import static java.lang.String.format;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -24,15 +38,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
-import static java.lang.String.format;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -65,15 +70,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final Arguments arguments;
 
     public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
-                  final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
-                  final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
+            final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
+            final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         this.somaticVcfDownload = new InputDownloadCommand(paveSomaticOutput.annotatedVariants());
         this.germlineVcfDownload = new InputDownloadCommand(paveGermlineOutput.annotatedVariants());
         this.somaticSvVcfDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants());
         this.somaticSvVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
         this.svRecoveryVcfDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVcfIndexDownload =
+                new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.germlineSvVcfDownload = new InputDownloadCommand(gripssGermlineOutput.filteredVariants());
         this.amberOutputDownload = new InputDownloadCommand(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
@@ -96,10 +102,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                true, svRecoveryVcfDownload.getLocalTargetPath()));
+                true,
+                svRecoveryVcfDownload.getLocalTargetPath()));
 
         purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(),
+                germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
 
         if (arguments.shallow()) {
@@ -118,7 +126,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                false, svRecoveryVcfDownload.getLocalTargetPath()));
+                false,
+                svRecoveryVcfDownload.getLocalTargetPath()));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -135,7 +144,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(),
+                germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.add("-no_charts");
         return buildCommand(arguments);
@@ -177,7 +187,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                               final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
 
         String purityTsv = purityTsv(metadata.sampleName());
         String qcFile = purpleQC(metadata.sampleName());
@@ -212,10 +222,10 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             String germlineDeletionTsv = germlineDeletionTsv(metadata.sampleName());
             String germlineVcf = germlineVcf(metadata.sampleName());
             String germlineSvVcf = germlineSvVcf(metadata.sampleName());
-            outputLocationsBuilder
-                    .germlineVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf)))
+            outputLocationsBuilder.germlineVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf)))
                     .germlineStructuralVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineSvVcf)))
-                    .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDriverCatalog(metadata.sampleName()))))
+                    .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(),
+                            resultsDirectory.path(germlineDriverCatalog(metadata.sampleName()))))
                     .germlineDeletions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDeletionTsv)));
         });
 
@@ -345,7 +355,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER, metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
+                            metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv)),
                     new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
                             metadata.barcode(),
@@ -366,18 +377,23 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION, metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION,
+                            metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDeletionTsv))));
         });
         return datatypes;
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand(PURPLE.getToolName(), PURPLE.getVersion(), PURPLE.jar(), PURPLE.maxHeapStr(), arguments));
+        return Collections.singletonList(new JavaJarCommand(PURPLE.getToolName(),
+                PURPLE.getVersion(),
+                PURPLE.jar(),
+                PURPLE.maxHeapStr(),
+                arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-                                                     final DataType somaticVariantsPurple, final String s) {
+            final DataType somaticVariantsPurple, final String s) {
         return persistedDataset.path(sample, somaticVariantsPurple)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), s)));
     }

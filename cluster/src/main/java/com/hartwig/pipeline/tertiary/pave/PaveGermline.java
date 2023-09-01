@@ -1,16 +1,16 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.List;
 
 @Namespace(PaveGermline.NAMESPACE)
 public class PaveGermline extends Pave {
@@ -39,8 +39,8 @@ public class PaveGermline extends Pave {
 
     private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArguments.germline(
-                resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+        List<String> arguments =
+                PaveArguments.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         return paveCommand(arguments);
     }
 
@@ -51,7 +51,6 @@ public class PaveGermline extends Pave {
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s",
-                metadata.sampleName(), PAVE_GERMLINE_FILE_ID, FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s", metadata.sampleName(), PAVE_GERMLINE_FILE_ID, FileTypes.GZIPPED_VCF);
     }
 }

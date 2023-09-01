@@ -1,25 +1,30 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.Executors;
+
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.OutputPublisher;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-
-import java.util.concurrent.Executors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 public class FullPipelineTest {
 
@@ -186,7 +191,7 @@ public class FullPipelineTest {
     }
 
     private static Answer<PipelineState> callHandlers(final SingleSampleEventListener listener, final AlignmentOutput alignmentState,
-                                                      final PipelineState pipelineState) {
+            final PipelineState pipelineState) {
         return invocation -> {
             listener.getHandlers().forEach(handler -> handler.handleAlignmentComplete(alignmentState));
             listener.getHandlers().forEach(handler -> handler.handleSingleSampleComplete(pipelineState));

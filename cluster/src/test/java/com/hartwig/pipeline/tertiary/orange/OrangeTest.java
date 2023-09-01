@@ -1,24 +1,26 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
@@ -75,34 +77,21 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        String jarRunCommand =
-                toolCommand(ORANGE)
-                        + " -output_dir /data/output "
-                        + "-ref_genome_version 37 "
-                        + "-tumor_sample_id tumor " + "-reference_sample_id reference "
-                        + "-doid_json /opt/resources/disease_ontology/doid.json " + "-primary_tumor_doids \"01;02\" "
-                        + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
-                        + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
-                        + "-ref_sample_flagstat_file /data/input/reference.flagstat "
-                        + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                        + "-sample_data_dir /data/input "
-                        + "-purple_dir /data/input/purple "
-                        + "-purple_plot_dir /data/input/purple/plot "
-                        + "-linx_germline_dir /data/input/linx_germline "
-                        + "-linx_plot_dir /data/input/linx/plot "
-                        + "-linx_dir /data/input/linx "
-                        + "-lilac_dir /data/input "
-                        + "-sage_dir /data/input "
-                        + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
-                        + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
-                        + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
+        String jarRunCommand = toolCommand(ORANGE) + " -output_dir /data/output " + "-ref_genome_version 37 " + "-tumor_sample_id tumor "
+                + "-reference_sample_id reference " + "-doid_json /opt/resources/disease_ontology/doid.json "
+                + "-primary_tumor_doids \"01;02\" " + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
+                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
+                + "-sample_data_dir /data/input " + "-purple_dir /data/input/purple " + "-purple_plot_dir /data/input/purple/plot "
+                + "-linx_germline_dir /data/input/linx_germline " + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx "
+                + "-lilac_dir /data/input " + "-sage_dir /data/input " + "-pipeline_version_file /data/input/orange_pipeline.version.txt "
+                + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv "
+                + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
+                + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
+                + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot",
-                "echo '5.33' | tee /data/input/orange_pipeline.version.txt",
-                jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.33' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Test

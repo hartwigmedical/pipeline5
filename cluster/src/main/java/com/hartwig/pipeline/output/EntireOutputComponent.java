@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.output;
 
+import java.util.function.Predicate;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
-
-import java.util.function.Predicate;
 
 public class EntireOutputComponent implements OutputComponent {
 
@@ -18,17 +18,17 @@ public class EntireOutputComponent implements OutputComponent {
     private final Predicate<String> exclusions;
 
     public EntireOutputComponent(final RuntimeBucket runtimeBucket, final Folder folder, final String namespace,
-                                 final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         this(runtimeBucket, folder, namespace, "", resultsDirectory, str -> false);
     }
 
     public EntireOutputComponent(final RuntimeBucket runtimeBucket, final Folder folder, final String namespace,
-                                 final ResultsDirectory resultsDirectory, final Predicate<String> exclusions) {
+            final ResultsDirectory resultsDirectory, final Predicate<String> exclusions) {
         this(runtimeBucket, folder, namespace, "", resultsDirectory, exclusions);
     }
 
     public EntireOutputComponent(final RuntimeBucket runtimeBucket, final Folder folder, final String namespace,
-                                 final String sourceDirectory, final ResultsDirectory resultsDirectory, final Predicate<String> exclude) {
+            final String sourceDirectory, final ResultsDirectory resultsDirectory, final Predicate<String> exclude) {
         this.runtimeBucket = runtimeBucket;
         this.folder = folder;
         this.namespace = namespace;

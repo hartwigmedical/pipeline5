@@ -1,30 +1,37 @@
 package com.hartwig.pipeline.output;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.events.pipeline.*;
-import com.hartwig.events.pubsub.EventPublisher;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.alignment.Aligner;
-import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.flagstat.Flagstat;
-import com.hartwig.pipeline.metrics.BamMetrics;
-import com.hartwig.pipeline.snpgenotype.SnpGenotype;
-import com.hartwig.pipeline.tools.VersionUtils;
-import org.jetbrains.annotations.NotNull;
+import static java.util.function.Predicate.not;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.util.function.Predicate.not;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.hartwig.events.pipeline.Analysis;
+import com.hartwig.events.pipeline.AnalysisOutputBlob;
+import com.hartwig.events.pipeline.ImmutableAnalysis;
+import com.hartwig.events.pipeline.ImmutableAnalysisOutputBlob;
+import com.hartwig.events.pipeline.ImmutablePipeline;
+import com.hartwig.events.pipeline.Pipeline;
+import com.hartwig.events.pipeline.PipelineComplete;
+import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageConfiguration;
+import com.hartwig.pipeline.cram.CramConversion;
+import com.hartwig.pipeline.flagstat.Flagstat;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetrics;
+import com.hartwig.pipeline.snpgenotype.SnpGenotype;
+import com.hartwig.pipeline.tools.VersionUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 public class PipelineCompleteEventPublisher implements OutputPublisher {
     private final Bucket sourceBucket;
@@ -33,7 +40,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
     private final boolean stageCrams;
 
     public PipelineCompleteEventPublisher(final Bucket sourceBucket, final EventPublisher<PipelineComplete> publisher,
-                                          final Pipeline.Context context, final boolean stageCrams) {
+            final Pipeline.Context context, final boolean stageCrams) {
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
         this.context = context;
@@ -82,7 +89,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static AnalysisOutputBlob createBlob(final Optional<String> tumorSample, final Optional<String> referenceSample,
-                                                 final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
+            final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
         return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithMd5.getName()).datatype(dataType.map(
                         AddDatatype::dataType).map(Object::toString))
                 .barcode(dataType.map(AddDatatype::barcode))
@@ -124,7 +131,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
     }
 
     private static ImmutableAnalysisOutputBlob.Builder builderWithPathComponents(final String tumorSample, final String refSample,
-                                                                                 final String blobName) {
+            final String blobName) {
         ImmutableAnalysisOutputBlob.Builder outputBlob = AnalysisOutputBlob.builder();
         String[] splitName = blobName.split("/");
         boolean rootFile = splitName.length == 2;

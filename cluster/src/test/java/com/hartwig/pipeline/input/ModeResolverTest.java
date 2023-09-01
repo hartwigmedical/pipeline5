@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.pipeline.testsupport.TestInputs;
-import org.junit.Test;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.junit.Test;
 
 public class ModeResolverTest {
 

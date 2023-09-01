@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
+import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 class LinxVisualisationsCommand extends JavaClassCommand {
 
@@ -15,7 +15,12 @@ class LinxVisualisationsCommand extends JavaClassCommand {
 
     LinxVisualisationsCommand(final String sample, final String sampleVisDir, final RefGenomeVersion refGenomeVersion) {
 
-        super(LINX.getToolName(), LINX.getVersion(), LINX.jar(), LINX_VISUALISER, LINX.maxHeapStr(), Collections.emptyList(),
+        super(LINX.getToolName(),
+                LINX.getVersion(),
+                LINX.jar(),
+                LINX_VISUALISER,
+                LINX.maxHeapStr(),
+                Collections.emptyList(),
                 List.of("-sample",
                         sample,
                         "-ref_genome_version",

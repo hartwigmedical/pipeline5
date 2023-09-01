@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.output;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class OutputIterator {
     private final Consumer<Blob> action;

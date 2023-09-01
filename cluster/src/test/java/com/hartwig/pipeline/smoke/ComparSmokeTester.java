@@ -35,8 +35,8 @@ import org.jetbrains.annotations.NotNull;
 public class ComparSmokeTester {
     private final List<String> expectedFiles;
     private final String pipelineBucket;
-    private String localDir;
-    private String runTag;
+    private final String localDir;
+    private final String runTag;
 
     private static final String PIPELINE_BUCKET = "pipeline_bucket";
     private static final String LOCAL_DIR = "local_dir";
@@ -55,11 +55,11 @@ public class ComparSmokeTester {
 
     public void run() {
 
-        if(pipelineBucket != null) {
+        if (pipelineBucket != null) {
             testBucketPipelineResults();
         }
 
-        if(localDir != null) {
+        if (localDir != null) {
             testLocalPipelineResults();
         }
     }
@@ -70,8 +70,7 @@ public class ComparSmokeTester {
             File expectedFilesResource = new File(Resources.testResource(fixtureDir() + "expected_output_files"));
 
             expectedFiles.addAll(FileUtils.readLines(expectedFilesResource, FILE_ENCODING));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -108,15 +107,15 @@ public class ComparSmokeTester {
         Arguments arguments = builder.build();
 
         try {
-            Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
+            Storage storage = StorageProvider.from(arguments,
+                    CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
             List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
             assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
             ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
                     .isEqualToTruthset(Resources.testResource(pipelineTruthsetDir()))
                     .cleanup();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }

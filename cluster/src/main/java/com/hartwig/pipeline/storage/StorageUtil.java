@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.storage;
 
-import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.computeengine.storage.RunIdentifier;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.input.RunMetadata;
 
 public final class StorageUtil {
     private StorageUtil() {

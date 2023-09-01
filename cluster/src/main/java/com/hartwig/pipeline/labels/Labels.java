@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;

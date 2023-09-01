@@ -1,21 +1,22 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.SubStage;
-import org.immutables.value.Value;
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStage;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface SageConfiguration {
@@ -44,7 +45,9 @@ public interface SageConfiguration {
     BiFunction<BashStartupScript, ResultsDirectory, VirtualMachineJobDefinition> jobDefinition();
 
     static SageConfiguration germline(final ResourceFiles resourceFiles) {
-        return ImmutableSageConfiguration.builder().namespace(SAGE_GERMLINE_NAMESPACE).vcfDatatype(DataType.GERMLINE_VARIANTS_SAGE)
+        return ImmutableSageConfiguration.builder()
+                .namespace(SAGE_GERMLINE_NAMESPACE)
+                .vcfDatatype(DataType.GERMLINE_VARIANTS_SAGE)
                 .geneCoverageDatatype(DataType.GERMLINE_GENE_COVERAGE)
                 .tumorSampleBqrPlot(DataType.GERMLINE_TUMOR_SAMPLE_BQR_PLOT)
                 .refSampleBqrPlot(DataType.GERMLINE_REF_SAMPLE_BQR_PLOT)
@@ -65,7 +68,9 @@ public interface SageConfiguration {
     }
 
     static SageConfiguration somatic(final ResourceFiles resourceFiles, final Arguments arguments) {
-        return ImmutableSageConfiguration.builder().namespace(SAGE_SOMATIC_NAMESPACE).vcfDatatype(DataType.SOMATIC_VARIANTS_SAGE)
+        return ImmutableSageConfiguration.builder()
+                .namespace(SAGE_SOMATIC_NAMESPACE)
+                .vcfDatatype(DataType.SOMATIC_VARIANTS_SAGE)
                 .geneCoverageDatatype(DataType.SOMATIC_GENE_COVERAGE)
                 .tumorSampleBqrPlot(DataType.SOMATIC_TUMOR_SAMPLE_BQR_PLOT)
                 .refSampleBqrPlot(DataType.SOMATIC_REF_SAMPLE_BQR_PLOT)

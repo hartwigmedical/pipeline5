@@ -1,14 +1,15 @@
 package com.hartwig.pipeline.reruns;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.TestJson;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApiPersistedDatasetTest {
 

@@ -1,10 +1,11 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
+
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-import org.immutables.value.Value;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {

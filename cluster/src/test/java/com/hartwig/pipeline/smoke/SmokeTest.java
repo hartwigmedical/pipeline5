@@ -1,8 +1,21 @@
 package com.hartwig.pipeline.smoke;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
+import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pdl.PdlJsonConversion;
 import com.hartwig.pdl.PipelineInput;
@@ -10,10 +23,12 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -23,18 +38,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import java.io.File;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
-import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
@@ -93,11 +96,12 @@ public class SmokeTest {
     }
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
-                                                   @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
-                                                   final RefGenomeVersion refGenomeVersion) throws Exception {
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
+            final RefGenomeVersion refGenomeVersion) throws Exception {
         final PipelineMain victim = new PipelineMain();
         final String fixtureDir = "smoke_test/" + inputMode + "/";
-        @SuppressWarnings("deprecation") final String randomRunId = noDots(RandomStringUtils.random(3, true, false));
+        @SuppressWarnings("deprecation")
+        final String randomRunId = noDots(RandomStringUtils.random(3, true, false));
 
         String inputModeId = inputMode.equals(INPUT_MODE_TUMOR_REF) ? "tr" : (inputMode.equals(INPUT_MODE_TUMOR_ONLY) ? "t" : "r");
 
@@ -123,7 +127,8 @@ public class SmokeTest {
         }
 
         Arguments arguments = builder.build();
-        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
+        Storage storage = StorageProvider.from(arguments,
+                CredentialProvider.from(arguments.cloudSdkPath(), arguments.privateKeyPath().orElse(null)).get()).get();
 
         cleanupBucket(setName, arguments.outputBucket(), storage);
 
@@ -187,7 +192,7 @@ public class SmokeTest {
             return CLOUD_SDK_PATH;
         }
         try {
-            Process process = Runtime.getRuntime().exec(new String[]{"/usr/bin/which", "gcloud"});
+            Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }

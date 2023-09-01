@@ -1,8 +1,13 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
+
+import java.io.File;
+import java.util.List;
+
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -10,25 +15,25 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.io.File;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 
 public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
@@ -40,7 +45,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
     private final String namespace;
 
     public Gripss(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final ResourceFiles resourceFiles,
-                  final String namespace) {
+            final String namespace) {
 
         this.resourceFiles = resourceFiles;
         this.gridssVcf = new InputDownloadCommand(gridssOutput.unfilteredVariants());
@@ -97,7 +102,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     @Override
     public GripssOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                               final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
 
         String filteredVcfFile = filteredVcf(metadata);
         String unfilteredVcfFile = unfilteredVcf(metadata);
@@ -110,7 +115,9 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
-                        basename(unfilteredVcfFile), basename(unfilteredVcfFile), resultsDirectory))
+                        basename(unfilteredVcfFile),
+                        basename(unfilteredVcfFile),
+                        resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
@@ -144,14 +151,12 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
         String filteredVcfFile = filteredVcf(metadata);
         String unfilteredVcfFile = unfilteredVcf(metadata);
 
-        GoogleStorageLocation filteredLocation =
-                persistedDataset.path(metadata.sampleName(), filteredDatatype())
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcfFile)));
-        GoogleStorageLocation unfilteredLocation =
-                persistedDataset.path(metadata.sampleName(), unfilteredDatatype())
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
+        GoogleStorageLocation filteredLocation = persistedDataset.path(metadata.sampleName(), filteredDatatype())
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcfFile)));
+        GoogleStorageLocation unfilteredLocation = persistedDataset.path(metadata.sampleName(), unfilteredDatatype())
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
 
         return GripssOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)

@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.metrics;
 
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.StageOutput;
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.StageOutput;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface BamMetricsOutput extends StageOutput {

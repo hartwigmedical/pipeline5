@@ -1,6 +1,10 @@
 package com.hartwig.pipeline.tertiary.peach;
 
-import com.hartwig.pipeline.PipelineStatus;
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.PEACH;
+
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -8,25 +12,26 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.python.Python3Command;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 
 @Namespace(Peach.NAMESPACE)
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
@@ -95,7 +100,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public PeachOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                              final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return PeachOutput.builder()
                 .status(jobStatus)
                 .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv(metadata.sampleName()))))

@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tools;
 
-import com.hartwig.computeengine.execution.vm.VmDirectories;
-
 import static java.lang.String.format;
+
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 

@@ -1,19 +1,21 @@
 package com.hartwig.pipeline.tertiary;
 
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-import org.junit.Test;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.junit.Test;
 
 public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest<S, SomaticRunMetadata> {
 

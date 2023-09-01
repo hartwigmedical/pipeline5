@@ -1,10 +1,11 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import java.util.Optional;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
-import org.immutables.value.Value;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface CobaltOutput extends StageOutput {

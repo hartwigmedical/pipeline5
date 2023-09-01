@@ -1,22 +1,23 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.tertiary.linx.LinxVisualisationsCommand.LINX_VISUALISER;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.pipeline.tertiary.linx.LinxVisualisationsCommand.LINX_VISUALISER;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
 
@@ -41,21 +42,14 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add(
-                toolCommand(LINX)
-                        + " -sample tumor -sv_vcf "
-                        + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results "
-                        + "-ref_genome_version V37 "
-                        + "-output_dir /data/output "
-                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                        + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                        + "-write_vis_data");
+        commands.add(toolCommand(LINX) + " -sample tumor -sv_vcf " + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results "
+                + "-ref_genome_version V37 " + "-output_dir /data/output " + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
+                + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv " + "-write_vis_data");
 
-        commands.add(
-                toolCommand(LINX, LINX_VISUALISER)
-                        + " -sample tumor -ref_genome_version V37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
-                        + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
+        commands.add(toolCommand(LINX, LINX_VISUALISER)
+                + " -sample tumor -ref_genome_version V37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
+                + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
 
         return commands;
     }

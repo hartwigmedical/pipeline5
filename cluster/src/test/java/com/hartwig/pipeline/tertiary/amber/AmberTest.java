@@ -1,22 +1,24 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.AMBER;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
@@ -34,7 +36,8 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.AMBER,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv.gz"), true));
+                new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv.gz"),
+                true));
     }
 
     @Override
@@ -61,13 +64,9 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of(toolCommand(AMBER)
-                + " -tumor tumor -tumor_bam /data/input/tumor.bam "
+        return List.of(toolCommand(AMBER) + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                 + "-reference reference -reference_bam /data/input/reference.bam "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz "
-                + "-output_dir /data/output "
-                + "-threads 12");
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
+                + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz " + "-output_dir /data/output " + "-threads 12");
     }
 }

@@ -1,5 +1,13 @@
 package com.hartwig.pipeline.output;
 
+import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -8,13 +16,10 @@ import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class EntireOutputComponentTest {
 
@@ -44,10 +49,8 @@ public class EntireOutputComponentTest {
         Blob second = blob("results/file2.out");
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
-        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.root(),
-                "namespace",
-                ResultsDirectory.defaultDirectory());
+        EntireOutputComponent victim =
+                new EntireOutputComponent(runtimeBucket, Folder.root(), "namespace", ResultsDirectory.defaultDirectory());
         victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
@@ -65,10 +68,8 @@ public class EntireOutputComponentTest {
         Blob second = blob("results/subdir1/subdir2/file2.out");
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
-        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.root(),
-                "namespace",
-                ResultsDirectory.defaultDirectory());
+        EntireOutputComponent victim =
+                new EntireOutputComponent(runtimeBucket, Folder.root(), "namespace", ResultsDirectory.defaultDirectory());
         victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/subdir1/file1.out");

@@ -1,31 +1,36 @@
 package com.hartwig.pipeline.output;
 
+import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Analysis;
 import com.hartwig.events.pipeline.AnalysisOutputBlob;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.util.List;
-
-import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class PipelineCompleteEventPublisherTest {
 

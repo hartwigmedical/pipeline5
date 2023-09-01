@@ -1,18 +1,18 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetadataProviderTest {
     private static final String EXPECTED_PDL_RUN_TAG = "pdlSet-test";
