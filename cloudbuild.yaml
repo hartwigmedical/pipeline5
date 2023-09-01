@@ -8,49 +8,14 @@ steps:
   - name: 'maven:3-jdk-11'
     id: 'Set version for Maven'
     entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
-  - name: 'gcr.io/cloud-builders/gsutil'
-    id: 'Prime Maven cache'
-    args:
-      - '-m'
-      - 'rsync'
-      - '-r'
-      - 'gs://hmf-build-caches/pipeline5/.m2'
-      - '/cache/.m2'
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
-  - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
-    id: 'Deploy artifacts to Maven repository'
-    entrypoint: mvn
-    timeout: 2400s
-    args:
-      - 'deploy'
-      - '-Drelease'
-      - '--batch-mode'
-    env:
-      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
-  - name: 'gcr.io/cloud-builders/gsutil'
-    id: 'Update Maven cache after dependency resolution'
-    args:
-      - '-m'
-      - 'rsync'
-      - '-r'
-      - '/cache/.m2'
-      - 'gs://hmf-build-caches/pipeline5/.m2/'
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Build pipeline image'
-    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Push pipeline image'
-    entrypoint: '/bin/bash'
-    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
+    args: [ 'versions:set', '-DnewVersion=$TAG_NAME' ]
+  - id: 'Maven build and deploy using cache'
+    name: 'eu.gcr.io/hmf-build/maven-cache'
+    args: [ 'Deploy -Drelease --batch-mode' ]
+  - id: 'Publish Docker Image'
+    dir: cluster
+    name: 'eu.gcr.io/hmf-build/docker-tag'
+    args: [ 'eu.gcr.io/$PROJECT_ID/pipeline5', '$TAG_NAME' ]
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
 logsBucket: 'gs://hmf-build-logs'
