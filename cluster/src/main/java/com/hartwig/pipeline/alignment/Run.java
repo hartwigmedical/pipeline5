@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.computeengine.input.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.RunTag;
 import org.immutables.value.Value;

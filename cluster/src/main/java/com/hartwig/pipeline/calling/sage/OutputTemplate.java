@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 import java.util.function.Function;
 

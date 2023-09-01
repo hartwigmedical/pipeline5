@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.orange;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;

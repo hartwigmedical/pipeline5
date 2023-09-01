@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;

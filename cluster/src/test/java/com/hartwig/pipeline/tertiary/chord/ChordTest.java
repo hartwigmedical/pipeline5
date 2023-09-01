@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.chord;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;

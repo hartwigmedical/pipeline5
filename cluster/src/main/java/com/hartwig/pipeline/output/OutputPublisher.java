@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.output;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.PipelineState;
 
 public interface OutputPublisher {

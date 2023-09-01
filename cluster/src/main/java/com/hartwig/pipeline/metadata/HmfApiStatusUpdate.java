@@ -4,7 +4,7 @@ import com.hartwig.api.RunApi;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
@@ -26,7 +26,7 @@ public interface HmfApiStatusUpdate {
 
     void start();
 
-    void finish(ComputeEngineStatus status);
+    void finish(PipelineStatus status);
 
     class NoOpStatusUpdate implements HmfApiStatusUpdate {
         @Override
@@ -34,7 +34,7 @@ public interface HmfApiStatusUpdate {
         }
 
         @Override
-        public void finish(final ComputeEngineStatus status) {
+        public void finish(final PipelineStatus status) {
         }
     }
 
@@ -55,12 +55,12 @@ public interface HmfApiStatusUpdate {
             runApi.update(runId, new UpdateRun().failure(null).status(Status.PROCESSING).startTime(timestamp()));
         }
 
-        public void finish(final ComputeEngineStatus ComputeEngineStatus) {
-            LOGGER.info("Recording pipeline finish status in hmf-api [{}]", ComputeEngineStatus);
-            runApi.update(runId, statusUpdate(ComputeEngineStatus).endTime(timestamp()));
+        public void finish(final PipelineStatus PipelineStatus) {
+            LOGGER.info("Recording pipeline finish status in hmf-api [{}]", PipelineStatus);
+            runApi.update(runId, statusUpdate(PipelineStatus).endTime(timestamp()));
         }
 
-        private static UpdateRun statusUpdate(final ComputeEngineStatus status) {
+        private static UpdateRun statusUpdate(final PipelineStatus status) {
             switch (status) {
                 case FAILED:
                     return new UpdateRun().status(Status.FAILED)

@@ -3,15 +3,15 @@ package com.hartwig.pipeline.calling.germline;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.MvCommand;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -132,7 +132,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     }
 
     @Override
-    public GermlineCallerOutput output(final SingleSampleRunMetadata metadata, final ComputeEngineStatus status, final RuntimeBucket bucket,
+    public GermlineCallerOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
                                        final ResultsDirectory resultsDirectory) {
         return GermlineCallerOutput.builder()
                 .status(status)
@@ -157,7 +157,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     @Override
     public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {
         return GermlineCallerOutput.builder()
-                .status(ComputeEngineStatus.SKIPPED)
+                .status(PipelineStatus.SKIPPED)
                 .maybeGermlineVcfLocation(skipped())
                 .maybeGermlineVcfIndexLocation(skipped())
                 .build();
@@ -172,7 +172,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                                 GermlineCaller.NAMESPACE,
                                 GermlineCallerOutput.outputFile(metadata.sampleName()).fileName())));
         return GermlineCallerOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS,
                         metadata.barcode(),
                         new ArchivePath(Folder.from(metadata), namespace(), outputFile.fileName())))

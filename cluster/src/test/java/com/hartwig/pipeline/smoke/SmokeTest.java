@@ -2,7 +2,7 @@ package com.hartwig.pipeline.smoke;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pdl.PdlJsonConversion;
 import com.hartwig.pdl.PipelineInput;
@@ -66,33 +66,33 @@ public class SmokeTest {
 
     @Test
     public void tumorReference() throws Exception {
-        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_REF, ComputeEngineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_REF, PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void tumorOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_ONLY, ComputeEngineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_TUMOR_ONLY, PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void referenceOnly() throws Exception {
-        runFullPipelineAndCheckFinalStatus(INPUT_MODE_REF_ONLY, ComputeEngineStatus.QC_FAILED);
+        runFullPipelineAndCheckFinalStatus(INPUT_MODE_REF_ONLY, PipelineStatus.QC_FAILED);
     }
 
     @Ignore
     @Test
     public void tumorOnlyWithTargetedRegions() throws Exception {
         runFullPipelineAndCheckFinalStatus("tumor",
-                ComputeEngineStatus.SUCCESS,
+                PipelineStatus.SUCCESS,
                 Optional.of("target_regions_definition.38.bed"),
                 RefGenomeVersion.V38);
     }
 
-    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final ComputeEngineStatus expectedStatus) throws Exception {
+    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
         runFullPipelineAndCheckFinalStatus(inputMode, expectedStatus, Optional.empty(), V37);
     }
 
-    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final ComputeEngineStatus expectedStatus,
+    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
                                                    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
                                                    final RefGenomeVersion refGenomeVersion) throws Exception {
         final PipelineMain victim = new PipelineMain();

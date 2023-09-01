@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.metrics;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.*;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -101,7 +101,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public BamMetricsOutput output(final SingleSampleRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public BamMetricsOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                    final ResultsDirectory resultsDirectory) {
         String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
         return BamMetricsOutput.builder()
@@ -123,13 +123,13 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput skippedOutput(final SingleSampleRunMetadata metadata) {
-        return BamMetricsOutput.builder().sample(metadata.sampleName()).status(ComputeEngineStatus.SKIPPED).build();
+        return BamMetricsOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
         return BamMetricsOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
                 .maybeMetricsOutputFile(persistedDataset.path(metadata.sampleName(), DataType.WGSMETRICS)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),

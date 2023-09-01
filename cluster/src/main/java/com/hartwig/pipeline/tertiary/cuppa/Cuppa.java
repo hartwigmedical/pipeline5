@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
 import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -10,7 +9,8 @@ import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.computeengine.execution.vm.command.python.Python3Command;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -115,7 +115,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public CuppaOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public CuppaOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                               final ResultsDirectory resultsDirectory) {
         return CuppaOutput.builder()
                 .status(jobStatus)
@@ -158,7 +158,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public CuppaOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return CuppaOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return CuppaOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -169,7 +169,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         final String resultsCsv = cupDataCsv(metadata);
         final String featurePlot = cuppaFeaturePlot(metadata);
         return CuppaOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
                         .conclusionChart(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CHART)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),

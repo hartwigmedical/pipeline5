@@ -2,8 +2,8 @@ package com.hartwig.pipeline.tertiary.healthcheck;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.stages.Stage;
@@ -65,15 +65,15 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     @Test
     public void returnsStatusQcFailsWhenHealthCheckerReportsFailure() {
         returnHealthCheck(runtimeBucket, "tumor.HealthCheckFailed");
-        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
-                ComputeEngineStatus.QC_FAILED);
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                PipelineStatus.QC_FAILED);
     }
 
     @Test
     public void returnsStatusFailsWhenHealthCheckerReportsFailureNothingFailed() {
         whenBucketChecked(runtimeBucket).thenReturn(Collections.emptyList());
-        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
-                ComputeEngineStatus.FAILED);
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                PipelineStatus.FAILED);
     }
 
     @Override

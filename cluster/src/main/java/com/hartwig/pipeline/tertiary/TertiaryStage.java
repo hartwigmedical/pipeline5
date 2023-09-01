@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;

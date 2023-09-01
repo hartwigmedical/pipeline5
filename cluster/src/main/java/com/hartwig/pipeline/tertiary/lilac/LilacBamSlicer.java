@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.execution.vm.*;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -74,7 +74,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     }
 
     @Override
-    public LilacBamSliceOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public LilacBamSliceOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                       final ResultsDirectory resultsDirectory) {
         Builder output = LilacBamSliceOutput.builder()
                 .status(jobStatus)
@@ -96,12 +96,12 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
 
     @Override
     public LilacBamSliceOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return LilacBamSliceOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return LilacBamSliceOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public LilacBamSliceOutput persistedOutput(final SomaticRunMetadata metadata) {
-        Builder outputBuilder = LilacBamSliceOutput.builder().status(ComputeEngineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata));
+        Builder outputBuilder = LilacBamSliceOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata));
         metadata.maybeReference().ifPresent(reference -> {
             String refName = reference.sampleName();
             outputBuilder.reference(persistedDataset.path(refName, DataType.LILAC_HLA_BAM)

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.germline;
 
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;

@@ -5,7 +5,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
 import com.hartwig.computeengine.execution.vm.NoOpComputeEngine;
-import com.hartwig.computeengine.labels.Labels;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
@@ -47,7 +47,7 @@ public abstract class AlignerProvider {
                                                  final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Labels labels)
             throws Exception {
         ComputeEngine computeEngine =
-                arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels);
+                arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels.asMap());
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,

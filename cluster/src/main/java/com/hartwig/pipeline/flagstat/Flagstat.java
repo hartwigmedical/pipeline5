@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.flagstat;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -8,7 +8,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.SubShellCommand;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -80,7 +80,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     }
 
     @Override
-    public FlagstatOutput output(final SingleSampleRunMetadata metadata, final ComputeEngineStatus status, final RuntimeBucket bucket,
+    public FlagstatOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
                                  final ResultsDirectory resultsDirectory) {
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
@@ -104,7 +104,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     public FlagstatOutput persistedOutput(final SingleSampleRunMetadata metadata) {
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
                 .maybeFlagstatOutputFile(persistedDataset.path(metadata.sampleName(), DataType.FLAGSTAT)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),

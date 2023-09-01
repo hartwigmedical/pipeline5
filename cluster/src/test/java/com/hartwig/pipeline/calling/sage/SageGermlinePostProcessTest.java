@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;

@@ -4,10 +4,11 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.labels.Labels;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -80,7 +81,7 @@ public class BwaAlignerTest {
         setupMocks();
         when(computeEngine.submit(any(), any())).thenReturn(ComputeEngineStatus.SUCCESS);
         when(computeEngine.submit(any(), argThat(jobDef -> jobDef.name().contains("l001")))).thenReturn(ComputeEngineStatus.FAILED);
-        assertThat(victim.run(METADATA).status()).isEqualTo(ComputeEngineStatus.FAILED);
+        assertThat(victim.run(METADATA).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -113,7 +114,7 @@ public class BwaAlignerTest {
         AlignmentOutput output = victim.run(METADATA);
         assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(gsUrl, arguments.project()));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());
-        assertThat(output.status()).isEqualTo(ComputeEngineStatus.PROVIDED);
+        assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
     }
 
     private void setupMocks() {

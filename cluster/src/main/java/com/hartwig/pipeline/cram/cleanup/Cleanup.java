@@ -2,8 +2,8 @@ package com.hartwig.pipeline.cram.cleanup;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling;
 
 import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;

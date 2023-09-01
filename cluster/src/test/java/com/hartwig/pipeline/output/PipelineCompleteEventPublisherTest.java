@@ -4,8 +4,8 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.Analysis;
 import com.hartwig.events.pipeline.AnalysisOutputBlob;
 import com.hartwig.events.pipeline.Pipeline;
@@ -45,7 +45,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void doesNothingOnFailedState() {
-        when(state.status()).thenReturn(ComputeEngineStatus.FAILED);
+        when(state.status()).thenReturn(PipelineStatus.FAILED);
         victim.publish(state, TestInputs.defaultSomaticRunMetadata());
         verify(publisher, never()).publish(any());
     }
@@ -63,7 +63,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void publishesDnaTertiaryAnalysisOnVcf() throws Exception {
-        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
@@ -94,7 +94,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void usesReferenceSampleWhenNoTumor() {
-        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSingleSampleRunMetadata());
@@ -103,7 +103,7 @@ public class PipelineCompleteEventPublisherTest {
 
     @Test
     public void usesDatatypeAndBarcodeWhenFileMatched() throws Exception {
-        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         String path = TestInputs.referenceSample() + "/germline_caller/reference.germline.vcf.gz";
         Blob vcf = withBucketAndMd5(blob(path));
         Page<Blob> page = pageOf(vcf);
@@ -118,7 +118,7 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     public void verifyGermline(final String filename, final String expectedFile, final String namespace) {
-        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob(namespace + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
         PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
@@ -127,7 +127,7 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     private void verifySecondaryAnalysis(final String extension, final String indexExtension, final String namespace) {
-        when(state.status()).thenReturn(ComputeEngineStatus.SUCCESS);
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob tumorBamBlob =
                 withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension));
         Blob tumorBaiBlob = withBucketAndMd5(blob(

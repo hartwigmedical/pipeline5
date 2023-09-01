@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
 import org.immutables.value.Value;
@@ -10,7 +10,7 @@ import java.util.Optional;
 @Value.Immutable
 public interface SageOutput extends StageOutput {
 
-    ComputeEngineStatus status();
+    PipelineStatus status();
 
     Optional<GoogleStorageLocation> maybeVariants();
 

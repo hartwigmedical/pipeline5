@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.metrics;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;

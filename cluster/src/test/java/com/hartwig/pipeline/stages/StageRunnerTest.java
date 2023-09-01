@@ -5,7 +5,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.ExportVariableCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;

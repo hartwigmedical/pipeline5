@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -9,7 +9,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -109,7 +109,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     }
 
     @Override
-    public LinxSomaticOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public LinxSomaticOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                     final ResultsDirectory resultsDirectory) {
 
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
@@ -159,7 +159,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
 
     @Override
     public LinxSomaticOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return LinxSomaticOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return LinxSomaticOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -176,7 +176,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
         String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
         return LinxSomaticOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
                         .breakends(persistedOrDefault(metadata, DataType.LINX_BREAKENDS, breakendTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))

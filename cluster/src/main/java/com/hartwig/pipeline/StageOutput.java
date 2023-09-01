@@ -1,6 +1,5 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.OutputComponent;
@@ -11,7 +10,7 @@ public interface StageOutput {
 
     String name();
 
-    ComputeEngineStatus status();
+    PipelineStatus status();
 
     List<OutputComponent> reportComponents();
 

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.stages;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 
 import java.util.List;

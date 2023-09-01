@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.cram;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata.SampleType;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -83,7 +83,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected void validatePersistedOutput(final CramOutput output) {
-        assertThat(output).isEqualTo(CramOutput.builder().status(ComputeEngineStatus.PERSISTED).build());
+        assertThat(output).isEqualTo(CramOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 
     @Override

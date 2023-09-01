@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.healthcheck;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -10,7 +10,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -107,7 +107,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
-    public HealthCheckOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public HealthCheckOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                     final ResultsDirectory resultsDirectory) {
         return HealthCheckOutput.builder()
                 .status(checkHealthCheckerOutput(metadata.sampleName(), bucket, jobStatus, resultsDirectory))
@@ -119,12 +119,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public HealthCheckOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return HealthCheckOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public HealthCheckOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return HealthCheckOutput.builder().status(ComputeEngineStatus.PERSISTED).build();
+        return HealthCheckOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override
@@ -134,29 +134,29 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @NotNull
-    private ComputeEngineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, ComputeEngineStatus status,
+    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status,
                                                          final ResultsDirectory resultsDirectory) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
-        if ((status == ComputeEngineStatus.SKIPPED || status == ComputeEngineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
+        if ((status == PipelineStatus.SKIPPED || status == PipelineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);
             if (healthCheckStatus.getName().endsWith("HealthCheckSucceeded")) {
                 LOGGER.debug("Health check reported success");
-                status = ComputeEngineStatus.SUCCESS;
+                status = PipelineStatus.SUCCESS;
             } else if (healthCheckStatus.getName().endsWith("HealthCheckFailed")) {
                 LOGGER.warn("Health check reported failure. Check run.log in health checker out for reason");
-                status = ComputeEngineStatus.QC_FAILED;
+                status = PipelineStatus.QC_FAILED;
             } else {
                 LOGGER.warn(
                         "Health check completed with unknown status [{}]. Failing the run. Check run.log in health checker out for more "
                                 + "detail",
                         healthCheckStatus.getName());
-                status = ComputeEngineStatus.FAILED;
+                status = PipelineStatus.FAILED;
 
             }
         } else {
             LOGGER.error("Found [{}] files in the health checker output. Unable to determine status, this is likely a bug in the pipeline",
                     healthCheckStatuses.size());
-            status = ComputeEngineStatus.FAILED;
+            status = PipelineStatus.FAILED;
         }
         return status;
     }

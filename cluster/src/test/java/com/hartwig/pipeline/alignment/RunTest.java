@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import org.junit.Test;
 

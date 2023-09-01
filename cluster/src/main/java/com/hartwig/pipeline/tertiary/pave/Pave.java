@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -71,11 +71,11 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public PaveOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PaveOutput.builder(namespace()).status(ComputeEngineStatus.SKIPPED).build();
+        return PaveOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
-    public PaveOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public PaveOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                              final ResultsDirectory resultsDirectory) {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
@@ -92,7 +92,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     public PaveOutput persistedOutput(final SomaticRunMetadata metadata) {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeAnnotatedVariants(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), outputFile))))

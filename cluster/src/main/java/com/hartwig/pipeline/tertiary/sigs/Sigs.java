@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -8,7 +8,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -90,7 +90,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public SigsOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public SigsOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                              final ResultsDirectory resultsDirectory) {
         return SigsOutput.builder()
                 .status(jobStatus)
@@ -110,13 +110,13 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
 
     @Override
     public SigsOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return SigsOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return SigsOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public SigsOutput persistedOutput(final SomaticRunMetadata metadata) {
         return SigsOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeAllocationTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.SIGNATURE_ALLOCATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), allocationTsv(metadata)))))

@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.*;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -118,7 +118,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public LilacOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public LilacOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                               final ResultsDirectory resultsDirectory) {
         String lilacOutput = lilacOutput(metadata.sampleName());
         String lilacQc = lilacQcMetrics(metadata.sampleName());
@@ -134,7 +134,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public LilacOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return LilacOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return LilacOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -142,7 +142,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         String lilacOutput = lilacOutput(metadata.sampleName());
         String lilacQc = lilacQcMetrics(metadata.sampleName());
         return LilacOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .qc(persistedDataset.path(metadata.tumor().sampleName(), DataType.LILAC_QC_METRICS)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), lilacQc))))

@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata.SampleType;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.Arguments;

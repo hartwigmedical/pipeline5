@@ -2,7 +2,7 @@ package com.hartwig.pipeline.output;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
@@ -19,7 +19,7 @@ public class VmExecutionLogSummary {
     public static void ofFailedStages(final Storage storage, final PipelineState state) {
         List<StageOutput> failures = state.stageOutputs()
                 .stream()
-                .filter(stageOutput -> stageOutput.status().equals(ComputeEngineStatus.FAILED))
+                .filter(stageOutput -> stageOutput.status().equals(PipelineStatus.FAILED))
                 .collect(Collectors.toList());
         if (!failures.isEmpty()) {
             LOGGER.error("Failures in pipeline stages. Printing each failures full run.log here");

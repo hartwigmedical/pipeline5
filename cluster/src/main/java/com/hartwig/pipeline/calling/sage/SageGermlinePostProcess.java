@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.stages.SubStage;

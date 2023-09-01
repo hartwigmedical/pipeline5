@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.pave;
 
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;

@@ -6,12 +6,12 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.RunApi;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
 import com.hartwig.computeengine.execution.vm.NoOpComputeEngine;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
-import com.hartwig.computeengine.labels.Labels;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.events.EventContext;
 import com.hartwig.events.pipeline.Pipeline;
@@ -200,7 +200,7 @@ public class PipelineMain {
                         arguments,
                         arguments.publishEventsOnly()
                                 ? new NoOpComputeEngine()
-                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels),
+                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels.asMap()),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -227,7 +227,7 @@ public class PipelineMain {
                         arguments,
                         arguments.publishEventsOnly()
                                 ? new NoOpComputeEngine()
-                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels),
+                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels.asMap()),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -251,7 +251,7 @@ public class PipelineMain {
     public static void main(final String[] args) {
         try {
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
-            if (state.status() != ComputeEngineStatus.FAILED) {
+            if (state.status() != PipelineStatus.FAILED) {
                 LOGGER.info(completionMessage(state));
                 System.exit(0);
             } else {

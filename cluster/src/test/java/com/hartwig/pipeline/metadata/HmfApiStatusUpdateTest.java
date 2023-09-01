@@ -5,7 +5,7 @@ import com.hartwig.api.model.Run;
 import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
@@ -66,14 +66,14 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void successSetsApiStatusToFinishedWhenApiProvided() {
-        setupForRealUpdate().finish(ComputeEngineStatus.SUCCESS);
+        setupForRealUpdate().finish(PipelineStatus.SUCCESS);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Test
     public void qcFailureSetsApiStatusToFailedWhenApiProvided() {
-        setupForRealUpdate().finish(ComputeEngineStatus.QC_FAILED);
+        setupForRealUpdate().finish(PipelineStatus.QC_FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.QCFAILURE);
@@ -81,7 +81,7 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void technicalFailureSetsApiStatusToFailedWhenApiProvided() {
-        setupForRealUpdate().finish(ComputeEngineStatus.FAILED);
+        setupForRealUpdate().finish(PipelineStatus.FAILED);
         verify(runApi).update(eq(RUN_ID), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.TECHNICALFAILURE);
@@ -95,13 +95,13 @@ public class HmfApiStatusUpdateTest {
 
     @Test
     public void finishDoesNoApiCallOnSuccessWhenNoUrlProvided() {
-        setupForNoOp().finish(ComputeEngineStatus.SUCCESS);
+        setupForNoOp().finish(PipelineStatus.SUCCESS);
         verifyNoMoreInteractions(runApi);
     }
 
     @Test
     public void finishDoesNoApiCallOnFailureWhenNoUrlProvided() {
-        setupForNoOp().finish(ComputeEngineStatus.FAILED);
+        setupForNoOp().finish(PipelineStatus.FAILED);
         verifyNoMoreInteractions(runApi);
     }
 }

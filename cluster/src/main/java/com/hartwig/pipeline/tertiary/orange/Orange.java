@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -11,7 +11,7 @@ import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadIfBlobExistsCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -234,7 +234,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public OrangeOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                final ResultsDirectory resultsDirectory) {
         return OrangeOutput.builder()
                 .status(jobStatus)
@@ -246,7 +246,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public OrangeOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return OrangeOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -256,7 +256,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(ComputeEngineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
     }
 
     @Override

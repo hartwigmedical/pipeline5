@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.alignment.bwa;
 
-import com.hartwig.computeengine.execution.vm.OutputFile;
+import com.hartwig.pipeline.storage.OutputFile;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.PipeCommands;
 import com.hartwig.pdl.LaneInput;

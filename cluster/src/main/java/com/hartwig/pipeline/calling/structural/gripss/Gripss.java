@@ -2,7 +2,7 @@ package com.hartwig.pipeline.calling.structural.gripss;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -10,7 +10,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -96,7 +96,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
     }
 
     @Override
-    public GripssOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public GripssOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                final ResultsDirectory resultsDirectory) {
 
         String filteredVcfFile = filteredVcf(metadata);
@@ -135,7 +135,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     @Override
     public GripssOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return GripssOutput.builder(namespace()).status(ComputeEngineStatus.SKIPPED).build();
+        return GripssOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -154,7 +154,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
 
         return GripssOutput.builder(namespace())
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeFilteredVariants(filteredLocation)
                 .maybeUnfilteredVariants(unfilteredLocation)
                 .build();

@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 
 public class ModeResolver {
 

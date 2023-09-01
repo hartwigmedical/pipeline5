@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.storage;
 
-import com.hartwig.computeengine.input.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.computeengine.storage.RunIdentifier;
 import com.hartwig.pipeline.Arguments;
 

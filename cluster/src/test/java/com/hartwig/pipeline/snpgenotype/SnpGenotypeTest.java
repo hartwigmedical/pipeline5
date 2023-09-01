@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.snpgenotype;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -64,6 +64,6 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
 
     @Override
     protected void validatePersistedOutput(final SnpGenotypeOutput output) {
-        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(ComputeEngineStatus.PERSISTED).build());
+        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 }

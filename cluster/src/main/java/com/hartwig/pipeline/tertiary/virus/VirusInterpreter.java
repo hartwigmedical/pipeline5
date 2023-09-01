@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -8,7 +8,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -107,7 +107,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     }
 
     @Override
-    public VirusInterpreterOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public VirusInterpreterOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                          final ResultsDirectory resultsDirectory) {
         String annotatedTsv = annotatedVirusTsv(metadata);
         return VirusInterpreterOutput.builder().status(jobStatus).addAllDatatypes(addDatatypes(metadata))
@@ -124,13 +124,13 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
 
     @Override
     public VirusInterpreterOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return VirusInterpreterOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return VirusInterpreterOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public VirusInterpreterOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusInterpreterOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeVirusAnnotations(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotatedVirusTsv(metadata)))))

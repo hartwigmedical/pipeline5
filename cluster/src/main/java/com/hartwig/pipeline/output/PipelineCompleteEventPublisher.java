@@ -2,9 +2,9 @@ package com.hartwig.pipeline.output;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.events.pipeline.*;
 import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
@@ -41,7 +41,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
     }
 
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
-        if (state.status() != ComputeEngineStatus.FAILED && metadata.maybeExternalIds().isPresent()) {
+        if (state.status() != PipelineStatus.FAILED && metadata.maybeExternalIds().isPresent()) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             Optional<String> tumorSampleName = metadata.maybeTumor().map(SingleSampleRunMetadata::sampleName);

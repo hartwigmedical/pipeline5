@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tertiary;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;
@@ -43,7 +43,7 @@ public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest
     @Test
     public void persistedOutputDatatypesMatchOutputDatatypes() {
         SomaticRunMetadata metadata = defaultSomaticRunMetadata();
-        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .datatypes()).isEqualTo(victim.persistedOutput(metadata).datatypes());
     }
 }

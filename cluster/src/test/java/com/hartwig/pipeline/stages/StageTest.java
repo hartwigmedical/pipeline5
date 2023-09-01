@@ -4,10 +4,10 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.input.RunMetadata;
+import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
@@ -99,8 +99,8 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void returnsExpectedOutput() {
-        S output = victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory());
-        assertThat(output.status()).isEqualTo(ComputeEngineStatus.SUCCESS);
+        S output = victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory());
+        assertThat(output.status()).isEqualTo(PipelineStatus.SUCCESS);
         assertThat(output.name()).isEqualTo(victim.namespace());
         validateOutput(output);
     }
@@ -128,13 +128,13 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void returnsExpectedFurtherOperations() {
-        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .datatypes()).containsExactlyInAnyOrder(expectedFurtherOperations().toArray(AddDatatype[]::new));
     }
 
     @Test
     public void addsLogs() {
-        assertThat(victim.output(input(), ComputeEngineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .failedLogLocations()).isNotEmpty();
     }
 

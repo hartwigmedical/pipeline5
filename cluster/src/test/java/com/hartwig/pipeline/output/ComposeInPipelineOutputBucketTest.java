@@ -3,7 +3,7 @@ package com.hartwig.pipeline.output;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
@@ -78,8 +78,8 @@ public class ComposeInPipelineOutputBucketTest {
             }
 
             @Override
-            public ComputeEngineStatus status() {
-                return ComputeEngineStatus.SUCCESS;
+            public PipelineStatus status() {
+                return PipelineStatus.SUCCESS;
             }
 
             @Override

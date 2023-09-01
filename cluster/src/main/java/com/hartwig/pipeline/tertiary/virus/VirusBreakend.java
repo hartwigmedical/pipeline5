@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.ExportPathCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -85,7 +85,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public VirusBreakendOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return VirusBreakendOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return VirusBreakendOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     }
 
     @Override
-    public VirusBreakendOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public VirusBreakendOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                       final ResultsDirectory resultsDirectory) {
         String vcf = vcf(metadata);
         String summary = summary(metadata);
@@ -114,7 +114,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public VirusBreakendOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusBreakendOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .addAllDatatypes(addDatatypes(metadata))
                 .maybeSummary(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND_SUMMARY)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),

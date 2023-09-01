@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 
 public interface Aligner {
 

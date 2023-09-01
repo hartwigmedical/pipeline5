@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.calling.sage;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -58,12 +58,12 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     }
 
     @Override
-    public SageOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public SageOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                              final ResultsDirectory resultsDirectory) {
         return outputBuilder(metadata, jobStatus, bucket, resultsDirectory).build();
     }
 
-    protected ImmutableSageOutput.Builder outputBuilder(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus,
+    protected ImmutableSageOutput.Builder outputBuilder(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
                                                         final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
 
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
@@ -92,7 +92,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
     @Override
     public SageOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return SageOutput.builder(namespace()).status(ComputeEngineStatus.SKIPPED).build();
+        return SageOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -102,7 +102,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
         final Optional<String> somaticRefSampleBqrPlot = referenceSampleBqrPlot(metadata);
         final Optional<String> somaticTumorSampleBqrPlot = tumorSampleBqrPlot(metadata);
         final ImmutableSageOutput.Builder builder = SageOutput.builder(namespace())
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeVariants(persistedDataset.path(metadata.tumor().sampleName(), sageConfiguration.vcfDatatype())
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), filteredOutputFile))))

@@ -1,12 +1,36 @@
 package com.hartwig.pipeline;
 
+import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
+
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+
 public enum PipelineStatus {
-    SUCCESS,
     FAILED,
+    PERSISTED,
+    PREEMPTED,
+    PROVIDED,
     QC_FAILED,
     SKIPPED,
-    PERSISTED,
-    PROVIDED,
-    PREEMPTED,
-    UNKNOWN
+    SUCCESS,
+    UNKNOWN;
+
+
+    public static PipelineStatus of(ComputeEngineStatus computeEngineStatus) {
+        Objects.requireNonNull(computeEngineStatus, "Invalid conversion, computeEngineStatus was null");
+        switch (computeEngineStatus) {
+            case SUCCESS:
+                return PipelineStatus.SUCCESS;
+            case FAILED:
+                return PipelineStatus.FAILED;
+            case SKIPPED:
+                return PipelineStatus.SKIPPED;
+            case PREEMPTED:
+                return PipelineStatus.PREEMPTED;
+            default:
+                throw new IllegalStateException(String.format("Enum value [%s] not recognized", computeEngineStatus));
+        }
+    }
+
 }

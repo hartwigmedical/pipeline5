@@ -1,7 +1,7 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -251,11 +251,11 @@ public class SomaticPipeline {
     }
 
     private BamMetricsOutput skippedMetrics(final String sample) {
-        return BamMetricsOutput.builder().sample(sample).status(ComputeEngineStatus.SKIPPED).build();
+        return BamMetricsOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
     }
 
     private FlagstatOutput skippedFlagstat(final String sample) {
-        return FlagstatOutput.builder().sample(sample).status(ComputeEngineStatus.SKIPPED).build();
+        return FlagstatOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
     }
 
     public static <T> T pollOrThrow(final BlockingQueue<T> tumourBamMetricsOutput, final String name) {

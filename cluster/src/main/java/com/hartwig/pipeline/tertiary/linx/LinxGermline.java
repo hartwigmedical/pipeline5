@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.linx;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -9,7 +9,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -85,7 +85,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     }
 
     @Override
-    public LinxGermlineOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public LinxGermlineOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                      final ResultsDirectory resultsDirectory) {
         return LinxGermlineOutput.builder()
                 .status(jobStatus)
@@ -103,14 +103,14 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public LinxGermlineOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return LinxGermlineOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return LinxGermlineOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public LinxGermlineOutput persistedOutput(final SomaticRunMetadata metadata) {
         String driverCatalogTsv = driverCatalogTsv(metadata);
         return LinxGermlineOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
                         .disruptions(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DISRUPTIONS, disruptionsTsv(metadata)))
                         .breakends(persistedOrDefault(metadata, DataType.LINX_GERMLINE_BREAKENDS, breakendsTsv(metadata)))

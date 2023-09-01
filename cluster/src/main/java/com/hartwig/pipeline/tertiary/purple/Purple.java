@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -172,11 +172,11 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public PurpleOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PurpleOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return PurpleOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
-    public PurpleOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                final ResultsDirectory resultsDirectory) {
 
         String purityTsv = purityTsv(metadata.sampleName());
@@ -316,7 +316,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .germlineDeletions(germlineDeletionLocation);
 
         return PurpleOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .addAllDatatypes(addDatatypes(metadata))
                 .maybeOutputLocations(outputLocationsBuilder.build())
                 .build();

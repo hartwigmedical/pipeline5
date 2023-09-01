@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.calling.structural.gridss;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.ExportPathCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -109,7 +109,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     }
 
     @Override
-    public GridssOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public GridssOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                final ResultsDirectory resultsDirectory) {
         return GridssOutput.builder()
                 .status(jobStatus)
@@ -137,7 +137,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
 
     @Override
     public GridssOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return GridssOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return GridssOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -154,7 +154,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
                                                 FileTypes.GZIPPED_VCF))));
 
         return GridssOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeUnfilteredVcf(unfilteredVcfLocation)
                 .maybeUnfilteredVcfIndex(unfilteredVcfLocation.transform(FileTypes::tabixIndex))
                 .build();

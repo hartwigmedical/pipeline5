@@ -1,14 +1,14 @@
 package com.hartwig.pipeline.stages;
 
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
-import com.hartwig.computeengine.input.RunMetadata;
-import com.hartwig.computeengine.labels.Labels;
+import com.hartwig.pipeline.input.RunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RunIdentifier;
@@ -52,15 +52,15 @@ public class StageRunner<M extends RunMetadata> {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE);
                 RunIdentifier runIdentifier = StorageUtil.runIdentifierFromArguments(metadata, arguments);
-                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), arguments.region(), labels, runIdentifier, arguments.cmek().orElse(null));
+                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), arguments.region(), labels.asMap(), runIdentifier, arguments.cmek().orElse(null));
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(commands)
                         .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
-                ComputeEngineStatus status =
+                PipelineStatus status =
                         Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.runName(), stage.namespace())))
-                                .get(() -> computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)));
+                                .get(() -> PipelineStatus.of(computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory))));
                 trace.stop();
                 return stage.output(metadata, status, bucket, resultsDirectory);
             }

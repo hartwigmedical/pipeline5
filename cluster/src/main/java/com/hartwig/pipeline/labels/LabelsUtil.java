@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.labels;
 
-import com.hartwig.computeengine.input.SomaticRunMetadata;
-import com.hartwig.computeengine.labels.Labels;
-import com.hartwig.computeengine.labels.LabelsBuilder;
+import java.util.Optional;
+
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.CommonArguments;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 
 public final class LabelsUtil {
     private LabelsUtil() {
@@ -14,10 +15,13 @@ public final class LabelsUtil {
     }
 
     public static Labels fromArguments(CommonArguments arguments, SomaticRunMetadata metadata) {
-        return new LabelsBuilder().userLabel(arguments.userLabel().orElse(null))
-                .runTag(arguments.runTag().orElse(null))
-                .costCenterLabel(arguments.costCenterLabel().orElse(null))
-                .sample(metadata)
-                .build();
+        String sampleString = null;
+        if (metadata != null) {
+            sampleString = metadata.maybeTumor()
+                    .map(SingleSampleRunMetadata::sampleName)
+                    .orElseGet(() -> metadata.maybeReference().map(SingleSampleRunMetadata::sampleName).orElseThrow());
+        }
+
+        return ImmutableLabels.of(Optional.ofNullable(sampleString), arguments.runTag(), arguments.userLabel(), arguments.costCenterLabel());
     }
 }

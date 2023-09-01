@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.*;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -125,7 +125,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public CobaltOutput output(final SomaticRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public CobaltOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                                final ResultsDirectory resultsDirectory) {
         return CobaltOutput.builder()
                 .status(jobStatus)
@@ -138,13 +138,13 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public CobaltOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return CobaltOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return CobaltOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public CobaltOutput persistedOutput(final SomaticRunMetadata metadata) {
         return CobaltOutput.builder()
-                .status(ComputeEngineStatus.PERSISTED)
+                .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.COBALT)
                         .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),

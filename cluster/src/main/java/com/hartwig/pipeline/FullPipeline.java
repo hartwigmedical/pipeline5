@@ -1,7 +1,7 @@
 package com.hartwig.pipeline;
 
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.cram.cleanup.Cleanup;

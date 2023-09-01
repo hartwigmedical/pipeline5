@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.input;
 
-import com.hartwig.computeengine.input.ImmutableSomaticRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Test;
 

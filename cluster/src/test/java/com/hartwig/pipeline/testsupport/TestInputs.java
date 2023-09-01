@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.testsupport;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
@@ -182,7 +182,7 @@ public class TestInputs {
     private static AlignmentOutput alignerOutput(final String sample) {
         String bucket = namespacedBucket(sample, Aligner.NAMESPACE);
         return AlignmentOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeAlignments(gsLocation(bucket, RESULTS + sample + ".bam"))
                 .sample(sample)
                 .build();
@@ -197,7 +197,7 @@ public class TestInputs {
     }
 
     public static SnpGenotypeOutput snpGenotypeOutput() {
-        return SnpGenotypeOutput.builder().status(ComputeEngineStatus.SUCCESS).build();
+        return SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static FlagstatOutput flagstatOutput() {
@@ -206,7 +206,7 @@ public class TestInputs {
 
     public static FlagstatOutput flagstatOutput(final String sample) {
         return FlagstatOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .sample(sample)
                 .maybeFlagstatOutputFile(gsLocation(namespacedBucket(sample, Flagstat.NAMESPACE), sample + ".flagstat"))
                 .build();
@@ -221,13 +221,13 @@ public class TestInputs {
     }
 
     public static CramOutput cramOutput() {
-        return CramOutput.builder().status(ComputeEngineStatus.SUCCESS).build();
+        return CramOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static GermlineCallerOutput germlineCallerOutput() {
         String germlineVcf = REFERENCE_SAMPLE + ".germline.vcf.gz";
         return GermlineCallerOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE), germlineVcf))
                 .maybeGermlineVcfIndexLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
                         germlineVcf + ".tbi"))
@@ -236,7 +236,7 @@ public class TestInputs {
 
     private static BamMetricsOutput metricsOutput(final String sample) {
         return BamMetricsOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .sample(sample)
                 .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE),
                         RESULTS + BamMetricsOutput.outputFile(sample)))
@@ -245,7 +245,7 @@ public class TestInputs {
 
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageConfiguration.SAGE_GERMLINE_NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeVariants(gsLocation(somaticBucket(SageConfiguration.SAGE_GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
                 .maybeGermlineGeneCoverage(gsLocation(somaticBucket(SageConfiguration.SAGE_GERMLINE_NAMESPACE),
@@ -255,7 +255,7 @@ public class TestInputs {
 
     public static SageOutput sageSomaticOutput() {
         return SageOutput.builder(SageConfiguration.SAGE_SOMATIC_NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeVariants(gsLocation(somaticBucket(SageConfiguration.SAGE_SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
                 .maybeSomaticRefSampleBqrPlot(gsLocation(somaticBucket(SageConfiguration.SAGE_SOMATIC_NAMESPACE),
@@ -267,7 +267,7 @@ public class TestInputs {
 
     public static PaveOutput paveSomaticOutput() {
         return PaveOutput.builder(PaveSomatic.NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveSomatic.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
                 .build();
@@ -275,7 +275,7 @@ public class TestInputs {
 
     public static PaveOutput paveGermlineOutput() {
         return PaveOutput.builder(PaveGermline.NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
                 .build();
@@ -284,7 +284,7 @@ public class TestInputs {
     public static GridssOutput structuralCallerOutput() {
         String unfiltered = ".gridss.unfiltered.";
         return GridssOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeUnfilteredVcf(gsLocation(somaticBucket(Gridss.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF))
                 .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Gridss.NAMESPACE),
@@ -296,7 +296,7 @@ public class TestInputs {
         String filtered = ".gripss.filtered.somatic.";
         String full = ".gripss.somatic.";
         return GripssOutput.builder(GRIPSS_SOMATIC_NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
                 .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
@@ -308,7 +308,7 @@ public class TestInputs {
         String filtered = ".gripss.filtered.germline.";
         String full = ".gripss.germline.";
         return GripssOutput.builder(GRIPSS_GERMLINE_NAMESPACE)
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
                 .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
@@ -318,7 +318,7 @@ public class TestInputs {
 
     public static VirusBreakendOutput virusBreakendOutput() {
         return VirusBreakendOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeSummary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf.summary.tsv"))
                 .maybeVariants(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + ".virusbreakend.vcf"))
                 .build();
@@ -326,7 +326,7 @@ public class TestInputs {
 
     public static VirusInterpreterOutput virusInterpreterOutput() {
         return VirusInterpreterOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeVirusAnnotations(gsLocation(somaticBucket(VirusInterpreter.NAMESPACE), TUMOR_SAMPLE + ".virus.annotated.tsv"))
                 .build();
     }
@@ -337,21 +337,21 @@ public class TestInputs {
 
     public static AmberOutput amberOutput() {
         return AmberOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Amber.NAMESPACE), RESULTS))
                 .build();
     }
 
     public static CobaltOutput cobaltOutput() {
         return CobaltOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Cobalt.NAMESPACE), RESULTS))
                 .build();
     }
 
     public static PurpleOutput purpleOutput() {
         return PurpleOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeOutputLocations(PurpleOutputLocations.builder()
                         .outputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
                         .somaticVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
@@ -377,14 +377,14 @@ public class TestInputs {
 
     public static ChordOutput chordOutput() {
         return ChordOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybePredictions(gsLocation(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
                 .build();
     }
 
     public static CuppaOutput cuppaOutput() {
         return CuppaOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
                         .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
                         .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
@@ -399,7 +399,7 @@ public class TestInputs {
 
     public static HealthCheckOutput healthCheckerOutput() {
         return HealthCheckOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(HealthChecker.NAMESPACE), RESULTS))
                 .build();
     }
@@ -410,7 +410,7 @@ public class TestInputs {
 
     public static LinxSomaticOutput linxSomaticOutput() {
         return LinxSomaticOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
                         .breakends(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.BREAKEND_TSV))
                         .driverCatalog(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.DRIVER_CATALOG_TSV))
@@ -425,7 +425,7 @@ public class TestInputs {
 
     public static LinxGermlineOutput linxGermlineOutput() {
         return LinxGermlineOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
                         .disruptions(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_DISRUPTION_TSV))
                         .breakends(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_BREAKEND_TSV))
@@ -438,7 +438,7 @@ public class TestInputs {
 
     public static LilacOutput lilacOutput() {
         return LilacOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.tsv"))
                 .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.tsv"))
                 .build();
@@ -446,7 +446,7 @@ public class TestInputs {
 
     public static LilacBamSliceOutput lilacBamSliceOutput() {
         return LilacBamSliceOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .reference(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam"))
                 .referenceIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam.bai"))
                 .tumor(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam"))
@@ -456,19 +456,19 @@ public class TestInputs {
 
     public static PeachOutput peachOutput() {
         return PeachOutput.builder()
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
                 .build();
     }
 
     public static OrangeOutput orangeOutput() {
-        return OrangeOutput.builder().status(ComputeEngineStatus.SUCCESS).build();
+        return OrangeOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static SigsOutput sigsOutput() {
         return SigsOutput.builder()
                 .maybeAllocationTsv(GoogleStorageLocation.of(somaticBucket(Sigs.NAMESPACE), TUMOR_SAMPLE + Sigs.ALLOCATION_TSV))
-                .status(ComputeEngineStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

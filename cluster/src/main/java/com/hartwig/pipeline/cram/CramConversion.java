@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.cram;
 
-import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.computeengine.execution.vm.*;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata;
-import com.hartwig.computeengine.input.SingleSampleRunMetadata.SampleType;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -80,7 +80,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public CramOutput output(final SingleSampleRunMetadata metadata, final ComputeEngineStatus jobStatus, final RuntimeBucket bucket,
+    public CramOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
                              final ResultsDirectory resultsDirectory) {
         String cram = cram();
         String crai = FileTypes.crai(cram);
@@ -103,7 +103,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public CramOutput skippedOutput(final SingleSampleRunMetadata metadata) {
-        return CramOutput.builder().status(ComputeEngineStatus.SKIPPED).build();
+        return CramOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override

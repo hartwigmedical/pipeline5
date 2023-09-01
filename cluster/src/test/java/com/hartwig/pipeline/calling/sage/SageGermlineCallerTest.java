@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.TestPersistedDataset;
