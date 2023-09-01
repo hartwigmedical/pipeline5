@@ -11,7 +11,7 @@ steps:
     args: [ 'versions:set', '-DnewVersion=$TAG_NAME' ]
   - id: 'Maven build and deploy using cache'
     name: 'eu.gcr.io/hmf-build/maven-cache'
-    args: [ 'Deploy -Drelease --batch-mode' ]
+    args: [ 'deploy -Drelease --batch-mode' ]
   - id: 'Publish Docker Image'
     dir: cluster
     name: 'eu.gcr.io/hmf-build/docker-tag'
