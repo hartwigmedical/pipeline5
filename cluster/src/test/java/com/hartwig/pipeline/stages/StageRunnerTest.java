@@ -2,6 +2,7 @@ package com.hartwig.pipeline.stages;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.ExportVariableCommand;
@@ -43,6 +44,7 @@ public class StageRunnerTest {
         when(runtimeBucket.getName()).thenReturn("run-reference-tumor-test");
         when(storage.get("run-reference-tumor-test")).thenReturn(runtimeBucket);
         computeEngine = mock(ComputeEngine.class);
+        when(computeEngine.submit(any(), any())).thenReturn(ComputeEngineStatus.SUCCESS);
         //noinspection unchecked
         stage = mock(Stage.class);
         startingPoint = mock(StartingPoint.class);
