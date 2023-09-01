@@ -21,4 +21,4 @@ images:
 logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
 options:
-  machineType: 'N1_HIGHCPU_32'
+  machineType: 'E2_HIGHCPU_8'
