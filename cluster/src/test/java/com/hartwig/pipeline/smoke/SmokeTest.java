@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
-@Ignore
 public class SmokeTest {
 
     protected static final String FILE_ENCODING = "UTF-8";
