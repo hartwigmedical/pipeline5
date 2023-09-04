@@ -61,9 +61,6 @@ gripss_germline/run.log
 gripss_germline/run.sh
 health_checker/COLO829v003R.HealthCheckFailed
 health_checker/run.log
-lilac_slicer/COLO829v003R.hla.bam
-lilac_slicer/COLO829v003R.hla.bam.bai
-lilac_slicer/run.log
 lilac/COLO829v003R.lilac.candidates.coverage.tsv
 lilac/COLO829v003R.lilac.tsv
 lilac/COLO829v003R.lilac.qc.tsv

@@ -9,6 +9,7 @@ import java.util.List;
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -33,31 +34,41 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 @Namespace(Lilac.NAMESPACE)
-public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
+public class Lilac extends TertiaryStage<LilacOutput>
+{
     public static final String NAMESPACE = "lilac";
 
     private final ResourceFiles resourceFiles;
-    private final LilacBamSliceOutput slicedOutput;
     private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticVariants;
+
+    /*
+    private final LilacBamSliceOutput slicedOutput;
     private final InputDownload slicedReference;
     private final InputDownload slicedTumor;
+    */
+
     private final PersistedDataset persistedDataset;
 
-    public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
+    public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
             final PersistedDataset persistedDataset) {
+        super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
         this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
+
+        /*
         this.slicedOutput = slicedOutput;
         this.slicedReference = initialiseOptionalLocation(slicedOutput.reference());
         this.slicedTumor = initialiseOptionalLocation(slicedOutput.tumor());
+        */
     }
 
     @Override
@@ -70,18 +81,20 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         List<BashCommand> result = new ArrayList<>();
         result.add(purpleGeneCopyNumber);
         result.add(purpleSomaticVariants);
+        /*
         result.add(slicedReference);
         result.add(slicedTumor);
         result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
         result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
+        */
         return result;
     }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedReference.getLocalTargetPath()));
-        arguments.add(String.format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
+        arguments.addAll(commonArguments(metadata.tumor().sampleName(), getReferenceBamDownload().getLocalTargetPath()));
+        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
         arguments.add(String.format("-gene_copy_number %s", purpleGeneCopyNumber.getLocalTargetPath()));
         arguments.add(String.format("-somatic_vcf %s", purpleSomaticVariants.getLocalTargetPath()));
 
@@ -90,12 +103,12 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), slicedReference.getLocalTargetPath())));
+        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())));
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), slicedTumor.getLocalTargetPath())));
+        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())));
     }
 
     private List<String> commonArguments(final String sampleName, final String bamFile) {

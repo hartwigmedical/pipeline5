@@ -12,7 +12,6 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
-import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.purple.Purple;
@@ -42,8 +41,7 @@ public class StartingPoint {
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE,
                 Gridss.NAMESPACE,
-                CramConversion.NAMESPACE,
-                LilacBamSlicer.NAMESPACE)),
+                CramConversion.NAMESPACE)),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
@@ -53,8 +51,7 @@ public class StartingPoint {
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE,
                         PaveSomatic.NAMESPACE,
                         PaveGermline.NAMESPACE,
-                        VirusBreakend.NAMESPACE,
-                        LilacBamSlicer.NAMESPACE))),
+                        VirusBreakend.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GRIPSS_SOMATIC_NAMESPACE, GRIPSS_GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
 

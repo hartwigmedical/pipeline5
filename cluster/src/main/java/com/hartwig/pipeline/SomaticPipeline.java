@@ -37,8 +37,6 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
-import com.hartwig.pipeline.tertiary.lilac.LilacBamSliceOutput;
-import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
@@ -176,15 +174,12 @@ public class SomaticPipeline {
 
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
-                        Future<LilacBamSliceOutput> lilacBamSliceOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new LilacBamSlicer(pair, resourceFiles, persistedDataset)));
                         Future<LinxSomaticOutput> linxSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                         Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxGermline(purpleOutput, resourceFiles, persistedDataset)));
-                        LilacBamSliceOutput lilacBamSliceOutput = composer.add(state.add(lilacBamSliceOutputFuture.get()));
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput, persistedDataset)));
+                                new Lilac(pair, resourceFiles, purpleOutput, persistedDataset)));
                         Future<SigsOutput> signatureOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Sigs(purpleOutput, resourceFiles, persistedDataset)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

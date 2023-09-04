@@ -31,7 +31,7 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected Stage<LilacOutput, SomaticRunMetadata> createVictim() {
-        return new Lilac(TestInputs.lilacBamSliceOutput(),
+        return new Lilac(TestInputs.defaultPair(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.purpleOutput(),
                 persistedDataset);
@@ -39,10 +39,7 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-reference-tumor-test/lilac_slicer/tumor.hla.bam", "tumor.hla.bam"),
-                input("run-reference-tumor-test/lilac_slicer/tumor.hla.bam.bai", "tumor.hla.bam.bai"),
-                input("run-reference-tumor-test/lilac_slicer/reference.hla.bam", "reference.hla.bam"),
-                input("run-reference-tumor-test/lilac_slicer/reference.hla.bam.bai", "reference.hla.bam.bai"),
+        return List.of(
                 input("run-reference-tumor-test/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
                 input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
     }
@@ -51,12 +48,12 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
     protected List<String> expectedCommands() {
         return List.of(
                 toolCommand(LILAC) // "java -Xmx15G -jar /opt/tools/lilac/1.4.2/lilac.jar "
-                + " -sample tumor -reference_bam /data/input/reference.hla.bam "
+                + " -sample tumor -reference_bam /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 "
                 + "-resource_dir /opt/resources/lilac/ "
                 + "-output_dir /data/output "
                 + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                + "-tumor_bam /data/input/tumor.hla.bam "
+                + "-tumor_bam /data/input/tumor.bam "
                 + "-gene_copy_number /data/input/tumor.purple.cnv.gene.tsv "
                 + "-somatic_vcf /data/input/tumor.purple.somatic.vcf.gz");
     }

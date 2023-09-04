@@ -48,8 +48,6 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
-import com.hartwig.pipeline.tertiary.lilac.LilacBamSliceOutput;
-import com.hartwig.pipeline.tertiary.lilac.LilacBamSlicer;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
@@ -448,16 +446,6 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .qc(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.qc.tsv"))
                 .result(GoogleStorageLocation.of(somaticBucket(Lilac.NAMESPACE), TUMOR_SAMPLE + ".lilac.tsv"))
-                .build();
-    }
-
-    public static LilacBamSliceOutput lilacBamSliceOutput() {
-        return LilacBamSliceOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .reference(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam"))
-                .referenceIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), REFERENCE_SAMPLE + ".hla.bam.bai"))
-                .tumor(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam"))
-                .tumorIndex(GoogleStorageLocation.of(somaticBucket(LilacBamSlicer.NAMESPACE), TUMOR_SAMPLE + ".hla.bam.bai"))
                 .build();
     }
 
