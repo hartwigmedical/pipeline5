@@ -31,7 +31,6 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -47,12 +46,6 @@ public class Lilac extends TertiaryStage<LilacOutput>
     private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticVariants;
 
-    /*
-    private final LilacBamSliceOutput slicedOutput;
-    private final InputDownload slicedReference;
-    private final InputDownload slicedTumor;
-    */
-
     private final PersistedDataset persistedDataset;
 
     public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
@@ -63,12 +56,6 @@ public class Lilac extends TertiaryStage<LilacOutput>
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleGeneCopyNumber = initialiseOptionalLocation(purpleOutputLocations.geneCopyNumber());
         this.purpleSomaticVariants = initialiseOptionalLocation(purpleOutputLocations.somaticVariants());
-
-        /*
-        this.slicedOutput = slicedOutput;
-        this.slicedReference = initialiseOptionalLocation(slicedOutput.reference());
-        this.slicedTumor = initialiseOptionalLocation(slicedOutput.tumor());
-        */
     }
 
     @Override
@@ -78,15 +65,9 @@ public class Lilac extends TertiaryStage<LilacOutput>
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> result = new ArrayList<>();
+        List<BashCommand> result = Lists.newArrayList(super.inputs());
         result.add(purpleGeneCopyNumber);
         result.add(purpleSomaticVariants);
-        /*
-        result.add(slicedReference);
-        result.add(slicedTumor);
-        result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
-        result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
-        */
         return result;
     }
 
