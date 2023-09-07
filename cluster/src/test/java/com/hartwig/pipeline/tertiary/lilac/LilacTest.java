@@ -40,6 +40,10 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
     @Override
     protected List<String> expectedInputs() {
         return List.of(
+                input("run-tumor-test/aligner/results/tumor.bam", "tumor.bam"),
+                input("run-tumor-test/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
+                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
+                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"),
                 input("run-reference-tumor-test/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
                 input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
     }
