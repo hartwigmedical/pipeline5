@@ -10,7 +10,7 @@ steps:
     entrypoint: mvn
     args: [ 'versions:set', '-DnewVersion=$TAG_NAME' ]
   - id: 'Maven build and deploy using cache'
-    name: 'eu.gcr.io/hmf-build/maven-cache'
+    name: 'eu.gcr.io/hmf-build/maven-cache/alpine-java11'
     args: [ 'deploy -Drelease --batch-mode' ]
   - id: 'Publish Docker Image'
     dir: cluster
