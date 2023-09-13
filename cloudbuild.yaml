@@ -5,10 +5,9 @@ steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
-  - name: 'maven:3-jdk-11'
-    id: 'Set version for Maven'
-    entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=$TAG_NAME' ]
+  - name: 'eu.gcr.io/hmf-build/maven-cache/alpine-java11'
+    id: 'Set version for Maven using cache'
+    args: [ 'versions:set -DnewVersion=$TAG_NAME' ]
   - id: 'Maven build and deploy using cache'
     name: 'eu.gcr.io/hmf-build/maven-cache/alpine-java11'
     args: [ 'deploy -Drelease --batch-mode' ]
