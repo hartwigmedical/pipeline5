@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
-import static com.hartwig.pipeline.tools.VersionUtils.pipelineVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,9 +14,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.google.common.collect.Lists;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pdl.PdlJsonConversion;
 import com.hartwig.pdl.PipelineInput;
@@ -25,7 +24,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.StorageProvider;
@@ -54,6 +52,42 @@ public class SmokeTest {
 
     private File resultsDir;
     private String whoami;
+
+    protected static List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
+        return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName)
+                .map(n -> n.replace(setName + "/", ""))
+                .filter(n -> !n.equals(STAGED_FLAG_FILE))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    protected static Stream<Blob> archiveBlobs(final String setName, final String archiveBucket, final Storage storage) {
+        return StreamSupport.stream(storage.get(archiveBucket).list(Storage.BlobListOption.prefix(setName)).iterateAll().spliterator(),
+                true);
+    }
+
+    private static String workingDir() {
+        return System.getProperty("user.dir");
+    }
+
+    private static String noDots(final String version) {
+        return version.replace(".", "").toLowerCase();
+    }
+
+    protected static String findCloudSdk(final String whoami) {
+        if (whoami.equals("root")) {
+            return CLOUD_SDK_PATH;
+        }
+        try {
+            Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
+            if (process.waitFor() == 0) {
+                return new File(new String(process.getInputStream().readAllBytes())).getParent();
+            }
+        } catch (Exception e) {
+            // Fall through to using the default
+        }
+        return format("/Users/%s/google-cloud-sdk/bin", whoami);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -122,13 +156,8 @@ public class SmokeTest {
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion);
 
-        if (whoami.equals("root")) {
-            String privateKeyPath = workingDir() + "/google-key.json";
-            builder.privateKeyPath(privateKeyPath).uploadPrivateKeyPath(privateKeyPath);
-        }
-
         Arguments arguments = builder.build();
-        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+        Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
 
         cleanupBucket(setName, arguments.outputBucket(), storage);
 
@@ -149,57 +178,12 @@ public class SmokeTest {
         cleanupBucket(setName, arguments.outputBucket(), storage);
     }
 
-    @NotNull
-    private String version() {
-        String version = System.getProperty("version");
-        if (version == null || version.equals("local-SNAPSHOT")) {
-            version = System.getProperty("user.name");
-        }
-        return version;
-    }
-
-    protected static List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
-        return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName)
-                .map(n -> n.replace(setName + "/", ""))
-                .filter(n -> !n.equals(STAGED_FLAG_FILE))
-                .collect(Collectors.toList());
-    }
-
-    @NotNull
-    protected static Stream<Blob> archiveBlobs(final String setName, final String archiveBucket, final Storage storage) {
-        return StreamSupport.stream(storage.get(archiveBucket).list(Storage.BlobListOption.prefix(setName)).iterateAll().spliterator(),
-                true);
-    }
-
     private void cleanupBucket(final String setName, final String archiveBucket, final Storage storage) {
         archiveBlobs(setName, archiveBucket, storage).forEach(Blob::delete);
     }
 
-    private static String workingDir() {
-        return System.getProperty("user.dir");
-    }
-
-    private static String noDots(final String version) {
-        return version.replace(".", "").toLowerCase();
-    }
-
     private String findCloudSdk() {
         return findCloudSdk(whoami);
-    }
-
-    protected static String findCloudSdk(final String whoami) {
-        if (whoami.equals("root")) {
-            return CLOUD_SDK_PATH;
-        }
-        try {
-            Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
-            if (process.waitFor() == 0) {
-                return new File(new String(process.getInputStream().readAllBytes())).getParent();
-            }
-        } catch (Exception e) {
-            // Fall through to using the default
-        }
-        return format("/Users/%s/google-cloud-sdk/bin", whoami);
     }
 
 }
