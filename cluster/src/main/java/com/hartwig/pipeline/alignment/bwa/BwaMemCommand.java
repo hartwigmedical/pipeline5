@@ -3,10 +3,11 @@ package com.hartwig.pipeline.alignment.bwa;
 import static java.lang.String.format;
 
 import com.hartwig.pipeline.calling.command.BwaCommand;
+import com.hartwig.pipeline.calling.command.BwaMem2Command;
 import com.hartwig.pipeline.execution.vm.Bash;
 
-class BwaMemCommand extends BwaCommand {
-
+class BwaMemCommand extends BwaMem2Command
+{
     private static final String SAMPLE_NAME = "NA";
 
     BwaMemCommand(final String recordGroupId, final String flowcellId, final String referenceGenomePath,
