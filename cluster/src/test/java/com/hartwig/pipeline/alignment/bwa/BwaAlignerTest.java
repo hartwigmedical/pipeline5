@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 
 import com.google.cloud.storage.Bucket;
@@ -58,7 +59,7 @@ public class BwaAlignerTest {
                 sampleUpload,
                 ResultsDirectory.defaultDirectory(),
                 Executors.newSingleThreadExecutor(),
-                mock(Labels.class));
+                new HashMap<>());
     }
 
     @Test
@@ -111,7 +112,7 @@ public class BwaAlignerTest {
                 sampleUpload,
                 ResultsDirectory.defaultDirectory(),
                 Executors.newSingleThreadExecutor(),
-                mock(Labels.class));
+                new HashMap<>());
         AlignmentOutput output = victim.run(METADATA);
         assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(gsUrl, arguments.project()));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());

@@ -20,6 +20,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 
+import com.hartwig.pipeline.labels.LabelUtil;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -54,7 +55,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                LabelsUtil.fromArguments(ARGUMENTS),
+                LabelUtil.createLabels(ARGUMENTS, METADATA),
                 InputMode.TUMOR_REFERENCE);
         when(stage.namespace()).thenReturn(NAMESPACE);
         output = mock(StageOutput.class);
@@ -76,7 +77,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                LabelsUtil.fromArguments(ARGUMENTS),
+                LabelUtil.createLabels(ARGUMENTS, METADATA),
                 InputMode.REFERENCE_ONLY);
         when(startingPoint.usePersisted(NAMESPACE)).thenReturn(false);
         when(stage.shouldRun(ARGUMENTS)).thenReturn(true);
@@ -91,7 +92,7 @@ public class StageRunnerTest {
                 computeEngine,
                 ResultsDirectory.defaultDirectory(),
                 startingPoint,
-                LabelsUtil.fromArguments(ARGUMENTS),
+                LabelUtil.createLabels(ARGUMENTS, METADATA),
                 InputMode.TUMOR_ONLY);
         when(startingPoint.usePersisted(NAMESPACE)).thenReturn(false);
         when(stage.shouldRun(ARGUMENTS)).thenReturn(true);

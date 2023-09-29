@@ -12,6 +12,8 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+
 public class AlignerProviderTest {
 
     private static final Arguments LOCAL_ARGUMENTS = Arguments.testDefaults();
@@ -27,7 +29,7 @@ public class AlignerProviderTest {
     @Test
     public void wiresUpAlignerWithLocalDependencies() throws Exception {
         AlignerProvider victim =
-                AlignerProvider.from(TestInputs.pipelineInput(), credentials, storage, LOCAL_ARGUMENTS, mock(Labels.class));
+                AlignerProvider.from(TestInputs.pipelineInput(), credentials, storage, LOCAL_ARGUMENTS, new HashMap<>());
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.LocalAlignerProvider.class);
     }

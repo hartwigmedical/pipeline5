@@ -22,6 +22,7 @@ import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.ComputeEngineUtil;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.*;
+import com.hartwig.pipeline.labels.LabelUtil;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.*;
@@ -179,7 +180,7 @@ public class PipelineMain {
                                                    final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
                                                    final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
                                                    final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
-        Map<String, String> labels = createLabels(arguments, metadata);
+        Map<String, String> labels = LabelUtil.createLabels(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
@@ -205,7 +206,7 @@ public class PipelineMain {
                                                              final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
                                                              final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
                                                              final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
-        Map<String, String> labels = createLabels(arguments, metadata);
+        Map<String, String> labels = LabelUtil.createLabels(arguments, metadata);
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
@@ -255,24 +256,4 @@ public class PipelineMain {
         return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
     }
 
-    private static Map<String, String> createLabels(Arguments arguments, SomaticRunMetadata metadata) {
-        String sampleString;
-        if (metadata.maybeTumor().isPresent()) { // can be written in functional style but is less readable.
-            sampleString = metadata.maybeTumor().get().sampleName();
-        } else if (metadata.maybeReference().isPresent()) {
-            sampleString = metadata.maybeReference().get().sampleName();
-        } else {
-            throw new IllegalArgumentException("No sample string found, cannot construct labels.");
-        }
-        ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
-        mapBuilder.put("sample", sampleString);
-        arguments.runTag().ifPresent(l -> mapBuilder.put("run_id", cleanLabel(l)));
-        arguments.userLabel().ifPresent(l -> mapBuilder.put("user", cleanLabel(l)));
-        arguments.costCenterLabel().ifPresent(l -> mapBuilder.put("cost_center", cleanLabel(l)));
-        return mapBuilder.build();
-    }
-
-    private static String cleanLabel(String label) {
-        return label.toLowerCase().replace("_", "-").replace('.', '-');
-    }
 }
