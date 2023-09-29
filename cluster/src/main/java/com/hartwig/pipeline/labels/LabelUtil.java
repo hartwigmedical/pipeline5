@@ -22,7 +22,7 @@ public final class LabelUtil {
             throw new IllegalArgumentException("No sample string found, cannot construct labels.");
         }
         ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
-        mapBuilder.put("sample", sampleString);
+        mapBuilder.put("sample", cleanLabel(sampleString));
         arguments.runTag().ifPresent(l -> mapBuilder.put("run_id", cleanLabel(l)));
         arguments.userLabel().ifPresent(l -> mapBuilder.put("user", cleanLabel(l)));
         arguments.costCenterLabel().ifPresent(l -> mapBuilder.put("cost_center", cleanLabel(l)));
