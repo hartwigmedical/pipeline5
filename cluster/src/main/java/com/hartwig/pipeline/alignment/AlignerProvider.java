@@ -14,7 +14,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.bwa.BwaAligner;
 import com.hartwig.pipeline.alignment.persisted.PersistedAlignment;
 import com.hartwig.pipeline.execution.ComputeEngineUtil;
-
 import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
@@ -45,8 +44,8 @@ public abstract class AlignerProvider {
     }
 
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Map<String, String> labels)
-            throws Exception {
+            final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final Map<String, String> labels) throws Exception {
         ComputeEngine computeEngine = arguments.publishEventsOnly()
                 ? new NoOpComputeEngine()
                 : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels);

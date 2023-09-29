@@ -25,7 +25,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

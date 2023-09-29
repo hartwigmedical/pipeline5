@@ -20,7 +20,6 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.RunMetadata;
-
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.StorageUtil;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -38,7 +37,8 @@ public class StageRunner<M extends RunMetadata> {
     private final InputMode mode;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-                       final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Map<String, String> labels, final InputMode mode) {
+            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Map<String, String> labels,
+            final InputMode mode) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;

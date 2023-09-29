@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.labels;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-
-import java.util.Map;
 
 public final class LabelUtil {
 
