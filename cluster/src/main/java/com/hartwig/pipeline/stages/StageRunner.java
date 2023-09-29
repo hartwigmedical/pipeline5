@@ -2,6 +2,7 @@ package com.hartwig.pipeline.stages;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
@@ -19,7 +20,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.RunMetadata;
-import com.hartwig.pipeline.labels.Labels;
+
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.StorageUtil;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -33,11 +34,11 @@ public class StageRunner<M extends RunMetadata> {
     private final ComputeEngine computeEngine;
     private final ResultsDirectory resultsDirectory;
     private final StartingPoint startingPoint;
-    private final Labels labels;
+    private final Map<String, String> labels;
     private final InputMode mode;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels, final InputMode mode) {
+                       final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Map<String, String> labels, final InputMode mode) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;
@@ -56,7 +57,7 @@ public class StageRunner<M extends RunMetadata> {
                 RuntimeBucket bucket = RuntimeBucket.from(storage,
                         stage.namespace(),
                         arguments.region(),
-                        labels.asMap(),
+                        labels,
                         runIdentifier,
                         arguments.cmek().orElse(null));
                 BashStartupScript bash = BashStartupScript.of(bucket.name());

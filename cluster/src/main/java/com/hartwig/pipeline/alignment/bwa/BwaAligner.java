@@ -10,6 +10,7 @@ import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFi
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -39,7 +40,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.labels.Labels;
+
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
@@ -66,11 +67,11 @@ public class BwaAligner implements Aligner {
     private final SampleUpload sampleUpload;
     private final ResultsDirectory resultsDirectory;
     private final ExecutorService executorService;
-    private final Labels labels;
+    private final Map<String, String> labels;
 
     public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final PipelineInput input,
             final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService,
-            final Labels labels) {
+            final Map<String, String> labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -86,7 +87,7 @@ public class BwaAligner implements Aligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RunIdentifier runIdentifier = StorageUtil.runIdentifierFromArguments(metadata, arguments);
         RuntimeBucket rootBucket =
-                RuntimeBucket.from(storage, NAMESPACE, arguments.region(), labels.asMap(), runIdentifier, arguments.cmek().orElse(null));
+                RuntimeBucket.from(storage, NAMESPACE, arguments.region(), labels, runIdentifier, arguments.cmek().orElse(null));
 
         SampleInput sample = Inputs.sampleFor(input, metadata);
         if (sample.bam().isPresent()) {
@@ -107,7 +108,7 @@ public class BwaAligner implements Aligner {
             RuntimeBucket laneBucket = RuntimeBucket.from(storage,
                     laneNamespace(lane),
                     arguments.region(),
-                    labels.asMap(),
+                    labels,
                     runIdentifier,
                     arguments.cmek().orElse(null));
 

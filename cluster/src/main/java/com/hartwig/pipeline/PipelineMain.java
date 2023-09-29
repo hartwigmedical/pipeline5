@@ -1,13 +1,10 @@
 package com.hartwig.pipeline;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableMap;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.RunApi;
 import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
@@ -24,21 +21,10 @@ import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.ComputeEngineUtil;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.input.InputMode;
-import com.hartwig.pipeline.input.JsonPipelineInput;
-import com.hartwig.pipeline.input.MetadataProvider;
-import com.hartwig.pipeline.input.ModeResolver;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.labels.LabelsUtil;
+import com.hartwig.pipeline.input.*;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.NoopOutputPublisher;
-import com.hartwig.pipeline.output.OutputPublisher;
-import com.hartwig.pipeline.output.PipelineCompleteEventPublisher;
-import com.hartwig.pipeline.output.PipelineOutputComposerProvider;
-import com.hartwig.pipeline.output.VmExecutionLogSummary;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
@@ -50,11 +36,16 @@ import com.hartwig.pipeline.turquoise.PipelineCompleted;
 import com.hartwig.pipeline.turquoise.PipelineProperties;
 import com.hartwig.pipeline.turquoise.PipelineStarted;
 import com.hartwig.pipeline.turquoise.TurquoiseEvent;
-
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 
 public class PipelineMain {
 
@@ -184,17 +175,17 @@ public class PipelineMain {
     }
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
-            final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
-        Labels labels = LabelsUtil.fromArguments(arguments);
+                                                   final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
+                                                   final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
+                                                   final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
+                                                   final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+        Map<String, String> labels = createLabels(arguments, metadata);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
                         arguments.publishEventsOnly()
                                 ? new NoOpComputeEngine()
-                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels.asMap()),
+                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -210,17 +201,17 @@ public class PipelineMain {
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
-            final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
-            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
-        Labels labels = LabelsUtil.fromArguments(arguments, metadata);
+                                                             final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
+                                                             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+                                                             final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
+                                                             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+        Map<String, String> labels = createLabels(arguments, metadata);
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
                         arguments.publishEventsOnly()
                                 ? new NoOpComputeEngine()
-                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels.asMap()),
+                                : GoogleComputeEngine.from(ComputeEngineUtil.configFromArguments(arguments), credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -236,7 +227,7 @@ public class PipelineMain {
     }
 
     private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
-            final Storage storage, final Arguments arguments) {
+                                                           final Storage storage, final Arguments arguments) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         return new PipelineCompleteEventPublisher(sourceBucket, publisher, context, arguments.outputCram());
     }
@@ -262,5 +253,26 @@ public class PipelineMain {
 
     public static String completionMessage(final PipelineState state) {
         return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
+    }
+
+    private static Map<String, String> createLabels(Arguments arguments, SomaticRunMetadata metadata) {
+        String sampleString;
+        if (metadata.maybeTumor().isPresent()) { // can be written in functional style but is less readable.
+            sampleString = metadata.maybeTumor().get().sampleName();
+        } else if (metadata.maybeReference().isPresent()) {
+            sampleString = metadata.maybeReference().get().sampleName();
+        } else {
+            throw new IllegalArgumentException("No sample string found, cannot construct labels.");
+        }
+        ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
+        mapBuilder.put("sample", sampleString);
+        arguments.runTag().ifPresent(l -> mapBuilder.put("run_id", cleanLabel(l)));
+        arguments.userLabel().ifPresent(l -> mapBuilder.put("user", cleanLabel(l)));
+        arguments.costCenterLabel().ifPresent(l -> mapBuilder.put("cost_center", cleanLabel(l)));
+        return mapBuilder.build();
+    }
+
+    private static String cleanLabel(String label) {
+        return label.toLowerCase().replace("_", "-").replace('.', '-');
     }
 }

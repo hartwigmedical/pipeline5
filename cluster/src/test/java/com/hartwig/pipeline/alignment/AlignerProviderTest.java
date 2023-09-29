@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.labels.Labels;
+
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
