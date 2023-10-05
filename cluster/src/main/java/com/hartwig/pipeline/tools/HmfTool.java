@@ -14,7 +14,7 @@ public enum HmfTool {
     GRIDSS("2.13.2"),
     GRIPSS("2.3.5", 16, 24, 1, false),
     HEALTH_CHECKER("3.5"),
-    LILAC("1.5", 16, 24, 8, false),
+    LILAC("1.5.2", 16, 24, 8, false),
     LINX("1.24.1", 8, 16, 1, false),
     MARK_DUPS("1.0", 16, 24, 16, false),
     ORANGE("2.7.0", 16, 18, 4, false),
