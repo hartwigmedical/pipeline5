@@ -133,19 +133,16 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
             final RefGenomeVersion refGenomeVersion) throws Exception {
-        final PipelineMain victim = new PipelineMain();
-        final String fixtureDir = "smoke_test/" + inputMode + "/";
+        PipelineMain victim = new PipelineMain();
+        String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
-        final String randomRunId = noDots(RandomStringUtils.random(3, true, false));
-
+        String randomRunId = noDots(RandomStringUtils.random(3, true, false));
         String inputModeId = inputMode.equals(INPUT_MODE_TUMOR_REF) ? "tr" : (inputMode.equals(INPUT_MODE_TUMOR_ONLY) ? "t" : "r");
-
         String runTag = format("st_%s_%s_%s", imageVersion(), inputModeId, randomRunId);
-
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
-        final String setName = pipelineInput.setName() + "-" + runTag;
-        final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
+        String setName = pipelineInput.setName() + "-" + runTag;
+        ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson(sampleJson)

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class GSUtil {
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
 
     public static void cp(final String gsdkPath, final String sourceUrl, final String targetUrl) throws IOException, InterruptedException {
         cp(gsdkPath, sourceUrl, targetUrl, null, false);
