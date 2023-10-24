@@ -152,9 +152,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";
+        // TODO can we determine experiment type from pipeline metadata? Can be WGS or PANEL, hardcode to WGS for now
+        final String experimentType = "WGS";
         ImmutableList.Builder<String> argumentListBuilder = ImmutableList.<String>builder()
                 .add("-output_dir",
                         VmDirectories.OUTPUT,
+                        "-experiment_type",
+                        experimentType,
                         "-ref_genome_version",
                         resourceFiles.version().numeric(),
                         "-tumor_sample_id",

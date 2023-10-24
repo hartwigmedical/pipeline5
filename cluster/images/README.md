@@ -47,13 +47,17 @@ image as created by `./create_public_image.sh`.
 
 ```shell
 mkdir /path/to/pilot/jars/
-cp sage_pilot.jar /path/to/pilot/jars/sage_pilot.jar
+cp sage_pilot.jar /path/to/pilot/jars/sage.jar
 ./create_pilot_image.sh -s ${source_image} -d /path/to/pilot/jars/
 ```
 
 The resulting image will be created very quickly because it uses the public image as a base and overlays the pilot JARs, but is
-not designed for regular use. It can be utilised by passing the image argument to the Pipeline5 application but it will not have
-the same family as regular images so won't be auto-located.
+not designed for regular use. It can be utilised by passing the arguments `-image_project hmf-pipeline-development 
+-image_name {name_from_create_script}` to the Pipeline5 application, it will not have the same family as regular images so won't 
+be auto-located.
+
+In addition, `Hmftool.java` contains an enum with flags to enable pilot mode. Set the flag to true for the tool being tested before 
+compiling/running the Pipeline5 application with the above arguments.
 
 ## Creating a private image
 
