@@ -34,8 +34,7 @@ public class GSUtil {
         }
         command.add(sourceUrl);
         command.add(targetUrl);
-        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
-        Processes.run(processBuilder, VERBOSE, 0, TimeUnit.HOURS);
+        execute(command);
     }
 
     public static void rm(final String gsdkPath, final String path) {
@@ -45,12 +44,16 @@ public class GSUtil {
         command.add("rm");
         command.add("-r");
         command.add("gs://" + path);
-        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         try {
-            Processes.run(processBuilder, VERBOSE, 0, TimeUnit.HOURS);
+            execute(command);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void execute(List<String> command) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
+        Processes.run(processBuilder, VERBOSE, 2, TimeUnit.HOURS);
     }
 
     private static String gsutil(final String gsdkPath) {
