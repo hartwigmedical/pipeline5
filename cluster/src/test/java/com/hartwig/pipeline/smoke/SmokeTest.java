@@ -152,7 +152,8 @@ public class SmokeTest {
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion)
-                .serviceAccountEmail("pipeline5-build@hmf-build.iam.gserviceaccount.com");
+                .serviceAccountEmail("pipeline5-build@hmf-build.iam.gserviceaccount.com")
+                .project("hmf-build");
 
         Arguments arguments = builder.build();
         Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
@@ -183,5 +184,4 @@ public class SmokeTest {
     private String findCloudSdk() {
         return findCloudSdk(whoami);
     }
-
 }
