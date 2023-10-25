@@ -59,3 +59,4 @@ sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo chmod a+x /opt/tools/rmblast/2.10.0/rmblastn
 sudo chmod a+x /opt/tools/trf/4.0.9/trf
 sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
+sudo tar xvf /opt/tools/ncbi-blast/2.14.1/ncbi-blast.tar.gz -C /opt/tools/ncbi-blast/2.14.1/

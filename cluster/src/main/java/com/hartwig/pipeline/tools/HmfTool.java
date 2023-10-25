@@ -9,6 +9,7 @@ public enum HmfTool {
     AMBER("3.9", 32, 64, 16, false),
     BAM_TOOLS("1.1", 16, 24, 16, false),
     CHORD("2.02_1.14"),
+    CIDER("1.0.2", 12, 16, 4, false),
     COBALT("1.15.2", 20, 24, 16, false),
     CUPPA("1.8.1"),
     GRIDSS("2.13.2"),
@@ -24,6 +25,7 @@ public enum HmfTool {
     SAGE("3.3", 60, 64, 16, false),
     SIGS("1.1"),
     SV_PREP("1.2", 48, 64, 24, false),
+    TEAL("1.1.0", 30, 32, 16, false),
     VIRUSBREAKEND_GRIDSS("2.13.2"),
     VIRUS_INTERPRETER("1.3");
 

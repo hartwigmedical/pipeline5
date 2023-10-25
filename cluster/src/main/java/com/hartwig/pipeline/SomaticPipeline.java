@@ -30,6 +30,8 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
+import com.hartwig.pipeline.tertiary.cider.Cider;
+import com.hartwig.pipeline.tertiary.cider.CiderOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
@@ -55,6 +57,8 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
+import com.hartwig.pipeline.tertiary.teal.Teal;
+import com.hartwig.pipeline.tertiary.teal.TealOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
@@ -203,6 +207,15 @@ public class SomaticPipeline {
                                 new Cuppa(purpleOutput, linxSomaticOutput, virusInterpreterOutput, resourceFiles, persistedDataset)));
                         CuppaOutput cuppaOutput = composer.add(state.add(cuppaOutputFuture.get()));
                         SigsOutput sigsOutput = composer.add(state.add(signatureOutputFuture.get()));
+
+                        Future<CiderOutput> ciderOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Cider(pair, resourceFiles, persistedDataset)));
+                        CiderOutput ciderOutput = composer.add(state.add(ciderOutputFuture.get()));
+
+                        Future<TealOutput> tealOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Teal(pair, purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics, resourceFiles,
+                                        persistedDataset)));
+                        TealOutput tealOutput = composer.add(state.add(tealOutputFuture.get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
