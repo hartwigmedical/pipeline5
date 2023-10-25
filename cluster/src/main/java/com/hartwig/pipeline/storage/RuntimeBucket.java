@@ -54,7 +54,7 @@ public class RuntimeBucket {
                     .setStorageClass(StorageClass.REGIONAL)
                     .setLocation(arguments.region())
                     .setLabels(labels.asMap());
-            //arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
+            arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
             bucket = storage.create(builder.build());
         }
         return new RuntimeBucket(storage, bucket, namespace, runId);
