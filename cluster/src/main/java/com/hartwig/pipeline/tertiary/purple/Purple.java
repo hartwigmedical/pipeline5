@@ -172,6 +172,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)

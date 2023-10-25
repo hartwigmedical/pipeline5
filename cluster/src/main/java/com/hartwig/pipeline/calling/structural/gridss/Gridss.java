@@ -104,6 +104,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("gridss")
                 .startupCommand(bash)
                 .performanceProfile(custom(24, 64))

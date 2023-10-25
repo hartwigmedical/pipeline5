@@ -63,6 +63,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("virusbreakend")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)

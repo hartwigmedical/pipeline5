@@ -70,6 +70,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
 
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)

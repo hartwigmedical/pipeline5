@@ -238,6 +238,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)

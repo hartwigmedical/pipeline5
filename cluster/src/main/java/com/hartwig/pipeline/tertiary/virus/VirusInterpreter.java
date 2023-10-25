@@ -105,6 +105,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name(NAMESPACE)
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)

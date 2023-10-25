@@ -105,6 +105,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("linx-" + "somatic")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)

@@ -101,6 +101,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript script, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("bam-metrics")
                 .startupCommand(script)
                 .performanceProfile(custom(16, 32))

@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.stages.Stage.IMAGE_FAMILY;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -60,6 +61,7 @@ public interface SageConfiguration {
                 .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
                 .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
                         .name("sage-germline")
+                        .imageFamily(IMAGE_FAMILY)
                         .performanceProfile(custom(4, 20))
                         .startupCommand(startupScript)
                         .namespacedResults(resultsDirectory)
@@ -83,6 +85,7 @@ public interface SageConfiguration {
                         .targetRegionsMode(arguments.useTargetRegions()))
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName()))
                 .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
+                        .imageFamily(IMAGE_FAMILY)
                         .name("sage-somatic")
                         .startupCommand(startupScript)
                         .performanceProfile(custom(16, 64))

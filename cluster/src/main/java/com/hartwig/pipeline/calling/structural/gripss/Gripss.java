@@ -93,6 +93,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
                 .performanceProfile(custom(4, 24))

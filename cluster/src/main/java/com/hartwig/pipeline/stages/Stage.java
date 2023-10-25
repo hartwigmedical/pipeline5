@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.storage.ResultsDirectory;
@@ -13,8 +14,11 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.tools.VersionUtils;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {
+
+    String IMAGE_FAMILY = "pipeline5-" + VersionUtils.imageVersion();
 
     List<BashCommand> inputs();
 

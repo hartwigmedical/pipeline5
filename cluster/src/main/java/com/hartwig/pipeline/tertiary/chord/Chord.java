@@ -80,6 +80,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("chord")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)

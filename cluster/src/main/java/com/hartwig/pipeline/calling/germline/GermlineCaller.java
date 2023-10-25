@@ -129,6 +129,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("germline")
                 .startupCommand(bash)
                 .performanceProfile(custom(32, 40))

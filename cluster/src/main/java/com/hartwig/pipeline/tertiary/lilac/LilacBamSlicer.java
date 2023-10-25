@@ -75,6 +75,7 @@ public class LilacBamSlicer extends TertiaryStage<LilacBamSliceOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name(NAMESPACE.replaceAll("_", "-"))
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))

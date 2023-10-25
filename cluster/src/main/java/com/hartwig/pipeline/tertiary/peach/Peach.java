@@ -91,6 +91,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .name(NAMESPACE)
+                .imageFamily(IMAGE_FAMILY)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))

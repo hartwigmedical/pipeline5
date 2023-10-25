@@ -53,6 +53,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(bash)

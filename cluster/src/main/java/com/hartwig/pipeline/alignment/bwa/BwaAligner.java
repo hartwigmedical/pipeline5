@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
+import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -37,6 +38,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.ComputeEngineUtil;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -213,8 +215,11 @@ public class BwaAligner implements Aligner {
 
     public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
-        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
-                .get(() -> PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition)));
+//        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
+//                .get(() -> PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition)));
+
+        var res = PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition));
+        return res;
     }
 
     private static String laneNamespace(final LaneInput lane) {

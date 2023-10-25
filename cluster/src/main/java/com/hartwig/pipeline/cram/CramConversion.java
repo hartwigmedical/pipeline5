@@ -81,6 +81,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("cram")
+                .imageFamily(IMAGE_FAMILY)
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(NUMBER_OF_CORES, 6))
                 .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)

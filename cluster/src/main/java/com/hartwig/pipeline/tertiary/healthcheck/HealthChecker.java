@@ -101,6 +101,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("health-checker")
                 .startupCommand(bash)
                 .performanceProfile(custom(8, 32))

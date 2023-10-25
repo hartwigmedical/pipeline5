@@ -119,6 +119,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("lilac")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))

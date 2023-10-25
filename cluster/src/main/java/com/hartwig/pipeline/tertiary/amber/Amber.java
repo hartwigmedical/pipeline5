@@ -120,6 +120,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("amber")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
