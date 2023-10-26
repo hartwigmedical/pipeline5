@@ -134,7 +134,6 @@ class InstanceLifecycleManager {
         } catch (Exception e) {
             String message = format("Failed synchronous execution of [%s]", opName);
             LOGGER.error(message, e);
-            //            LOGGER.info("Request: {}", future.getInitialFuture());
             throw new RuntimeException(message, e);
         }
     }
