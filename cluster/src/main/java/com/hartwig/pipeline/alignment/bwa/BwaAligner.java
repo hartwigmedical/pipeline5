@@ -37,6 +37,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -51,6 +52,8 @@ import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.storage.StorageUtil;
 import com.hartwig.pipeline.tools.VersionUtils;
 import com.hartwig.pipeline.trace.StageTrace;
+
+import net.jodah.failsafe.Failsafe;
 
 public class BwaAligner implements Aligner {
 
@@ -210,11 +213,8 @@ public class BwaAligner implements Aligner {
 
     public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
-        //        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
-        //                .get(() -> PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition)));
-
-        var res = PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition));
-        return res;
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
+                .get(() -> PipelineStatus.of(computeEngine.submit(laneBucket, jobDefinition)));
     }
 
     private static String laneNamespace(final LaneInput lane) {
