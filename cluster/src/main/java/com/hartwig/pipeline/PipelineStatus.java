@@ -26,7 +26,7 @@ public enum PipelineStatus {
             case PREEMPTED:
                 return PipelineStatus.PREEMPTED;
             default:
-                throw new IllegalStateException(String.format("Enum value [%s] not recognized", computeEngineStatus));
+                throw new IllegalArgumentException(String.format("Enum value [%s] not recognized", computeEngineStatus));
         }
     }
 
