@@ -47,6 +47,39 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
         this.stageCrams = stageCrams;
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static AnalysisOutputBlob createBlob(final Optional<String> tumorSample, final Optional<String> referenceSample,
+            final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
+        return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithMd5.getName()).datatype(dataType.map(
+                        AddDatatype::dataType).map(Object::toString))
+                .barcode(dataType.map(AddDatatype::barcode))
+                .bucket(blobWithMd5.getBucket())
+                .filesize(blobWithMd5.getSize())
+                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                .build();
+    }
+
+    private static ImmutableAnalysisOutputBlob.Builder builderWithPathComponents(final String tumorSample, final String refSample,
+            final String blobName) {
+        ImmutableAnalysisOutputBlob.Builder outputBlob = AnalysisOutputBlob.builder();
+        String[] splitName = blobName.split("/");
+        boolean rootFile = splitName.length == 2;
+        boolean singleSample = splitName.length > 3 && (splitName[1].equals(tumorSample) || splitName[1].equals(refSample));
+        if (rootFile) {
+            outputBlob.root(splitName[0]).filename(splitName[1]);
+        } else if (singleSample) {
+            outputBlob.root(splitName[0])
+                    .sampleSubdir(splitName[1])
+                    .namespace(splitName[2])
+                    .filename(String.join("/", Arrays.copyOfRange(splitName, 3, splitName.length)));
+        } else {
+            outputBlob.root(splitName[0])
+                    .namespace(splitName[1])
+                    .filename(String.join("/", Arrays.copyOfRange(splitName, 2, splitName.length)));
+        }
+        return outputBlob;
+    }
+
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
         if (state.status() != PipelineStatus.FAILED && metadata.maybeExternalIds().isPresent()) {
             List<AddDatatype> addDatatypes =
@@ -87,18 +120,6 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
         }
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private static AnalysisOutputBlob createBlob(final Optional<String> tumorSample, final Optional<String> referenceSample,
-            final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
-        return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithMd5.getName()).datatype(dataType.map(
-                        AddDatatype::dataType).map(Object::toString))
-                .barcode(dataType.map(AddDatatype::barcode))
-                .bucket(blobWithMd5.getBucket())
-                .filesize(blobWithMd5.getSize())
-                .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                .build();
-    }
-
     @NotNull
     private ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
         return ImmutableAnalysis.builder().molecule(Analysis.Molecule.DNA).type(secondary);
@@ -116,7 +137,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
     private boolean isGermline(final Blob blobWithMd5) {
         return InNamespace.of(GermlineCaller.NAMESPACE)
                 .or(InNamespace.of(SageConfiguration.SAGE_GERMLINE_NAMESPACE))
-                .or(b -> b.getName().contains("germline"))
+                .or(b -> b.getName().contains("germline") && !b.getName().contains("no_germline"))
                 .test(blobWithMd5);
     }
 
@@ -128,26 +149,5 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
         if (event.pipeline().analyses().stream().map(Analysis::output).mapToLong(List::size).sum() > 0) {
             publisher.publish(event);
         }
-    }
-
-    private static ImmutableAnalysisOutputBlob.Builder builderWithPathComponents(final String tumorSample, final String refSample,
-            final String blobName) {
-        ImmutableAnalysisOutputBlob.Builder outputBlob = AnalysisOutputBlob.builder();
-        String[] splitName = blobName.split("/");
-        boolean rootFile = splitName.length == 2;
-        boolean singleSample = splitName.length > 3 && (splitName[1].equals(tumorSample) || splitName[1].equals(refSample));
-        if (rootFile) {
-            outputBlob.root(splitName[0]).filename(splitName[1]);
-        } else if (singleSample) {
-            outputBlob.root(splitName[0])
-                    .sampleSubdir(splitName[1])
-                    .namespace(splitName[2])
-                    .filename(String.join("/", Arrays.copyOfRange(splitName, 3, splitName.length)));
-        } else {
-            outputBlob.root(splitName[0])
-                    .namespace(splitName[1])
-                    .filename(String.join("/", Arrays.copyOfRange(splitName, 2, splitName.length)));
-        }
-        return outputBlob;
     }
 }

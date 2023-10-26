@@ -40,6 +40,7 @@ public class PipelineCompleteEventPublisherTest {
     private PipelineCompleteEventPublisher victim;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn("bucket");
@@ -56,18 +57,18 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     @Test
-    public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
+    public void publishesDnaSecondaryAnalysisOnBam() {
         victim = new PipelineCompleteEventPublisher(bucket, publisher, Pipeline.Context.DIAGNOSTIC, false);
         verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 
     @Test
-    public void publishesDnaSecondaryAnalysisOnCram() throws Exception {
+    public void publishesDnaSecondaryAnalysisOnCram() {
         verifySecondaryAnalysis("cram", "crai", "cram");
     }
 
     @Test
-    public void publishesDnaTertiaryAnalysisOnVcf() throws Exception {
+    public void publishesDnaTertiaryAnalysisOnVcf() {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Page<Blob> page = pageOf(vcf);
@@ -78,23 +79,34 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     @Test
-    public void publishesGermlineAnalysisOnGatkGermlineVcf() throws Exception {
+    public void publishesGermlineAnalysisOnGatkGermlineVcf() {
         verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/germline_caller/");
     }
 
     @Test
-    public void publishesGermlineAnalysisOnGatkGermlineVcfIndex() throws Exception {
+    public void publishesGermlineAnalysisOnGatkGermlineVcfIndex() {
         verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi", "/germline_caller/");
     }
 
     @Test
-    public void publishesGermlineAnalysisOnSageGermlineVcf() throws Exception {
+    public void publishesGermlineAnalysisOnSageGermlineVcf() {
         verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/sage_germline/");
     }
 
     @Test
-    public void publishesGermlineAnalysisOnPurpleGermlineVcf() throws Exception {
+    public void publishesGermlineAnalysisOnPurpleGermlineVcf() {
         verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/purple/");
+    }
+
+    @Test
+    public void publishesDnaTertiaryAnalysisOnNonGermlineOrange() {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob pdf = withBucketAndMd5(blob("/orange_no_germline/" + TestInputs.tumorSample() + ".pdf"));
+        Page<Blob> page = pageOf(pdf);
+        PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
+        assertThat(result.pipeline().analyses().get(1).type()).isEqualTo(Analysis.Type.SOMATIC);
+        assertThat(result.pipeline().analyses().get(1).output()).extracting(AnalysisOutputBlob::filename)
+                .containsExactlyInAnyOrder("tumor.pdf");
     }
 
     @Test
@@ -107,7 +119,7 @@ public class PipelineCompleteEventPublisherTest {
     }
 
     @Test
-    public void usesDatatypeAndBarcodeWhenFileMatched() throws Exception {
+    public void usesDatatypeAndBarcodeWhenFileMatched() {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         String path = TestInputs.referenceSample() + "/germline_caller/reference.germline.vcf.gz";
         Blob vcf = withBucketAndMd5(blob(path));
