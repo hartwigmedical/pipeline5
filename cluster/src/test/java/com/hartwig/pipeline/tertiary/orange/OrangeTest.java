@@ -83,10 +83,6 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     @Test
     public void shouldAddResearchDisclaimerWhenResearchContext() {
         Orange victim = constructOrange(Pipeline.Context.RESEARCH, true);
-        BashCommand x = orangeCommand(victim);
-        String y = x.asBash();
-        assertThat(y).contains("-add_disclaimer");
-
         assertThat(orangeCommand(victim).asBash()).contains("-add_disclaimer");
     }
 
