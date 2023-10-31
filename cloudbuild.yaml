@@ -43,6 +43,7 @@ steps:
         name: 'm2_cache'
   - name: 'eu.gcr.io/hmf-build/docker-tag'
     id: 'Publish Docker image'
+    dir: cluster
     args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME']
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
