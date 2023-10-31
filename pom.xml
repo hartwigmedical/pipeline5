@@ -330,10 +330,6 @@
     </reporting>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>artifact-registry</id>
-            <url>artifactregistry://europe-west4-maven.pkg.dev/hmf-build/hmf-maven</url>
-        </snapshotRepository>
         <repository>
             <id>artifact-registry</id>
             <url>artifactregistry://europe-west4-maven.pkg.dev/hmf-build/hmf-maven</url>
