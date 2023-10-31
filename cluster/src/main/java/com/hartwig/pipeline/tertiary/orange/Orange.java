@@ -212,7 +212,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         }
         metadata.tumor()
                 .samplingDate()
-                .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
+                .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
 
         return List.of(new MkDirCommand(linxPlotDir),
