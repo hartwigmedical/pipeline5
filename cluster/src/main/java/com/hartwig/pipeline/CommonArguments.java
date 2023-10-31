@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
-import org.apache.commons.cli.CommandLine;
-
 public interface CommonArguments {
 
     String PROJECT = "project";
@@ -16,7 +14,6 @@ public interface CommonArguments {
     String PREEMPTIBLE_VMS = "preemptible_vms";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
-    String PRIVATE_KEY_PATH = "private_key_path";
     String CMEK = "cmek";
     String PRIVATE_NETWORK = "network";
     String SUBNET = "subnet";
@@ -36,8 +33,6 @@ public interface CommonArguments {
     String DEFAULT_REGION = "europe-west4";
 
     String project();
-
-    Optional<String> privateKeyPath();
 
     String cloudSdkPath();
 
@@ -80,11 +75,4 @@ public interface CommonArguments {
     Optional<String> userLabel();
 
     boolean useTargetRegions();
-
-    static Optional<String> privateKey(final CommandLine commandLine) {
-        if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
-            return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));
-        }
-        return Optional.empty();
-    }
 }
