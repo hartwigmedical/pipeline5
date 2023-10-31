@@ -46,6 +46,6 @@ steps:
     dir: cluster
     args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME']
 images:
-  - eu.gcr.io/$PROJECT_ID/pipeline5
+  - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
