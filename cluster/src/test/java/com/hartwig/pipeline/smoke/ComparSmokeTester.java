@@ -13,12 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.util.List;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -33,16 +33,14 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 
 public class ComparSmokeTester {
-    private final List<String> expectedFiles;
-    private final String pipelineBucket;
-    private String localDir;
-    private String runTag;
-
     private static final String PIPELINE_BUCKET = "pipeline_bucket";
     private static final String LOCAL_DIR = "local_dir";
     private static final String RUN_TAG = "run_tag";
-
     private static final String SAMPLE_ID = "COLO829v003";
+    private final List<String> expectedFiles;
+    private final String pipelineBucket;
+    private final String localDir;
+    private final String runTag;
 
     public ComparSmokeTester(final CommandLine cmd) {
         expectedFiles = Lists.newArrayList();
@@ -53,13 +51,37 @@ public class ComparSmokeTester {
         runTag = cmd.getOptionValue(RUN_TAG);
     }
 
+    private static String fixtureDir() {
+        return "smoke_test/" + INPUT_MODE_TUMOR_REF + File.separator;
+    }
+
+    private static String pipelineTruthsetDir() {
+        return fixtureDir() + "truthset";
+    }
+
+    public static void main(@NotNull final String[] args) throws ParseException {
+        Options options = new Options();
+
+        options.addOption(PIPELINE_BUCKET, true, "Pipeline bucket");
+        options.addOption(LOCAL_DIR, true, "Codong to amino acid mappings");
+        options.addOption(RUN_TAG, true, "Gene exon definitions");
+
+        final CommandLineParser parser = new DefaultParser();
+        final CommandLine cmd = parser.parse(options, args);
+
+        Configurator.setRootLevel(Level.DEBUG);
+
+        ComparSmokeTester comparSmokeTester = new ComparSmokeTester(cmd);
+        comparSmokeTester.run();
+    }
+
     public void run() {
 
-        if(pipelineBucket != null) {
+        if (pipelineBucket != null) {
             testBucketPipelineResults();
         }
 
-        if(localDir != null) {
+        if (localDir != null) {
             testLocalPipelineResults();
         }
     }
@@ -70,19 +92,10 @@ public class ComparSmokeTester {
             File expectedFilesResource = new File(Resources.testResource(fixtureDir() + "expected_output_files"));
 
             expectedFiles.addAll(FileUtils.readLines(expectedFilesResource, FILE_ENCODING));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    private static String fixtureDir() {
-        return "smoke_test/" + INPUT_MODE_TUMOR_REF + File.separator;
-    }
-
-    private static String pipelineTruthsetDir() {
-        return fixtureDir() + "truthset";
     }
 
     private String setName() {
@@ -108,15 +121,14 @@ public class ComparSmokeTester {
         Arguments arguments = builder.build();
 
         try {
-            Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+            Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
             List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
             assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
             ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
                     .isEqualToTruthset(Resources.testResource(pipelineTruthsetDir()))
                     .cleanup();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -130,21 +142,5 @@ public class ComparSmokeTester {
         String truthSet = Resources.testResource(pipelineTruthsetDir());
 
         localPipelineResults.isEqualToTruthset(truthSet);
-    }
-
-    public static void main(@NotNull final String[] args) throws ParseException {
-        Options options = new Options();
-
-        options.addOption(PIPELINE_BUCKET, true, "Pipeline bucket");
-        options.addOption(LOCAL_DIR, true, "Codong to amino acid mappings");
-        options.addOption(RUN_TAG, true, "Gene exon definitions");
-
-        final CommandLineParser parser = new DefaultParser();
-        final CommandLine cmd = parser.parse(options, args);
-
-        Configurator.setRootLevel(Level.DEBUG);
-
-        ComparSmokeTester comparSmokeTester = new ComparSmokeTester(cmd);
-        comparSmokeTester.run();
     }
 }
