@@ -20,7 +20,7 @@ public enum HmfTool {
     ORANGE("2.6.1", 16, 18, 4, false),
     PAVE("1.5", 16, 24, 1, false),
     PEACH("1.7"),
-    PURPLE("3.9.2", 24, 32, 8, false),
+    PURPLE("3.9.2", 31, 32, 8, false),
     SAGE("3.3", 60, 64, 16, false),
     SIGS("1.1"),
     SV_PREP("1.2", 48, 64, 24, false),
