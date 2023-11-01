@@ -157,11 +157,6 @@ public class Teal extends TertiaryStage<TealOutput> {
                 .build();
     }
 
-    // <refSampleId>.teal.tellength.tsv
-    // <refSampleId>.teal.telbam.bam
-    // <tumorSampleId>.teal.tellength.tsv
-    // <tumorSampleId>.teal.telbam.bam
-    // <tumorSampleId>.teal.breakend.tsv.gz
     @Override
     public TealOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
