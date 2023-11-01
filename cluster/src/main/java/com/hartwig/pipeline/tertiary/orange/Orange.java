@@ -152,9 +152,12 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
         String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";
+        final String experimentType = "WGS";
         ImmutableList.Builder<String> argumentListBuilder = ImmutableList.<String>builder()
                 .add("-output_dir",
                         VmDirectories.OUTPUT,
+                        "-experiment_type",
+                        experimentType,
                         "-ref_genome_version",
                         resourceFiles.version().numeric(),
                         "-tumor_sample_id",
@@ -209,11 +212,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         }
         metadata.tumor()
                 .samplingDate()
-                .ifPresent(sd -> argumentListBuilder.add("-experiment_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
+                .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
 
-        return List.of(new MkDirCommand(linxPlotDir),
-                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 orangeJarCommand);
     }
 
