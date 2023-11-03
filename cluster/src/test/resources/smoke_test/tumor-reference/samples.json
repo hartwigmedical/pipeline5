@@ -3,6 +3,7 @@
   "tumor": {
     "type": "TUMOR",
     "name": "COLO829v003T",
+    "turquoiseSubject": "COLO829v003T",
     "barcode": "FR10101011",
     "lanes": [
       {
@@ -30,6 +31,7 @@
   "reference": {
     "type": "REFERENCE",
     "name": "COLO829v003R",
+    "turquoiseSubject": "COLO829v003R",
     "barcode": "FR10101010",
     "lanes": [
       {

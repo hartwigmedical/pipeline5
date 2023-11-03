@@ -5,8 +5,6 @@ import static com.hartwig.pipeline.testsupport.TestInputs.SET;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -24,7 +22,7 @@ public class RunTest {
     }
 
     private static SingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {
-        return SingleSampleRunMetadata.builder().type(type).barcode(sampleId).bucket(BUCKET).set(SET).build();
+        return SingleSampleRunMetadata.builder().type(type).barcode(sampleId).turquoiseSubject(sampleId).bucket(BUCKET).set(SET).build();
     }
 
     @Test

@@ -154,9 +154,7 @@ public class PipelineMain {
             apiStatusUpdateOrNot.start();
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
-                    .sample(somaticRunMetadata.maybeTumor()
-                            .map(SingleSampleRunMetadata::sampleName)
-                            .orElseGet(() -> somaticRunMetadata.reference().sampleName()))
+                    .sample(collectTurquoiseSubject(somaticRunMetadata))
                     .runId(arguments.sbpApiRunId())
                     .set(somaticRunMetadata.set())
                     .referenceBarcode(somaticRunMetadata.maybeReference().map(SingleSampleRunMetadata::barcode))
@@ -220,6 +218,12 @@ public class PipelineMain {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String collectTurquoiseSubject(final SomaticRunMetadata somaticRunMetadata) {
+        return somaticRunMetadata.maybeTumor()
+                .map(SingleSampleRunMetadata::turquoiseSubject)
+                .orElseGet(() -> somaticRunMetadata.reference().turquoiseSubject());
     }
 
     @NotNull

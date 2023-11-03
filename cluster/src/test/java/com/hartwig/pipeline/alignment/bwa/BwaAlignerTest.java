@@ -48,7 +48,7 @@ public class BwaAlignerTest {
         sampleUpload = mock(SampleUpload.class);
         PipelineInput input = PipelineInput.builder()
                 .setName(TestInputs.SET)
-                .reference(SampleInput.builder().name(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).turquoiseSubject(METADATA.turquoiseSubject()).addLanes(lane(1)).addLanes(lane(2)).build())
                 .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
@@ -101,7 +101,7 @@ public class BwaAlignerTest {
         String gsUrl = "gs://bucket/path/reference.bam";
         PipelineInput input = PipelineInput.builder()
                 .setName(METADATA.set())
-                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).turquoiseSubject(METADATA.turquoiseSubject()).bam(gsUrl).build())
                 .build();
         victim = new BwaAligner(arguments,
                 computeEngine,
