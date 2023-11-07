@@ -195,3 +195,13 @@ virusbreakend/COLO829v003T.virusbreakend.vcf.summary.tsv
 virusbreakend/run.log
 virusintrprtr/COLO829v003T.virus.annotated.tsv
 virusintrprtr/run.log
+cider/COLO829v003T.cider.bam
+cider/COLO829v003T.cider.blastn_match.tsv.gz
+cider/COLO829v003T.cider.layout.gz
+cider/COLO829v003T.cider.locus_stats.tsv
+cider/COLO829v003T.cider.vdj.tsv.gz
+cider/run.log
+teal/COLO829v003T.teal.telbam.bam
+teal/COLO829v003T.teal.tellength.tsv
+teal/COLO829v003T.teal.telread.tsv.gz
+teal/run.log

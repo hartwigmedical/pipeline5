@@ -105,3 +105,7 @@ sage_germline/COLO829v003R.sage.germline.vcf.gz
 sage_germline/COLO829v003R.sage.germline.vcf.gz.tbi
 sage_germline/run.log
 sage_germline/run.sh
+teal/COLO829v003R.teal.telbam.bam
+teal/COLO829v003R.teal.tellength.tsv
+teal/COLO829v003R.teal.telread.tsv.gz
+teal/run.log

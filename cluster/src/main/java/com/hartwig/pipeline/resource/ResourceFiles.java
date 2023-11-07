@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.BLAST_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
@@ -121,6 +122,10 @@ public interface ResourceFiles {
 
     default String peachFilterBed() {
         return of(PEACH, "peach.json");
+    }
+
+    default String blastDb() {
+        return ResourceFiles.of(BLAST_DB);
     }
 
     default String formPath(final String name, final String file) {
