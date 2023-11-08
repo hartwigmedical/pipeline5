@@ -28,7 +28,7 @@ public class CloudSampleUploadTest {
             .laneNumber("")
             .flowCellId("")
             .build();
-    private static final SampleInput SAMPLE_ONE_LANE = SampleInput.builder().name(SAMPLE_NAME).addLanes(LANE_1).build();
+    private static final SampleInput SAMPLE_ONE_LANE = SampleInput.builder().name(SAMPLE_NAME).turquoiseSubject(SAMPLE_NAME).addLanes(LANE_1).build();
     private static final String TARGET_PATH = "gs://run/samples/TEST123/";
     private CloudCopy cloudCopy;
     private CloudSampleUpload victim;

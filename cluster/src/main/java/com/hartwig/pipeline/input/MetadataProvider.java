@@ -32,6 +32,7 @@ public class MetadataProvider {
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
                         .barcode(barcodeOrSampleName(t))
                         .sampleName(t.name())
+                        .turquoiseSubject(t.turquoiseSubject())
                         .primaryTumorDoids(t.primaryTumorDoids())
                         .samplingDate(t.samplingDate())
                         .build()))
@@ -41,6 +42,7 @@ public class MetadataProvider {
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                         .barcode(barcodeOrSampleName(r))
                         .sampleName(r.name())
+                        .turquoiseSubject(r.turquoiseSubject())
                         .build()))
                 .maybeExternalIds(pipelineInput.operationalReferences())
                 .build();

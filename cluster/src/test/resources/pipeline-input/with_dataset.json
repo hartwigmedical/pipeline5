@@ -2,6 +2,7 @@
   "setName": "CPCT12345678",
   "tumor": {
     "name": "CPCT12345678T",
+    "turquoiseSubject": "COLO829v003T",
     "lanes": [
       {
         "directory": "bucket_name",
@@ -13,6 +14,7 @@
   },
   "reference": {
     "name": "CPCT12345678R",
+    "turquoiseSubject": "COLO829v003R",
     "lanes": [
       {
         "directory": "bucket_name",
