@@ -20,9 +20,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -61,11 +61,6 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public String namespace() {
-        return NAMESPACE;
-    }
-
-    @Override
     public List<BashCommand> inputs() {
         List<BashCommand> result = new ArrayList<>();
         result.add(purpleGeneCopyNumber);
@@ -75,6 +70,21 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         result.add(initialiseOptionalLocation(slicedOutput.tumorIndex()));
         result.add(initialiseOptionalLocation(slicedOutput.referenceIndex()));
         return result;
+    }
+
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), slicedTumor.getLocalTargetPath())));
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), slicedReference.getLocalTargetPath())));
     }
 
     @Override
@@ -89,39 +99,11 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), slicedReference.getLocalTargetPath())));
-    }
-
-    @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), slicedTumor.getLocalTargetPath())));
-    }
-
-    private List<String> commonArguments(final String sampleName, final String bamFile) {
-        List<String> arguments = Lists.newArrayList();
-
-        arguments.add(String.format("-sample %s", sampleName));
-        arguments.add(String.format("-reference_bam %s", bamFile));
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
-        arguments.add(String.format("-resource_dir %s", resourceFiles.lilacResources()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
-
-        return arguments;
-    }
-
-    private JavaJarCommand formCommand(final List<String> arguments) {
-        return new JavaJarCommand(LILAC, arguments);
-    }
-
-    @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("lilac")
                 .startupCommand(bash)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(LILAC.getCpus(), LILAC.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -175,6 +157,24 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow();
+    }
+
+    private List<String> commonArguments(final String sampleName, final String bamFile) {
+        List<String> arguments = Lists.newArrayList();
+
+        arguments.add(String.format("-sample %s", sampleName));
+        arguments.add(String.format("-reference_bam %s", bamFile));
+        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
+        arguments.add(String.format("-resource_dir %s", resourceFiles.lilacResources()));
+        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(String.format("-threads %s", Bash.allCpus()));
+
+        return arguments;
+    }
+
+    private JavaJarCommand formCommand(final List<String> arguments) {
+        return new JavaJarCommand(LILAC, arguments);
     }
 
     private String lilacOutput(final String sampleName) {

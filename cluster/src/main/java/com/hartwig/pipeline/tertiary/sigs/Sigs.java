@@ -58,28 +58,13 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return buildCommands(metadata);
-    }
-
-    @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return buildCommands(metadata);
     }
 
-    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaJarCommand(SIGS, buildArguments(metadata)));
-    }
-
-    private List<String> buildArguments(final SomaticRunMetadata metadata) {
-        return List.of("-sample",
-                metadata.tumor().sampleName(),
-                "-signatures_file",
-                resourceFiles.snvSignatures(),
-                "-somatic_vcf_file",
-                purpleSomaticVariantsDownload.getLocalTargetPath(),
-                "-output_dir",
-                VmDirectories.OUTPUT);
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return buildCommands(metadata);
     }
 
     @Override
@@ -88,7 +73,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(SIGS.getCpus(), SIGS.getMemoryGb()))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -103,13 +88,6 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
-    }
-
-    @Override
-    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
-        return List.of(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
-                metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), allocationTsv(metadata))));
     }
 
     @Override
@@ -129,8 +107,30 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        return List.of(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
+                metadata.barcode(),
+                new ArchivePath(Folder.root(), namespace(), allocationTsv(metadata))));
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary() && !arguments.useTargetRegions();
+    }
+
+    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
+        return List.of(new JavaJarCommand(SIGS, buildArguments(metadata)));
+    }
+
+    private List<String> buildArguments(final SomaticRunMetadata metadata) {
+        return List.of("-sample",
+                metadata.tumor().sampleName(),
+                "-signatures_file",
+                resourceFiles.snvSignatures(),
+                "-somatic_vcf_file",
+                purpleSomaticVariantsDownload.getLocalTargetPath(),
+                "-output_dir",
+                VmDirectories.OUTPUT);
     }
 
     private String allocationTsv(final SomaticRunMetadata metadata) {
