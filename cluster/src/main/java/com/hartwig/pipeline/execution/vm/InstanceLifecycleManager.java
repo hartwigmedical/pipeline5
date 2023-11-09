@@ -142,7 +142,7 @@ class InstanceLifecycleManager {
         return Failsafe.with(new RetryPolicy<>().handle(Exception.class)
                 .withDelay(Duration.ofSeconds(pollInterval))
                 .withMaxRetries(MAX_RETRIES)
-                .onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.error("[{}] failed: {}",
+                .onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.warn("[{}] failed but will be retried: {}",
                         opName,
                         rExecutionAttemptedEvent.getLastFailure().getMessage()))).get(operationCheckedSupplier);
     }
