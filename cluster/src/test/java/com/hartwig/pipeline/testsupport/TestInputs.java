@@ -97,8 +97,8 @@ public class TestInputs {
     public static PipelineInput pipelineInput() {
         return PipelineInput.builder()
                 .setName(SET)
-                .reference(SampleInput.builder().name(REFERENCE_SAMPLE).build())
-                .tumor(SampleInput.builder().name(TUMOR_SAMPLE).build())
+                .reference(SampleInput.builder().name(REFERENCE_SAMPLE).turquoiseSubject(REFERENCE_SAMPLE).build())
+                .tumor(SampleInput.builder().name(TUMOR_SAMPLE).turquoiseSubject(REFERENCE_SAMPLE).build())
                 .build();
     }
 
@@ -159,6 +159,7 @@ public class TestInputs {
                 .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                 .barcode(referenceAlignmentOutput().sample())
+                .turquoiseSubject(referenceAlignmentOutput().sample())
                 .build();
     }
 
@@ -169,6 +170,7 @@ public class TestInputs {
                 .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.TUMOR)
                 .barcode(tumorAlignmentOutput().sample())
+                .turquoiseSubject(tumorAlignmentOutput().sample())
                 .primaryTumorDoids(List.of("01", "02"))
                 .samplingDate(LocalDate.of(2023, 5, 19))
                 .build();

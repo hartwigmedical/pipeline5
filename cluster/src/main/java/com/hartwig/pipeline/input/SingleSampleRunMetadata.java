@@ -29,6 +29,8 @@ public interface SingleSampleRunMetadata extends RunMetadata {
         return -1;
     }
 
+    String turquoiseSubject();
+
     String barcode();
 
     SampleType type();
