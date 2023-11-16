@@ -16,9 +16,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -36,9 +36,8 @@ import org.jetbrains.annotations.NotNull;
 @Namespace(Peach.NAMESPACE)
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "peach";
-    private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     public static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
-
+    private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     private final InputDownload purpleGermlineVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
@@ -69,31 +68,13 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
     }
 
-    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
-        return List.of(new Python3Command(PEACH.getToolName(),
-                PEACH.runVersion(),
-                "src/main.py",
-                List.of("--vcf",
-                        purpleGermlineVariantsDownload.getLocalTargetPath(),
-                        "--sample_t_id",
-                        filenameId,
-                        "--sample_r_id",
-                        referenceId,
-                        "--tool_version",
-                        PEACH.runVersion(),
-                        "--outputdir",
-                        VmDirectories.OUTPUT,
-                        "--panel",
-                        resourceFiles.peachFilterBed())));
-    }
-
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(PEACH.getCpus(), PEACH.getMemoryGb()))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -108,11 +89,6 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
-    }
-
-    @NotNull
-    protected String genotypeTsv(final String sampleName) {
-        return sampleName + PEACH_GENOTYPE_TSV;
     }
 
     @Override
@@ -133,11 +109,6 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary();
-    }
-
-    @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         return List.of(new AddDatatype(DataType.PEACH_CALLS,
                         metadata.barcode(),
@@ -145,5 +116,33 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 new AddDatatype(DataType.PEACH_GENOTYPE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), genotypeTsv(metadata.sampleName()))));
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return !arguments.shallow() && arguments.runTertiary();
+    }
+
+    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
+        return List.of(new Python3Command(PEACH.getToolName(),
+                PEACH.runVersion(),
+                "src/main.py",
+                List.of("--vcf",
+                        purpleGermlineVariantsDownload.getLocalTargetPath(),
+                        "--sample_t_id",
+                        filenameId,
+                        "--sample_r_id",
+                        referenceId,
+                        "--tool_version",
+                        PEACH.runVersion(),
+                        "--outputdir",
+                        VmDirectories.OUTPUT,
+                        "--panel",
+                        resourceFiles.peachFilterBed())));
+    }
+
+    @NotNull
+    protected String genotypeTsv(final String sampleName) {
+        return sampleName + PEACH_GENOTYPE_TSV;
     }
 }

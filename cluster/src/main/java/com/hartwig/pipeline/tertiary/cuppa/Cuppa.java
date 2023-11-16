@@ -2,6 +2,8 @@ package com.hartwig.pipeline.tertiary.cuppa;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -17,9 +19,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -34,7 +36,6 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-import com.hartwig.pipeline.tools.HmfTool;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,37 +76,13 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return cuppaCommands(metadata);
-    }
-
-    @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return cuppaCommands(metadata);
     }
 
-    @NotNull
-    private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
-
-        List<String> cuppaArguments = Lists.newArrayList(
-                "-categories DNA",
-                format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
-                format("-ref_genome_version %s", resourceFiles.version().toString()),
-                format("-sample %s", metadata.tumor().sampleName()),
-                format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
-                format("-output_dir %s", VmDirectories.OUTPUT),
-                "-create_pdf");
-
-        String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
-
-        List<String> chartArguments = Lists.newArrayList(
-                format("-sample %s", metadata.tumor().sampleName()),
-                format("-sample_data %s", cuppaOutputFile),
-                format("-output_dir %s", VmDirectories.OUTPUT));
-
-        return List.of(
-                new JavaJarCommand(HmfTool.CUPPA, cuppaArguments),
-                new Python3Command("cuppa-chart", HmfTool.CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return cuppaCommands(metadata);
     }
 
     @Override
@@ -114,7 +91,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(CUPPA.getCpus(), CUPPA.getMemoryGb()))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -135,30 +112,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
-    }
-
-    private String cupReportSummaryPng(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_REPORT_SUMMARY_PNG;
-    }
-
-    private String cupDataCsv(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_DATA_CSV;
-    }
-
-    private String cuppaFeaturePlot(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
-    }
-
-    private String cuppaReport(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_REPORT;
-    }
-
-    private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
-    }
-
-    private String cuppaConclusionChart(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_CHART;
     }
 
     @Override
@@ -211,8 +164,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cupDataCsv(metadata))),
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
+                        metadata.barcode(), new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
                 new AddDatatype(DataType.CUPPA_REPORT,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cuppaReport(metadata))));
@@ -221,5 +173,50 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary() && !arguments.useTargetRegions();
+    }
+
+    @NotNull
+    private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
+
+        List<String> cuppaArguments = Lists.newArrayList("-categories DNA",
+                format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
+                format("-ref_genome_version %s", resourceFiles.version().toString()),
+                format("-sample %s", metadata.tumor().sampleName()),
+                format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
+                format("-output_dir %s", VmDirectories.OUTPUT),
+                "-create_pdf");
+
+        String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
+
+        List<String> chartArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
+                format("-sample_data %s", cuppaOutputFile),
+                format("-output_dir %s", VmDirectories.OUTPUT));
+
+        return List.of(new JavaJarCommand(CUPPA, cuppaArguments),
+                new Python3Command("cuppa-chart", CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
+    }
+
+    private String cupReportSummaryPng(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUP_REPORT_SUMMARY_PNG;
+    }
+
+    private String cupDataCsv(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUP_DATA_CSV;
+    }
+
+    private String cuppaFeaturePlot(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
+    }
+
+    private String cuppaReport(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUP_REPORT;
+    }
+
+    private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
+    }
+
+    private String cuppaConclusionChart(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_CHART;
     }
 }

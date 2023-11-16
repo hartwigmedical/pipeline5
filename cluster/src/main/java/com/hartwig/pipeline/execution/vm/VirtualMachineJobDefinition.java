@@ -1,7 +1,16 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
@@ -15,50 +24,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
     String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
-
-    @Value.Derived
-    default long baseImageDiskSizeGb() {
-        return 200L;
-    }
-
-    @Value.Default
-    default String imageFamily() {
-        return STANDARD_IMAGE;
-    }
-
-    @Value.Default
-    default long workingDiskSpaceGb() {
-        return 1200L;
-    }
-
     int LOCAL_SSD_DISK_SPACE_GB = 375;
-
-    BashStartupScript startupCommand();
-
-    ResultsDirectory namespacedResults();
-
-    @Value.Derived
-    default long totalPersistentDiskSizeGb() {
-        return baseImageDiskSizeGb() + workingDiskSpaceGb();
-    }
-
-    @Value.Derived
-    default int localSsdCount() {
-        int localSsdDeviceSizeGb = LOCAL_SSD_DISK_SPACE_GB;
-
-        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGb);
-        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGb;
-        if (remainder != 0) {
-            floor++;
-        }
-        return floor;
-    }
-
-    @Override
-    @Value.Default
-    default VirtualMachinePerformanceProfile performanceProfile() {
-        return VirtualMachinePerformanceProfile.defaultVm();
-    }
 
     static ImmutableVirtualMachineJobDefinition.Builder builder() {
         return ImmutableVirtualMachineJobDefinition.builder();
@@ -104,7 +70,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gridss")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(24, 64))
+                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -114,7 +80,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name(name)
                 .startupCommand(startupScript)
-                .performanceProfile(custom(4, 24))
+                .performanceProfile(custom(GRIPSS.getCpus(), GRIPSS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -124,7 +90,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(6, 39))
+                .performanceProfile(custom(PURPLE.getCpus(), PURPLE.getMemoryGb()))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
@@ -134,7 +100,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name(name)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 24))
+                .performanceProfile(custom(PAVE.getCpus(), PAVE.getMemoryGb()))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
@@ -144,7 +110,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("amber")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(16, 64))
+                .performanceProfile(custom(AMBER.getCpus(), AMBER.getMemoryGb()))
                 .build();
     }
 
@@ -153,7 +119,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("virusbreakend")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(12, 64))
+                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
                 .build();
     }
 
@@ -170,7 +136,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(16, 32))
+                .performanceProfile(custom(BAM_TOOLS.getCpus(), BAM_TOOLS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -179,7 +145,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("health-checker")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(8, 32))
+                .performanceProfile(custom(HEALTH_CHECKER.getCpus(), HEALTH_CHECKER.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -218,7 +184,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("linx-" + type)
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
+                .performanceProfile(custom(LINX.getCpus(), LINX.getMemoryGb()))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
@@ -228,8 +194,50 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("chord")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
+                .performanceProfile(custom(CHORD.getCpus(), CHORD.getMemoryGb()))
                 .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
                 .build();
+    }
+
+    @Value.Derived
+    default long baseImageDiskSizeGb() {
+        return 200L;
+    }
+
+    @Value.Default
+    default String imageFamily() {
+        return STANDARD_IMAGE;
+    }
+
+    @Value.Default
+    default long workingDiskSpaceGb() {
+        return 1200L;
+    }
+
+    BashStartupScript startupCommand();
+
+    ResultsDirectory namespacedResults();
+
+    @Value.Derived
+    default long totalPersistentDiskSizeGb() {
+        return baseImageDiskSizeGb() + workingDiskSpaceGb();
+    }
+
+    @Value.Derived
+    default int localSsdCount() {
+        int localSsdDeviceSizeGb = LOCAL_SSD_DISK_SPACE_GB;
+
+        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGb);
+        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGb;
+        if (remainder != 0) {
+            floor++;
+        }
+        return floor;
+    }
+
+    @Override
+    @Value.Default
+    default VirtualMachinePerformanceProfile performanceProfile() {
+        return VirtualMachinePerformanceProfile.defaultVm();
     }
 }
