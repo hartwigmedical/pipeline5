@@ -141,7 +141,7 @@ public class BwaAligner implements Aligner {
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths, arguments.useTargetRegions())
+            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths)
                     .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());

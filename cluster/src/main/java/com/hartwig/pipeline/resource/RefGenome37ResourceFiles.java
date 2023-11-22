@@ -93,6 +93,9 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String unmapRegionsFile() { return formPath(MAPPABILITY, "unmap_regions.37.tsv"); }
+
+    @Override
     public String germlinePon() {
         return formPath(SAGE, "SageGermlinePon.1000x.37.tsv.gz");
     }

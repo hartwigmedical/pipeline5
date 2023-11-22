@@ -46,6 +46,7 @@ public interface ResourceFiles {
     String clinvarVcf();
 
     String mappabilityBed();
+    String unmapRegionsFile();
 
     String germlinePon();
 

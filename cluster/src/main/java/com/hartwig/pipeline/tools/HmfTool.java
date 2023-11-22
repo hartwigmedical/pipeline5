@@ -17,7 +17,7 @@ public enum HmfTool {
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.5.2", 16, 24, 8, false),
     LINX("1.24.1", 8, 12, 4, false),
-    MARK_DUPS("1.0", 16, 24, 16, false),
+    MARK_DUPS("1.1", 40, 48, 24, false),
     ORANGE("3.0.2", 16, 18, 4, false),
     PAVE("1.5", 16, 24, 1, false),
     PEACH("1.7"),
