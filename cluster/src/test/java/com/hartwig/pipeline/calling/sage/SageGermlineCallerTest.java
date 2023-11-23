@@ -49,7 +49,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
                         + "-ref_genome_version V37 "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-write_bqr_data -write_bqr_plot "
-                        + "-out /data/output/tumor.sage.germline.vcf.gz "
+                        + "-output_vcf /data/output/tumor.sage.germline.vcf.gz "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo)",
                 "(/opt/tools/bcftools/1.9/bcftools filter -i 'FILTER=\"PASS\"' /data/output/tumor.sage.germline.vcf.gz -O z -o /data/output/tumor.sage.germline.filtered.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.germline.filtered.vcf.gz -p vcf");
