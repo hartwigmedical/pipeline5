@@ -24,7 +24,6 @@ public class SageSomaticCaller extends SageCaller {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
                 .addTumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath()))
-                .andThen(sageConfiguration.postProcess().apply(metadata))
                 .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
                 .bash();
     }

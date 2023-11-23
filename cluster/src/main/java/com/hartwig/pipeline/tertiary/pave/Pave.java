@@ -9,6 +9,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -33,6 +34,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected final ResourceFiles resourceFiles;
     protected final InputDownload vcfDownload;
+    protected final InputDownload vcfIndexDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
@@ -40,6 +42,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
             final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownload(sageOutput.variants());
+        this.vcfIndexDownload = new InputDownload(sageOutput.variants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.vcfDatatype = vcfDatatype;
     }
@@ -52,7 +55,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(vcfDownload);
+        return List.of(vcfDownload, vcfIndexDownload);
     }
 
     @Override

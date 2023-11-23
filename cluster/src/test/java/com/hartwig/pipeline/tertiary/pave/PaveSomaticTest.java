@@ -60,7 +60,9 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"));
+        return List.of(
+                input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
+                input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz.tbi", "tumor.somatic.vcf.gz.tbi"));
     }
 
     @Override

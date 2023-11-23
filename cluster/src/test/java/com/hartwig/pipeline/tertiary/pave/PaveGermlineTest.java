@@ -37,7 +37,6 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                // "java -Xmx16G -jar /opt/tools/pave/1.4.5/pave.jar "
                 toolCommand(PAVE)
                         + " -sample tumor "
                         + "-vcf_file /data/input/tumor.germline.vcf.gz "
@@ -62,7 +61,9 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"));
+        return List.of(
+                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
+                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz.tbi", "tumor.germline.vcf.gz.tbi"));
     }
 
     @Override
