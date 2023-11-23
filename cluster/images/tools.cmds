@@ -29,8 +29,6 @@ sudo tar xvf /opt/tools/R/rlibs.tar -C /
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
-sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
-sudo tar xvf /opt/tools/samtools/1.9/samtools.tar.gz -C /opt/tools/samtools/1.9/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
@@ -39,7 +37,6 @@ sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
-sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
@@ -49,8 +46,8 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
-sudo chmod a+x /opt/tools/sv-prep/1.1/gridss.run.sh
 sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
+sudo chmod a+x /opt/tools/sv-prep/1.2.3rc/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
