@@ -10,7 +10,7 @@ public enum HmfTool {
     BAM_TOOLS("1.2rc", 16, 24, 16, false), // 1.1 -> 1.2
     CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
     CIDER("1.0.2", 12, 16, 4, false),
-    COBALT("1.15.2", 20, 24, 16, false),
+    COBALT("1.16rc", 20, 24, 16, true),
     CUPPA("1.8.1", Defaults.JAVA_HEAP, 16, 4, false),
     GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.4rc", 16, 24, 4, false), // 2.3.5 -> 2.4
@@ -22,7 +22,7 @@ public enum HmfTool {
     PAVE("1.6rc", 16, 24, 8, false), // 1.5 -> 1.6
     PEACH("1.7"),
     PURPLE("4.0rc", 31, 39, 8, false), // 3.9.2 -> 4.0
-    SAGE("3.4rc"), // 3.3 -> 3.4
+    SAGE("3.4rc", 48, 64, 24, false), // 3.3 -> 3.4
     SIGS("1.1", Defaults.JAVA_HEAP, 16, 4, false),
     SV_PREP("1.2.3rc", 48, 64, 24, false), // 1.2 -> 1.2.3
     TEAL("1.1.0", 30, 32, 16, false),

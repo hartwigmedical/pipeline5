@@ -11,6 +11,7 @@ import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
@@ -52,7 +53,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage-somatic")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(16, 64))
+                .performanceProfile(custom(SAGE.getCpus(), SAGE.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -60,7 +61,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition sageGermlineCalling(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage-germline")
-                .performanceProfile(custom(4, 20))
+                .performanceProfile(custom(SAGE.getCpus(), SAGE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();
