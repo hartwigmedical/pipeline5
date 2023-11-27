@@ -48,6 +48,7 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
                         + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
                         + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
                         + "-read_pass_only "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                         + "-clinvar_vcf /opt/resources/sage/37/clinvar.37.vcf.gz "
                         + "-blacklist_bed /opt/resources/sage/37/KnownBlacklist.germline.37.bed "
                         + "-blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz "

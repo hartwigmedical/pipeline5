@@ -24,6 +24,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -133,8 +134,13 @@ public class BwaAligner implements Aligner {
 
             List<InputDownload> laneBams = perLaneBams.stream().map(InputDownload::new).collect(Collectors.toList());
 
+            List<InputDownload> laneBamIndexs = perLaneBams.stream()
+                    .map(x -> x.transform(FileTypes::bai))
+                    .map(InputDownload::new).collect(Collectors.toList());
+
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
             laneBams.forEach(mergeMarkdupsBash::addCommand);
+            laneBamIndexs.forEach(mergeMarkdupsBash::addCommand);
 
             List<String> laneBamPaths = laneBams.stream()
                     .map(InputDownload::getLocalTargetPath)
@@ -151,7 +157,7 @@ public class BwaAligner implements Aligner {
 
             PipelineStatus status = runWithRetries(metadata,
                     rootBucket,
-                    VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+                    VirtualMachineJobDefinition.markdups(mergeMarkdupsBash, resultsDirectory));
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())

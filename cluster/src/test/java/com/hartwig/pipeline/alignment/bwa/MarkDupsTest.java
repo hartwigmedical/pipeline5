@@ -39,12 +39,9 @@ public class MarkDupsTest extends SubStageTest{
         StringJoiner expectedCommands = new StringJoiner(" ");
 
         expectedCommands.add(
-                sambamba + " merge -t $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.raw.bam tumor.l001.bam tumor.l002.bam");
-
-        expectedCommands.add(
                 toolCommand(MARK_DUPS)
                         + " -sample tumor "
-                        + "-bam_file /data/output/tumor.raw.bam "
+                        + "-input_bam tumor.l001.bam,tumor.l002.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 "
                         + "-unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv "
@@ -52,14 +49,10 @@ public class MarkDupsTest extends SubStageTest{
                         + "-multi_bam "
                         + "-sambamba " + sambamba
                         + " -samtools " + samtools
-                        + " -output_dir /data/output "
+                        + " -output_bam /data/output/tumor.bam "
+                        + "-output_dir /data/output "
                         + "-log_level DEBUG "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo)");
-
-        expectedCommands.add("mv /data/output/tumor.mark_dups.bam /data/output/tumor.bam");
-        expectedCommands.add("mv /data/output/tumor.mark_dups.bam.bai /data/output/tumor.bam.bai");
-
-        expectedCommands.add("rm /data/output/tumor.raw.bam /data/output/tumor.raw.bam.bai");
 
         assertThat(bash(" ")).contains(expectedCommands.toString());
     }

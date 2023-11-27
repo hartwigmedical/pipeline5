@@ -9,6 +9,7 @@ import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
@@ -170,11 +171,11 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition mergeMarkdups(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition markdups(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("merge-markdup")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(32, 120))
+                .performanceProfile(custom(MARK_DUPS.getCpus(), MARK_DUPS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

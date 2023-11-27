@@ -14,17 +14,19 @@ import com.hartwig.pipeline.tools.ExternalTool;
 public class MarkDupsCommand extends JavaJarCommand
 {
     public MarkDupsCommand(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads) {
+            final String sampleId, final String inputBam, final String outputBam, final ResourceFiles resourceFiles,
+            final String outputDir, final String threads) {
 
-        super(MARK_DUPS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads));
+        super(MARK_DUPS, formArguments(sampleId, inputBam, outputBam, resourceFiles, outputDir, threads));
     }
 
     private static List<String> formArguments(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads) {
+            final String sampleId, final String inputBam, final String outputBam, final ResourceFiles resourceFiles,
+            final String outputDir, final String threads) {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(format("-sample %s", sampleId));
-        arguments.add(format("-bam_file %s", inputBam));
+        arguments.add(format("-input_bam %s", inputBam));
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
@@ -32,6 +34,7 @@ public class MarkDupsCommand extends JavaJarCommand
         arguments.add("-multi_bam");
         arguments.add(format("-sambamba %s", ExternalTool.SAMBAMBA.binaryPath()));
         arguments.add(format("-samtools %s", ExternalTool.SAMTOOLS.binaryPath()));
+        arguments.add(format("-output_bam %s", outputBam));
         arguments.add(format("-output_dir %s", outputDir));
         arguments.add("-log_level DEBUG"); // for now
         arguments.add(format("-threads %s", threads));
