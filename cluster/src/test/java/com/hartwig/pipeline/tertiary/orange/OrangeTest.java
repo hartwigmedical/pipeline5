@@ -27,7 +27,7 @@ import org.junit.Test;
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     private static BashCommand orangeCommand(Orange victim) {
-        return victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata()).get(1);
+        return victim.tumorReferenceCommands(TestInputs.defaultSomaticRunMetadata()).get(2);
     }
 
     private Orange constructOrange(final Pipeline.Context context, final boolean includeGermline) {
@@ -135,7 +135,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -sampling_date 230519";
 
-        return Arrays.asList("echo '5.34' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.34' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override

@@ -215,8 +215,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
 
-        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                orangeJarCommand);
+        return List.of(
+                new MkDirCommand(linxPlotDir),
+                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+                orangeJarCommand
+        );
     }
 
     @Override
