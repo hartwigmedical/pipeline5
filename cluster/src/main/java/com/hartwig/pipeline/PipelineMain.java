@@ -5,7 +5,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
@@ -26,7 +25,6 @@ import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
 import com.hartwig.pipeline.input.ModeResolver;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
@@ -43,10 +41,7 @@ import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.VersionUtils;
-import com.hartwig.pipeline.turquoise.PipelineCompleted;
-import com.hartwig.pipeline.turquoise.PipelineProperties;
-import com.hartwig.pipeline.turquoise.PipelineStarted;
-import com.hartwig.pipeline.turquoise.TurquoiseEvent;
+import com.hartwig.pipeline.turquoise.Turquoise;
 
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -139,7 +134,6 @@ public class PipelineMain {
         try {
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
             Storage storage = StorageProvider.from(arguments, credentials).get();
-            Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             PipelineInput input = JsonPipelineInput.read(arguments.sampleJson());
             final OutputPublisher outputPublisher = getOutputPublisher(arguments, storage);
             MetadataProvider metadataProvider = new MetadataProvider(arguments, input);
@@ -149,19 +143,12 @@ public class PipelineMain {
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
+            Turquoise turquoise =
+                    Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata);
 
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             apiStatusUpdateOrNot.start();
-            String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
-            PipelineProperties eventSubjects = PipelineProperties.builder()
-                    .sample(collectTurquoiseSubject(somaticRunMetadata))
-                    .runId(arguments.sbpApiRunId())
-                    .set(somaticRunMetadata.set())
-                    .referenceBarcode(somaticRunMetadata.maybeReference().map(SingleSampleRunMetadata::barcode))
-                    .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::barcode))
-                    .type(ini)
-                    .build();
-            startedEvent(eventSubjects, turquoisePublisher, arguments.publishToTurquoise());
+            turquoise.publishStarted();
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
@@ -211,19 +198,12 @@ public class PipelineMain {
                     CleanupProvider.from(arguments, storage).get(),
                     outputPublisher,
                     apiStatusUpdateOrNot).run();
-            completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
-
+            turquoise.publishComplete(state.status().toString());
             return state;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String collectTurquoiseSubject(final SomaticRunMetadata somaticRunMetadata) {
-        return somaticRunMetadata.maybeTumor()
-                .map(SingleSampleRunMetadata::turquoiseSubject)
-                .orElseGet(() -> somaticRunMetadata.reference().turquoiseSubject());
     }
 
     @NotNull
@@ -238,20 +218,6 @@ public class PipelineMain {
                             .build(),
                     new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments);
         }
-    }
-
-    public void publish(final TurquoiseEvent turquoiseEvent, final boolean publish) {
-        if (publish) {
-            turquoiseEvent.publish();
-        }
-    }
-
-    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status, final boolean publish) {
-        publish(PipelineCompleted.builder().properties(properties).publisher(publisher).status(status).build(), publish);
-    }
-
-    public void startedEvent(final PipelineProperties subjects, final Publisher publisher, final boolean publish) {
-        publish(PipelineStarted.builder().properties(subjects).publisher(publisher).build(), publish);
     }
 
     private PipelineCompleteEventPublisher createPublisher(final EventPublisher<PipelineComplete> publisher, final Pipeline.Context context,
