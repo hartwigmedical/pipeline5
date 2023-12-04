@@ -1,10 +1,7 @@
 package com.hartwig.pipeline.turquoise;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -21,22 +18,13 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class TurquoiseTest {
+public class PublishingTurquoiseTest {
 
-    @Test
-    public void shouldNotPublishStartedEventWhenTurquoiseDisabled() {
-        Publisher publisher = mock(Publisher.class);
-        Turquoise victim = new Turquoise(publisher,
-                Arguments.testDefaultsBuilder().publishToTurquoise(false).build(),
-                TestInputs.defaultSomaticRunMetadata());
-        victim.publishStarted();
-        verify(publisher, never()).publish(any());
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowWhenStartedEventIfTurquoiseEnabledAndNoTurquoiseSubject() {
         Publisher publisher = mock(Publisher.class);
-        Turquoise victim = new Turquoise(publisher,
+        PublishingTurquoise victim = new PublishingTurquoise(publisher,
                 Arguments.testDefaultsBuilder().publishToTurquoise(true).build(),
                 ImmutableSomaticRunMetadata.builder()
                         .from(TestInputs.defaultSomaticRunMetadata())
@@ -56,7 +44,7 @@ public class TurquoiseTest {
         ApiFuture<String> mock = mock(ApiFuture.class);
         when(mock.get(10, TimeUnit.SECONDS)).thenReturn("");
         when(publisher.publish(messageCaptor.capture())).thenReturn(mock);
-        Turquoise victim = new Turquoise(publisher,
+        PublishingTurquoise victim = new PublishingTurquoise(publisher,
                 Arguments.testDefaultsBuilder().publishToTurquoise(true).build(),
                 TestInputs.defaultSomaticRunMetadata());
         victim.publishStarted();

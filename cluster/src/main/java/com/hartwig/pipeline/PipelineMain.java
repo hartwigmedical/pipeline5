@@ -144,7 +144,7 @@ public class PipelineMain {
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
             Turquoise turquoise =
-                    new Turquoise(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata);
+                    Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata);
 
             LOGGER.info("Starting pipeline in [{}] mode", mode);
             apiStatusUpdateOrNot.start();
