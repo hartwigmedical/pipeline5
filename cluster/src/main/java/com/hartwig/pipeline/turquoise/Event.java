@@ -3,12 +3,15 @@ package com.hartwig.pipeline.turquoise;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableEvent.class)
+@JsonDeserialize(as = ImmutableEvent.class)
+@Value.Style(jdkOnly = true)
 public interface Event {
 
     @Value.Parameter

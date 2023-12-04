@@ -2,12 +2,15 @@ package com.hartwig.pipeline.turquoise;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableSubject.class)
+@JsonDeserialize(as = ImmutableSubject.class)
+@Value.Style(jdkOnly = true)
 public interface Subject {
 
     @Value.Parameter
