@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.cuppa;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
+import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
@@ -111,20 +112,21 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedCommands() {
         // @formatter:off
-        String cuppaCharPath = format("%s/%s/%s", VmDirectories.TOOLS, "cuppa-chart", CUPPA.runVersion());
 
-        return List.of(toolCommand(CUPPA)
-                + " -categories DNA "
-                + "-ref_data_dir /opt/resources/cuppa/ "
+        return List.of(toolCommand(CUPPA, CUPPA_DATA_PREP)
+                + " -sample tumor "
+                + "-categories DNA "
                 + "-ref_genome_version V37 "
-                + "-sample tumor "
                 + "-sample_data_dir /data/input/results "
-                + "-output_dir /data/output "
-                + "-create_pdf",
+                + "-output_dir /data/output");
+
+        /*
+        String cuppaCharPath = format("%s/%s/%s", VmDirectories.TOOLS, "cuppa-chart", CUPPA.runVersion());
                 cuppaCharPath + "_venv/bin/python " + cuppaCharPath + "/cuppa-chart.py "
                 + "-sample tumor "
                 + "-sample_data /data/output/" + TUMOR_CUP_DATA_CSV
                 + " -output_dir /data/output");
+        */
         // @formatter:on
     }
 

@@ -17,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -41,6 +42,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Namespace(Cuppa.NAMESPACE)
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
+    public static final String CUPPA_DATA_PREP = "com.hartwig.hmftools.cup.prep.CuppaDataPrep";
+
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
     public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
@@ -178,22 +181,25 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @NotNull
     private List<BashCommand> cuppaCommands(final SomaticRunMetadata metadata) {
 
-        List<String> cuppaArguments = Lists.newArrayList("-categories DNA",
-                format("-ref_data_dir %s", resourceFiles.cuppaRefData()),
-                format("-ref_genome_version %s", resourceFiles.version().toString()),
+        List<String> cuppaArguments = Lists.newArrayList(
                 format("-sample %s", metadata.tumor().sampleName()),
+                "-categories DNA",
+                format("-ref_genome_version %s", resourceFiles.version().toString()),
                 format("-sample_data_dir %s", linxOutputDirectory.getLocalTargetPath()),
-                format("-output_dir %s", VmDirectories.OUTPUT),
-                "-create_pdf");
+                format("-output_dir %s", VmDirectories.OUTPUT));
 
+        List<BashCommand> cuppaCommands = Lists.newArrayList(new JavaClassCommand(CUPPA, CUPPA_DATA_PREP, cuppaArguments));
+
+        /*
         String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
 
         List<String> chartArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
                 format("-sample_data %s", cuppaOutputFile),
                 format("-output_dir %s", VmDirectories.OUTPUT));
+        cuppaCommands.add(new Python3Command("cuppa-chart", CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
+        */
 
-        return List.of(new JavaJarCommand(CUPPA, cuppaArguments),
-                new Python3Command("cuppa-chart", CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
+        return cuppaCommands;
     }
 
     private String cupReportSummaryPng(final SomaticRunMetadata metadata) {
