@@ -1,19 +1,22 @@
 package com.hartwig.pipeline.calling.sage;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
-
 import org.immutables.value.Value;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.stages.Stage.IMAGE_FAMILY;
 
 @Value.Immutable
 public interface SageConfiguration {
@@ -53,7 +56,13 @@ public interface SageConfiguration {
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode())
                 .postProcess(m -> new SageGermlinePostProcess(m.sampleName()))
-                .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
+                .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
+                        .imageFamily(IMAGE_FAMILY)
+                        .name("sage-germline")
+                        .performanceProfile(custom(4, 20))
+                        .startupCommand(startupScript)
+                        .namespacedResults(resultsDirectory)
+                        .build())
                 .build();
     }
 
@@ -70,7 +79,13 @@ public interface SageConfiguration {
                 .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
                         .targetRegionsMode(arguments.useTargetRegions()))
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName()))
-                .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
+                .jobDefinition((startupScript, resultsDirectory) -> ImmutableVirtualMachineJobDefinition.builder()
+                        .imageFamily(IMAGE_FAMILY)
+                        .name("sage-somatic")
+                        .startupCommand(startupScript)
+                        .performanceProfile(custom(16, 64))
+                        .namespacedResults(resultsDirectory)
+                        .build())
                 .build();
     }
 }

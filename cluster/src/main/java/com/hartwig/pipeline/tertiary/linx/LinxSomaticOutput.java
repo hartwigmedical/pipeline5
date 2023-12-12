@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.linx;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

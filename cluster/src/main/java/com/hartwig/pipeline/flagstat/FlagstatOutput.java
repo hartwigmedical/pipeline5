@@ -2,9 +2,9 @@ package com.hartwig.pipeline.flagstat;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

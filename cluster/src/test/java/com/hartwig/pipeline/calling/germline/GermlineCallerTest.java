@@ -11,7 +11,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;

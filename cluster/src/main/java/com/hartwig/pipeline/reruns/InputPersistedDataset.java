@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 public class InputPersistedDataset implements PersistedDataset {
 

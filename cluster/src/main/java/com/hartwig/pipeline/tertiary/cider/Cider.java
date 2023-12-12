@@ -1,37 +1,29 @@
 package com.hartwig.pipeline.tertiary.cider;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.ExternalTool.BLASTN;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tools.HmfTool;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.ExternalTool.BLASTN;
+import static com.hartwig.pipeline.tools.HmfTool.CIDER;
 
 @Namespace(Cider.NAMESPACE)
 public class Cider extends TertiaryStage<CiderOutput> {
@@ -60,7 +52,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = ciderArguments(metadata);
-        return List.of(new JavaJarCommand(HmfTool.CIDER, arguments));
+        return List.of(JavaCommandFactory.javaJarCommand(CIDER, arguments));
     }
 
     private List<String> ciderArguments(final SomaticRunMetadata metadata) {
@@ -80,16 +72,17 @@ public class Cider extends TertiaryStage<CiderOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("cider")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(HmfTool.CIDER.getCpus(), HmfTool.CIDER.getMemoryGb()))
+                .performanceProfile(custom(CIDER.getCpus(), CIDER.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
 
     @Override
     public CiderOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+                              final ResultsDirectory resultsDirectory) {
         ImmutableCiderOutputLocations.Builder outputLocationsBuilder = CiderOutputLocations.builder();
 
         metadata.maybeTumor().ifPresent(tumor -> {
@@ -133,7 +126,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
                 metadata.bucket(),
                 DataType.CIDER_VDJ,
                 vdj);
-        GoogleStorageLocation locusStatsLocation =persistedOrDefault(metadata.sampleName(),
+        GoogleStorageLocation locusStatsLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
                 DataType.CIDER_LOCUS_STATS,
@@ -163,8 +156,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
     }
 
     @Override
-    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata)
-    {
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         List<AddDatatype> datatypes = new ArrayList<>();
         metadata.maybeTumor().ifPresent(tumor ->
         {
@@ -189,7 +181,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType dataType, final String fileName) {
+                                                     final DataType dataType, final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }
@@ -197,12 +189,15 @@ public class Cider extends TertiaryStage<CiderOutput> {
     private static String vdj(final String sample) {
         return sample + ".cider.vdj.tsv.gz";
     }
+
     private static String locusStats(final String sample) {
         return sample + ".cider.locus_stats.tsv";
     }
+
     private static String layouts(final String sample) {
         return sample + ".cider.layout.gz";
     }
+
     private static String ciderBam(final String sample) {
         return sample + ".cider.bam";
     }

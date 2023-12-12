@@ -1,29 +1,29 @@
 package com.hartwig.pipeline.stages;
 
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.ComputeEngine;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.ExportVariableCommand;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.input.InputMode;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.reruns.StartingPoint;
+import com.hartwig.pipeline.testsupport.TestInputs;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.command.unix.ExportVariableCommand;
-import com.hartwig.pipeline.labels.Labels;
-import com.hartwig.pipeline.input.InputMode;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.reruns.StartingPoint;
-import com.hartwig.pipeline.testsupport.TestInputs;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class StageRunnerTest {
 
@@ -44,6 +44,7 @@ public class StageRunnerTest {
         when(runtimeBucket.getName()).thenReturn("run-reference-tumor-test");
         when(storage.get("run-reference-tumor-test")).thenReturn(runtimeBucket);
         computeEngine = mock(ComputeEngine.class);
+        when(computeEngine.submit(any(), any())).thenReturn(ComputeEngineStatus.SUCCESS);
         //noinspection unchecked
         stage = mock(Stage.class);
         startingPoint = mock(StartingPoint.class);

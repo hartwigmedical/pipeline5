@@ -1,48 +1,39 @@
 package com.hartwig.pipeline.cram;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
+import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
-import com.hartwig.pipeline.output.SingleFileComponent;
-import com.hartwig.pipeline.output.StartupScriptComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 @Namespace(CramConversion.NAMESPACE)
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "cram";
     static final int NUMBER_OF_CORES = 6;
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final String outputCram;
     private final SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, final ResourceFiles resourceFiles) {
-        bamDownload = new InputDownload(alignmentOutput.alignments());
+        bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
@@ -80,6 +71,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("cram")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(NUMBER_OF_CORES, 6))
@@ -90,7 +82,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public CramOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+                             final ResultsDirectory resultsDirectory) {
         String cram = cram();
         String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);

@@ -1,21 +1,19 @@
 package com.hartwig.pipeline.alignment.bwa;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.resource.ResourceFiles;
 
 import java.util.List;
 
-import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.resource.ResourceFiles;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static java.lang.String.format;
 
-public class UmiMarkDupsCommand extends JavaJarCommand
-{
+public class UmiMarkDupsCommand extends JavaJarCommand {
     public UmiMarkDupsCommand(
             final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads) {
 
-        super(MARK_DUPS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads));
+        super(MARK_DUPS.getToolName(), MARK_DUPS.getVersion(), MARK_DUPS.jar(), MARK_DUPS.maxHeapStr(), formArguments(sampleId, inputBam, resourceFiles, outputDir, threads));
     }
 
     private static List<String> formArguments(

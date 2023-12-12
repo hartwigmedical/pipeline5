@@ -9,11 +9,11 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 public class PersistedAlignment implements Aligner {
 

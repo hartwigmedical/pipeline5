@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

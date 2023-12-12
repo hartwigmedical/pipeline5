@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.chord;
 import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 class ChordExtractSigPredictHRD extends VersionedToolCommand {

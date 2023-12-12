@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.sigs.ImmutableSigsOutput;
 
 import org.immutables.value.Value;

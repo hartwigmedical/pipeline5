@@ -3,8 +3,8 @@ package com.hartwig.pipeline.calling.command;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public class VersionedToolCommand implements BashCommand {
 

@@ -1,39 +1,36 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 @Namespace(LinxSomatic.NAMESPACE)
 public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata> {
@@ -46,15 +43,15 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
 
-    private final InputDownload purpleOutputDirDownload;
-    private final InputDownload purpleStructuralVariantsDownload;
+    private final InputDownloadCommand purpleOutputDirDownload;
+    private final InputDownloadCommand purpleStructuralVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public LinxSomatic(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants().isPresent()
+        purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
+        purpleStructuralVariantsDownload = new InputDownloadCommand(purpleOutputLocations.structuralVariants().isPresent()
                 ? purpleOutputLocations.structuralVariants().get()
                 : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
@@ -95,18 +92,25 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         arguments.add("-write_vis_data");
 
-        return List.of(new JavaJarCommand(LINX, arguments),
+        return List.of(JavaCommandFactory.javaJarCommand(LINX, arguments),
                 new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.linx("somatic", bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
+                .name("linx-" + "somatic")
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(4, 12))
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
+                .build();
     }
 
     @Override
     public LinxSomaticOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+                                    final ResultsDirectory resultsDirectory) {
 
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;

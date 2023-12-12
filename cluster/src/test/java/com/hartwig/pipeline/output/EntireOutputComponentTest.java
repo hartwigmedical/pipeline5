@@ -12,10 +12,10 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

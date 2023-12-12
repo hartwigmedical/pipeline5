@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 
 public class GridssCommand extends JavaClassCommand {
     public static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",
@@ -16,7 +16,7 @@ public class GridssCommand extends JavaClassCommand {
             "-Dsamjdk.buffer_size=4194304");
 
     GridssCommand(final String className, final String maxHeap, final List<String> jvmArguments, final String... arguments) {
-        super(GRIDSS.getToolName(), GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), arguments);
+        super(GRIDSS.getToolName(), GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), List.of(arguments));
     }
 
     private static List<String> mergeJvmArguments(final List<String> jvmArguments) {

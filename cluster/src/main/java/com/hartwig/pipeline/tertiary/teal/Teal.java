@@ -1,70 +1,62 @@
 package com.hartwig.pipeline.tertiary.teal;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tools.HmfTool;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.TEAL;
 
 @Namespace(Teal.NAMESPACE)
 public class Teal extends TertiaryStage<TealOutput> {
 
     public static final String NAMESPACE = "teal";
 
-    private final InputDownload purpleOutputDirDownload;
-    private final InputDownload cobaltOutputDirDownload;
+    private final InputDownloadCommand purpleOutputDirDownload;
+    private final InputDownloadCommand cobaltOutputDirDownload;
 
-    private final InputDownload referenceBamMetricsDownload;
+    private final InputDownloadCommand referenceBamMetricsDownload;
 
-    private final InputDownload tumorBamMetricsDownload;
+    private final InputDownloadCommand tumorBamMetricsDownload;
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public Teal(final AlignmentPair alignmentPair,
-            final PurpleOutput purpleOutput,
-            final CobaltOutput cobaltOutput,
-            final BamMetricsOutput referenceBamMetricsOutput,
-            final BamMetricsOutput tumorBamMetricsOutput,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+                final PurpleOutput purpleOutput,
+                final CobaltOutput cobaltOutput,
+                final BamMetricsOutput referenceBamMetricsOutput,
+                final BamMetricsOutput tumorBamMetricsOutput,
+                final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
-        cobaltOutputDirDownload = new InputDownload(cobaltOutput.outputDirectory());
-        referenceBamMetricsDownload = new InputDownload(referenceBamMetricsOutput.metricsOutputFile());
-        tumorBamMetricsDownload = new InputDownload(tumorBamMetricsOutput.metricsOutputFile());
+        purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
+        cobaltOutputDirDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
+        referenceBamMetricsDownload = new InputDownloadCommand(referenceBamMetricsOutput.metricsOutputFile());
+        tumorBamMetricsDownload = new InputDownloadCommand(tumorBamMetricsOutput.metricsOutputFile());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -99,8 +91,7 @@ public class Teal extends TertiaryStage<TealOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addTumor(arguments, metadata);
@@ -110,8 +101,7 @@ public class Teal extends TertiaryStage<TealOutput> {
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addReference(arguments, metadata);
@@ -120,10 +110,9 @@ public class Teal extends TertiaryStage<TealOutput> {
         return formCommand(arguments);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
+    private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(new JavaJarCommand(HmfTool.TEAL, arguments));
+        commands.add(JavaCommandFactory.javaJarCommand(TEAL, arguments));
         return commands;
     }
 
@@ -150,19 +139,20 @@ public class Teal extends TertiaryStage<TealOutput> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("teal")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(HmfTool.TEAL.getCpus(), HmfTool.TEAL.getMemoryGb()))
+                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
                 .build();
     }
 
     @Override
     public TealOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
+                             final ResultsDirectory resultsDirectory) {
 
         ImmutableTealOutputLocations.Builder outputLocationsBuilder = TealOutputLocations.builder();
-                //.outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true));
+        //.outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true));
 
         metadata.maybeTumor().ifPresent(tumor -> {
             final String tumorSampleName = tumor.sampleName();
@@ -260,8 +250,8 @@ public class Teal extends TertiaryStage<TealOutput> {
             String somaticBreakend = breakend(tumorSampleName);
 
             datatypes.add(new AddDatatype(DataType.TEAL_SOMATIC_TELLENGTH,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticTellength)));
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), somaticTellength)));
             datatypes.add(new AddDatatype(DataType.TEAL_SOMATIC_TELBAM,
                     metadata.barcode(),
                     new ArchivePath(Folder.root(), namespace(), somaticTelbam)));
@@ -292,7 +282,7 @@ public class Teal extends TertiaryStage<TealOutput> {
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType dataType, final String fileName) {
+                                                     final DataType dataType, final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

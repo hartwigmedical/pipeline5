@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.pipeline.gatk.GatkCommand;
 
 public class ParallelGatkCommand extends GatkCommand {

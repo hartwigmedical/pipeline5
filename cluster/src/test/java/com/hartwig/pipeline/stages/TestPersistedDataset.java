@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 public class TestPersistedDataset implements PersistedDataset {
 

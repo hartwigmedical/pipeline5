@@ -4,7 +4,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.VIRUSBREAKEND_DB;
 import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class VirusBreakendCommand extends VersionedToolCommand {

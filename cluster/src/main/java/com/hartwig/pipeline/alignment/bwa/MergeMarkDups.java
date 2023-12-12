@@ -5,14 +5,14 @@ import static java.lang.String.format;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.command.DeleteFilesCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.command.DeleteFilesCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.unix.RedirectStdoutCommand;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 

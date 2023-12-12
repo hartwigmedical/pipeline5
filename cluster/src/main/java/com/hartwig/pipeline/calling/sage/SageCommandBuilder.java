@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class SageCommandBuilder {
@@ -136,7 +137,7 @@ public class SageCommandBuilder {
         arguments.add(String.format("-out %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
-        result.add(new JavaJarCommand(SAGE, arguments));
+        result.add(JavaCommandFactory.javaJarCommand(SAGE, arguments));
 
         return result;
     }

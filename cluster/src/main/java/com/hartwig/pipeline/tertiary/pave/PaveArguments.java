@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 

@@ -1,26 +1,26 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
+import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
+import com.hartwig.pipeline.calling.command.SamtoolsCommand;
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStage;
 
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
-import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.command.java.JavaClassCommand;
-import com.hartwig.pipeline.execution.vm.command.java.JavaJarCommand;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.SubStage;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
+import static java.lang.String.format;
 
 public class SvCalling extends SubStage {
 
@@ -33,8 +33,7 @@ public class SvCalling extends SubStage {
     private static final String MAX_HEAP = "48G";
     private static final int GRIDSS_THREADS = 10;
 
-    private enum SampleType
-    {
+    private enum SampleType {
         TUMOR,
         REFERENCE
     }
@@ -63,15 +62,13 @@ public class SvCalling extends SubStage {
         // run tumor first to establish junctions for the ref
         String tumorJunctionsFile = null;
         SampleArgument tumorSample = sampleArguments.stream().filter(x -> x.Type == SampleType.TUMOR).findFirst().orElse(null);
-        if(tumorSample != null)
-        {
+        if (tumorSample != null) {
             addSvPrepCommands(commands, tumorSample, null);
             tumorJunctionsFile = format("%s/%s.sv_prep.junctions.tsv", VmDirectories.OUTPUT, tumorSample.SampleName);
         }
 
         SampleArgument refSample = sampleArguments.stream().filter(x -> x.Type == SampleType.REFERENCE).findFirst().orElse(null);
-        if(refSample != null)
-        {
+        if (refSample != null) {
             addSvPrepCommands(commands, refSample, tumorJunctionsFile);
         }
 
@@ -86,8 +83,7 @@ public class SvCalling extends SubStage {
         return commands;
     }
 
-    private void addSvPrepCommands(final List<BashCommand> commands, final SampleArgument sampleArgument, final String junctionsFile)
-    {
+    private void addSvPrepCommands(final List<BashCommand> commands, final SampleArgument sampleArgument, final String junctionsFile) {
         // run SvPrep on tumor and/or reference
         commands.add(buildSvPrepCommand(sampleArgument, junctionsFile));
 
@@ -119,16 +115,14 @@ public class SvCalling extends SubStage {
         arguments.add(String.format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
         arguments.add(String.format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
 
-        if(tumorJunctionsFile != null)
+        if (tumorJunctionsFile != null)
             arguments.add(String.format("-existing_junction_file %s", tumorJunctionsFile));
 
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        // arguments.add("-log_level INFO");
-
-        return new JavaJarCommand(SV_PREP, arguments);
+        return JavaCommandFactory.javaJarCommand(SV_PREP, arguments);
     }
 
     private BashCommand buildGridsCommand(final String gridssVcf) {
@@ -179,12 +173,12 @@ public class SvCalling extends SubStage {
         // arguments.add("-log_level DEBUG");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        return new JavaClassCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION, arguments);
+        return new JavaClassCommand(SV_PREP.getToolName(), SV_PREP.getVersion(), SV_PREP.jar(), SV_PREP_DEPTH_ANNOTATION, SV_PREP.maxHeapStr(), Collections.emptyList(), arguments);
     }
 
     private String mainSampleName() {
         SampleArgument tumorSample = sampleArguments.stream().filter(x -> x.Type == SampleType.TUMOR).findFirst().orElse(null);
-        if(tumorSample != null)
+        if (tumorSample != null)
             return tumorSample.SampleName;
 
         return sampleArguments.get(0).SampleName;
