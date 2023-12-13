@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
 @Namespace(HealthChecker.NAMESPACE)
 public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadata> {
@@ -102,7 +103,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
                 .imageFamily(IMAGE_FAMILY)
                 .name("health-checker")
                 .startupCommand(bash)
-                .performanceProfile(custom(8, 32))
+                .performanceProfile(custom(HEALTH_CHECKER.getCpus(), HEALTH_CHECKER.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

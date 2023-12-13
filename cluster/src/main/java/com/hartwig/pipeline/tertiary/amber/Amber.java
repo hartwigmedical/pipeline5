@@ -120,7 +120,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .name("amber")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(16, 64))
+                .performanceProfile(custom(AMBER.getCpus(), AMBER.getMemoryGb()))
                 .build();
     }
 

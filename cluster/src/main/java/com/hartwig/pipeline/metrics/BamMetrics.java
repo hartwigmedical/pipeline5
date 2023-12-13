@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
 @Namespace(BamMetrics.NAMESPACE)
 public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
@@ -96,7 +97,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                 .imageFamily(IMAGE_FAMILY)
                 .name("bam-metrics")
                 .startupCommand(script)
-                .performanceProfile(custom(16, 32))
+                .performanceProfile(custom(BAM_TOOLS.getCpus(), BAM_TOOLS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

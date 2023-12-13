@@ -26,6 +26,7 @@ import java.util.List;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.ExternalTool.*;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 
 @Namespace(VirusBreakend.NAMESPACE)
@@ -59,7 +60,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                 .name("virusbreakend")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(12, 64))
+                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
                 .build();
     }
 

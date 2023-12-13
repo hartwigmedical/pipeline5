@@ -103,7 +103,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                 .name("linx-" + "somatic")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
+                .performanceProfile(custom(LINX.getCpus(), LINX.getMemoryGb()))
                 .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }

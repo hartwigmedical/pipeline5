@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static java.lang.String.format;
 
 @Namespace(Gridss.NAMESPACE)
@@ -104,7 +105,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
                 .imageFamily(IMAGE_FAMILY)
                 .name("gridss")
                 .startupCommand(bash)
-                .performanceProfile(custom(24, 64))
+                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

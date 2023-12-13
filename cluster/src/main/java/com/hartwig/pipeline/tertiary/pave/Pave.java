@@ -65,7 +65,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
                 .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 24))
+                .performanceProfile(custom(PAVE.getCpus(), PAVE.getMemoryGb()))
                 .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }

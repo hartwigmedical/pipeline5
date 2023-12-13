@@ -91,7 +91,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                 .imageFamily(IMAGE_FAMILY)
                 .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
-                .performanceProfile(custom(4, 24))
+                .performanceProfile(custom(GRIPSS.getCpus(), GRIPSS.getMemoryGb()))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

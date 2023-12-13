@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 @Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
@@ -79,7 +80,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
                 .name("chord")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
+                .performanceProfile(custom(CHORD.getCpus(), CHORD.getMemoryGb()))
                 .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }

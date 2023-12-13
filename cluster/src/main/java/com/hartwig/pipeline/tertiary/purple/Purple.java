@@ -166,7 +166,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(6, 39))
+                .performanceProfile(custom(PURPLE.getCpus(), PURPLE.getMemoryGb()))
                 .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
                 .build();
     }
