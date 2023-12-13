@@ -210,18 +210,6 @@ public class BwaAligner implements Aligner {
         return output;
     }
 
-    private RuntimeBucket createRuntimeBucket(String namespace, SingleSampleRunMetadata metadata) {
-        var runIdentifier = ArgumentUtil.toRunIdentifier(arguments, metadata);
-        var runtimeBucketOptions = RuntimeBucketOptions.builder()
-                .namespace(namespace)
-                .region(arguments.region())
-                .labels(labels.asMap())
-                .runIdentifier(runIdentifier)
-                .cmek(arguments.cmek())
-                .build();
-        return RuntimeBucket.from(storage, runtimeBucketOptions);
-    }
-
     public ComputeEngineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
                                               final VirtualMachineJobDefinition jobDefinition) {
         return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
@@ -235,6 +223,18 @@ public class BwaAligner implements Aligner {
 
     static String laneId(final LaneInput lane) {
         return lane.flowCellId() + "-" + lane.laneNumber();
+    }
+
+    private RuntimeBucket createRuntimeBucket(String namespace, SingleSampleRunMetadata metadata) {
+        var runIdentifier = ArgumentUtil.toRunIdentifier(arguments, metadata);
+        var runtimeBucketOptions = RuntimeBucketOptions.builder()
+                .namespace(namespace)
+                .region(arguments.region())
+                .labels(labels.asMap())
+                .runIdentifier(runIdentifier)
+                .cmek(arguments.cmek())
+                .build();
+        return RuntimeBucket.from(storage, runtimeBucketOptions);
     }
 
     private boolean lanesSuccessfullyComplete(final List<Future<ComputeEngineStatus>> futures) {
