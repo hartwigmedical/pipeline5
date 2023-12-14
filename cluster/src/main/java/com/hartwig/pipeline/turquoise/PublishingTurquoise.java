@@ -24,12 +24,19 @@ public class PublishingTurquoise implements Turquoise {
                 .build();
     }
 
+    @Override
     public void publishStarted() {
         startedEvent(properties, turquoisePublisher);
     }
 
+    @Override
     public void publishComplete(final String status) {
         completedEvent(properties, turquoisePublisher, status);
+    }
+
+    @Override
+    public void close() {
+        turquoisePublisher.shutdown();
     }
 
     private static void completedEvent(final PipelineProperties subjects, final Publisher publisher, final String status) {

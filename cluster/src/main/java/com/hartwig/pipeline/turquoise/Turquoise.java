@@ -4,7 +4,7 @@ import com.google.cloud.pubsub.v1.Publisher;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 
-public interface Turquoise {
+public interface Turquoise extends AutoCloseable {
     void publishStarted();
 
     void publishComplete(final String status);
@@ -23,6 +23,11 @@ public interface Turquoise {
             @Override
             public void publishComplete(final String status) {
                 // noop
+            }
+
+            @Override
+            public void close() {
+                publisher.shutdown();
             }
         };
     }

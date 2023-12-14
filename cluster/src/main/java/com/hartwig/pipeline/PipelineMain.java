@@ -200,6 +200,7 @@ public class PipelineMain {
                     apiStatusUpdateOrNot).run();
             VmExecutionLogSummary.ofFailedStages(storage, state);
             turquoise.publishComplete(state.status().toString());
+            turquoise.close();
             return state;
         } catch (Exception e) {
             throw new RuntimeException(e);
