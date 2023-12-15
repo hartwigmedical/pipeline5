@@ -5,8 +5,8 @@ import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 
 class HealthCheckerApplicationCommandBuilder {
 
@@ -39,6 +39,6 @@ class HealthCheckerApplicationCommandBuilder {
     }
 
     BashCommand build() {
-        return new JavaJarCommand(HEALTH_CHECKER, arguments);
+        return JavaCommandFactory.javaJarCommand(HEALTH_CHECKER, arguments);
     }
 }

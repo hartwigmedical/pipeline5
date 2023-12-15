@@ -8,9 +8,11 @@ import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPS
 import java.time.LocalDate;
 import java.util.List;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -24,7 +26,6 @@ import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -35,7 +36,6 @@ import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.resource.RefGenome38ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;

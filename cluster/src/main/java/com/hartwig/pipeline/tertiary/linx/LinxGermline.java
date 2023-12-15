@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.io.File;
@@ -7,16 +8,19 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -28,8 +32,6 @@ import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
@@ -43,13 +45,13 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     public static final String GERMLINE_DISRUPTION_TSV = ".linx.germline.disruption.tsv";
     public static final String GERMLINE_BREAKEND_TSV = ".linx.germline.breakend.tsv";
 
-    private final InputDownload purpleGermlineSvsDownload;
+    private final InputDownloadCommand purpleGermlineSvsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public LinxGermline(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
-        purpleGermlineSvsDownload = new InputDownload(purpleOutputLocations.germlineStructuralVariants().isPresent()
+        purpleGermlineSvsDownload = new InputDownloadCommand(purpleOutputLocations.germlineStructuralVariants().isPresent()
                 ? purpleOutputLocations.germlineStructuralVariants().get()
                 : GoogleStorageLocation.empty());
         this.resourceFiles = resourceFiles;
@@ -78,7 +80,14 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.linx("germline", bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
+                .name("linx-" + "germline")
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(4, 12))
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
+                .build();
     }
 
     @Override
@@ -151,7 +160,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
         arguments.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         arguments.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
 
-        return Collections.singletonList(new JavaJarCommand(LINX, arguments));
+        return Collections.singletonList(JavaCommandFactory.javaJarCommand(LINX, arguments));
     }
 
     private String driverCatalogTsv(final SomaticRunMetadata metadata) {

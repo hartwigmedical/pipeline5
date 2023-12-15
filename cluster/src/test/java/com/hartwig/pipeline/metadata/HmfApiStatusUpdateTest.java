@@ -21,7 +21,7 @@ import com.hartwig.api.model.UpdateRun;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.assertj.core.data.TemporalUnitLessThanOffset;

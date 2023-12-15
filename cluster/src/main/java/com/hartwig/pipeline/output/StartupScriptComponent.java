@@ -2,7 +2,7 @@ package com.hartwig.pipeline.output;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 public class StartupScriptComponent implements OutputComponent {
     private final RuntimeBucket runtimeBucket;

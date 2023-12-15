@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tools;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 

@@ -8,10 +8,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class CramAndValidateCommands {
@@ -56,17 +56,17 @@ public class CramAndValidateCommands {
                         "com.hartwig.bamcomp.BamCompMain",
                         "4G",
                         Collections.emptyList(),
-                        "-r",
-                        resourceFiles.refGenomeFile(),
-                        "-1",
-                        inputBam,
-                        "-2",
-                        outputCram,
-                        "-n",
-                        String.valueOf(CramConversion.NUMBER_OF_CORES),
-                        "--samtools-binary",
-                        SAMTOOLS.binaryPath(),
-                        "--sambamba-binary",
-                        SAMBAMBA.binaryPath()));
+                        List.of("-r",
+                                resourceFiles.refGenomeFile(),
+                                "-1",
+                                inputBam,
+                                "-2",
+                                outputCram,
+                                "-n",
+                                String.valueOf(CramConversion.NUMBER_OF_CORES),
+                                "--samtools-binary",
+                                SAMTOOLS.binaryPath(),
+                                "--sambamba-binary",
+                                SAMBAMBA.binaryPath())));
     }
 }

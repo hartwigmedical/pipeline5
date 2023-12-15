@@ -2,7 +2,7 @@ package com.hartwig.pipeline.alignment;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 
 import org.immutables.value.Value;
 

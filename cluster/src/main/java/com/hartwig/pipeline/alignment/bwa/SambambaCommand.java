@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
 

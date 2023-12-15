@@ -2,34 +2,34 @@ package com.hartwig.pipeline.cram2bam;
 
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 @Namespace("cram2bam")
 public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata> {
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final SingleSampleRunMetadata.SampleType sampleType;
 
     public Cram2Bam(final GoogleStorageLocation bamLocation, final SingleSampleRunMetadata.SampleType sampleType) {
-        this.bamDownload = new InputDownload(bamLocation);
+        this.bamDownload = new InputDownloadCommand(bamLocation);
         this.sampleType = sampleType;
     }
 
@@ -53,6 +53,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(bash)

@@ -7,8 +7,8 @@ import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 final class PurpleArguments {

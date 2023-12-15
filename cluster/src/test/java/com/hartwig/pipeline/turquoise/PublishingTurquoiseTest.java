@@ -15,7 +15,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.pubsub.v1.PubsubMessage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.input.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.input.ImmutableSomaticRunMetadata;
 import com.hartwig.pipeline.jackson.ObjectMappers;

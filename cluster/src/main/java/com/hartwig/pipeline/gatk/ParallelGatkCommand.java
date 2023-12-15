@@ -1,9 +1,10 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.gatk;
 
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
 
 public class ParallelGatkCommand extends GatkCommand {
 
