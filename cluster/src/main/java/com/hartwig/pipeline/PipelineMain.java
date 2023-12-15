@@ -143,65 +143,63 @@ public class PipelineMain {
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
-            Turquoise turquoise =
-                    Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata);
-
-            LOGGER.info("Starting pipeline in [{}] mode", mode);
-            apiStatusUpdateOrNot.start();
-            turquoise.publishStarted();
-            BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
-            BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
-            BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
-            BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
-            BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
-            StartingPoint startingPoint = new StartingPoint(arguments);
-            PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
-            PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
-                    input,
-                    credentials,
-                    storage,
-                    referenceEventListener,
-                    somaticRunMetadata,
-                    referenceBamMetricsOutputQueue,
-                    germlineCallerOutputQueue,
-                    referenceFlagstatOutputQueue,
-                    startingPoint,
-                    persistedDataset,
-                    mode),
-                    singleSamplePipeline(arguments,
-                            input,
-                            credentials,
-                            storage,
-                            tumorEventListener,
-                            somaticRunMetadata,
-                            tumorBamMetricsOutputQueue,
-                            germlineCallerOutputQueue,
-                            tumorFlagstatOutputQueue,
-                            startingPoint,
-                            persistedDataset,
-                            mode),
-                    somaticPipeline(arguments,
-                            credentials,
-                            storage,
-                            somaticRunMetadata,
-                            referenceBamMetricsOutputQueue,
-                            tumorBamMetricsOutputQueue,
-                            referenceFlagstatOutputQueue,
-                            tumorFlagstatOutputQueue,
-                            startingPoint,
-                            persistedDataset,
-                            mode),
-                    metadataProvider.get(),
-                    Executors.newCachedThreadPool(),
-                    referenceEventListener,
-                    tumorEventListener,
-                    CleanupProvider.from(arguments, storage).get(),
-                    outputPublisher,
-                    apiStatusUpdateOrNot).run();
-            VmExecutionLogSummary.ofFailedStages(storage, state);
-            turquoise.publishComplete(state.status().toString());
-            turquoise.close();
-            return state;
+            try (var turquoise = Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata)) {
+                LOGGER.info("Starting pipeline in [{}] mode", mode);
+                apiStatusUpdateOrNot.start();
+                turquoise.publishStarted();
+                BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
+                BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
+                BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
+                BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
+                BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
+                StartingPoint startingPoint = new StartingPoint(arguments);
+                PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
+                PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
+                        input,
+                        credentials,
+                        storage,
+                        referenceEventListener,
+                        somaticRunMetadata,
+                        referenceBamMetricsOutputQueue,
+                        germlineCallerOutputQueue,
+                        referenceFlagstatOutputQueue,
+                        startingPoint,
+                        persistedDataset,
+                        mode),
+                        singleSamplePipeline(arguments,
+                                input,
+                                credentials,
+                                storage,
+                                tumorEventListener,
+                                somaticRunMetadata,
+                                tumorBamMetricsOutputQueue,
+                                germlineCallerOutputQueue,
+                                tumorFlagstatOutputQueue,
+                                startingPoint,
+                                persistedDataset,
+                                mode),
+                        somaticPipeline(arguments,
+                                credentials,
+                                storage,
+                                somaticRunMetadata,
+                                referenceBamMetricsOutputQueue,
+                                tumorBamMetricsOutputQueue,
+                                referenceFlagstatOutputQueue,
+                                tumorFlagstatOutputQueue,
+                                startingPoint,
+                                persistedDataset,
+                                mode),
+                        metadataProvider.get(),
+                        Executors.newCachedThreadPool(),
+                        referenceEventListener,
+                        tumorEventListener,
+                        CleanupProvider.from(arguments, storage).get(),
+                        outputPublisher,
+                        apiStatusUpdateOrNot).run();
+                VmExecutionLogSummary.ofFailedStages(storage, state);
+                turquoise.publishComplete(state.status().toString());
+                return state;
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
