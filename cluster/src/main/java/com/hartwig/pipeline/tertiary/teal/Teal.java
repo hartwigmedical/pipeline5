@@ -1,7 +1,17 @@
 package com.hartwig.pipeline.tertiary.teal;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.TEAL;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -14,7 +24,11 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -23,12 +37,6 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.TEAL;
 
 @Namespace(Teal.NAMESPACE)
 public class Teal extends TertiaryStage<TealOutput> {
@@ -45,12 +53,9 @@ public class Teal extends TertiaryStage<TealOutput> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Teal(final AlignmentPair alignmentPair,
-                final PurpleOutput purpleOutput,
-                final CobaltOutput cobaltOutput,
-                final BamMetricsOutput referenceBamMetricsOutput,
-                final BamMetricsOutput tumorBamMetricsOutput,
-                final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public Teal(final AlignmentPair alignmentPair, final PurpleOutput purpleOutput, final CobaltOutput cobaltOutput,
+            final BamMetricsOutput referenceBamMetricsOutput, final BamMetricsOutput tumorBamMetricsOutput,
+            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
@@ -149,7 +154,7 @@ public class Teal extends TertiaryStage<TealOutput> {
 
     @Override
     public TealOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                             final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
 
         ImmutableTealOutputLocations.Builder outputLocationsBuilder = TealOutputLocations.builder();
         //.outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true));
@@ -204,11 +209,8 @@ public class Teal extends TertiaryStage<TealOutput> {
                 metadata.bucket(),
                 DataType.TEAL_SOMATIC_TELLENGTH,
                 somaticTellength);
-        GoogleStorageLocation somaticTelbamLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.TEAL_SOMATIC_TELBAM,
-                somaticTelbam);
+        GoogleStorageLocation somaticTelbamLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.TEAL_SOMATIC_TELBAM, somaticTelbam);
         GoogleStorageLocation somaticBreakendLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
@@ -219,11 +221,8 @@ public class Teal extends TertiaryStage<TealOutput> {
                 metadata.bucket(),
                 DataType.TEAL_GERMLINE_TELLENGTH,
                 germlineTellength);
-        GoogleStorageLocation germlineTelbamLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.TEAL_GERMLINE_TELBAM,
-                germlineTelbam);
+        GoogleStorageLocation germlineTelbamLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.TEAL_GERMLINE_TELBAM, germlineTelbam);
 
         ImmutableTealOutputLocations.Builder outputLocationsBuilder = TealOutputLocations.builder()
                 .somaticTellength(somaticTellengthLocation)
@@ -281,8 +280,8 @@ public class Teal extends TertiaryStage<TealOutput> {
         return arguments.runTertiary() && !arguments.useTargetRegions();
     }
 
-    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-                                                     final DataType dataType, final String fileName) {
+    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket, final DataType dataType,
+            final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

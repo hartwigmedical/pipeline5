@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 
 class HealthCheckerApplicationCommandBuilder {

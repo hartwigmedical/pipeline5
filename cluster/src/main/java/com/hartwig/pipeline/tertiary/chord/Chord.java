@@ -1,5 +1,12 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
@@ -13,21 +20,19 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 @Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
@@ -87,7 +92,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public ChordOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                              final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         String chordPredictionTxt = chordPredictionTxt(metadata);
         return ChordOutput.builder()
                 .status(jobStatus)

@@ -16,7 +16,6 @@ class SnpGenotypeCommand extends ParallelGatkCommand {
                 "--reference_sequence",
                 referenceFasta,
                 "--output_mode",
-                "EMIT_ALL_SITES"
-        );
+                "EMIT_ALL_SITES");
     }
 }

@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
@@ -14,7 +15,6 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.HmfTool;
 
@@ -39,8 +39,9 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new GripssSomatic(
-                TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES,
+        return new GripssSomatic(TestInputs.structuralCallerOutput(),
+                persistedDataset,
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 Arguments.testDefaultsBuilder().build());
     }
 
@@ -59,18 +60,12 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of(
-                toolCommand(HmfTool.GRIPSS)
-                + " -sample tumor -reference reference "
-                + "-output_id somatic "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
+        return ImmutableList.of(toolCommand(HmfTool.GRIPSS) + " -sample tumor -reference reference " + "-output_id somatic "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
-                + "-pon_sgl_file /opt/resources/gridss/37/sgl_pon.37.bed.gz "
-                + "-pon_sv_file /opt/resources/gridss/37/sv_pon.37.bedpe.gz "
+                + "-pon_sgl_file /opt/resources/gridss/37/sgl_pon.37.bed.gz " + "-pon_sv_file /opt/resources/gridss/37/sv_pon.37.bedpe.gz "
                 + "-repeat_mask_file /opt/resources/gridss/37/repeat_mask_data.37.fa.gz "
-                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz "
-                + "-output_dir /data/output");
+                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz " + "-output_dir /data/output");
     }
 
     @Override

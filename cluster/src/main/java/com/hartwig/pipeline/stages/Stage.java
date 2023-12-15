@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.stages;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -11,9 +14,6 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.tools.VersionUtils;
-
-import java.util.Collections;
-import java.util.List;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {
     String IMAGE_FAMILY = "pipeline5-" + VersionUtils.imageVersion();

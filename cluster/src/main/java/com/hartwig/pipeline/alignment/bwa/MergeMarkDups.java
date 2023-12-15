@@ -5,14 +5,14 @@ import static java.lang.String.format;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.DeleteFilesCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.computeengine.execution.vm.Bash;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.OutputFile;
-import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
@@ -25,8 +25,7 @@ public class MergeMarkDups extends SubStage {
     private final List<String> inputBamPaths;
     private final boolean useTargetRegions;
 
-    MergeMarkDups(
-            final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths, boolean useTargetRegions) {
+    MergeMarkDups(final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths, boolean useTargetRegions) {
         super("", FileTypes.BAM);
         this.sampleId = sampleId;
         this.resourceFiles = resourceFiles;
@@ -37,10 +36,11 @@ public class MergeMarkDups extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
 
-        if(useTargetRegions)
+        if (useTargetRegions) {
             return formTargetedMarkDupCommands(output);
-        else
+        } else {
             return formStandardMarkDupCommands(output);
+        }
     }
 
     private List<BashCommand> formStandardMarkDupCommands(final OutputFile output) {
@@ -61,13 +61,12 @@ public class MergeMarkDups extends SubStage {
         // more than 1 BAM need to be merged first but don't expect that for panel samples
         String inputBam;
 
-        if(inputBamPaths.size() > 1) {
+        if (inputBamPaths.size() > 1) {
             String inputBamStr = Strings.join(inputBamPaths, " ");
             inputBam = format("%s/%s.raw.bam", VmDirectories.OUTPUT, sampleId);
             String mergeArgs = format("merge -t %s %s %s", Bash.allCpus(), inputBam, inputBamStr);
             cmds.add(new SambambaCommand(mergeArgs));
-        }
-        else {
+        } else {
             inputBam = inputBamPaths.get(0);
         }
 
@@ -83,7 +82,7 @@ public class MergeMarkDups extends SubStage {
         // delete intermediary files
         List<String> bamsToDelete = Lists.newArrayList();
 
-        if(inputBamPaths.size() > 1) {
+        if (inputBamPaths.size() > 1) {
             bamsToDelete.add(inputBam);
             bamsToDelete.add(inputBam + ".bai");
         }

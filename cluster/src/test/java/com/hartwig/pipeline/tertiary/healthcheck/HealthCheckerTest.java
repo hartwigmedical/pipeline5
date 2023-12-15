@@ -12,10 +12,10 @@ import java.util.List;
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -55,13 +55,11 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList(
-                toolCommand(HEALTH_CHECKER)
-                        + " -purple_dir /data/input/purple -output_dir /data/output "
-                        + "-tumor tumor -tum_wgs_metrics_file /data/input/metrics/tumor.wgsmetrics -tum_flagstat_file "
-                        + "/data/input/flagstat/tumor.flagstat -reference reference "
-                        + "-ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -ref_flagstat_file "
-                        + "/data/input/flagstat/reference.flagstat");
+        return Collections.singletonList(toolCommand(HEALTH_CHECKER) + " -purple_dir /data/input/purple -output_dir /data/output "
+                + "-tumor tumor -tum_wgs_metrics_file /data/input/metrics/tumor.wgsmetrics -tum_flagstat_file "
+                + "/data/input/flagstat/tumor.flagstat -reference reference "
+                + "-ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -ref_flagstat_file "
+                + "/data/input/flagstat/reference.flagstat");
     }
 
     @Test

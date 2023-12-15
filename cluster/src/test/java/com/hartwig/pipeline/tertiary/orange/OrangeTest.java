@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -121,8 +121,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        String jarRunCommand = toolCommand(ORANGE) + " -output_dir /data/output " + "-experiment_type WGS " + "-ref_genome_version 37 " + "-tumor_sample_id tumor "
-                + "-reference_sample_id reference " + "-doid_json /opt/resources/disease_ontology/doid.json "
+        String jarRunCommand = toolCommand(ORANGE) + " -output_dir /data/output " + "-experiment_type WGS " + "-ref_genome_version 37 "
+                + "-tumor_sample_id tumor " + "-reference_sample_id reference " + "-doid_json /opt/resources/disease_ontology/doid.json "
                 + "-primary_tumor_doids \"01;02\" " + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "

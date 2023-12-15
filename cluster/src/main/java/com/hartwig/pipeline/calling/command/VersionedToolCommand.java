@@ -3,8 +3,8 @@ package com.hartwig.pipeline.calling.command;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 
 public class VersionedToolCommand implements BashCommand {
 
@@ -26,11 +26,6 @@ public class VersionedToolCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("%s/%s/%s/%s %s",
-                VmDirectories.TOOLS,
-                toolName,
-                version,
-                toolBinaryName,
-                String.join(" ", arguments));
+        return String.format("%s/%s/%s/%s %s", VmDirectories.TOOLS, toolName, version, toolBinaryName, String.join(" ", arguments));
     }
 }

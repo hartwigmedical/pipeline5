@@ -3,10 +3,10 @@ package com.hartwig.pipeline.calling.germline;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.pipeline.gatk.GatkCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.pipeline.gatk.GatkCommand;
 import com.hartwig.pipeline.stages.SubStage;
 
 public class GenotypeGVCFs extends SubStage {

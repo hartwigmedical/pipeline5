@@ -1,16 +1,18 @@
 package com.hartwig.pipeline.cram;
 
+import static com.hartwig.pipeline.tools.ExternalTool.BAMCOMP;
+import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
+import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.pipeline.tools.ExternalTool.*;
 
 public class CramAndValidateCommands {
     private final String inputBam;

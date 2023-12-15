@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.execution;
 
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.tools.HmfTool;
-
-import java.util.List;
 
 public final class JavaCommandFactory {
 

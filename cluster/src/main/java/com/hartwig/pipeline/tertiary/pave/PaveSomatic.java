@@ -4,11 +4,11 @@ import static com.hartwig.pipeline.tertiary.pave.PaveArguments.addTargetRegionsA
 
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -35,15 +35,15 @@ public class PaveSomatic extends Pave {
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = PaveArguments.somatic(
-                resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+        List<String> arguments =
+                PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         return paveCommand(arguments);
     }
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        List<String> arguments = PaveArguments.somatic(
-                resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+        List<String> arguments =
+                PaveArguments.somatic(resourceFiles, metadata.tumor().sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
 
         if (this.arguments.useTargetRegions()) {
             arguments.addAll(addTargetRegionsArguments(resourceFiles));
@@ -60,7 +60,6 @@ public class PaveSomatic extends Pave {
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s",
-                metadata.tumor().sampleName(), PAVE_SOMATIC_FILE_ID, FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s", metadata.tumor().sampleName(), PAVE_SOMATIC_FILE_ID, FileTypes.GZIPPED_VCF);
     }
 }

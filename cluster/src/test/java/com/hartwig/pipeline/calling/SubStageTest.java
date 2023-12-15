@@ -19,8 +19,7 @@ public abstract class SubStageTest {
 
     @Before
     public void setUp() {
-        output = createVictim().apply(SubStageInputOutput.of(sampleName(), input(),
-                Lists.newArrayList()));
+        output = createVictim().apply(SubStageInputOutput.of(sampleName(), input(), Lists.newArrayList()));
     }
 
     protected OutputFile input() {

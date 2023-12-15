@@ -16,7 +16,13 @@ public class GridssCommand extends JavaClassCommand {
             "-Dsamjdk.buffer_size=4194304");
 
     GridssCommand(final String className, final String maxHeap, final List<String> jvmArguments, final String... arguments) {
-        super(GRIDSS.getToolName(), GRIDSS.runVersion(), GRIDSS.jar(), className, maxHeap, mergeJvmArguments(jvmArguments), List.of(arguments));
+        super(GRIDSS.getToolName(),
+                GRIDSS.runVersion(),
+                GRIDSS.jar(),
+                className,
+                maxHeap,
+                mergeJvmArguments(jvmArguments),
+                List.of(arguments));
     }
 
     private static List<String> mergeJvmArguments(final List<String> jvmArguments) {

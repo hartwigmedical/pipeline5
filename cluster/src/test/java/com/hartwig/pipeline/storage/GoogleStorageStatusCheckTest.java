@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.computeengine.storage.ResultsDirectory;
-
 import com.hartwig.computeengine.storage.RuntimeBucket;
+
 import org.junit.Before;
 import org.junit.Test;
 

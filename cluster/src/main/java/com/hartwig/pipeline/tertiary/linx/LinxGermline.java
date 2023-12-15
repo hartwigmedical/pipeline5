@@ -1,5 +1,12 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
@@ -15,7 +22,11 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -23,14 +34,8 @@ import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 @Namespace(LinxGermline.NAMESPACE)
 public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadata> {
@@ -87,7 +92,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public LinxGermlineOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                                     final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return LinxGermlineOutput.builder()
                 .status(jobStatus)
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()

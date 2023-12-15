@@ -1,6 +1,14 @@
 package com.hartwig.pipeline.cram;
 
-import com.hartwig.computeengine.execution.vm.*;
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -13,14 +21,15 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
 
 @Namespace(CramConversion.NAMESPACE)
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
@@ -82,7 +91,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public CramOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                             final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         String cram = cram();
         String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);

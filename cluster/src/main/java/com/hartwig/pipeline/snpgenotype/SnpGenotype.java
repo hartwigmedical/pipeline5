@@ -1,5 +1,12 @@
 package com.hartwig.pipeline.snpgenotype;
 
+import static java.lang.String.format;
+
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
@@ -23,12 +30,6 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static java.lang.String.format;
 
 @Namespace(SnpGenotype.NAMESPACE)
 public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
@@ -97,7 +98,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public SnpGenotypeOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
-                                    final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()
                 .status(status)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))

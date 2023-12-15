@@ -17,7 +17,8 @@ public class StartupScriptComponent implements OutputComponent {
 
     @Override
     public void addToOutput(final Storage storage, final Bucket outputBucket, final String setName) {
-        runtimeBucket.copyOutOf("copy_of_startup_script_for_run.sh", outputBucket.getName(),
+        runtimeBucket.copyOutOf("copy_of_startup_script_for_run.sh",
+                outputBucket.getName(),
                 String.format("%s/%s%s/%s", setName, folder.name(), namespace, "run.sh"));
     }
 }

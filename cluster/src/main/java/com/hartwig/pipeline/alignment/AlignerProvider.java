@@ -4,16 +4,15 @@ import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
-import com.hartwig.computeengine.execution.vm.ComputeEngineConfig;
+import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.GoogleComputeEngine;
 import com.hartwig.computeengine.execution.vm.NoOpComputeEngine;
+import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.alignment.bwa.BwaAligner;
 import com.hartwig.pipeline.alignment.persisted.PersistedAlignment;
-import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
@@ -48,8 +47,9 @@ public abstract class AlignerProvider {
             final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Labels labels)
             throws Exception {
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
-        ComputeEngine computeEngine =
-                arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap());
+        ComputeEngine computeEngine = arguments.publishEventsOnly()
+                ? new NoOpComputeEngine()
+                : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap());
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,

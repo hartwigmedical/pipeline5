@@ -1,10 +1,10 @@
 package com.hartwig.pipeline;
 
+import java.util.List;
+
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.OutputComponent;
-
-import java.util.List;
 
 public interface StageOutput {
 

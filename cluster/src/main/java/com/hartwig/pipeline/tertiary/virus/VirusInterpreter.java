@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
+
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -16,18 +21,17 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 @Namespace(VirusInterpreter.NAMESPACE)
 public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
@@ -42,7 +46,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
     private final InputDownloadCommand purplePurity;
 
     public VirusInterpreter(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
-                            final VirusBreakendOutput virusBreakendOutput, final PurpleOutput purpleOutput, final BamMetricsOutput tumorBamMetricsOutput) {
+            final VirusBreakendOutput virusBreakendOutput, final PurpleOutput purpleOutput, final BamMetricsOutput tumorBamMetricsOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -90,7 +94,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
 
     @Override
     public VirusInterpreterOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                                         final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         String annotatedTsv = annotatedVirusTsv(metadata);
         return VirusInterpreterOutput.builder()
                 .status(jobStatus)
@@ -118,7 +122,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                 .maybeVirusAnnotations(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotatedVirusTsv(metadata)))))
-                .addAllDatatypes(addDatatypes(metadata)).build();
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
     }
 
     @Override

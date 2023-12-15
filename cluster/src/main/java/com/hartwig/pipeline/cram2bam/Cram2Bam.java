@@ -2,21 +2,25 @@ package com.hartwig.pipeline.cram2bam;
 
 import java.util.List;
 
-import com.hartwig.computeengine.execution.vm.*;
-import com.hartwig.pipeline.Arguments;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.computeengine.storage.RuntimeBucket;
 
 @Namespace("cram2bam")
 public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata> {

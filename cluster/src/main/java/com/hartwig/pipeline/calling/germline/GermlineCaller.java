@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -20,19 +26,18 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 @Namespace(GermlineCaller.NAMESPACE)
 public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
@@ -61,7 +66,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     private final PersistedDataset persistedDataset;
 
     public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles,
-                          final PersistedDataset persistedDataset) {
+            final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         this.baiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
@@ -134,7 +139,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public GermlineCallerOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
-                                       final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         return GermlineCallerOutput.builder()
                 .status(status)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))

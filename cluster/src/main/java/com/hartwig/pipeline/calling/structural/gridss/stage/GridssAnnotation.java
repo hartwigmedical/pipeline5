@@ -3,9 +3,9 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateInsertedSequence;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;

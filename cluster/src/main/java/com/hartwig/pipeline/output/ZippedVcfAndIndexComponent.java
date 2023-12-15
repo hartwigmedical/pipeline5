@@ -14,8 +14,8 @@ public class ZippedVcfAndIndexComponent implements OutputComponent {
     private final String targetFileName;
     private final ResultsDirectory resultsDirectory;
 
-    public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
-            final String filename, final ResultsDirectory resultsDirectory) {
+    public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder, final String filename,
+            final ResultsDirectory resultsDirectory) {
         this(runtimeBucket, namespace, folder, filename, filename, resultsDirectory);
     }
 

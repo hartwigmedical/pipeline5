@@ -6,8 +6,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.pipeline.PipelineStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

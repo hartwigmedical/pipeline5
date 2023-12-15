@@ -1,6 +1,17 @@
 package com.hartwig.pipeline.tertiary.cider;
 
-import com.hartwig.computeengine.execution.vm.*;
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.ExternalTool.BLASTN;
+import static com.hartwig.pipeline.tools.HmfTool.CIDER;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
@@ -11,19 +22,16 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.ExternalTool.BLASTN;
-import static com.hartwig.pipeline.tools.HmfTool.CIDER;
 
 @Namespace(Cider.NAMESPACE)
 public class Cider extends TertiaryStage<CiderOutput> {
@@ -82,7 +90,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
 
     @Override
     public CiderOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                              final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         ImmutableCiderOutputLocations.Builder outputLocationsBuilder = CiderOutputLocations.builder();
 
         metadata.maybeTumor().ifPresent(tumor -> {
@@ -121,26 +129,14 @@ public class Cider extends TertiaryStage<CiderOutput> {
         String layouts = layouts(tumorSampleName);
         String ciderBam = ciderBam(tumorSampleName);
 
-        GoogleStorageLocation vdjLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.CIDER_VDJ,
-                vdj);
-        GoogleStorageLocation locusStatsLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.CIDER_LOCUS_STATS,
-                locusStats);
-        GoogleStorageLocation layoutsLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.CIDER_LAYOUTS,
-                layouts);
-        GoogleStorageLocation ciderBamLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.CIDER_BAM,
-                ciderBam);
+        GoogleStorageLocation vdjLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.CIDER_VDJ, vdj);
+        GoogleStorageLocation locusStatsLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.CIDER_LOCUS_STATS, locusStats);
+        GoogleStorageLocation layoutsLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.CIDER_LAYOUTS, layouts);
+        GoogleStorageLocation ciderBamLocation =
+                persistedOrDefault(metadata.sampleName(), metadata.set(), metadata.bucket(), DataType.CIDER_BAM, ciderBam);
 
         ImmutableCiderOutputLocations.Builder outputLocationsBuilder = CiderOutputLocations.builder()
                 .vdj(vdjLocation)
@@ -158,8 +154,7 @@ public class Cider extends TertiaryStage<CiderOutput> {
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         List<AddDatatype> datatypes = new ArrayList<>();
-        metadata.maybeTumor().ifPresent(tumor ->
-        {
+        metadata.maybeTumor().ifPresent(tumor -> {
             final String tumorSampleName = tumor.sampleName();
             String vdj = vdj(tumorSampleName);
             String locusStats = locusStats(tumorSampleName);
@@ -167,8 +162,12 @@ public class Cider extends TertiaryStage<CiderOutput> {
             String ciderBam = ciderBam(tumorSampleName);
 
             datatypes.add(new AddDatatype(DataType.CIDER_VDJ, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), vdj)));
-            datatypes.add(new AddDatatype(DataType.CIDER_LOCUS_STATS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), locusStats)));
-            datatypes.add(new AddDatatype(DataType.CIDER_LAYOUTS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), layouts)));
+            datatypes.add(new AddDatatype(DataType.CIDER_LOCUS_STATS,
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), locusStats)));
+            datatypes.add(new AddDatatype(DataType.CIDER_LAYOUTS,
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), layouts)));
             datatypes.add(new AddDatatype(DataType.CIDER_BAM, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), ciderBam)));
         });
 
@@ -180,8 +179,8 @@ public class Cider extends TertiaryStage<CiderOutput> {
         return arguments.runTertiary();
     }
 
-    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-                                                     final DataType dataType, final String fileName) {
+    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket, final DataType dataType,
+            final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

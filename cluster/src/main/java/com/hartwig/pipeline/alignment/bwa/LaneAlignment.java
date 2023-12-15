@@ -1,14 +1,14 @@
 package com.hartwig.pipeline.alignment.bwa;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.PipeCommands;
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
-
-import java.util.Collections;
-import java.util.List;
 
 public class LaneAlignment extends SubStage {
 
@@ -18,8 +18,8 @@ public class LaneAlignment extends SubStage {
     private final String secondFastqPath;
     private final LaneInput lane;
 
-    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath,
-                  final LaneInput lane) {
+    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath,
+            final String secondFastqPath, final LaneInput lane) {
         super(BwaAligner.laneId(lane), FileTypes.BAM);
         this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;

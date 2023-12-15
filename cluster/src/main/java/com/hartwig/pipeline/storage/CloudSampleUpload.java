@@ -1,17 +1,18 @@
 package com.hartwig.pipeline.storage;
 
-import com.hartwig.computeengine.storage.RuntimeBucket;
-import com.hartwig.pdl.SampleInput;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.String.format;
 
 import java.io.File;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pdl.SampleInput;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CloudSampleUpload implements SampleUpload {
 

@@ -7,15 +7,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.OutputComponent;
@@ -26,8 +28,6 @@ import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 public abstract class SageCaller extends TertiaryStage<SageOutput> {

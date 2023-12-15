@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.tertiary.pave;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -14,17 +20,16 @@ import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.OutputComponent;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
@@ -34,7 +39,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     private final DataType vcfDatatype;
 
     public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
-                final DataType vcfDatatype) {
+            final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownloadCommand(sageOutput.variants());
         this.persistedDataset = persistedDataset;
@@ -77,7 +82,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public PaveOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                             final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
                 .status(jobStatus)

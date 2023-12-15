@@ -2,9 +2,9 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -23,8 +23,8 @@ public class SageSomaticCaller extends SageCaller {
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
-                .addTumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath()))
-                .andThen(sageConfiguration.postProcess().apply(metadata))
+                .addTumor(metadata.tumor().sampleName(),
+                        getTumorBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess().apply(metadata))
                 .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
                 .bash();
     }

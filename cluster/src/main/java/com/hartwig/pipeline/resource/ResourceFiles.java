@@ -36,11 +36,15 @@ public interface ResourceFiles {
     String amberHeterozygousLoci();
 
     String sageSomaticHotspots();
+
     String sagePanelBed();
+
     String sageGermlineHotspots();
+
     String sageGeneCoverageBed();
 
     String germlineBlacklistVcf();
+
     String germlineBlacklistBed();
 
     String clinvarVcf();
@@ -64,14 +68,17 @@ public interface ResourceFiles {
     }
 
     String gridssBlacklistBed();
+
     String svPrepBlacklistBed();
 
     String sglBreakendPon();
+
     String svBreakpointPon();
 
     String ensemblDataCache();
 
     String knownFusionData();
+
     String knownFusionPairBedpe();
 
     String genotypeSnpsDB();
@@ -83,9 +90,13 @@ public interface ResourceFiles {
     String purpleCohortGermlineDeletions();
 
     String targetRegionsPonArtefacts();
+
     String targetRegionsBed();
+
     String targetRegionsNormalisation();
+
     String targetRegionsRatios();
+
     String targetRegionsMsiIndels();
 
     default String cuppaRefData() {

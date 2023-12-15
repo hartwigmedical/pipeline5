@@ -1,5 +1,13 @@
 package com.hartwig.pipeline.stages;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.ComputeEngineStatus;
@@ -14,16 +22,9 @@ import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class StageRunnerTest {
 

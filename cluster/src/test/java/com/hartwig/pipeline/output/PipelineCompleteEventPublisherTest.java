@@ -22,9 +22,9 @@ import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

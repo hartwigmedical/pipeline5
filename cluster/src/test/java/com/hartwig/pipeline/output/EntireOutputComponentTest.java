@@ -13,8 +13,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -51,10 +49,8 @@ public class EntireOutputComponentTest {
         Blob second = blob("results/file2.out");
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
-        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.root(),
-                "namespace",
-                ResultsDirectory.defaultDirectory());
+        EntireOutputComponent victim =
+                new EntireOutputComponent(runtimeBucket, Folder.root(), "namespace", ResultsDirectory.defaultDirectory());
         victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
@@ -72,10 +68,8 @@ public class EntireOutputComponentTest {
         Blob second = blob("results/subdir1/subdir2/file2.out");
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
-        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.root(),
-                "namespace",
-                ResultsDirectory.defaultDirectory());
+        EntireOutputComponent victim =
+                new EntireOutputComponent(runtimeBucket, Folder.root(), "namespace", ResultsDirectory.defaultDirectory());
         victim.addToOutput(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/subdir1/file1.out");

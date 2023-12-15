@@ -2,9 +2,9 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 

@@ -9,8 +9,6 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.storage.ResultsDirectory;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;

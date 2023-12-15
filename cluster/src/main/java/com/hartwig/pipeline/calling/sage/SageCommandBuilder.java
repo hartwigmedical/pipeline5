@@ -8,7 +8,6 @@ import java.util.StringJoiner;
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.resource.ResourceFiles;
 

@@ -1,7 +1,18 @@
 package com.hartwig.pipeline.metrics;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
-import com.hartwig.computeengine.execution.vm.*;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -13,19 +24,17 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.SingleFileComponent;
+import com.hartwig.pipeline.output.StartupScriptComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
 @Namespace(BamMetrics.NAMESPACE)
 public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
@@ -39,7 +48,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     private final Arguments arguments;
 
     public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset,
-                      final Arguments arguments) {
+            final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         bamBaiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
@@ -80,8 +89,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
         ArrayList<BashCommand> bashCommands = new ArrayList<>();
 
-        bashCommands.add(new BamMetricsCommand(
-                metadata.sampleName(),
+        bashCommands.add(new BamMetricsCommand(metadata.sampleName(),
                 bamDownload.getLocalTargetPath(),
                 resourceFiles,
                 VmDirectories.OUTPUT,
@@ -104,7 +112,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-                                   final ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
         return BamMetricsOutput.builder()
                 .status(jobStatus)

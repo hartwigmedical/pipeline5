@@ -1,10 +1,11 @@
 package com.hartwig.pipeline.execution;
 
+import java.io.File;
+
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
-import org.immutables.value.Value;
 
-import java.io.File;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface OutputFile {
