@@ -44,7 +44,7 @@ steps:
   - name: 'eu.gcr.io/hmf-build/docker-tag'
     id: 'Publish Docker image'
     dir: cluster
-    args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME', 'Dockerfile', '$TAG_NAME']
+    args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME', 'Dockerfile', '--build-arg', 'VERSION=$TAG_NAME']
 images:
   - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'
