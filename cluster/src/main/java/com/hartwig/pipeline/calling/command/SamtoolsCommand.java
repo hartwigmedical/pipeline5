@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
 
-import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.Bash;
 
 public class SamtoolsCommand extends VersionedToolCommand {
 

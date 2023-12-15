@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

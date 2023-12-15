@@ -1,25 +1,28 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -31,8 +34,6 @@ import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
@@ -42,10 +43,10 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     private final ResourceFiles resourceFiles;
     private final LilacBamSliceOutput slicedOutput;
-    private final InputDownload purpleGeneCopyNumber;
-    private final InputDownload purpleSomaticVariants;
-    private final InputDownload slicedReference;
-    private final InputDownload slicedTumor;
+    private final InputDownloadCommand purpleGeneCopyNumber;
+    private final InputDownloadCommand purpleSomaticVariants;
+    private final InputDownloadCommand slicedReference;
+    private final InputDownloadCommand slicedTumor;
     private final PersistedDataset persistedDataset;
 
     public Lilac(final LilacBamSliceOutput slicedOutput, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
@@ -101,6 +102,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
                 .name("lilac")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(LILAC.getCpus(), LILAC.getMemoryGb()))
@@ -174,7 +176,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
     }
 
     private JavaJarCommand formCommand(final List<String> arguments) {
-        return new JavaJarCommand(LILAC, arguments);
+        return JavaCommandFactory.javaJarCommand(LILAC, arguments);
     }
 
     private String lilacOutput(final String sampleName) {

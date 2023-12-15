@@ -4,22 +4,26 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ComputeEngine;
+import com.hartwig.computeengine.execution.vm.RuntimeFiles;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RunIdentifier;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.RuntimeBucketOptions;
+import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
-import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.RunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.StartingPoint;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.trace.StageTrace;
 
 import net.jodah.failsafe.Failsafe;
@@ -50,17 +54,26 @@ public class StageRunner<M extends RunMetadata> {
         if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE);
-                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments, labels);
+                RunIdentifier runIdentifier = ArgumentUtil.toRunIdentifier(arguments, metadata);
+                var runtimeBucketOptions = RuntimeBucketOptions.builder()
+                        .namespace(stage.namespace())
+                        .region(arguments.region())
+                        .labels(labels.asMap())
+                        .runIdentifier(runIdentifier)
+                        .cmek(arguments.cmek())
+                        .build();
+                RuntimeBucket bucket = RuntimeBucket.from(storage, runtimeBucketOptions);
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(commands)
-                        .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
+                        .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
-                PipelineStatus status =
+                ComputeEngineStatus computeEngineStatus =
                         Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.runName(), stage.namespace())))
                                 .get(() -> computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)));
+                PipelineStatus pipelineStatus = PipelineStatus.of(computeEngineStatus);
                 trace.stop();
-                return stage.output(metadata, status, bucket, resultsDirectory);
+                return stage.output(metadata, pipelineStatus, bucket, resultsDirectory);
             }
             return stage.persistedOutput(metadata);
         }

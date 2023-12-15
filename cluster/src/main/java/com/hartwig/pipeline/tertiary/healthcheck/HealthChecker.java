@@ -1,30 +1,34 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,20 +43,21 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
     private static final String LOCAL_FLAGSTAT_DIR = VmDirectories.INPUT + "/flagstat";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/purple";
-    private final InputDownload referenceMetricsDownload;
-    private final InputDownload tumorMetricsDownload;
-    private final InputDownload referenceFlagstatDownload;
-    private final InputDownload tumorFlagstatDownload;
-    private final InputDownload purpleDownload;
+    private final InputDownloadCommand referenceMetricsDownload;
+    private final InputDownloadCommand tumorMetricsDownload;
+    private final InputDownloadCommand referenceFlagstatDownload;
+    private final InputDownloadCommand tumorFlagstatDownload;
+    private final InputDownloadCommand purpleDownload;
 
     public HealthChecker(final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput,
             final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
-        referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
-        tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
+        referenceMetricsDownload =
+                new InputDownloadCommand(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
+        tumorMetricsDownload = new InputDownloadCommand(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload =
-                new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
-        tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
-        purpleDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
+                new InputDownloadCommand(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
+        tumorFlagstatDownload = new InputDownloadCommand(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
+        purpleDownload = new InputDownloadCommand(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
 
     @Override
@@ -96,7 +101,13 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory);
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .imageFamily(IMAGE_FAMILY)
+                .name("health-checker")
+                .startupCommand(bash)
+                .performanceProfile(custom(HEALTH_CHECKER.getCpus(), HEALTH_CHECKER.getMemoryGb()))
+                .namespacedResults(resultsDirectory)
+                .build();
     }
 
     @Override

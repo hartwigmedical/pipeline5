@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.gatk;
 
 import static com.hartwig.pipeline.tools.ExternalTool.GATK;
 
@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.java.Java8JarCommand;
+import com.hartwig.computeengine.execution.vm.command.java.Java8JarCommand;
 
 public class GatkCommand extends Java8JarCommand {
 

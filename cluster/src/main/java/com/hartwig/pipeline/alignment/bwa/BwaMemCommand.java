@@ -2,8 +2,8 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
+import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.pipeline.calling.command.BwaCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
 
 class BwaMemCommand extends BwaCommand {
 
