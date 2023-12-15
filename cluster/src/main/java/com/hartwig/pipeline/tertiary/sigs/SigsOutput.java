@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.tertiary.sigs;
 
-import java.util.Optional;
-
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
 
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface SigsOutput extends StageOutput {

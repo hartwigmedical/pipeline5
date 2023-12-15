@@ -1,11 +1,5 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -28,11 +22,7 @@ import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -40,11 +30,7 @@ import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxGermline;
-import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
-import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.*;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -52,6 +38,12 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -109,8 +101,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.sageSomaticTumorSampleBqrPlot = new InputDownloadCommand(sageSomaticOutput.somaticTumorSampleBqrPlot());
         LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
         this.linxSomaticOutputDir = new InputDownloadCommand(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
-        this.linxGermlineDataDir =
-                new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
+        this.linxGermlineDataDir = new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
         this.chordPredictionTxt = new InputDownloadCommand(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaResultCsv = new InputDownloadCommand(cuppaOutputLocations.resultCsv());
@@ -231,9 +222,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = JavaCommandFactory.javaJarCommand(ORANGE, argumentListBuilder.build());
 
-        return List.of(new MkDirCommand(linxPlotDir),
+        return List.of(
+                new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                orangeJarCommand);
+                orangeJarCommand
+        );
     }
 
     @Override
@@ -282,9 +275,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), orangeJson)),
-                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), orangePdf)));
+                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf)));
         } else {
             return List.of();
         }

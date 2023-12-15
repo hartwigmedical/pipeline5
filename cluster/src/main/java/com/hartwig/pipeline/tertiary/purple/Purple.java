@@ -78,8 +78,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         this.somaticSvVcfDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants());
         this.somaticSvVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
         this.svRecoveryVcfDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload =
-                new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.germlineSvVcfDownload = new InputDownloadCommand(gripssGermlineOutput.filteredVariants());
         this.amberOutputDownload = new InputDownloadCommand(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
@@ -102,12 +101,10 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                true,
-                svRecoveryVcfDownload.getLocalTargetPath()));
+                true, svRecoveryVcfDownload.getLocalTargetPath()));
 
         purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(),
-                germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
 
         if (arguments.shallow()) {
@@ -126,8 +123,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                false,
-                svRecoveryVcfDownload.getLocalTargetPath()));
+                false, svRecoveryVcfDownload.getLocalTargetPath()));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -144,8 +140,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(),
-                germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.add("-no_charts");
         return buildCommand(arguments);
@@ -223,10 +218,10 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             String germlineDeletionTsv = germlineDeletionTsv(metadata.sampleName());
             String germlineVcf = germlineVcf(metadata.sampleName());
             String germlineSvVcf = germlineSvVcf(metadata.sampleName());
-            outputLocationsBuilder.germlineVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf)))
+            outputLocationsBuilder
+                    .germlineVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf)))
                     .germlineStructuralVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineSvVcf)))
-                    .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(),
-                            resultsDirectory.path(germlineDriverCatalog(metadata.sampleName()))))
+                    .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDriverCatalog(metadata.sampleName()))))
                     .germlineDeletions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDeletionTsv)));
         });
 
@@ -356,8 +351,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
-                            metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER, metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv)),
                     new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
                             metadata.barcode(),
@@ -378,8 +372,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                     new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)),
-                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION,
-                            metadata.barcode(),
+                    new AddDatatype(DataType.PURPLE_GERMLINE_DELETION, metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDeletionTsv))));
         });
         return datatypes;
@@ -411,13 +404,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return tumorSampleName + PURPLE_SOMATIC_COPY_NUMBER_TSV;
     }
 
-    private static String somaticSvVcf(final String tumorSampleName) {
-        return tumorSampleName + PURPLE_SOMATIC_SV_VCF;
-    }
+    private static String somaticSvVcf(final String tumorSampleName) { return tumorSampleName + PURPLE_SOMATIC_SV_VCF; }
 
-    private static String germlineSvVcf(final String tumorSampleName) {
-        return tumorSampleName + PURPLE_GERMLINE_SV_VCF;
-    }
+    private static String germlineSvVcf(final String tumorSampleName) { return tumorSampleName + PURPLE_GERMLINE_SV_VCF; }
 
     private static String somaticVcf(final String tumorSampleName) {
         return tumorSampleName + PURPLE_SOMATIC_VCF;
