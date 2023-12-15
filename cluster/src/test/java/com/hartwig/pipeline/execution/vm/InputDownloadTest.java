@@ -24,12 +24,14 @@ public class InputDownloadTest {
 
     @Test
     public void createsBashToCopyInputWithGsUtil() {
-        assertThat(victim.asBash()).isEqualTo(inputDownload("cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
+        assertThat(victim.asBash()).isEqualTo(inputDownload(
+                "cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
     }
 
     @Test
     public void createsLocalPathUsingSourceLocationAndConvention() {
-        assertThat(victim.asBash()).isEqualTo(inputDownload("cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
+        assertThat(victim.asBash()).isEqualTo(inputDownload(
+                "cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
     }
 
     @Test

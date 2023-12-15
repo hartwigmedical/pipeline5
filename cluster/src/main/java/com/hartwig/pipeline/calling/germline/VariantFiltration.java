@@ -46,9 +46,7 @@ public class VariantFiltration extends SubStage {
         arguments.add("3");
         arguments.add("--clusterWindowSize");
         arguments.add("35");
-        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
-                "VariantFiltration",
-                arguments.toArray(new String[0])));
+        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP, "VariantFiltration", arguments.toArray(new String[0])));
     }
 
     private static String wrapInQuotes(final String string) {

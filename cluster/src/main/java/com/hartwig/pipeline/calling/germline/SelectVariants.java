@@ -31,8 +31,6 @@ public class SelectVariants extends SubStage {
         arguments.add(input.path());
         arguments.add("-o");
         arguments.add(output.path());
-        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
-                "SelectVariants",
-                arguments.toArray(new String[0])));
+        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP, "SelectVariants", arguments.toArray(new String[0])));
     }
 }

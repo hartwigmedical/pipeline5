@@ -3,7 +3,6 @@ package com.hartwig.pipeline.output;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.testsupport.TestBlobs;
-import com.hartwig.pipeline.output.InNamespace;
 
 import org.junit.Before;
 import org.junit.Test;

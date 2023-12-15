@@ -18,7 +18,8 @@ public class VirtualMachineJobDefinitionTest {
     @Before
     public void setup() {
         BashStartupScript startupScript = mock(BashStartupScript.class);
-        builder = VirtualMachineJobDefinition.builder().startupCommand(startupScript)
+        builder = VirtualMachineJobDefinition.builder()
+                .startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory())
                 .name("victim");
     }

@@ -12,7 +12,6 @@ public class VirtualMachinePerformanceProfileTest {
         int cores = 16;
         int memoryGb = 32;
         int memoryMb = memoryGb * 1024;
-        assertThat(VirtualMachinePerformanceProfile.custom(cores, memoryGb).uri())
-                .isEqualTo(format("custom-%d-%d", cores, memoryMb));
+        assertThat(VirtualMachinePerformanceProfile.custom(cores, memoryGb).uri()).isEqualTo(format("custom-%d-%d", cores, memoryMb));
     }
 }

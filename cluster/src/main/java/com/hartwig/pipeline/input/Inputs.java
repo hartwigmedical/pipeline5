@@ -11,8 +11,7 @@ public class Inputs {
         return sample(pipelineInput, metadata.type()).orElseThrow();
     }
 
-    public static Optional<SampleInput> sample(final PipelineInput pipelineInput,
-            final SingleSampleRunMetadata.SampleType sampleType) {
+    public static Optional<SampleInput> sample(final PipelineInput pipelineInput, final SingleSampleRunMetadata.SampleType sampleType) {
         try {
             if (sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 return pipelineInput.reference();

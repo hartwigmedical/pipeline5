@@ -45,7 +45,8 @@ public class ManifestAssert extends AbstractAssert<ManifestAssert, List<String>>
         }).collect(toList());
     }
 
-    private List<String> sliceOutFilenames(final List<String> filenames, final int filenameIndex, final String prefixToRemoveFromFilenames) {
+    private List<String> sliceOutFilenames(final List<String> filenames, final int filenameIndex,
+            final String prefixToRemoveFromFilenames) {
         return filenames.stream()
                 .map(s -> s.trim().split(" +")[filenameIndex].replaceAll("^" + prefixToRemoveFromFilenames, ""))
                 .collect(toList());

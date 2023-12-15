@@ -9,13 +9,14 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
-public class MergeMarkDupsTest extends SubStageTest{
+public class MergeMarkDupsTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new MergeMarkDups(
-                "", TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"), false);
+        return new MergeMarkDups("",
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"),
+                false);
     }
 
     @Override

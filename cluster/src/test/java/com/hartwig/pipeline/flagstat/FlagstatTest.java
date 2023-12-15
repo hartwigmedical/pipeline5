@@ -8,9 +8,9 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -84,8 +84,7 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final FlagstatOutput output) {
-        assertThat(output.flagstatOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "flagstat/" + REFERENCE_FLAGSTAT));
-                assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
+        assertThat(output.flagstatOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "flagstat/" + REFERENCE_FLAGSTAT));
+        assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
     }
 }

@@ -19,9 +19,9 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.StartupScriptComponent;
@@ -58,7 +58,9 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
     }
 
     @Override
-    public String namespace() { return namespace; }
+    public String namespace() {
+        return namespace;
+    }
 
     protected List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
@@ -106,7 +108,9 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
-                        basename(unfilteredVcfFile), basename(unfilteredVcfFile), resultsDirectory))
+                        basename(unfilteredVcfFile),
+                        basename(unfilteredVcfFile),
+                        resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         namespace(),
                         Folder.root(),
@@ -140,14 +144,12 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
         String filteredVcfFile = filteredVcf(metadata);
         String unfilteredVcfFile = unfilteredVcf(metadata);
 
-        GoogleStorageLocation filteredLocation =
-                persistedDataset.path(metadata.sampleName(), filteredDatatype())
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcfFile)));
-        GoogleStorageLocation unfilteredLocation =
-                persistedDataset.path(metadata.sampleName(), unfilteredDatatype())
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
+        GoogleStorageLocation filteredLocation = persistedDataset.path(metadata.sampleName(), filteredDatatype())
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcfFile)));
+        GoogleStorageLocation unfilteredLocation = persistedDataset.path(metadata.sampleName(), unfilteredDatatype())
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcfFile)));
 
         return GripssOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)

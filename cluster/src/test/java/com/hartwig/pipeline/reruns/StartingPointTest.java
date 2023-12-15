@@ -95,11 +95,22 @@ public class StartingPointTest {
 
     @Test
     public void startingPointsAreUpToDate() {
-        List<Namespace> endStages = namespacesOf(Sigs.class, Orange.class, Cram2Bam.class, HealthChecker.class, Lilac.class,
-                Cuppa.class, Peach.class, LinxSomatic.class, LinxGermline.class, Chord.class, VirusInterpreter.class, Cider.class, Teal.class);
+        List<Namespace> endStages = namespacesOf(Sigs.class,
+                Orange.class,
+                Cram2Bam.class,
+                HealthChecker.class,
+                Lilac.class,
+                Cuppa.class,
+                Peach.class,
+                LinxSomatic.class,
+                LinxGermline.class,
+                Chord.class,
+                VirusInterpreter.class,
+                Cider.class,
+                Teal.class);
         NamespacesTest.allNamespaces().stream().filter(n -> !endStages.contains(n)).map(Namespace::value).collect(toList()).forEach(n -> {
             boolean referenced = false;
-            for (StartingPoints points: StartingPoints.values()) {
+            for (StartingPoints points : StartingPoints.values()) {
                 if (new StartingPoint(testArgumentsWithStartingPoint(points.name())).usePersisted(n)) {
                     referenced = true;
                 }
@@ -112,7 +123,7 @@ public class StartingPointTest {
         return Arguments.testDefaultsBuilder().startingPoint(startingPoint).build();
     }
 
-    private static List<Namespace> namespacesOf(Class<? extends Stage>...classes) {
+    private static List<Namespace> namespacesOf(Class<? extends Stage>... classes) {
         return Arrays.stream(classes).map(c -> c.getAnnotation(Namespace.class)).collect(toList());
     }
 }

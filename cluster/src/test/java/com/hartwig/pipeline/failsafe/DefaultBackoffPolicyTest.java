@@ -19,11 +19,12 @@ public class DefaultBackoffPolicyTest {
         assertThat(thrower.retries).isEqualTo(EXPECTED_RETRIES);
     }
 
-    static class ThrowExceptionThrice implements CheckedRunnable{
+    static class ThrowExceptionThrice implements CheckedRunnable {
         int retries;
+
         @Override
         public void run() {
-            if (retries < EXPECTED_RETRIES){
+            if (retries < EXPECTED_RETRIES) {
                 retries++;
                 throw new RuntimeException();
             }

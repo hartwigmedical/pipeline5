@@ -68,7 +68,7 @@ public class BcfToolsCommandListBuilder {
         return this;
     }
 
-    public BcfToolsCommandListBuilder selectSample(final String ... tumorSampleNames) {
+    public BcfToolsCommandListBuilder selectSample(final String... tumorSampleNames) {
         if (tumorSampleNames.length == 0) {
             throw new IllegalArgumentException("At least one sample must be provided");
         }

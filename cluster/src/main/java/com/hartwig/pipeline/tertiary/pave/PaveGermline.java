@@ -28,24 +28,29 @@ public class PaveGermline extends Pave {
     }
 
     @Override
-    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata); }
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return referenceCommand(metadata);
+    }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) { return referenceCommand(metadata); }
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return referenceCommand(metadata);
+    }
 
     private List<BashCommand> referenceCommand(final SomaticRunMetadata metadata) {
 
-        List<String> arguments = PaveArguments.germline(
-                resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
+        List<String> arguments =
+                PaveArguments.germline(resourceFiles, metadata.sampleName(), vcfDownload.getLocalTargetPath(), outputFile(metadata));
         return paveCommand(arguments);
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) { return Stage.disabled(); }
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return Stage.disabled();
+    }
 
     @Override
     protected String outputFile(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s",
-                metadata.sampleName(), PAVE_GERMLINE_FILE_ID, FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s", metadata.sampleName(), PAVE_GERMLINE_FILE_ID, FileTypes.GZIPPED_VCF);
     }
 }

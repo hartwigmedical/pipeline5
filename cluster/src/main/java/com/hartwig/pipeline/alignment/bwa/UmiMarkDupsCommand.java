@@ -10,16 +10,15 @@ import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
-public class UmiMarkDupsCommand extends JavaJarCommand
-{
-    public UmiMarkDupsCommand(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads) {
+public class UmiMarkDupsCommand extends JavaJarCommand {
+    public UmiMarkDupsCommand(final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir,
+            final String threads) {
 
         super(MARK_DUPS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads));
     }
 
-    private static List<String> formArguments(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads) {
+    private static List<String> formArguments(final String sampleId, final String inputBam, final ResourceFiles resourceFiles,
+            final String outputDir, final String threads) {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(format("-sample %s", sampleId));

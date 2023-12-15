@@ -164,7 +164,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cupDataCsv(metadata))),
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
-                        metadata.barcode(), new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
                 new AddDatatype(DataType.CUPPA_REPORT,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cuppaReport(metadata))));

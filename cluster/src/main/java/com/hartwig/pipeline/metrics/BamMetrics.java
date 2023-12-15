@@ -47,7 +47,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
             final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.alignments());
-        bamBaiDownload = new InputDownload(alignmentOutput  .alignments().transform(FileTypes::toAlignmentIndex));
+        bamBaiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
     }
@@ -58,7 +58,9 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> inputs() { return ImmutableList.of(bamDownload, bamBaiDownload); }
+    public List<BashCommand> inputs() {
+        return ImmutableList.of(bamDownload, bamBaiDownload);
+    }
 
     @Override
     public String namespace() {
@@ -83,8 +85,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     public List<BashCommand> bamMetricsCommands(final SingleSampleRunMetadata metadata) {
         ArrayList<BashCommand> bashCommands = new ArrayList<>();
 
-        bashCommands.add(new BamMetricsCommand(
-                metadata.sampleName(),
+        bashCommands.add(new BamMetricsCommand(metadata.sampleName(),
                 bamDownload.getLocalTargetPath(),
                 resourceFiles,
                 VmDirectories.OUTPUT,

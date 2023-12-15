@@ -16,9 +16,9 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
-import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.testsupport.TestInputs;
 

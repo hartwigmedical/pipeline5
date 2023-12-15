@@ -14,19 +14,20 @@ class LinxVisualisationsCommand extends JavaClassCommand {
 
     LinxVisualisationsCommand(final String sample, final String sampleVisDir, final RefGenomeVersion refGenomeVersion) {
 
-        super(HmfTool.LINX, LINX_VISUALISER,
+        super(HmfTool.LINX,
+                LINX_VISUALISER,
                 List.of("-sample",
-                sample,
-                "-ref_genome_version",
-                refGenomeVersion.toString(),
-                "-circos",
-                CIRCOS.binaryPath(),
-                "-vis_file_dir",
-                sampleVisDir,
-                "-data_out",
-                sampleVisDir + "/circos/",
-                "-plot_out",
-                sampleVisDir + "/plot/",
-                "-plot_reportable"));
+                        sample,
+                        "-ref_genome_version",
+                        refGenomeVersion.toString(),
+                        "-circos",
+                        CIRCOS.binaryPath(),
+                        "-vis_file_dir",
+                        sampleVisDir,
+                        "-data_out",
+                        sampleVisDir + "/circos/",
+                        "-plot_out",
+                        sampleVisDir + "/plot/",
+                        "-plot_reportable"));
     }
 }

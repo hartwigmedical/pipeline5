@@ -97,7 +97,7 @@ public class SingleSamplePipeline {
             composer.add(state.add(futurePayload(unifiedGenotyperFuture)));
             composer.add(state.add(flagstatOutput));
             composer.add(state.add(futurePayload(cramOutputFuture)));
-            composer.compose(metadata,  Folder.from(metadata));
+            composer.compose(metadata, Folder.from(metadata));
             eventListener.complete(state);
         }
         return state;

@@ -33,8 +33,7 @@ public class SvCalling extends SubStage {
     private static final String MAX_HEAP = "48G";
     private static final int GRIDSS_THREADS = 10;
 
-    private enum SampleType
-    {
+    private enum SampleType {
         TUMOR,
         REFERENCE
     }
@@ -63,15 +62,13 @@ public class SvCalling extends SubStage {
         // run tumor first to establish junctions for the ref
         String tumorJunctionsFile = null;
         SampleArgument tumorSample = sampleArguments.stream().filter(x -> x.Type == SampleType.TUMOR).findFirst().orElse(null);
-        if(tumorSample != null)
-        {
+        if (tumorSample != null) {
             addSvPrepCommands(commands, tumorSample, null);
             tumorJunctionsFile = format("%s/%s.sv_prep.junctions.tsv", VmDirectories.OUTPUT, tumorSample.SampleName);
         }
 
         SampleArgument refSample = sampleArguments.stream().filter(x -> x.Type == SampleType.REFERENCE).findFirst().orElse(null);
-        if(refSample != null)
-        {
+        if (refSample != null) {
             addSvPrepCommands(commands, refSample, tumorJunctionsFile);
         }
 
@@ -86,8 +83,7 @@ public class SvCalling extends SubStage {
         return commands;
     }
 
-    private void addSvPrepCommands(final List<BashCommand> commands, final SampleArgument sampleArgument, final String junctionsFile)
-    {
+    private void addSvPrepCommands(final List<BashCommand> commands, final SampleArgument sampleArgument, final String junctionsFile) {
         // run SvPrep on tumor and/or reference
         commands.add(buildSvPrepCommand(sampleArgument, junctionsFile));
 
@@ -119,8 +115,9 @@ public class SvCalling extends SubStage {
         arguments.add(String.format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
         arguments.add(String.format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
 
-        if(tumorJunctionsFile != null)
+        if (tumorJunctionsFile != null) {
             arguments.add(String.format("-existing_junction_file %s", tumorJunctionsFile));
+        }
 
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
@@ -184,8 +181,9 @@ public class SvCalling extends SubStage {
 
     private String mainSampleName() {
         SampleArgument tumorSample = sampleArguments.stream().filter(x -> x.Type == SampleType.TUMOR).findFirst().orElse(null);
-        if(tumorSample != null)
+        if (tumorSample != null) {
             return tumorSample.SampleName;
+        }
 
         return sampleArguments.get(0).SampleName;
     }

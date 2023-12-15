@@ -7,8 +7,9 @@ public class StageTrace {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageTrace.class);
 
-    public enum ExecutorType{
-        DATAPROC, COMPUTE_ENGINE
+    public enum ExecutorType {
+        DATAPROC,
+        COMPUTE_ENGINE
     }
 
     private final String stageName;
@@ -21,12 +22,12 @@ public class StageTrace {
         this.executorType = executorType;
     }
 
-    public StageTrace start(){
-        LOGGER.info("Stage [{}] for [{}] starting and will be run on [{}]", stageName,sample, executorType);
+    public StageTrace start() {
+        LOGGER.info("Stage [{}] for [{}] starting and will be run on [{}]", stageName, sample, executorType);
         return this;
     }
 
-    public void stop(){
+    public void stop() {
         LOGGER.info("Stage [{}] complete for [{}]", stageName, sample);
     }
 }

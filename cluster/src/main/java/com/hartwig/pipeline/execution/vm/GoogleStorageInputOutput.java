@@ -5,6 +5,7 @@ import static java.lang.String.format;
 public class GoogleStorageInputOutput {
 
     private final String bucketName;
+
     public GoogleStorageInputOutput(final String bucketName) {
         this.bucketName = bucketName;
     }

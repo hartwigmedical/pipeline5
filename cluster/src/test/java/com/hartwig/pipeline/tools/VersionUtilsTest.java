@@ -1,12 +1,10 @@
 package com.hartwig.pipeline.tools;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class VersionUtilsTest
-{
+public class VersionUtilsTest {
 
     @Test
     public void parsesMajorMinorVersion() {

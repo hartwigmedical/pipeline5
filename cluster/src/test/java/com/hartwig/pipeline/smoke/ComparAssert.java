@@ -74,15 +74,16 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
     private class ComparWrapper {
         void run(final File victim, final File truthset, final File outputDir) throws ParseException {
 
-            String fileSourceRef = format("sample_dir=%s",truthset.getAbsolutePath());
+            String fileSourceRef = format("sample_dir=%s", truthset.getAbsolutePath());
 
-            String fileSourceNew = format("sample_dir=%s",victim.getAbsolutePath());
+            String fileSourceNew = format("sample_dir=%s", victim.getAbsolutePath());
 
-            List<String> arguments = List.of(
-                    "-match_level",
-                    "REPORTABLE", // KEY_FIELDS
+            List<String> arguments = List.of("-match_level",
+                    "REPORTABLE",
+                    // KEY_FIELDS
                     "-categories",
-                    "PURPLE,LINX,LILAC,CUPPA", // GERMLINE_VARIANT,SOMATIC_VARIANT
+                    "PURPLE,LINX,LILAC,CUPPA",
+                    // GERMLINE_VARIANT,SOMATIC_VARIANT
                     "-sample",
                     "COLO829v003T",
                     "-output_dir",

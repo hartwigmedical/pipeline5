@@ -10,7 +10,6 @@ import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AlignerProviderTest {

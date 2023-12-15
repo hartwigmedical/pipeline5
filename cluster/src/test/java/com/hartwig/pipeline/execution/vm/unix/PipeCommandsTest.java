@@ -13,7 +13,13 @@ public class PipeCommandsTest {
         String cmdTwo = "process_it";
         String cmdThree = "write_it";
 
-        PipeCommands pipeline = new PipeCommands(() -> {return cmdOne;}, () -> {return cmdTwo;}, () -> {return cmdThree;});
+        PipeCommands pipeline = new PipeCommands(() -> {
+            return cmdOne;
+        }, () -> {
+            return cmdTwo;
+        }, () -> {
+            return cmdThree;
+        });
         assertThat(pipeline.asBash()).isEqualTo(format("(%s | %s | %s)", cmdOne, cmdTwo, cmdThree));
     }
 }

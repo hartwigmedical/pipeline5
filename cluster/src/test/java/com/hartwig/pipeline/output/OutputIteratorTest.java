@@ -21,7 +21,7 @@ import org.junit.Test;
 public class OutputIteratorTest {
 
     @Test
-    public void iteratedOverBlobsInBucket(){
+    public void iteratedOverBlobsInBucket() {
         List<Blob> iterated = new ArrayList<>();
         Bucket sourceBucket = mock(Bucket.class);
         Blob first = blob("1");

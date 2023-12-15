@@ -121,7 +121,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                 .maybeVirusAnnotations(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotatedVirusTsv(metadata)))))
-                .addAllDatatypes(addDatatypes(metadata)).build();
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
     }
 
     @Override

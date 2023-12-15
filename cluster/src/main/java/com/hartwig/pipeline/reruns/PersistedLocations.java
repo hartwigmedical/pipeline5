@@ -2,7 +2,8 @@ package com.hartwig.pipeline.reruns;
 
 public class PersistedLocations {
 
-    public static String blobForSingle(final String persistedSet, final String persistedSample, final String namespace, final String blobPath) {
+    public static String blobForSingle(final String persistedSet, final String persistedSample, final String namespace,
+            final String blobPath) {
         return String.format("%s/%s/%s/%s", persistedSet, persistedSample, namespace, blobPath);
     }
 

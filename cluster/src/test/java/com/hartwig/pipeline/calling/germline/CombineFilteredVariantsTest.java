@@ -7,7 +7,7 @@ import com.hartwig.pipeline.stages.SubStage;
 
 import org.junit.Test;
 
-public class CombineFilteredVariantsTest extends SubStageTest{
+public class CombineFilteredVariantsTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {

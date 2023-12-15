@@ -12,19 +12,15 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 import org.jetbrains.annotations.Nullable;
 
-class BamMetricsCommand extends JavaJarCommand
-{
-    BamMetricsCommand(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
-            @Nullable final String targetRegionsBed) {
+class BamMetricsCommand extends JavaJarCommand {
+    BamMetricsCommand(final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir,
+            final String threads, @Nullable final String targetRegionsBed) {
 
         super(BAM_TOOLS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
     }
 
-    private static List<String> formArguments(
-            final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
-            @Nullable final String targetRegionsBed)
-    {
+    private static List<String> formArguments(final String sampleId, final String inputBam, final ResourceFiles resourceFiles,
+            final String outputDir, final String threads, @Nullable final String targetRegionsBed) {
         List<String> arguments = Lists.newArrayList();
 
         arguments.add(format("-sample %s", sampleId));
@@ -36,8 +32,9 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add(format("-threads %s", threads));
         arguments.add("-write_old_style");
 
-        if(targetRegionsBed != null)
+        if (targetRegionsBed != null) {
             arguments.add(format("-regions_bed_file %s", targetRegionsBed));
+        }
 
         return arguments;
     }

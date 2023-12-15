@@ -29,6 +29,7 @@ public class Java8JarCommand implements BashCommand {
                 VmDirectories.TOOLS,
                 toolName,
                 version,
-                jar, String.join(" ", arguments));
+                jar,
+                String.join(" ", arguments));
     }
 }

@@ -17,10 +17,6 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ComposeInPipelineOutputBucket;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.OutputComponent;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -60,7 +56,7 @@ public class ComposeInPipelineOutputBucketTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata(),  Folder.root());
+        victim.compose(TestInputs.referenceRunMetadata(), Folder.root());
     }
 
     @Test

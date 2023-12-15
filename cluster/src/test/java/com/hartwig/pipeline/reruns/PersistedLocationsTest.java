@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.reruns;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;

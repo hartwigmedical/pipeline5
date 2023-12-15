@@ -20,11 +20,6 @@ public class RscriptCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("Rscript %s/%s/%s/%s %s",
-                VmDirectories.TOOLS,
-                toolName,
-                version,
-                rFile,
-                String.join(" ", arguments));
+        return String.format("Rscript %s/%s/%s/%s %s", VmDirectories.TOOLS, toolName, version, rFile, String.join(" ", arguments));
     }
 }

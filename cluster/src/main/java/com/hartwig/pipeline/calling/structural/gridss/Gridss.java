@@ -10,8 +10,8 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
-import com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -19,9 +19,9 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -59,8 +59,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        SvCalling svCalling = new SvCalling(resourceFiles).tumorSample(tumorSampleName,
-                tumorBamPath);
+        SvCalling svCalling = new SvCalling(resourceFiles).tumorSample(tumorSampleName, tumorBamPath);
         return gridssCommands(svCalling, tumorSampleName);
     }
 
@@ -68,9 +67,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         String referenceSampleName = metadata.reference().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
-        SvCalling svCalling = new SvCalling(resourceFiles).referenceSample(
-                referenceSampleName,
-                refBamPath);
+        SvCalling svCalling = new SvCalling(resourceFiles).referenceSample(referenceSampleName, refBamPath);
         return gridssCommands(svCalling, referenceSampleName);
     }
 
@@ -80,14 +77,13 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        return gridssCommands(new SvCalling(resourceFiles).tumorSample(
-                tumorSampleName,
-                tumorBamPath).referenceSample(referenceSampleName, refBamPath), tumorSampleName);
+        return gridssCommands(new SvCalling(resourceFiles).tumorSample(tumorSampleName, tumorBamPath)
+                .referenceSample(referenceSampleName, refBamPath), tumorSampleName);
     }
 
     private List<BashCommand> gridssCommands(final SvCalling svCalling, final String sampleName) {
-        SubStageInputOutput unfilteredVcfOutput = svCalling.andThen(new GridssAnnotation(resourceFiles))
-                .apply(SubStageInputOutput.empty(sampleName));
+        SubStageInputOutput unfilteredVcfOutput =
+                svCalling.andThen(new GridssAnnotation(resourceFiles)).apply(SubStageInputOutput.empty(sampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
 
         List<BashCommand> commands = new ArrayList<>();

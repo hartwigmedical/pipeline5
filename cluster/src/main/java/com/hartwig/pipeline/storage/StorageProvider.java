@@ -20,10 +20,7 @@ public class StorageProvider {
         StorageOptions.Builder builder = StorageOptions.newBuilder();
         return builder.setCredentials(credentials)
                 .setProjectId(arguments.project())
-                .setTransportOptions(HttpTransportOptions.newBuilder()
-                        .setConnectTimeout(0)
-                        .setReadTimeout(0)
-                        .build())
+                .setTransportOptions(HttpTransportOptions.newBuilder().setConnectTimeout(0).setReadTimeout(0).build())
                 .build()
                 .getService();
     }

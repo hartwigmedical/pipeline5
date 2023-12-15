@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
@@ -7,13 +13,23 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.InputDownloadIfBlobExists;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -23,7 +39,11 @@ import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
-import com.hartwig.pipeline.tertiary.linx.*;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -31,12 +51,6 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.hartwig.pipeline.execution.vm.InputDownload.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -215,11 +229,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = new JavaJarCommand(ORANGE, argumentListBuilder.build());
 
-        return List.of(
-                new MkDirCommand(linxPlotDir),
+        return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                orangeJarCommand
-        );
+                orangeJarCommand);
     }
 
     @Override
@@ -267,7 +279,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), orangeJson)),
-                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf)));
+                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), orangePdf)));
         } else {
             return List.of();
         }

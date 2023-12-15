@@ -30,7 +30,8 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     public void shallowModeUsesHotspotQualOverride() {
         SageSomaticCaller victim = new SageSomaticCaller(TestInputs.defaultPair(),
                 new TestPersistedDataset(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaultsBuilder().shallow(true).build());
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
     }
 
@@ -38,14 +39,13 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
         return new SageSomaticCaller(TestInputs.defaultPair(),
                 new TestPersistedDataset(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaults());
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Arguments.testDefaults());
     }
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of(
-                toolCommand(SAGE)
-                        + " -tumor tumor -tumor_bam /data/input/tumor.bam "
+        return ImmutableList.of(toolCommand(SAGE) + " -tumor tumor -tumor_bam /data/input/tumor.bam "
                         + "-reference reference -reference_bam /data/input/reference.bam "
                         + "-hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
                         + "-high_confidence_bed /opt/resources/giab_high_conf/37/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz "

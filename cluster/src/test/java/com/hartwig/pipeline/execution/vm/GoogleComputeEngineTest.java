@@ -169,13 +169,8 @@ public class GoogleComputeEngineTest {
     @Test
     public void usesNetworkAndSubnetWhenSpecified() {
         returnSuccess();
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(),
-                imagesClient,
-                z -> {
-                },
-                lifecycleManager,
-                bucketWatcher,
-                mock(Labels.class));
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(), imagesClient, z -> {
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
         List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfacesList();
@@ -203,13 +198,8 @@ public class GoogleComputeEngineTest {
         returnSuccess();
         String networkUrl = "projects/private";
         String subnetUrl = "projects/subnet";
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(),
-                imagesClient,
-                z -> {
-                },
-                lifecycleManager,
-                bucketWatcher,
-                mock(Labels.class));
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(), imagesClient, z -> {
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
         List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfacesList();
@@ -322,13 +312,8 @@ public class GoogleComputeEngineTest {
     @Test
     public void usesLatestImageFromCurrentFamilyWithGivenProject() {
         String givenProject = "givenProject";
-        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(),
-                imagesClient,
-                z -> {
-                },
-                lifecycleManager,
-                bucketWatcher,
-                mock(Labels.class));
+        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(), imagesClient, z -> {
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         ArgumentCaptor<String> project = ArgumentCaptor.forClass(String.class);
         when(imagesClient.getFromFamily(project.capture(), eq(VirtualMachineJobDefinition.STANDARD_IMAGE))).thenReturn(Image.newBuilder()

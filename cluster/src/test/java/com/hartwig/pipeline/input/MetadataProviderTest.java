@@ -64,7 +64,12 @@ public class MetadataProviderTest {
     public void shouldSetReferenceSampleWhenGiven() {
         String sampleName = "refSample";
         String barcode = "FR1234";
-        SampleInput reference = SampleInput.builder().name(sampleName).turquoiseSubject(sampleName).barcode(barcode).primaryTumorDoids(List.of("a", "b")).build();
+        SampleInput reference = SampleInput.builder()
+                .name(sampleName)
+                .turquoiseSubject(sampleName)
+                .barcode(barcode)
+                .primaryTumorDoids(List.of("a", "b"))
+                .build();
         pipelineInput = PipelineInput.builder().from(pipelineInput).reference(reference).build();
         victim = new MetadataProvider(arguments, pipelineInput);
         assertThat(victim.get().maybeReference()).isPresent();
@@ -82,7 +87,8 @@ public class MetadataProviderTest {
         String sampleName = "tumorSample";
         String barcode = "FR1235";
         List<String> doids = List.of("a", "b", "c");
-        SampleInput tumor = SampleInput.builder().name(sampleName).turquoiseSubject(sampleName).barcode(barcode).primaryTumorDoids(doids).build();
+        SampleInput tumor =
+                SampleInput.builder().name(sampleName).turquoiseSubject(sampleName).barcode(barcode).primaryTumorDoids(doids).build();
         pipelineInput = PipelineInput.builder().from(pipelineInput).tumor(tumor).build();
         victim = new MetadataProvider(arguments, pipelineInput);
         assertThat(victim.get().maybeTumor()).isPresent();

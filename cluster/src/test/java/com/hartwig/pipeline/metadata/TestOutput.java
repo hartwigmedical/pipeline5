@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 public interface TestOutput extends StageOutput {
 
     @Value.Default
-    default String name(){
+    default String name() {
         return "test";
     }
 

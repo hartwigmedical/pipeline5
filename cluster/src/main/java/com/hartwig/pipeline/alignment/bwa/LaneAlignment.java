@@ -18,8 +18,8 @@ public class LaneAlignment extends SubStage {
     private final String secondFastqPath;
     private final LaneInput lane;
 
-    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath,
-            final LaneInput lane) {
+    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath,
+            final String secondFastqPath, final LaneInput lane) {
         super(BwaAligner.laneId(lane), FileTypes.BAM);
         this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;

@@ -10,6 +10,8 @@ public class BamReheaderCommandTest {
     @Test
     public void createsValidCommand() {
         String inputBam = "/some/input/file.bam";
-        assertThat(new BamReheaderCommand(inputBam).asBash()).isEqualTo(format("/opt/tools/samtools/1.14/samtools reheader --no-PG --command 'grep -v ^@PG' %s", inputBam));
+        assertThat(new BamReheaderCommand(inputBam).asBash()).isEqualTo(format(
+                "/opt/tools/samtools/1.14/samtools reheader --no-PG --command 'grep -v ^@PG' %s",
+                inputBam));
     }
 }

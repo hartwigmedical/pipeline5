@@ -22,6 +22,7 @@ abstract class BAMFileAssertion {
         this.resultDirectory = resultDirectory;
         this.suffix = suffix;
     }
+
     BAMFileAssertion(final String resultDirectory, final String sample) {
         this(resultDirectory, "", sample);
     }

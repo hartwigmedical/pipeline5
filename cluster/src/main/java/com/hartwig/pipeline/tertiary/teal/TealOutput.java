@@ -10,7 +10,9 @@ import org.immutables.value.Value;
 public interface TealOutput extends StageOutput {
 
     @Override
-    default String name() { return Teal.NAMESPACE; }
+    default String name() {
+        return Teal.NAMESPACE;
+    }
 
     Optional<TealOutputLocations> maybeOutputLocations();
 

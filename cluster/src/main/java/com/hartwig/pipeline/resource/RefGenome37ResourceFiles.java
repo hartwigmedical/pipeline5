@@ -11,12 +11,10 @@ import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GNOMAD;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
-import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
-import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
 public class RefGenome37ResourceFiles implements ResourceFiles {
 

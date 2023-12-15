@@ -22,9 +22,11 @@ public interface RecordGroupId {
     static String removeFastqAndGz(final String input) {
         return removeExtension(removeExtension(input));
     }
+
     static String removeR1R2(final String input) {
         return input.replace("_R1", "").replace("_R2", "");
     }
+
     static String removeSampleName(final String input) {
         return input.substring(input.indexOf("_") + 1);
     }

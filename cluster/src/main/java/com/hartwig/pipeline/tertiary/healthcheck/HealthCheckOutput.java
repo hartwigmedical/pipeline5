@@ -20,6 +20,7 @@ public interface HealthCheckOutput extends StageOutput {
     default GoogleStorageLocation outputDirectory() {
         return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
     }
+
     static ImmutableHealthCheckOutput.Builder builder() {
         return ImmutableHealthCheckOutput.builder();
     }

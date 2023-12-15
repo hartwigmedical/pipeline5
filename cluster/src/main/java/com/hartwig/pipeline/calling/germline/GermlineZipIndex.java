@@ -20,8 +20,6 @@ public class GermlineZipIndex extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
 
-        return ImmutableList.of(
-                new BgzipCommand(beforeZip),
-                new TabixCommand(output.path()));
+        return ImmutableList.of(new BgzipCommand(beforeZip), new TabixCommand(output.path()));
     }
 }

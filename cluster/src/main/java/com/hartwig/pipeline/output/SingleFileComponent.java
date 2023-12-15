@@ -14,8 +14,8 @@ public class SingleFileComponent implements OutputComponent {
     private final String targetFileName;
     private final ResultsDirectory resultsDirectory;
 
-    public SingleFileComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
-            final String sourceFileName, final String targetFileName, final ResultsDirectory resultsDirectory) {
+    public SingleFileComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder, final String sourceFileName,
+            final String targetFileName, final ResultsDirectory resultsDirectory) {
         this.runtimeBucket = runtimeBucket;
         this.namespace = namespace;
         this.folder = folder;

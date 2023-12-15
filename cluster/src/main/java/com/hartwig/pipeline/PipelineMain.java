@@ -143,7 +143,9 @@ public class PipelineMain {
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
-            try (var turquoise = Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata)) {
+            try (var turquoise = Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"),
+                    arguments,
+                    somaticRunMetadata)) {
                 LOGGER.info("Starting pipeline in [{}] mode", mode);
                 apiStatusUpdateOrNot.start();
                 turquoise.publishStarted();

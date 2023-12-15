@@ -208,12 +208,17 @@ public class SomaticPipeline {
                         CuppaOutput cuppaOutput = composer.add(state.add(cuppaOutputFuture.get()));
                         SigsOutput sigsOutput = composer.add(state.add(signatureOutputFuture.get()));
 
-                        Future<CiderOutput> ciderOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Cider(pair, resourceFiles, persistedDataset)));
+                        Future<CiderOutput> ciderOutputFuture =
+                                executorService.submit(() -> stageRunner.run(metadata, new Cider(pair, resourceFiles, persistedDataset)));
                         CiderOutput ciderOutput = composer.add(state.add(ciderOutputFuture.get()));
 
                         Future<TealOutput> tealOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Teal(pair, purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics, resourceFiles,
+                                new Teal(pair,
+                                        purpleOutput,
+                                        cobaltOutput,
+                                        referenceMetrics,
+                                        tumorMetrics,
+                                        resourceFiles,
                                         persistedDataset)));
                         TealOutput tealOutput = composer.add(state.add(tealOutputFuture.get()));
 

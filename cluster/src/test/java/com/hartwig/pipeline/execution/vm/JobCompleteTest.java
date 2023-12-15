@@ -7,7 +7,7 @@ import org.junit.Test;
 public class JobCompleteTest {
 
     @Test
-    public void createsBashToPutCompletionFileWithDateIntoOutputDirectory(){
+    public void createsBashToPutCompletionFileWithDateIntoOutputDirectory() {
         JobComplete victim = new JobComplete("flag");
         assertThat(victim.asBash()).isEqualTo("date > /data/output/flag");
     }

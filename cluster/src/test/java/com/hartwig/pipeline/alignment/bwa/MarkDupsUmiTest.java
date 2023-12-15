@@ -15,13 +15,14 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
-public class MarkDupsUmiTest extends SubStageTest{
+public class MarkDupsUmiTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new MergeMarkDups(
-                "tumor", TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"), true);
+        return new MergeMarkDups("tumor",
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"),
+                true);
     }
 
     @Override
@@ -37,16 +38,11 @@ public class MarkDupsUmiTest extends SubStageTest{
         // expected commands
         List<String> expectedCommands = ImmutableList.of(
                 sambamba + " merge -t $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.raw.bam tumor.l001.bam tumor.l002.bam"
-                        + toolCommand(MARK_DUPS)
-                        + " -sample tumor "
-                        + "-bam_file /data/output/tumor.raw.bam "
+                        + toolCommand(MARK_DUPS) + " -sample tumor " + "-bam_file /data/output/tumor.raw.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 "
-                        + "-form_consensus "
-                        + "-output_dir /data/output "
-                        + "-log_level DEBUG "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo)"
-                        + samtools + " sort -@ $(grep -c '^processor' /proc/cpuinfo) -m 2G -T tmp -O bam /data/output/tumor.mark_dups.bam -o /data/output/tumor.bam"
+                        + "-ref_genome_version V37 " + "-form_consensus " + "-output_dir /data/output " + "-log_level DEBUG "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo)" + samtools
+                        + " sort -@ $(grep -c '^processor' /proc/cpuinfo) -m 2G -T tmp -O bam /data/output/tumor.mark_dups.bam -o /data/output/tumor.bam"
                         + samtools + " index -@ $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.bam"
                         + "rm /data/output/tumor.raw.bam /data/output/tumor.raw.bam.bai /data/output/tumor.mark_dups.bam");
 

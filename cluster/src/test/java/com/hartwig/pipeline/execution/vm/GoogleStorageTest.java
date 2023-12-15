@@ -1,11 +1,13 @@
 package com.hartwig.pipeline.execution.vm;
 
-import org.junit.Before;
-import org.junit.Test;
+import static java.lang.String.format;
 
 import static com.hartwig.pipeline.execution.vm.DataFixture.randomStr;
-import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class GoogleStorageTest {
     private String bucket;

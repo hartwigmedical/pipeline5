@@ -5,7 +5,7 @@ import com.hartwig.pipeline.StageOutput;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface SnpGenotypeOutput extends StageOutput{
+public interface SnpGenotypeOutput extends StageOutput {
 
     @Override
     default String name() {
