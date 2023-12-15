@@ -49,3 +49,5 @@ images:
   - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
+options:
+  machineType: 'E2_HIGHCPU_32'
