@@ -63,11 +63,11 @@ public class PipelineMain {
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
-        var computerEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
+        var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computerEngineConfig, credentials, labels.asMap()),
+                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap()),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
