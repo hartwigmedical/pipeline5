@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.teal;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -22,6 +20,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -149,13 +148,7 @@ public class Teal extends TertiaryStage<TealOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("teal")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
-                .build();
+        return VirtualMachineJobDefinitions.teal(startupScript, resultsDirectory);
     }
 
     @Override

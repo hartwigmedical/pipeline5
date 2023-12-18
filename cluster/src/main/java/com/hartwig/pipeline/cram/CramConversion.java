@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -19,6 +17,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -34,7 +33,6 @@ import com.hartwig.pipeline.stages.Stage;
 @Namespace(CramConversion.NAMESPACE)
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "cram";
-    static final int NUMBER_OF_CORES = 6;
 
     private final InputDownloadCommand bamDownload;
     private final String outputCram;
@@ -46,6 +44,10 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
+    }
+
+    public static int numberOfCores() {
+        return 6;
     }
 
     @Override
@@ -79,14 +81,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("cram")
-                .startupCommand(bash)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(NUMBER_OF_CORES, 6))
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.cramConversion(bash, resultsDirectory, sampleType);
     }
 
     @Override

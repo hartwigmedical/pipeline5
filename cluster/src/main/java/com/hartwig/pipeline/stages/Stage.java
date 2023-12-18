@@ -13,10 +13,8 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.input.RunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.tools.VersionUtils;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {
-    String IMAGE_FAMILY = "pipeline5-" + VersionUtils.imageVersion();
 
     List<BashCommand> inputs();
 

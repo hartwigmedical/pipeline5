@@ -1,19 +1,16 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.ExternalTool.BCF_TOOLS;
 import static com.hartwig.pipeline.tools.ExternalTool.BWA;
 import static com.hartwig.pipeline.tools.ExternalTool.KRAKEN;
 import static com.hartwig.pipeline.tools.ExternalTool.REPEAT_MASKER;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -25,6 +22,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -63,13 +61,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("virusbreakend")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
-                .build();
+        return VirtualMachineJobDefinitions.virusbreakend(startupScript, resultsDirectory);
     }
 
     @Override

@@ -1,14 +1,10 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
-
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -20,6 +16,7 @@ import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -101,13 +98,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("health-checker")
-                .startupCommand(bash)
-                .performanceProfile(custom(HEALTH_CHECKER.getCpus(), HEALTH_CHECKER.getMemoryGb()))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.healthChecker(bash, resultsDirectory);
     }
 
     @Override

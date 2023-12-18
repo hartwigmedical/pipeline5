@@ -5,7 +5,6 @@ import java.util.List;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -17,6 +16,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.stages.Namespace;
@@ -52,14 +52,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .name(namespace())
-                .build();
+        return VirtualMachineJobDefinitions.cram2Bam(bash, resultsDirectory, sampleType, namespace());
     }
 
     @Override

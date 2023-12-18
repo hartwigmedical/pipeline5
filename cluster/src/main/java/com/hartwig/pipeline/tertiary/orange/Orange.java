@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.orange;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -19,10 +18,15 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -30,7 +34,11 @@ import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
-import com.hartwig.pipeline.tertiary.linx.*;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -231,14 +239,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
-                .workingDiskSpaceGb(375)
-                .build();
+        return VirtualMachineJobDefinitions.orange(bash, resultsDirectory, namespace());
     }
 
     @Override

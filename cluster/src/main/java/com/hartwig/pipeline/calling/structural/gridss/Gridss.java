@@ -2,15 +2,11 @@ package com.hartwig.pipeline.calling.structural.gridss;
 
 import static java.lang.String.format;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.ExportPathCommand;
@@ -26,6 +22,7 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -108,13 +105,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("gridss")
-                .startupCommand(bash)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.gridds(bash, resultsDirectory);
     }
 
     @Override

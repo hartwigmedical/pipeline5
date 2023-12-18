@@ -1,15 +1,12 @@
 package com.hartwig.pipeline.tertiary.chord;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -19,6 +16,7 @@ import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -80,14 +78,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("chord")
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(CHORD.getCpus(), CHORD.getMemoryGb()))
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
-                .build();
+        return VirtualMachineJobDefinitions.chord(bash, resultsDirectory);
     }
 
     @Override

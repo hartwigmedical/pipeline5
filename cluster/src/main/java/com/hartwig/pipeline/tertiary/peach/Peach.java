@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -18,6 +17,7 @@ import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -70,14 +70,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name(NAMESPACE)
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(PEACH.getCpus(), PEACH.getMemoryGb()))
-                .workingDiskSpaceGb(375)
-                .build();
+        return VirtualMachineJobDefinitions.peach(bash, resultsDirectory);
     }
 
     @Override

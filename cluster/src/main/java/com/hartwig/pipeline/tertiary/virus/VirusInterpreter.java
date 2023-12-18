@@ -1,12 +1,10 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -19,6 +17,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -83,13 +82,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name(NAMESPACE)
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(VIRUS_INTERPRETER.getCpus(), VIRUS_INTERPRETER.getMemoryGb()))
-                .build();
+        return VirtualMachineJobDefinitions.virusInterperter(startupScript, resultsDirectory);
     }
 
     @Override

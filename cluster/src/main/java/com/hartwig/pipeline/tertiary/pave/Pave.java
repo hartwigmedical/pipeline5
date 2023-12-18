@@ -1,13 +1,11 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -19,6 +17,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -64,15 +63,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(PAVE.getCpus(), PAVE.getMemoryGb()))
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
-                .build();
+        return VirtualMachineJobDefinitions.pave(bash, resultsDirectory, namespace());
     }
 
     @Override

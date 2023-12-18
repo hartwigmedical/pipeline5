@@ -1,8 +1,5 @@
 package com.hartwig.pipeline.metrics;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +7,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -23,6 +19,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -100,13 +97,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript script, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("bam-metrics")
-                .startupCommand(script)
-                .performanceProfile(custom(BAM_TOOLS.getCpus(), BAM_TOOLS.getMemoryGb()))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.bamMetrics(script, resultsDirectory);
     }
 
     @Override

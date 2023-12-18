@@ -1,12 +1,9 @@
 package com.hartwig.pipeline.flagstat;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-
 import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -19,6 +16,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -76,13 +74,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("flagstat")
-                .startupCommand(bash)
-                .performanceProfile(custom(32, 120))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.flagstat(bash, resultsDirectory);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -25,6 +22,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -128,13 +126,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("germline")
-                .startupCommand(bash)
-                .performanceProfile(custom(32, 40))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.germlineCalling(bash, resultsDirectory);
     }
 
     @Override

@@ -2,11 +2,9 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.datatypes.FileTypes.bai;
 import static com.hartwig.pipeline.datatypes.FileTypes.bam;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
-import static com.hartwig.pipeline.stages.Stage.IMAGE_FAMILY;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -39,6 +36,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -125,13 +123,7 @@ public class BwaAligner implements Aligner {
                             RuntimeFiles.typical()));
             var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
-                    ImmutableVirtualMachineJobDefinition.builder()
-                            .imageFamily(IMAGE_FAMILY)
-                            .name("aligner-" + laneId(lane).toLowerCase())
-                            .startupCommand(bash)
-                            .performanceProfile(custom(96, 96))
-                            .namespacedResults(resultsDirectory)
-                            .build()));
+                    VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, laneId(lane).toLowerCase())));
             futures.add(pipelineFuture);
             laneLogComponents.add(new RunLogComponent(laneBucket,
                     laneNamespace(lane),
@@ -162,15 +154,8 @@ public class BwaAligner implements Aligner {
             mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     resultsDirectory.path()), RuntimeFiles.typical()));
 
-            ComputeEngineStatus computeEngineStatus = runWithRetries(metadata,
-                    rootBucket,
-                    ImmutableVirtualMachineJobDefinition.builder()
-                            .imageFamily(IMAGE_FAMILY)
-                            .name("merge-markdup")
-                            .startupCommand(mergeMarkdupsBash)
-                            .performanceProfile(custom(32, 120))
-                            .namespacedResults(resultsDirectory)
-                            .build());
+            ComputeEngineStatus computeEngineStatus =
+                    runWithRetries(metadata, rootBucket, VirtualMachineJobDefinitions.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
 
             PipelineStatus pipelineStatus = PipelineStatus.of(computeEngineStatus);
 

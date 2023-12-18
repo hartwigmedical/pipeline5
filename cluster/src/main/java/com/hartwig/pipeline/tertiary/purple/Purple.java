@@ -2,7 +2,6 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static java.lang.String.format;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 
 import java.io.File;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
@@ -24,6 +22,7 @@ import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -166,14 +165,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("purple")
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(PURPLE.getCpus(), PURPLE.getMemoryGb()))
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
-                .build();
+        return VirtualMachineJobDefinitions.purple(bash, resultsDirectory);
     }
 
     @Override

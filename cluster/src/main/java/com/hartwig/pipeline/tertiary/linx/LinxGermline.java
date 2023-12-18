@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import java.io.File;
@@ -9,7 +8,6 @@ import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -21,6 +19,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -80,14 +79,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("linx-" + "germline")
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB)
-                .build();
+        return VirtualMachineJobDefinitions.linx("germline", bash, resultsDirectory);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.List;
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -20,6 +18,7 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -124,13 +123,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name("cobalt")
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(COBALT.getCpus(), COBALT.getMemoryGb()))
-                .build();
+        return VirtualMachineJobDefinitions.cobalt(bash, resultsDirectory);
     }
 
     @Override

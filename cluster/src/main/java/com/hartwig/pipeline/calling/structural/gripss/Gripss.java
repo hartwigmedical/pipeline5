@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 
 import java.io.File;
@@ -9,7 +8,6 @@ import java.util.List;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
-import com.hartwig.computeengine.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -23,6 +21,7 @@ import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -90,13 +89,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .imageFamily(IMAGE_FAMILY)
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .performanceProfile(custom(GRIPSS.getCpus(), GRIPSS.getMemoryGb()))
-                .namespacedResults(resultsDirectory)
-                .build();
+        return VirtualMachineJobDefinitions.gripss(bash, resultsDirectory, namespace());
     }
 
     @Override
