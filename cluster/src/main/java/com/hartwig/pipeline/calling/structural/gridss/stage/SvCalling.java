@@ -178,13 +178,7 @@ public class SvCalling extends SubStage {
         // arguments.add("-log_level DEBUG");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        return new JavaClassCommand(SV_PREP.getToolName(),
-                SV_PREP.getVersion(),
-                SV_PREP.jar(),
-                SV_PREP_DEPTH_ANNOTATION,
-                SV_PREP.maxHeapStr(),
-                Collections.emptyList(),
-                arguments);
+        return JavaCommandFactory.javaClassCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION, arguments);
     }
 
     private String mainSampleName() {
