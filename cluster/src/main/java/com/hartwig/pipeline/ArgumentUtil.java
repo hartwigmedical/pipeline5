@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.util.Objects;
+
 import com.hartwig.computeengine.execution.vm.ComputeEngineConfig;
 import com.hartwig.computeengine.storage.RunIdentifier;
 import com.hartwig.pipeline.input.RunMetadata;
@@ -26,13 +28,10 @@ public final class ArgumentUtil {
     }
 
     public static RunIdentifier toRunIdentifier(Arguments arguments, RunMetadata metadata) {
-        if (arguments.runTag().isPresent()) {
-            return RunIdentifier.from(metadata.runName(), arguments.runTag().get());
-        } else if (arguments.sbpApiRunId().isPresent()) {
-            return RunIdentifier.from(metadata.runName(), arguments.sbpApiRunId().get());
-        } else {
-            return RunIdentifier.from(metadata.runName());
-        }
+        return arguments.runTag()
+                .or(() -> arguments.sbpApiRunId().map(Objects::toString))
+                .map(tag -> RunIdentifier.from(metadata.runName(), tag))
+                .orElse(RunIdentifier.from(metadata.runName()));
     }
 
 }
