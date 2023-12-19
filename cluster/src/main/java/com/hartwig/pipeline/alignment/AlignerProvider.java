@@ -46,10 +46,9 @@ public abstract class AlignerProvider {
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final Labels labels)
             throws Exception {
-        var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
         ComputeEngine computeEngine = arguments.publishEventsOnly()
                 ? new NoOpComputeEngine()
-                : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap());
+                : GoogleComputeEngine.from(ArgumentUtil.toComputeEngineConfig(arguments), credentials, labels.asMap());
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,
