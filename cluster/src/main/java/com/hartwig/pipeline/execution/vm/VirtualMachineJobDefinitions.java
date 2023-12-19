@@ -45,7 +45,11 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tools.VersionUtils;
 
-public class VirtualMachineJobDefinitions {
+public final class VirtualMachineJobDefinitions {
+
+    private VirtualMachineJobDefinitions() {
+
+    }
 
     private static final String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();
     private static final int LOCAL_SSD_DISK_SPACE_GB = 375;
