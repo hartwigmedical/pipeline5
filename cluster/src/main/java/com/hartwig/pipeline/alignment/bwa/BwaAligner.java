@@ -123,7 +123,7 @@ public class BwaAligner implements Aligner {
                             RuntimeFiles.typical()));
             var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
-                    VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, laneId(lane).toLowerCase())));
+                    VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
             futures.add(pipelineFuture);
             laneLogComponents.add(new RunLogComponent(laneBucket,
                     laneNamespace(lane),

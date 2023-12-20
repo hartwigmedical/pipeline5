@@ -205,10 +205,10 @@ public final class VirtualMachineJobDefinitions {
     }
 
     public static VirtualMachineJobDefinition alignment(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
-            final String laneId) {
+            final String name) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
-                .name(laneId)
+                .name(name)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(96, 96))
                 .startupCommand(startupScript)
