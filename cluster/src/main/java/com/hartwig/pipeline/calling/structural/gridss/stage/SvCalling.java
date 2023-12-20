@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;

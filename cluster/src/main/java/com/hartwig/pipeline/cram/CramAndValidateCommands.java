@@ -60,7 +60,7 @@ public class CramAndValidateCommands {
                 "-2",
                 outputCram,
                 "-n",
-                String.valueOf(CramConversion.numberOfCores()),
+                String.valueOf(CramConversion.NUMBER_OF_CORES),
                 "--samtools-binary",
                 SAMTOOLS.binaryPath(),
                 "--sambamba-binary",

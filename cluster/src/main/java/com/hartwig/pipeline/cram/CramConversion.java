@@ -34,6 +34,8 @@ import com.hartwig.pipeline.stages.Stage;
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "cram";
 
+    public static final int NUMBER_OF_CORES = 6;
+
     private final InputDownloadCommand bamDownload;
     private final String outputCram;
     private final SampleType sampleType;
@@ -44,10 +46,6 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
-    }
-
-    public static int numberOfCores() {
-        return 6;
     }
 
     @Override

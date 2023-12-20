@@ -277,7 +277,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(CramConversion.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.numberOfCores(), 6))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.NUMBER_OF_CORES, 6))
                 .startupCommand(startupScript)
                 .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
                 .build();
