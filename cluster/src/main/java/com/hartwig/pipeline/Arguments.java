@@ -3,7 +3,6 @@ package com.hartwig.pipeline;
 import java.util.Optional;
 
 import com.hartwig.events.pipeline.Pipeline;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.immutables.value.Value;
@@ -19,6 +18,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
+    String VIRTUAL_MACHINE_PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
     RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.V37;
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
     Pipeline.Context DEFAULT_CONTEXT = Pipeline.Context.DIAGNOSTIC;
@@ -159,7 +159,7 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
+                    .imageName(VIRTUAL_MACHINE_PUBLIC_IMAGE_NAME)
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)

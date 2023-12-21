@@ -3,8 +3,7 @@ package com.hartwig.pipeline.alignment.bwa;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.SambambaCommand;
+import com.hartwig.computeengine.execution.vm.Bash;
 
 import org.jetbrains.annotations.NotNull;
 

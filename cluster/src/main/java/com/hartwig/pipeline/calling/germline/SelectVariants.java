@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.GatkCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.pipeline.gatk.GatkCommand;
 import com.hartwig.pipeline.stages.SubStage;
 
 public class SelectVariants extends SubStage {

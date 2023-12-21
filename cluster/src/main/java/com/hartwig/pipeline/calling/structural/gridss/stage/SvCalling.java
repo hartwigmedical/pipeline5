@@ -10,15 +10,14 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
@@ -126,9 +125,7 @@ public class SvCalling extends SubStage {
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        // arguments.add("-log_level INFO");
-
-        return new JavaJarCommand(SV_PREP, arguments);
+        return JavaCommandFactory.javaJarCommand(SV_PREP, arguments);
     }
 
     private BashCommand buildGridsCommand(final String gridssVcf) {
@@ -179,7 +176,7 @@ public class SvCalling extends SubStage {
         // arguments.add("-log_level DEBUG");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
-        return new JavaClassCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION, arguments);
+        return JavaCommandFactory.javaClassCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION, arguments);
     }
 
     private String mainSampleName() {

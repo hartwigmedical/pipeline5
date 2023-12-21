@@ -7,22 +7,25 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.MvCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.unix.MvCommand;
+import com.hartwig.pipeline.execution.OutputFile;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.StartupScriptComponent;
@@ -33,8 +36,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 @Namespace(GermlineCaller.NAMESPACE)
 public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
@@ -57,16 +58,16 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             "ReadPosRankSum < -20.0");
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload bamDownload;
-    private final InputDownload baiDownload;
+    private final InputDownloadCommand bamDownload;
+    private final InputDownloadCommand baiDownload;
     private final OutputFile outputFile;
     private final PersistedDataset persistedDataset;
 
     public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        this.bamDownload = new InputDownload(alignmentOutput.alignments());
-        this.baiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
+        this.bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
+        this.baiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
         this.outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
         this.persistedDataset = persistedDataset;
     }
@@ -125,7 +126,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.germlineCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.germlineCalling(bash, resultsDirectory);
     }
 
     @Override

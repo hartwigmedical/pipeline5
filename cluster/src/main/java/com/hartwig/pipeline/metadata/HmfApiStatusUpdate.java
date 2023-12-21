@@ -11,7 +11,7 @@ import com.hartwig.api.model.UpdateRun;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

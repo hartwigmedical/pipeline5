@@ -11,7 +11,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public interface ResourceFiles {
 

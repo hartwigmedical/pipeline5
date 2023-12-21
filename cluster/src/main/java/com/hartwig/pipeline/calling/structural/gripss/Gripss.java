@@ -7,21 +7,24 @@ import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.StartupScriptComponent;
@@ -30,13 +33,11 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
-    private final InputDownload gridssVcf;
-    private final InputDownload gridssVcfIndex;
+    private final InputDownloadCommand gridssVcf;
+    private final InputDownloadCommand gridssVcfIndex;
     protected final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
@@ -46,8 +47,8 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
             final String namespace) {
 
         this.resourceFiles = resourceFiles;
-        this.gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
-        this.gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.gridssVcf = new InputDownloadCommand(gridssOutput.unfilteredVariants());
+        this.gridssVcfIndex = new InputDownloadCommand(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.namespace = namespace;
     }
@@ -62,7 +63,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     protected List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand(GRIPSS, arguments));
+        commands.add(JavaCommandFactory.javaJarCommand(GRIPSS, arguments));
         return commands;
     }
 
@@ -88,7 +89,7 @@ public abstract class Gripss implements Stage<GripssOutput, SomaticRunMetadata> 
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.gripss(namespace().replace("_", "-"), bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.gripss(bash, resultsDirectory, namespace());
     }
 
     @Override
