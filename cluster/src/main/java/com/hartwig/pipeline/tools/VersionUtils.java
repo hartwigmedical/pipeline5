@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tools;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public final class VersionUtils {
         return version;
     }
 
+    public static List<HmfTool> inArtifactRegistry() {
+        return List.of(HmfTool.ORANGE);
+    }
     public static String format(final Field field) {
         try {
             return field.getName() + ": " + field.get(null);
@@ -63,6 +67,10 @@ public final class VersionUtils {
     }
 
     public static void main(final String[] args) {
-        System.out.println(VersionUtils.imageVersion());
+        if (args.length != 0 && args[0].equals("tools")) {
+            VersionUtils.inMaven().forEach(t -> System.out.printf("%s %s\n", t.getToolName(), t.getVersion()));
+        } else {
+            System.out.println(VersionUtils.imageVersion());
+        }
     }
 }
