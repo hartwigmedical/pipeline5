@@ -5,7 +5,7 @@ steps:
   - name: 'maven:3-jdk-11'
     id: 'Set version for Maven'
     entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
+    args: [ 'versions:set', '-DnewVersion=${TAG_NAME}' ]
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Prime Maven cache'
     args:
@@ -41,16 +41,13 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Build pipeline image'
-    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Push pipeline image'
-    entrypoint: '/bin/bash'
-    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
+  - name: 'eu.gcr.io/hmf-build/docker-tag'
+    id: 'Publish Docker image'
+    dir: cluster
+    args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME', 'Dockerfile', '--build-arg', 'VERSION=$TAG_NAME']
 images:
-  - eu.gcr.io/$PROJECT_ID/pipeline5
+  - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
 options:
-  machineType: 'N1_HIGHCPU_32'
+  machineType: 'E2_HIGHCPU_32'
