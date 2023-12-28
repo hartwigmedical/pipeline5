@@ -26,7 +26,7 @@ EOM
 curl_cmd() {
     tool=$1
     ver=$2
-    echo "sudo curl --oauth2-bearer "\$\(gcloud auth print-access-token\)" -o /opt/tools/${tool}/${ver}/${tool}.jar -L ${MVN_URL}/${tool}/${ver}/${tool}-${ver}-jar-with-dependencies.jar"
+    echo "sudo curl -H \\\"authorization: Bearer \$(gcloud auth print-access-token)\\\" -o /opt/tools/${tool}/${ver}/${tool}.jar -L ${MVN_URL}/${tool}/${ver}/${tool}-${ver}-jar-with-dependencies.jar"
 }
 
 "$(dirname "$0")/check_deps.sh" || exit 1
@@ -45,7 +45,6 @@ done
 
 set -e
 
-set -x
 echo "Rebuilding pipeline JAR to ensure correct version"
 mvn -f "$(dirname "$0")/../../pom.xml" clean package -DskipTests
 version="$($VERSION_CMD)"
@@ -86,7 +85,7 @@ echo
 echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
-    --image-family=${source_family} --scopes=default,cloud-source-repos-ro
+    --image-family=${source_family} --scopes=cloud-platform
 echo sleep 10
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
 echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
