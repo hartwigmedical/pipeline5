@@ -5,7 +5,7 @@ set -o pipefail
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-PV5_JAR="$(dirname "$0")/../target/cluster-local-SNAPSHOT.jar"
+PV5_JAR="$(dirname "$0")/../cluster/target/cluster-local-SNAPSHOT.jar"
 VERSION_CMD="java -cp ${PV5_JAR} com.hartwig.pipeline.tools.VersionUtils"
 MVN_URL="https://europe-west4-maven.pkg.dev/hmf-build/hmf-maven/com/hartwig"
 
@@ -21,12 +21,6 @@ Optional arguments:
   --checkout-target [target]   Checkout [target] instead of the HEAD of "master" and do not create any new tags.
                                May be anything accepted by "git checkout".
 EOM
-}
-
-curl_cmd() {
-    tool=$1
-    ver=$2
-    echo "sudo curl -H \\\"authorization: Bearer \$(gcloud auth print-access-token)\\\" -o /opt/tools/${tool}/${ver}/${tool}.jar -L ${MVN_URL}/${tool}/${ver}/${tool}-${ver}-jar-with-dependencies.jar"
 }
 
 "$(dirname "$0")/check_deps.sh" || exit 1
@@ -46,7 +40,7 @@ done
 set -e
 
 echo "Rebuilding pipeline JAR to ensure correct version"
-mvn -f "$(dirname "$0")/../../pom.xml" clean package -DskipTests
+mvn -f "$(dirname "$0")/../pom.xml" clean package -DskipTests
 version="$($VERSION_CMD)"
 
 set +e
@@ -89,12 +83,12 @@ echo $GCL instances create $source_instance --description=\"Pipeline5 disk image
 echo sleep 10
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
 echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
+echo "$GCL scp $(dirname $0)/fetch_tool_from_registry.sh ${source_instance}:/tmp/ --zone=${ZONE}"
 
 echo "$SSH --command=\"sudo rm -rf /opt/tools/*\""
 for tool in "${!tool_versions[@]}"; do
     tool_version="${tool_versions[$tool]}"
-    echo "$SSH --command=\"sudo mkdir -p /opt/tools/${tool}/${tool_version}\""
-    echo "$SSH --command=\"$(curl_cmd $tool $tool_version)\""
+    echo "$SSH --command=\"sudo /tmp/fetch_tool_from_registry.sh $tool $tool_version\""
 done
 
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
