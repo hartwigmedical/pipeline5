@@ -4,11 +4,11 @@ sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_down
 # The below tarball is a capture of the result of running this on a live instance:
 # curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | sudo bash
 # Doing that every time blindly is not compatible with a secure environment
-sudo rm -rf /root/.pyenv
-sudo tar xvzf /opt/tools/python/pyenv.tar.gz -C /root
+#sudo rm -rf /root/.pyenv
+#sudo tar xvzf /opt/tools/python/pyenv.tar.gz -C /root
 
-sudo /root/.pyenv/bin/pyenv install 3.6.10
-sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
+#sudo /root/.pyenv/bin/pyenv install 3.6.10
+#sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
 sudo chmod a+x /tmp/mk_python_venv
 sudo /tmp/mk_python_venv peach 1.6 3.6.10
 sudo /tmp/mk_python_venv peach 1.7 3.6.10

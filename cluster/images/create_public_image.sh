@@ -47,7 +47,7 @@ image_family="pipeline5-${version}${flavour+"-$flavour"}${checkout_target:+"-uno
 source_instance="${image_family}-$(whoami)"
 image_name="${image_family}-$(date +%Y%m%d%H%M)"
 source_project="hmf-pipeline-development"
-source_family="hmf-debian-9"
+source_family="debian-12"
 base_image_cmds="$(dirname "$0")/base.cmds"
 tools_image_cmds="$(dirname "$0")/tools.cmds"
 all_cmds=$(echo $base_image_cmds $tools_image_cmds)
@@ -71,7 +71,14 @@ echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
     --image-family=${source_family} --scopes=default,cloud-source-repos-ro
-echo sleep 10
+echo "set +e"
+echo "echo Polling for active instance, this should take less than a minute [started at \$(date)]..."
+echo "while true; do"
+echo "  sleep 1"
+echo "  $SSH --command=\"exit 0\""
+echo "  [[ \$? -eq 0 ]] && echo "Instance is reachable" && break"
+echo "done"
+echo "set -e"
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
 echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
