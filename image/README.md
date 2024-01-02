@@ -9,9 +9,9 @@ that make it clear which version of the pipeline it should work with. The contra
 is quite loose so production pipeline builds specify the exact image name in their arguments. Without this argument the latest
 image in the same family as the executing pipeline will be used, which is convenient for development.
 
-As of December 2023 only externally-maintained tools should be pulled from the `common-tools` bucket, HMF tools should be pushed
-to Artifact Registry via tags and retrieved from there as well. See the `VersionUtils` and `HmfTool` classes in the `pipeline5`
-code to see how to make this happen for your dependency.
+As of December 2023 migration has begun to a situation in which only externally-maintained tools should be pulled from the
+`common-tools` bucket, HMF tools should be pushed to Artifact Registry via tags and retrieved from there as well. See the
+`VersionUtils` and `HmfTool` classes in the `pipeline5` code to see how to make this happen for your dependency.
 
 # Creating a public image
 
