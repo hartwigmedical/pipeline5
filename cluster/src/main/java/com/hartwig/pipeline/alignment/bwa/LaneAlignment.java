@@ -3,11 +3,11 @@ package com.hartwig.pipeline.alignment.bwa;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.PipeCommands;
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
+import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 
 public class LaneAlignment extends SubStage {

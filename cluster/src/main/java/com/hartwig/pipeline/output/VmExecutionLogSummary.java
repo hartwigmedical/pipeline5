@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

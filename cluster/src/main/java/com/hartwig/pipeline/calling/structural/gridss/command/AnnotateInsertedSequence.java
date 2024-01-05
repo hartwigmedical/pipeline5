@@ -2,7 +2,7 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import java.util.Collections;
 
-import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.Bash;
 
 public class AnnotateInsertedSequence extends GridssCommand {
 

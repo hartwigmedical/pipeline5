@@ -29,7 +29,7 @@ public interface SingleSampleRunMetadata extends RunMetadata {
         return -1;
     }
 
-    String turquoiseSubject();
+    Optional<String> turquoiseSubject();
 
     String barcode();
 

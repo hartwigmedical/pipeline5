@@ -3,20 +3,23 @@ package com.hartwig.pipeline.flagstat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.SubShellCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
+import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
@@ -25,18 +28,16 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 @Namespace(Flagstat.NAMESPACE)
 public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "flagstat";
 
-    private final InputDownload bamDownload;
+    private final InputDownloadCommand bamDownload;
     private final PersistedDataset persistedDataset;
 
     public Flagstat(final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
-        bamDownload = new InputDownload(alignmentOutput.alignments());
+        bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
         this.persistedDataset = persistedDataset;
     }
 
@@ -73,7 +74,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.flagstat(bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.flagstat(bash, resultsDirectory);
     }
 
     @Override

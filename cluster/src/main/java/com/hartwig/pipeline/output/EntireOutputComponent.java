@@ -5,8 +5,8 @@ import java.util.function.Predicate;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 public class EntireOutputComponent implements OutputComponent {
 

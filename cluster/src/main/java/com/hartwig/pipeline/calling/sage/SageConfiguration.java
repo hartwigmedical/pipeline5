@@ -5,12 +5,13 @@ import static com.hartwig.pipeline.calling.sage.SageApplication.SAGE_SOMATIC_VCF
 
 import java.util.function.BiFunction;
 
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 import org.immutables.value.Value;
@@ -48,7 +49,7 @@ public interface SageConfiguration {
                 .vcfFile(m -> String.format("%s.%s.%s", m.sampleName(), SAGE_GERMLINE_VCF_ID, FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode())
-                .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
+                .jobDefinition(VirtualMachineJobDefinitions::sageGermlineCalling)
                 .build();
     }
 
@@ -62,7 +63,7 @@ public interface SageConfiguration {
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
                         .targetRegionsMode(arguments.useTargetRegions()))
-                .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
+                .jobDefinition(VirtualMachineJobDefinitions::sageSomaticCalling)
                 .build();
     }
 }

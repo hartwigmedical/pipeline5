@@ -4,14 +4,13 @@ import static com.hartwig.pipeline.tools.ExternalTool.BAMCOMP;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class CramAndValidateCommands {
@@ -50,23 +49,21 @@ public class CramAndValidateCommands {
                         "'grep -v ^@PG'",
                         outputCram),
                 new VersionedToolCommand(SAMTOOLS.getToolName(), SAMTOOLS.getBinary(), SAMTOOLS.getVersion(), "index", outputCram),
-                new JavaClassCommand(BAMCOMP.getToolName(),
-                        BAMCOMP.getVersion(),
-                        BAMCOMP.getBinary(),
-                        "com.hartwig.bamcomp.BamCompMain",
-                        "4G",
-                        Collections.emptyList(),
-                        "-r",
-                        resourceFiles.refGenomeFile(),
-                        "-1",
-                        inputBam,
-                        "-2",
-                        outputCram,
-                        "-n",
-                        String.valueOf(CramConversion.NUMBER_OF_CORES),
-                        "--samtools-binary",
-                        SAMTOOLS.binaryPath(),
-                        "--sambamba-binary",
-                        SAMBAMBA.binaryPath()));
+                JavaCommandFactory.javaClassCommand(BAMCOMP, "com.hartwig.bamcomp.BamCompMain", "4G", javaClassCommandArguments()));
+    }
+
+    private List<String> javaClassCommandArguments() {
+        return List.of("-r",
+                resourceFiles.refGenomeFile(),
+                "-1",
+                inputBam,
+                "-2",
+                outputCram,
+                "-n",
+                String.valueOf(CramConversion.NUMBER_OF_CORES),
+                "--samtools-binary",
+                SAMTOOLS.binaryPath(),
+                "--sambamba-binary",
+                SAMBAMBA.binaryPath());
     }
 }

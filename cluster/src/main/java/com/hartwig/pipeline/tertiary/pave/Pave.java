@@ -5,17 +5,20 @@ import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -27,22 +30,20 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     protected final ResourceFiles resourceFiles;
-    protected final InputDownload vcfDownload;
-    protected final InputDownload vcfIndexDownload;
+    protected final InputDownloadCommand vcfDownload;
+    protected final InputDownloadCommand vcfIndexDownload;
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
     public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
             final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
-        this.vcfDownload = new InputDownload(sageOutput.variants());
-        this.vcfIndexDownload = new InputDownload(sageOutput.variants().transform(FileTypes::tabixIndex));
+        this.vcfDownload = new InputDownloadCommand(sageOutput.variants());
+        this.vcfIndexDownload = new InputDownloadCommand(sageOutput.variants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.vcfDatatype = vcfDatatype;
     }
@@ -50,7 +51,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     protected abstract String outputFile(final SomaticRunMetadata metadata);
 
     protected List<BashCommand> paveCommand(final List<String> arguments) {
-        return Collections.singletonList(new JavaJarCommand(PAVE, arguments));
+        return Collections.singletonList(JavaCommandFactory.javaJarCommand(PAVE, arguments));
     }
 
     @Override
@@ -65,8 +66,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-
-        return VirtualMachineJobDefinition.pave(namespace().replace("_", "-"), bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.pave(bash, resultsDirectory, namespace());
     }
 
     @Override

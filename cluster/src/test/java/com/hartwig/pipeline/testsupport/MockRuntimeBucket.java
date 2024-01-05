@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 @SuppressWarnings("unchecked")
 public class MockRuntimeBucket {
