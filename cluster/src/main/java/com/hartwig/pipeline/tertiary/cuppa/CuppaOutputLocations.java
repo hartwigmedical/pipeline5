@@ -7,15 +7,11 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface CuppaOutputLocations {
 
-    GoogleStorageLocation conclusionChart();
+    GoogleStorageLocation visData();
 
-    GoogleStorageLocation conclusionTxt();
+    GoogleStorageLocation visPlot();
 
-    GoogleStorageLocation resultCsv();
-
-    GoogleStorageLocation summaryChartPng();
-
-    GoogleStorageLocation featurePlot();
+    GoogleStorageLocation predSumm();
 
     static ImmutableCuppaOutputLocations.Builder builder() {
         return ImmutableCuppaOutputLocations.builder();

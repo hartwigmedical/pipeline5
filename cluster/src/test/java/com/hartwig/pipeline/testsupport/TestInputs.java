@@ -395,13 +395,9 @@ public class TestInputs {
         return CuppaOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
-                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
-                        .summaryChartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
-                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
-                        .conclusionChart(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_CHART))
+                        .visData(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_DATA))
+                        .visPlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_PLOT))
+                        .predSumm(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_PRED_SUMM))
                         .build())
                 .build();
     }

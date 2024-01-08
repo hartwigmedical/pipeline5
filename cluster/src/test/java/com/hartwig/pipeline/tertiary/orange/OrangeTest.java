@@ -71,9 +71,9 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm cp -r -n "
                         + "gs://run-reference-tumor-test/cuppa/tumor.cup.report.features.png /data/input/tumor.cup.report.features.png ; fi",
                 input(expectedRuntimeBucketName() + "/virusintrprtr/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.report.summary.png", "tumor.cup.report.summary.png"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.chart.png", "tumor.cuppa.chart.png"),
+                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.vis_data.tsv", "tumor.cuppa.vis_data.tsv"),
+                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.vis.png", "tumor.cuppa.vis.png"),
+                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.pred_summ.tsv", "tumor.cuppa.pred_summ.tsv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.tsv", "tumor.lilac.tsv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.tsv", "tumor.lilac.qc.tsv"),
                 input(expectedRuntimeBucketName() + "/peach/tumor.peach.genotype.tsv", "tumor.peach.genotype.tsv"),

@@ -63,10 +63,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload linxSomaticOutputDir;
     private final InputDownload linxGermlineDataDir;
     private final InputDownload chordPredictionTxt;
-    private final InputDownload cuppaSummaryPlot;
-    private final InputDownload cuppaResultCsv;
-    private final InputDownloadIfBlobExists cuppaFeaturePlot;
-    private final InputDownload cuppaChartPlot;
+    private final InputDownload cuppaVisPlot;
+    private final InputDownload cuppaVisData;
+    private final InputDownload cuppaPredSumm;
     private final InputDownload peachGenotypeTsv;
     private final InputDownload sigsAllocationTsv;
     private final InputDownload annotatedVirusTsv;
@@ -97,10 +96,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.linxGermlineDataDir = new InputDownload(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
         this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
-        this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
-        this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
-        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
-        this.cuppaChartPlot = new InputDownload(cuppaOutputLocations.conclusionChart());
+        this.cuppaVisData = new InputDownload(cuppaOutputLocations.visData());
+        this.cuppaVisPlot = new InputDownload(cuppaOutputLocations.visPlot());
+        this.cuppaPredSumm = new InputDownload(cuppaOutputLocations.predSumm());
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
         this.sigsAllocationTsv = new InputDownload(sigsOutput.allocationTsv());
         this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
@@ -125,10 +123,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 lilacResult,
                 linxSomaticOutputDir,
                 linxGermlineDataDir,
-                cuppaFeaturePlot,
-                cuppaChartPlot,
-                cuppaResultCsv,
-                cuppaSummaryPlot,
+                cuppaVisData,
+                cuppaVisPlot,
+                cuppaPredSumm,
                 chordPredictionTxt,
                 annotatedVirusTsv,
                 peachGenotypeTsv,
