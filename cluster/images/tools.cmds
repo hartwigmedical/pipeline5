@@ -10,7 +10,7 @@ sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_down
 #sudo /root/.pyenv/bin/pyenv install 3.6.10
 #sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
 sudo chmod a+x /tmp/mk_python_venv
-#sudo /tmp/mk_python_venv peach 1.7 3.6.10
+sudo /tmp/mk_python_venv peach 1.8 
 
 #sudo mkdir -p /opt/tools/cuppa-chart/1.8
 #sudo unzip /opt/tools/cuppa/1.8/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.8
@@ -24,7 +24,8 @@ sudo chmod a+x /tmp/mk_python_venv
 
 
 # NOTE: This extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs.tar -C /
+#sudo tar xvf /opt/tools/R/rlibs.tar -C /
+sudo tar xvf /opt/tools/R/rlibs_debian12_cran40.tar -C /
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/

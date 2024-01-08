@@ -8,13 +8,10 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt -y update
 sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools openjdk-17-jdk bc python3-crcmod
-#sudo apt -y -t stretch-backports install openjdk-11-jdk
 sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git libmagick++-dev
 sudo apt -y install mdadm --no-install-recommends
-#sudo pip3 install --no-cache-dir -U crcmod
 sudo mkdir /data
 sudo mkdir /opt/tools
-sudo mkdir /opt/resources
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
 
 # Note the "-n", bucket-based files should never overwrite what came from the repository
