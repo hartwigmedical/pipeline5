@@ -20,6 +20,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.execution.vm.python.Python3ModuleCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -44,12 +45,9 @@ import org.jetbrains.annotations.NotNull;
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUPPA_DATA_PREP = "com.hartwig.hmftools.cup.prep.CuppaDataPrep";
 
-    public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
-    public static final String CUP_DATA_CSV = ".cup.data.csv";
-    public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
-    public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
-    public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
-    public static final String CUP_REPORT = "_cup_report.pdf";
+    public static final String CUPPA_VIS_DATA = ".cuppa.vis_data.tsv";
+    public static final String CUPPA_VIS_PLOT = ".cuppa.vis.png";
+    public static final String CUPPA_PRED_SUMM = ".cuppa.pred_summ.tsv";
     public static final String NAMESPACE = "cuppa";
 
     private final InputDownload purpleOutputDirectory;
@@ -105,11 +103,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         return CuppaOutput.builder()
                 .status(jobStatus)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionChart(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaConclusionChart(metadata))))
-                        .conclusionTxt(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaConclusionTxt(metadata))))
-                        .summaryChartPng(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cupReportSummaryPng(metadata))))
-                        .featurePlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaFeaturePlot(metadata))))
-                        .resultCsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cupDataCsv(metadata))))
+                        .visData(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaVisData(metadata))))
+                        .visPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaVisPlot(metadata))))
+                        .predSumm(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaPredSumm(metadata))))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
@@ -124,29 +120,21 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
-        final String cuppaConclusionChart = cuppaConclusionChart(metadata);
-        final String conclusionTxt = cuppaConclusionTxt(metadata);
-        final String cuppaChart = cupReportSummaryPng(metadata);
-        final String resultsCsv = cupDataCsv(metadata);
-        final String featurePlot = cuppaFeaturePlot(metadata);
+        final String visData = cuppaVisData(metadata);
+        final String visPlot = cuppaVisPlot(metadata);
+        final String predSumm = cuppaPredSumm(metadata);
         return CuppaOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionChart(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CHART)
+                        .visData(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_VIS_DATA)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), cuppaConclusionChart))))
-                        .conclusionTxt(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CONCLUSION)
+                                        PersistedLocations.blobForSet(metadata.set(), namespace(), visData))))
+                        .visPlot(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_VIS_PLOT)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), conclusionTxt))))
-                        .summaryChartPng(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_SUMMARY_CHART)
+                                        PersistedLocations.blobForSet(metadata.set(), namespace(), visPlot))))
+                        .predSumm(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_PRED_SUMM)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), cuppaChart))))
-                        .resultCsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_RESULTS)
-                                .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), resultsCsv))))
-                        .featurePlot(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_FEATURE_PLOT)
-                                .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                        PersistedLocations.blobForSet(metadata.set(), namespace(), featurePlot))))
+                                        PersistedLocations.blobForSet(metadata.set(), namespace(), predSumm))))
                         .build())
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
@@ -154,23 +142,16 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
-        return List.of(new AddDatatype(DataType.CUPPA_CHART,
+        return List.of(
+                new AddDatatype(DataType.CUPPA_VIS_DATA,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaConclusionChart(metadata))),
-                new AddDatatype(DataType.CUPPA_SUMMARY_CHART,
+                        new ArchivePath(Folder.root(), namespace(), cuppaVisData(metadata))),
+                new AddDatatype(DataType.CUPPA_VIS_PLOT,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cupReportSummaryPng(metadata))),
-                new AddDatatype(DataType.CUPPA_CONCLUSION,
+                        new ArchivePath(Folder.root(), namespace(), cuppaVisPlot(metadata))),
+                new AddDatatype(DataType.CUPPA_PRED_SUMM,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaConclusionTxt(metadata))),
-                new AddDatatype(DataType.CUPPA_RESULTS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cupDataCsv(metadata))),
-                new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
-                        metadata.barcode(), new ArchivePath(Folder.root(), namespace(), cuppaFeaturePlot(metadata))),
-                new AddDatatype(DataType.CUPPA_REPORT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), cuppaReport(metadata))));
+                        new ArchivePath(Folder.root(), namespace(), cuppaPredSumm(metadata))));
     }
 
     @Override
@@ -190,39 +171,23 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
         List<BashCommand> cuppaCommands = Lists.newArrayList(new JavaClassCommand(CUPPA, CUPPA_DATA_PREP, cuppaArguments));
 
-        /*
-        String cuppaOutputFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
 
-        List<String> chartArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
-                format("-sample_data %s", cuppaOutputFile),
-                format("-output_dir %s", VmDirectories.OUTPUT));
-        cuppaCommands.add(new Python3Command("cuppa-chart", CUPPA.runVersion(), "cuppa-chart.py", chartArguments));
-        */
+        // TODO: Call pycuppa PredictionRunner here
+        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
+
+        List<String> pycuppaPredictArguments = Lists.newArrayList(
+                format("--features_path %s", cuppaInputFeaturesFile),
+                format("--output_dir %s", VmDirectories.OUTPUT)
+        );
+
+        cuppaCommands.add(new Python3ModuleCommand("cuppa", CUPPA.runVersion(), "cuppa.predict", pycuppaPredictArguments));
 
         return cuppaCommands;
     }
 
-    private String cupReportSummaryPng(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_REPORT_SUMMARY_PNG;
-    }
+    private String cuppaVisData(final SomaticRunMetadata metadata) { return metadata.tumor().sampleName() + CUPPA_VIS_DATA; }
 
-    private String cupDataCsv(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_DATA_CSV;
-    }
+    private String cuppaVisPlot(final SomaticRunMetadata metadata) { return metadata.tumor().sampleName() + CUPPA_VIS_PLOT; }
 
-    private String cuppaFeaturePlot(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
-    }
-
-    private String cuppaReport(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUP_REPORT;
-    }
-
-    private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
-    }
-
-    private String cuppaConclusionChart(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_CHART;
-    }
+    private String cuppaPredSumm(final SomaticRunMetadata metadata) { return metadata.tumor().sampleName() + CUPPA_PRED_SUMM; }
 }
