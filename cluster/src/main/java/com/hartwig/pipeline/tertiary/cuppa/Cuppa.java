@@ -18,8 +18,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
-import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.execution.vm.python.Python3ModuleCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;

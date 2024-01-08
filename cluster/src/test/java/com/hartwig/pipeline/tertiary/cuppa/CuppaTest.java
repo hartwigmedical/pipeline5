@@ -1,10 +1,7 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
-import static java.lang.String.format;
-
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
-import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_VIS_DATA;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
@@ -18,7 +15,6 @@ import java.util.List;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
