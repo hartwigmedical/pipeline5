@@ -2,19 +2,31 @@
 
 set -o pipefail
 
-[[ $# -ne 3 && $# -ne 4 ]] && echo "USAGE: $(basename $0) [--no-extract-tarball] tool_name tool_version python_version" && exit 1
+[[ ! ($# -ge 3 && $# -le 5) ]] && echo "USAGE: $(basename $0) [--no-extract-tarball] [--tool-is-python-package] tool_name tool_version python_version" && exit 1
+
 extract_tarball="yes"
 [[ $1 = "--no-extract-tarball" ]] && extract_tarball="" && shift
+
+tool_is_python_package=""
+[[ $1 = "--tool-is-python-package" ]] && tool_is_python_package="yes" && shift
+
 if [[ -n $extract_tarball ]]; then
     mkdir /opt/tools/${1}/${2}
     tar xvf /opt/tools/${1}/${1}_${2}.tar.gz -C /opt/tools/${1}/${2}
 fi
+
 export PATH="/root/.pyenv/versions/${3}/bin:$PATH"
 python -m venv /opt/tools/${1}/${2}_venv
 source /opt/tools/${1}/${2}_venv/bin/activate
 pip install --upgrade pip
-grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do 
-  pip install $l
-done
+
+if [[ -z $tool_is_python_package ]]; then
+    pip install /opt/tools/${1}/${2}/
+else
+    grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do
+      pip install $l
+    done
+fi
+
 deactivate
 echo Environment created in /opt/tools/${1}/${2}_venv
