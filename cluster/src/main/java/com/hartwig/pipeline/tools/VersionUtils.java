@@ -16,7 +16,7 @@ public final class VersionUtils {
         logger.info("HMF tool versions:");
 
         for (HmfTool tool : HmfTool.values()) {
-            logger.info(String.format("%s: %s", tool.toString(), tool.runVersion()));
+            logger.info(String.format("%s: %s", tool.toString(), tool.versionInfo()));
         }
 
         logger.info("External tools versions:");

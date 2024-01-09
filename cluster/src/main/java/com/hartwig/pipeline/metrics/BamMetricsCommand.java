@@ -19,7 +19,7 @@ class BamMetricsCommand extends JavaJarCommand
             @Nullable final String targetRegionsBed) {
 
         super(BAM_TOOLS.getToolName(),
-                BAM_TOOLS.getVersion(),
+                BAM_TOOLS.runVersion(),
                 BAM_TOOLS.jar(),
                 BAM_TOOLS.maxHeapStr(),
                 formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));

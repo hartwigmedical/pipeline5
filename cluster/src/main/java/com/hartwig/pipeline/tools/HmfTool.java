@@ -14,7 +14,7 @@ public enum HmfTool {
     GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.4rc", 16, 24, 4, false), // 2.3.5 -> 2.4
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
-    LILAC("1.5.2", 16, 24, 8, false),
+    LILAC("1.6rc", 16, 24, 8, false),
     LINX("1.25rc", 8, 12, 4, false), // 1.24.1 -> 1.25
     MARK_DUPS("1.1rc", 40, 64, 24, false), // 1.1 -> 1.2
     ORANGE("3.0.2", 16, 18, 4, false),
@@ -22,10 +22,10 @@ public enum HmfTool {
     PEACH("1.7", 1, 4, 2, false),
     PURPLE("4.0rc", 31, 39, 8, false), // 3.9.2 -> 4.0
     SAGE("3.4rc", 48, 64, 24, false), // 3.3 -> 3.4
-    SIGS("1.1", Defaults.JAVA_HEAP, 16, 4, false),
+    SIGS("1.2rc", Defaults.JAVA_HEAP, 16, 4, false),
     SV_PREP("1.2.3rc", 48, 64, 24, false), // 1.2 -> 1.2.3
     TEAL("1.1.0", 30, 32, 16, false),
-    VIRUSBREAKEND_GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 12, false),
+    VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
 
     private final String toolName;
@@ -35,9 +35,7 @@ public enum HmfTool {
     private final int cpus;
     private final boolean usePilot;
 
-    HmfTool(final String version) {
-        this(version, Defaults.JAVA_HEAP, Defaults.MEMORY, Defaults.CORES, false);
-    }
+    private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
 
     HmfTool(final String version, final int maxHeap, final int memoryGb, final int cpus, final boolean usePilot) {
         toolName = this.toString().toLowerCase().replace('_', '-');
@@ -52,12 +50,9 @@ public enum HmfTool {
         return toolName;
     }
 
-    public String getVersion() {
-        return version;
-    }
-    public String runVersion() {
-        return usePilot ? Defaults.PILOT_VERSION : version;
-    }
+    public String runVersion() { return usePilot ? PILOT_VERSION : version; }
+
+    public String versionInfo() { return usePilot ? format("%s, using pilot", version) : version; }
 
     public int getMaxHeap() {
         return maxHeap;
@@ -66,7 +61,6 @@ public enum HmfTool {
     public int getCpus() {
         return cpus;
     }
-
 
     public String directory() {
         return toolName;
@@ -85,7 +79,6 @@ public enum HmfTool {
     }
 
     private static final class Defaults {
-        public static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
         private static final int CORES = 1;
         private static final int JAVA_HEAP = 4;
         private static final int MEMORY = 8;

@@ -17,10 +17,8 @@ public class MarkDupsCommand extends JavaJarCommand
             final String sampleId, final String inputBam, final String outputBam, final ResourceFiles resourceFiles,
             final String outputDir, final String threads) {
 
-        super(MARK_DUPS.getToolName(),
-                MARK_DUPS.getVersion(),
-                MARK_DUPS.jar(),
-                MARK_DUPS.maxHeapStr(),
+        super(
+                MARK_DUPS.getToolName(), MARK_DUPS.runVersion(), MARK_DUPS.jar(), MARK_DUPS.maxHeapStr(),
                 formArguments(sampleId, inputBam, outputBam, resourceFiles, outputDir, threads));
     }
 
