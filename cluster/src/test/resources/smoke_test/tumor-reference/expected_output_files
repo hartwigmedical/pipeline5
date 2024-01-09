@@ -61,6 +61,7 @@ cobalt/COLO829v003T.cobalt.ratio.tsv.gz
 cobalt/cobalt.version
 cobalt/run.log
 cuppa/COLO829v003T.cup.data.csv
+cuppa/COLO829v003T.cup.report.features.png
 cuppa/COLO829v003T.cup.report.summary.png
 cuppa/COLO829v003T.cuppa.chart.png
 cuppa/COLO829v003T.cuppa.conclusion.txt
@@ -172,6 +173,7 @@ orange/plot/COLO829v003T.circos.png
 orange/plot/COLO829v003T.cluster-1.sv1.003.png
 orange/plot/COLO829v003T.copynumber.png
 orange/plot/COLO829v003T.cup.report.summary.png
+orange/plot/COLO829v003T.cup.report.features.png
 orange/plot/COLO829v003T.cuppa.chart.png
 orange/plot/COLO829v003T.input.png
 orange/plot/COLO829v003T.purity.range.png
@@ -186,6 +188,7 @@ orange_no_germline/plot/COLO829v003R.sage.bqr.png
 orange_no_germline/plot/COLO829v003T.circos.png
 orange_no_germline/plot/COLO829v003T.cluster-1.sv1.003.png
 orange_no_germline/plot/COLO829v003T.copynumber.png
+orange_no_germline/plot/COLO829v003T.cup.report.features.png
 orange_no_germline/plot/COLO829v003T.cup.report.summary.png
 orange_no_germline/plot/COLO829v003T.cuppa.chart.png
 orange_no_germline/plot/COLO829v003T.input.png
