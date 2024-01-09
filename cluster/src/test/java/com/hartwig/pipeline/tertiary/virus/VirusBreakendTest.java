@@ -19,7 +19,6 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
