@@ -212,6 +212,7 @@ purple/COLO829v003T.purple.cnv.somatic.tsv
 purple/COLO829v003T.purple.germline.deletion.tsv
 purple/COLO829v003T.purple.germline.vcf.gz
 purple/COLO829v003T.purple.germline.vcf.gz.tbi
+purple/COLO829v003T.purple.hrd.tsv
 purple/COLO829v003T.purple.purity.range.tsv
 purple/COLO829v003T.purple.purity.tsv
 purple/COLO829v003T.purple.qc
@@ -248,6 +249,7 @@ purple/plot/COLO829v003T.segment.png
 purple/plot/COLO829v003T.somatic.clonality.png
 purple/plot/COLO829v003T.somatic.png
 purple/plot/COLO829v003T.somatic.rainfall.png
+purple/plot/COLO829v003T.somatic_data.tsv
 purple/purple.version
 purple/run.log
 sage_germline/COLO829v003R.sage.bqr.png
