@@ -1,8 +1,5 @@
-# Use this build the R dependencies for the pipeline.  It is not an automated part of image creation (to keep the imaging time
+# Use this to build the R dependencies for the pipeline.  It is not an automated part of image creation (to keep the imaging time
 # down) but can be invoked manually when the dependencies are in need of updating.
-#
-# These instructions assume you're starting from a VM imaged with the existing `pipeline5` public image creator. Therefore the
-# keys required for the CRAN repository will already be imported. If not the key is stored as `jranke.asc` alongside this file.
 #
 #   1.  Start a VM and MAKE SURE `/usr/local/lib/R/site-library` both exists and is empty. 
 #   2.  Confirm `/usr/local/lib/R/site-library` is first in the output of `.libPaths()` from an R shell
@@ -14,9 +11,11 @@
 #       libpng-dev libtiff5-dev libjpeg-dev libcurl4-gnutls-dev
 #       ```
 #   5.  Install cran40 R:
-#       a. `add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian bookworm-cran40/'`
-#       b. `apt update`
-#       c. `apt install r-base`
+#       a. `apt -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2`
+#       b. `apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7'`
+#       c. `add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian bookworm-cran40/'`
+#       d. `apt update`
+#       e. `apt install r-base`
 #   6.  Run this script with `Rscript ./installDependencies.R | tee rebuild.log`. You may find running this in a `screen` session
 #       beneficial.
 #   7.  Make sure `/usr/local/lib/R/site-library` was populated as expected
@@ -26,9 +25,8 @@
 #   10. Create a backup of the existing tarball in the tools bucket, then copy the new tarball over the original
 #   11. Re-run the imaging script and verify installed versions of R libs. See `./listInstalledLibs.R`.
 #
-# Once built the dependencies are placed in the "tools" bucket on GCP we use for imaging. See `package.cmds` for
-# the current bucket name. The tarball is extracted at image creation time so if any R dependencies have to be updated a new
-# tarball must be created and pushed to the bucket and then the regular imaging script run. 
+# Once built the dependencies tarball is placed in the "tools" bucket on GCP from which it is copied and extracted at image
+# creation time.
 #
 # We make the assumption that any libraries installed in the R library search path (try `.libPaths()` from an R shell) will not
 # contain anything other than what has been packaged with the in-use R distribution. We do not use a custom library path via

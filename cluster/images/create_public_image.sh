@@ -80,7 +80,7 @@ echo "  [[ \$? -eq 0 ]] && echo "Instance is reachable" && break"
 echo "done"
 echo "set -e"
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
-echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
+#echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$SSH --command=\"$cmd\""
@@ -95,7 +95,7 @@ fi
 if [ -n "${checkout_target}" ]; then
     echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target}\""
 else
-    echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && git push origin ${image_name}\""
+    echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && sudo git push origin ${image_name}\""
 fi
 
 echo "$SSH --command=\"sudo rm -r /opt/resources/.git\""
