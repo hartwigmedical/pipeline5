@@ -12,9 +12,8 @@ fi
 python3 -m venv /opt/tools/${1}/${2}_venv
 source /opt/tools/${1}/${2}_venv/bin/activate
 pip3 install --upgrade pip
-grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do 
-  pip3 install $l
-done
+grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | sed 's/==/>=/' > /tmp/${1}-${2}-requirements.txt
+pip3 install -r /tmp/${1}-${2}-requirements.txt
 deactivate
 echo Environment created in /opt/tools/${1}/${2}_venv
 
