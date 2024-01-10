@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
+import static java.lang.String.format;
+
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 
@@ -79,21 +81,33 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.tumor().sampleName(), slicedTumor.getLocalTargetPath())));
+
+        List<String> arguments = Lists.newArrayList();
+        arguments.add(format("-sample %s", metadata.tumor().sampleName()));
+        arguments.add(format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
+        arguments.addAll(commonArguments());
+        return List.of(formCommand(arguments));
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(formCommand(commonArguments(metadata.reference().sampleName(), slicedReference.getLocalTargetPath())));
+
+        List<String> arguments = Lists.newArrayList();
+        arguments.add(format("-sample %s", metadata.reference().sampleName()));
+        arguments.add(format("-reference_bam %s", slicedReference.getLocalTargetPath()));
+        return List.of(formCommand(arguments));
     }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+
         List<String> arguments = Lists.newArrayList();
-        arguments.addAll(commonArguments(metadata.tumor().sampleName(), slicedReference.getLocalTargetPath()));
-        arguments.add(String.format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
-        arguments.add(String.format("-gene_copy_number %s", purpleGeneCopyNumber.getLocalTargetPath()));
-        arguments.add(String.format("-somatic_vcf %s", purpleSomaticVariants.getLocalTargetPath()));
+        arguments.add(format("-sample %s", metadata.tumor().sampleName()));
+        arguments.add(format("-reference_bam %s", slicedReference.getLocalTargetPath()));
+        arguments.add(format("-tumor_bam %s", slicedTumor.getLocalTargetPath()));
+        arguments.addAll(commonArguments());
+        arguments.add(format("-gene_copy_number %s", purpleGeneCopyNumber.getLocalTargetPath()));
+        arguments.add(format("-somatic_vcf %s", purpleSomaticVariants.getLocalTargetPath()));
 
         return List.of(formCommand(arguments));
     }
@@ -154,16 +168,14 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         return arguments.runTertiary() && !arguments.shallow();
     }
 
-    private List<String> commonArguments(final String sampleName, final String bamFile) {
-        List<String> arguments = Lists.newArrayList();
+    private List<String> commonArguments() {
 
-        arguments.add(String.format("-sample %s", sampleName));
-        arguments.add(String.format("-reference_bam %s", bamFile));
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
-        arguments.add(String.format("-resource_dir %s", resourceFiles.lilacResources()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        List<String> arguments = Lists.newArrayList();
+        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
+        arguments.add(format("-resource_dir %s", resourceFiles.lilacResources()));
+        arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return arguments;
     }

@@ -81,9 +81,6 @@ public class GripssSomatic extends Gripss {
 
         if(useTargetRegions)
         {
-            arguments.add("-hard_min_tumor_qual 200");
-            arguments.add("-min_qual_break_point 1000");
-            arguments.add("-min_qual_break_end 1000");
             arguments.add(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()));
         }
 

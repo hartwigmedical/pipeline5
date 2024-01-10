@@ -46,7 +46,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER, "GermlineHetPon.38.vcf.gz");
+        return formPath(AMBER, "AmberGermlineSites.38.tsv.gz");
     }
 
     @Override

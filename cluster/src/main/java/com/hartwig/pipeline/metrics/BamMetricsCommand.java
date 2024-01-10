@@ -41,7 +41,7 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add("-write_old_style");
 
         if(targetRegionsBed != null)
-            arguments.add(format("-regions_bed_file %s", targetRegionsBed));
+            arguments.add(format("-regions_file %s", targetRegionsBed));
 
         return arguments;
     }

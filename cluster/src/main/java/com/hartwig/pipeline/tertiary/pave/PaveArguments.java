@@ -58,7 +58,6 @@ public class PaveArguments {
 
         if (resourceFiles.version() == RefGenomeVersion.V38) {
             arguments.add(format("-gnomad_freq_dir %s", resourceFiles.gnomadPonCache()));
-            arguments.add("-gnomad_load_chr_on_demand");
         } else {
             arguments.add(format("-gnomad_freq_file %s", resourceFiles.gnomadPonCache()));
         }
