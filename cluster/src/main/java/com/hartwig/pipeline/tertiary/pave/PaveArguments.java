@@ -67,6 +67,12 @@ public class PaveArguments {
     }
 
     public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
-        return List.of(format("-pon_artefact_file %s", resourceFiles.targetRegionsPonArtefacts()));
+
+        return List.of(
+                format("-pon_artefact_file %s", resourceFiles.targetRegionsPonArtefacts()),
+                "-force_pathogenic_pass", // annotate with Clinvar but don't filter
+                format("-clinvar_vcf %s", resourceFiles.clinvarVcf()),
+                format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()),
+                format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
     }
 }
