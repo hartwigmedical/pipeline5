@@ -3,12 +3,17 @@ echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 
 sudo apt -y upgrade
 sudo apt -y update
-sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools openjdk-17-jdk bc python3-crcmod
+sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools openjdk-17-jdk bc python3-crcmod libncurses5
 sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git libmagick++-dev
 sudo apt -y install mdadm --no-install-recommends
 sudo mkdir /data
 sudo mkdir /opt/tools
-sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
 
+# This is the only approach for installing a 1.8 JDK as of Debian 12 I could find. Other ways lead to a Frankendebian or
+# broken packages. The GATK tools (or versions we're using) do not run on non-1.8 JDKs as installed, perhaps they could be
+# coerced but I felt it better to just install this JDK.
+gsutil cat gs://common-tools/adoptium/OpenJDK8U-jdk_x64_linux_hotspot_8u302b08.tar.gz | sudo tar -C /usr/lib/jvm -zxvf -
+
+sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
 # Note the "-n", bucket-based files should never overwrite what came from the repository
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-resources/* /opt/resources/

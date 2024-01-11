@@ -24,6 +24,11 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
     }
 
     @Override
+    protected void validatePersistedOutput(final SnpGenotypeOutput output) {
+        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build());
+    }
+
+    @Override
     protected Arguments createDisabledArguments() {
         return Arguments.testDefaultsBuilder().runSnpGenotyper(false).build();
     }
@@ -52,7 +57,7 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
+                "/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
                         + "--input_file /data/input/reference.bam -o /data/output/snp_genotype_output.vcf -L "
                         + "/opt/resources/genotype_snps/37/26SNPtaq.vcf --reference_sequence "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta --output_mode EMIT_ALL_SITES");
@@ -61,10 +66,5 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
     @Override
     protected void validateOutput(final SnpGenotypeOutput output) {
         // nothing additional to validate
-    }
-
-    @Override
-    protected void validatePersistedOutput(final SnpGenotypeOutput output) {
-        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 }
