@@ -12,7 +12,7 @@ public enum HmfTool {
     CIDER("1.0.2", 12, 16, 4, false),
     COBALT("1.15.2", 20, 24, 16, false),
     CUPPA("1.8.1", Defaults.JAVA_HEAP, 16, 4, false),
-    GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 24, false),
+    GRIDSS("2.13.3-beta", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.3.5", 16, 24, 4, false),
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.5.2", 16, 24, 8, false),

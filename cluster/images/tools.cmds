@@ -33,6 +33,13 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
+
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridsstools
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/virusbreakend
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss_annotate_vcf_kraken2
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss_annotate_vcf_repeatmasker
+
 sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
