@@ -221,7 +221,7 @@ public class PipelineMain {
                     outputPublisher,
                     apiStatusUpdateOrNot).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
-            aquaPublisher.publishComplete();
+            aquaPublisher.publishComplete(state.status().toString());
             VmExecutionLogSummary.ofFailedStages(storage, state);
 
             return state;

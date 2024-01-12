@@ -43,6 +43,7 @@ public class CommandLineOptions {
     private static final String DEFAULT_PROFILE = "production";
     private static final String OUTPUT_CRAM_FLAG = "output_cram";
     private static final String PUBLISH_TO_TURQUOISE_FLAG = "publish_to_turquoise";
+    private static final String PUBLISH_TO_AQUA_FLAG = "publish_to_aqua";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
@@ -64,6 +65,7 @@ public class CommandLineOptions {
     private static final String IMAGE_PROJECT_FLAG = "image_project";
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
+    private static final String AQUA_PROJECT_FLAG = "aqua_project";
     private static final String ANONYMIZE_FLAG = "anonymize";
     private static final String CONTEXT_FLAG = "context";
     private static final String COST_CENTER_LABEL_FLAG = "cost_center_label";
@@ -109,6 +111,7 @@ public class CommandLineOptions {
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
                 .addOption(optionWithBooleanArg(PUBLISH_TO_TURQUOISE_FLAG, "Publish events on pipeline start and stop to turquoise."))
+                .addOption(optionWithBooleanArg(PUBLISH_TO_AQUA_FLAG, "Publish events on pipeline start and stop to aqua."))
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
@@ -123,6 +126,7 @@ public class CommandLineOptions {
                 .addOption(imageProject())
                 .addOption(useCrams())
                 .addOption(pubsubProject())
+                .addOption(aquaProject())
                 .addOption(anonymize())
                 .addOption(context())
                 .addOption(costCenterLabel())
@@ -161,6 +165,10 @@ public class CommandLineOptions {
 
     private static Option pubsubProject() {
         return optionWithArg(PUBSUB_PROJECT_FLAG, "Project to publish pipeline events over pub/sub");
+    }
+
+    private static Option aquaProject() {
+        return optionWithArg(AQUA_PROJECT_FLAG, "Project to publish pipeline events over pub/sub");
     }
 
     private static Option pubsubTopicWorkflow() {
@@ -310,6 +318,7 @@ public class CommandLineOptions {
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
                     .publishToTurquoise(booleanOptionWithDefault(commandLine, PUBLISH_TO_TURQUOISE_FLAG, defaults.publishToTurquoise()))
+                    .publishToAqua(booleanOptionWithDefault(commandLine, PUBLISH_TO_AQUA_FLAG, defaults.publishToAqua()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
                             defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
@@ -323,6 +332,7 @@ public class CommandLineOptions {
                     .imageProject(imageProject(commandLine, defaults))
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
+                    .aquaProject(aquaProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
                     .context(context(commandLine, defaults))
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
@@ -368,6 +378,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(PUBSUB_PROJECT_FLAG));
         }
         return defaults.pubsubProject();
+    }
+
+    public static Optional<String> aquaProject(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(AQUA_PROJECT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(AQUA_PROJECT_FLAG));
+        }
+        return defaults.aquaProject();
     }
 
     public static Optional<String> pubsubTopicWorkflow(final CommandLine commandLine, final Arguments defaults) {

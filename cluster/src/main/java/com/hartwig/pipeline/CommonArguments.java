@@ -66,6 +66,8 @@ public interface CommonArguments {
 
     Optional<String> pubsubProject();
 
+    Optional<String> aquaProject();
+
     Optional<String> pubsubTopicWorkflow();
 
     Optional<String> pubsubTopicEnvironment();

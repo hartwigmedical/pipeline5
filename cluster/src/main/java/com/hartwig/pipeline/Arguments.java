@@ -61,6 +61,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishToAqua(false)
                     .publishDbLoadEvent(false)
                     .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
@@ -90,6 +91,7 @@ public interface Arguments extends CommonArguments {
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishToAqua(false)
                     .publishDbLoadEvent(false)
                     .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
@@ -124,6 +126,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishToAqua(false)
                     .publishDbLoadEvent(false)
                     .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
@@ -154,6 +157,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishToAqua(false)
                     .publishDbLoadEvent(false)
                     .publishEventsOnly(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
@@ -206,6 +210,8 @@ public interface Arguments extends CommonArguments {
     boolean outputCram();
 
     boolean publishToTurquoise();
+
+    boolean publishToAqua();
 
     boolean useCrams();
 
