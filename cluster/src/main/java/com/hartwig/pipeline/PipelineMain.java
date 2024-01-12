@@ -18,6 +18,7 @@ import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.PubsubEventBuilder;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
+import com.hartwig.pipeline.aqua.AquaPublisher;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -73,7 +74,9 @@ public class PipelineMain {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -97,7 +100,9 @@ public class PipelineMain {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(arguments, credentials, labels),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(arguments, credentials, labels),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -148,6 +153,7 @@ public class PipelineMain {
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = metadataProvider.get();
+            var aquaPublisher = AquaPublisher.create(arguments, somaticRunMetadata);
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
@@ -164,6 +170,7 @@ public class PipelineMain {
                     .type(ini)
                     .build();
             startedEvent(eventSubjects, turquoisePublisher, arguments.publishToTurquoise());
+            aquaPublisher.publishStarted();
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
@@ -214,6 +221,7 @@ public class PipelineMain {
                     outputPublisher,
                     apiStatusUpdateOrNot).run();
             completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
+            aquaPublisher.publishComplete();
             VmExecutionLogSummary.ofFailedStages(storage, state);
 
             return state;
