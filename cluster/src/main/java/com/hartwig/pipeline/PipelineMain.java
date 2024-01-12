@@ -1,5 +1,6 @@
 package com.hartwig.pipeline;
 
+import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -11,9 +12,10 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.RunApi;
 import com.hartwig.events.EventContext;
+import com.hartwig.events.EventPublisher;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
-import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.events.pubsub.PubsubEventBuilder;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -227,16 +229,18 @@ public class PipelineMain {
     }
 
     @NotNull
-    private OutputPublisher getOutputPublisher(final Arguments arguments, final Storage storage) {
+    private OutputPublisher getOutputPublisher(final Arguments arguments, final Storage storage) throws IOException {
         if (arguments.context().equals(Pipeline.Context.PLATINUM)) {
             return new NoopOutputPublisher();
         } else {
-            return createPublisher(new EventPublisher<>(arguments.pubsubProject().orElse(arguments.project()),
-                    EventContext.builder()
-                            .environment(arguments.pubsubTopicEnvironment().orElseThrow(PipelineMain::missingPubsubArgumentsException))
-                            .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
-                            .build(),
-                    new PipelineComplete.EventDescriptor()), arguments.context(), storage, arguments);
+            var eventContext = EventContext.builder()
+                    .environment(arguments.pubsubTopicEnvironment().orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                    .workflow(arguments.pubsubTopicWorkflow().orElseThrow(PipelineMain::missingPubsubArgumentsException))
+                    .build();
+            var eventPublisher = new PubsubEventBuilder().newPublisher(arguments.pubsubProject().orElse(arguments.project()),
+                    eventContext,
+                    new PipelineComplete.EventDescriptor());
+            return createPublisher(eventPublisher, arguments.context(), storage, arguments);
         }
     }
 

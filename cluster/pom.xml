@@ -25,6 +25,10 @@
             <artifactId>events-pubsub</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.hartwig.events</groupId>
+            <artifactId>events-aqua</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.hartwig</groupId>
             <artifactId>compar</artifactId>
         </dependency>

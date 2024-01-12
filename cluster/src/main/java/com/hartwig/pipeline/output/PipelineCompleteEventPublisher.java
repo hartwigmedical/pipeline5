@@ -16,7 +16,7 @@ import com.hartwig.events.pipeline.ImmutableAnalysisOutputBlob;
 import com.hartwig.events.pipeline.ImmutablePipeline;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
-import com.hartwig.events.pubsub.EventPublisher;
+import com.hartwig.events.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
