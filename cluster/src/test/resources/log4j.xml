@@ -16,6 +16,9 @@
     <logger name="org.apache.hadoop.util.NativeCodeLoader">
         <level value="OFF"/>
     </logger>
+    <logger name="com.hartwig.pipeline.failsafe">
+        <level value="DEBUG"/>
+    </logger>
 
     <root>
         <level value="WARN"/>
