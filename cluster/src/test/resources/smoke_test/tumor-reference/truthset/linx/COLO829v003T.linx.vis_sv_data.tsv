@@ -1,3 +1,0 @@
-SampleId	ClusterId	ChainId	SvId	Type	ResolvedType	IsSynthetic	ChrStart	ChrEnd	PosStart	PosEnd	OrientStart	OrientEnd	InfoStart	InfoEnd	JunctionCopyNumber	InDoubleMinute
-COLO829v003T	1	1	0	DEL	DEL	false	10	10	89700299	89712341	1	-1	NORMAL	NORMAL	0.0075	false
-COLO829v003T	0	1	1	BND	UNBAL_TRANS	false	10	18	7634373	9868617	-1	-1	NORMAL	NORMAL	0.2415	false

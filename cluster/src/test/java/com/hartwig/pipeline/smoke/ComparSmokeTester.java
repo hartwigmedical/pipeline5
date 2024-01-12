@@ -63,8 +63,8 @@ public class ComparSmokeTester {
         Options options = new Options();
 
         options.addOption(PIPELINE_BUCKET, true, "Pipeline bucket");
-        options.addOption(LOCAL_DIR, true, "Codong to amino acid mappings");
-        options.addOption(RUN_TAG, true, "Gene exon definitions");
+        options.addOption(LOCAL_DIR, true, "Local directory to for pipeline results");
+        options.addOption(RUN_TAG, true, "Run tag to pull pipeline results from");
 
         final CommandLineParser parser = new DefaultParser();
         final CommandLine cmd = parser.parse(options, args);

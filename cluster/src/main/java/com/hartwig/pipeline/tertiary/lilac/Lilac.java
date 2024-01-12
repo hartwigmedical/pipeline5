@@ -95,6 +95,7 @@ public class Lilac implements Stage<LilacOutput, SomaticRunMetadata> {
         List<String> arguments = Lists.newArrayList();
         arguments.add(format("-sample %s", metadata.reference().sampleName()));
         arguments.add(format("-reference_bam %s", slicedReference.getLocalTargetPath()));
+        arguments.addAll(commonArguments());
         return List.of(formCommand(arguments));
     }
 
