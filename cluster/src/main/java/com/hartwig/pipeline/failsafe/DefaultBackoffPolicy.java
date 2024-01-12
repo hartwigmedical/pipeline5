@@ -20,9 +20,11 @@ public class DefaultBackoffPolicy<R> extends RetryPolicy<R> {
         abortOn(InvalidArgumentException.class);
         onAbort(e -> LOGGER.error("Unable to submit operation", e.getFailure()));
         handle(Exception.class);
-        onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.warn("[{}] failed: {}",
-                taskName,
-                rExecutionAttemptedEvent.getLastFailure().getMessage()));
+        onFailedAttempt(rExecutionAttemptedEvent ->  {
+            var lastFailure = rExecutionAttemptedEvent.getLastFailure();
+            LOGGER.warn("[{}] failed: {}", taskName, lastFailure.getMessage());
+            LOGGER.debug("[{}] Exception Stack Trace: ", taskName, lastFailure);
+        });
     }
 
     public static <R> DefaultBackoffPolicy<R> of(final String taskName) {
