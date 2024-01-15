@@ -83,8 +83,10 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
                     "COLO829v003T",
                     "-output_dir",
                     outputDir.getAbsolutePath(),
-                    format("-sample_dir_ref", truthset.getAbsolutePath()),
-                    format("-sample_dir_new", victim.getAbsolutePath()));
+                    "-sample_dir_ref",
+                    truthset.getAbsolutePath(),
+                    "-sample_dir_new",
+                    victim.getAbsolutePath());
 
             com.hartwig.hmftools.compar.Compar.main(arguments.toArray(new String[] {}));
         }

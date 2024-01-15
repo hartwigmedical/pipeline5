@@ -31,24 +31,45 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ComparSmokeTester {
+
+    // config
     private static final String PIPELINE_BUCKET = "pipeline_bucket";
     private static final String LOCAL_DIR = "local_dir";
     private static final String RUN_TAG = "run_tag";
+    private static final String KEEP_PIPELINE_FILES = "keep_pipeline_files";
+
+    // COLO mini sample name is assumed
     private static final String SAMPLE_ID = "COLO829v003";
+
     private final List<String> expectedFiles;
     private final String pipelineBucket;
     private final String localDir;
     private final String runTag;
+    private final boolean keepPipelineFiles;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComparSmokeTester.class);
 
     public ComparSmokeTester(final CommandLine cmd) {
         expectedFiles = Lists.newArrayList();
-        loadExpectedFiles();
 
         pipelineBucket = cmd.getOptionValue(PIPELINE_BUCKET);
         localDir = cmd.getOptionValue(LOCAL_DIR);
         runTag = cmd.getOptionValue(RUN_TAG);
+        keepPipelineFiles = cmd.hasOption(KEEP_PIPELINE_FILES);
+
+        LOGGER.info("running Compar smoke-tester for runTag({}) using {} files from{}",
+                runTag, pipelineBucket != null ? "pipeline" : "local",
+                pipelineBucket != null ? pipelineBucket : localDir);
+
+        LOGGER.info("loading expected truthset files");
+
+        loadExpectedFiles();
+
+        LOGGER.info("loaded {} expected truthset files", expectedFiles.size());
     }
 
     private static String fixtureDir() {
@@ -65,6 +86,7 @@ public class ComparSmokeTester {
         options.addOption(PIPELINE_BUCKET, true, "Pipeline bucket");
         options.addOption(LOCAL_DIR, true, "Local directory to for pipeline results");
         options.addOption(RUN_TAG, true, "Run tag to pull pipeline results from");
+        options.addOption(KEEP_PIPELINE_FILES, false, "No clean-up of downloaded pipeline files");
 
         final CommandLineParser parser = new DefaultParser();
         final CommandLine cmd = parser.parse(options, args);
@@ -77,11 +99,11 @@ public class ComparSmokeTester {
 
     public void run() {
 
-        if (pipelineBucket != null) {
+        if (pipelineBucket != null)
+        {
             testBucketPipelineResults();
         }
-
-        if (localDir != null) {
+        else if (localDir != null) {
             testLocalPipelineResults();
         }
     }
@@ -118,16 +140,30 @@ public class ComparSmokeTester {
                 .useTargetRegions(false)
                 .refGenomeVersion(V37);
 
+
         Arguments arguments = builder.build();
 
         try {
             Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
+
+            LOGGER.info("downloading pipeline results");
+
             List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
+
+            LOGGER.info("downloaded {} pipeline run files", actualFiles.size());
+
             assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
-            ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
-                    .isEqualToTruthset(Resources.testResource(pipelineTruthsetDir()))
-                    .cleanup();
+            LOGGER.info("running Compar", actualFiles.size());
+
+            ComparAssert comparAssert = ComparAssert.assertThat(storage, arguments.outputBucket(), setName)
+                    .isEqualToTruthset(Resources.testResource(pipelineTruthsetDir()));
+
+            LOGGER.info("comparison complete", actualFiles.size());
+
+            if(!keepPipelineFiles) {
+                comparAssert.cleanup();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
