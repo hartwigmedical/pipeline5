@@ -16,8 +16,8 @@ public class AquaPublisherImpl implements AquaPublisher {
     private final Pipeline.Context pipelineContext;
     private final String version;
 
-    public AquaPublisherImpl(final EventPublisher<AquaEvent> publisher, final String barcode, final boolean isShallow, final boolean isTargeted,
-            final Pipeline.Context pipelineContext, final String version) {
+    public AquaPublisherImpl(final EventPublisher<AquaEvent> publisher, final String barcode, final boolean isShallow,
+            final boolean isTargeted, final Pipeline.Context pipelineContext, final String version) {
         this.publisher = publisher;
         this.barcode = barcode;
         this.isShallow = isShallow;
