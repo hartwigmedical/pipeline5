@@ -12,14 +12,23 @@ sudo /root/.pyenv/bin/pyenv install 3.6.10
 sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
 sudo /tmp/mk_python_venv peach 1.7 3.6.10
 
+# Shared for new Cuppa apps
 sudo dpkg -i /opt/tools/python/libffi6_3.2.1-9_amd64.deb
 sudo dpkg -i /opt/tools/python/libffi-dev_3.2.1-9_amd64.deb
 sudo /root/.pyenv/bin/pyenv install 3.9.4
 sudo /root/.pyenv/versions/3.9.4/bin/pip install --upgrade pip
+
+# Pycuppa only
 sudo mkdir -p /opt/tools/pycuppa/2.0rc/
-sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /opt/tools/pycuppa/2.0rc/
-sudo /root/.pyenv/versions/3.9.4/bin/pip install /opt/tools/pycuppa/2.0rc/pycuppa
-#sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc 3.9.4
+sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0rc
+sudo mv /tmp/pycuppa-2.0rc/pycuppa/* /opt/tools/pycuppa/2.0rc
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc 3.9.4
+
+# Cuppa-chart only
+sudo mkdir -p /opt/tools/cuppa-chart/2.0rc
+sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-2.0rc
+sudo mv /tmp/cuppa-chart-2.0rc/cuppa-chart/* /opt/tools/cuppa-chart/2.0rc
+sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 2.0rc 3.9.4
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs-new.tar -C /
@@ -31,7 +40,6 @@ sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeat
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
 sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
-#sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/bwa-mem2/2.2.1/bwa-mem2*
@@ -39,11 +47,6 @@ sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
-#sudo chmod a+x /opt/tools/gridss/2.13.2/gridss
-#sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
-#sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
-#sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
-#sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
 
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridsstools
@@ -51,10 +54,7 @@ sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
 
-#sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
 sudo chmod a+x /opt/tools/sv-prep/1.2.3rc/gridss.run.sh
-
-#sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
