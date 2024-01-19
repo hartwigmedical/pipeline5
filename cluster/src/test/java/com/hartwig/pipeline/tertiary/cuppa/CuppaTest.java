@@ -28,7 +28,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     private static final String TUMOR_CUPPA_VIS_DATA = "tumor.cuppa.vis_data.tsv";
     private static final String TUMOR_CUPPA_VIS_PLOT = "tumor.cuppa.vis.png";
-    private static final String TUMOR_CUPPA_PRED_SUMM = "tumor.cuppa.pred_summ.png";
+    private static final String TUMOR_CUPPA_PRED_SUMM = "tumor.cuppa.pred_summ.tsv";
 
     @Override
     public void disabledAppropriately() {
@@ -97,7 +97,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 + "-categories DNA "
                 + "-ref_genome_version V37 "
                 + "-sample_data_dir /data/input/results "
-                + "-output_dir /data/output");
+                + "-output_dir /data/output",
+                "(source /opt/tools/pycuppa/2.0rc_venv/bin/activate && "
+                + "python -m cuppa.predict --features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor "
+                + "&& deactivate)");
         // @formatter:on
     }
 
