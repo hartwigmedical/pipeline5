@@ -162,7 +162,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         List<BashCommand> cuppaCommands = Lists.newArrayList(JavaCommandFactory.javaClassCommand(CUPPA, CUPPA_DATA_PREP, cuppaArguments));
 
         // TODO: Call pycuppa PredictionRunner here
-        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName()));
+        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cuppa_data.tsv.gz", metadata.tumor().sampleName()));
 
         List<String> pycuppaPredictArguments =
                 Lists.newArrayList(format("--features_path %s", cuppaInputFeaturesFile), format("--output_dir %s", VmDirectories.OUTPUT));
