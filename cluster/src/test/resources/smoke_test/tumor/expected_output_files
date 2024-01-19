@@ -31,11 +31,10 @@ cobalt/COLO829v003T.cobalt.ratio.pcf
 cobalt/COLO829v003T.cobalt.ratio.tsv.gz
 cobalt/cobalt.version
 cobalt/run.log
-cuppa/COLO829v003T.cup.data.csv
-cuppa/COLO829v003T.cup.report.summary.png
-cuppa/COLO829v003T.cuppa.chart.png
-cuppa/COLO829v003T.cuppa.conclusion.txt
-cuppa/COLO829v003T_cup_report.pdf
+cuppa/COLO829v003T.cuppa.pred_summ.tsv
+cuppa/COLO829v003T.cuppa.vis.png
+cuppa/COLO829v003T.cuppa.vis_data.tsv
+cuppa/COLO829v003T.cuppa_data.tsv.gz
 cuppa/run.log
 gridss/COLO829v003T.gridss.vcf.gz.assembly.bam.gridss.working/COLO829v003T.gridss.vcf.gz.assembly.bam.alignment_summary_metrics
 gridss/COLO829v003T.gridss.vcf.gz.assembly.bam.gridss.working/COLO829v003T.gridss.vcf.gz.assembly.bam.cigar_metrics
