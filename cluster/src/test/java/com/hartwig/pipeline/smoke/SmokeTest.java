@@ -151,7 +151,9 @@ public class SmokeTest {
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .useTargetRegions(false)
-                .refGenomeVersion(refGenomeVersion);
+                .refGenomeVersion(refGenomeVersion)
+                .network("diskimager")
+                .subnet("diskimager");
 
         Arguments arguments = builder.build();
         Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
