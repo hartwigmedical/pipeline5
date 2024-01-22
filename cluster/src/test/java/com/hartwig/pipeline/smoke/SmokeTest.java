@@ -153,7 +153,7 @@ public class SmokeTest {
                 .useTargetRegions(false)
                 .refGenomeVersion(refGenomeVersion)
                 .network("projects/hmf-vpc-network/global/networks/vpc-network-prod-1")
-                .subnet("projects/hmf-vpc-network/regions/europe-west4/subnetworks/vpc-network-subnet-dev-prod-1");
+                .subnet("projects/hmf-vpc-network/regions/europe-west4/subnetworks/vpc-network-subnet-patient-pilot-1");
 
         Arguments arguments = builder.build();
         Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();
