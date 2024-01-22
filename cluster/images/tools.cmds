@@ -12,26 +12,17 @@ sudo /root/.pyenv/bin/pyenv install 3.6.10
 sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
 sudo /tmp/mk_python_venv peach 1.7 3.6.10
 
-# Shared for new Cuppa apps
 sudo dpkg -i /opt/tools/python/libffi6_3.2.1-9_amd64.deb
 sudo dpkg -i /opt/tools/python/libffi-dev_3.2.1-9_amd64.deb
 sudo /root/.pyenv/bin/pyenv install 3.9.4
 sudo /root/.pyenv/versions/3.9.4/bin/pip install --upgrade pip
-
-# Pycuppa only
 sudo mkdir -p /opt/tools/pycuppa/2.0rc/
 sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0rc
 sudo mv /tmp/pycuppa-2.0rc/pycuppa/* /opt/tools/pycuppa/2.0rc
 sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc 3.9.4
 
-# Cuppa-chart only
-sudo mkdir -p /opt/tools/cuppa-chart/2.0rc
-sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-2.0rc
-sudo mv /tmp/cuppa-chart-2.0rc/cuppa-chart/* /opt/tools/cuppa-chart/2.0rc
-sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 2.0rc 3.9.4
-
 # NOTE: This extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs-new.tar -C /
+sudo tar xvf /opt/tools/R/rlibs_20240122.tar -C /
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
