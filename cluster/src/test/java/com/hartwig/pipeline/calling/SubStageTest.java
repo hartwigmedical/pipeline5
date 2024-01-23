@@ -31,6 +31,10 @@ public abstract class SubStageTest {
         return output.bash().stream().map(BashCommand::asBash).collect(Collectors.joining());
     }
 
+    protected String bash(final String delim) {
+        return output.bash().stream().map(BashCommand::asBash).collect(Collectors.joining(delim));
+    }
+
     protected String sampleName() {
         return "tumor";
     }

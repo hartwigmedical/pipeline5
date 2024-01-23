@@ -79,20 +79,18 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public class TestInputs {
 
-    private static final String RESULTS = "results/";
-    private static final String REFERENCE_SAMPLE = "reference";
-    private static final String TUMOR_SAMPLE = "tumor";
-
-    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
-    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
-    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
-
     public static final ResourceFiles REF_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
     public static final long EXTERNAL_RUN_ID = 1L;
     public static final long EXTERNAL_SET_ID = 2L;
+    private static final String RESULTS = "results/";
+    private static final String REFERENCE_SAMPLE = "reference";
+    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
+    private static final String TUMOR_SAMPLE = "tumor";
+    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
+    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
     public static PipelineInput pipelineInput() {
         return PipelineInput.builder()
@@ -395,13 +393,9 @@ public class TestInputs {
         return CuppaOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
-                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
-                        .summaryChartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
-                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
-                        .conclusionChart(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_CHART))
+                        .visData(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_DATA))
+                        .visPlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_PLOT))
+                        .predSumm(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_PRED_SUMM))
                         .build())
                 .build();
     }

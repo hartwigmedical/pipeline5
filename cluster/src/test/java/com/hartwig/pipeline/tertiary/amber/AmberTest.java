@@ -68,7 +68,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                 + "-reference reference -reference_bam /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
-                + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz "
+                + "-loci /opt/resources/amber/37/AmberGermlineSites.37.tsv.gz "
                 + "-output_dir /data/output "
                 + "-threads 12");
     }

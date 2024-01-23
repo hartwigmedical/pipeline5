@@ -19,7 +19,7 @@ class BamMetricsCommand extends JavaJarCommand
             @Nullable final String targetRegionsBed) {
 
         super(BAM_TOOLS.getToolName(),
-                BAM_TOOLS.getVersion(),
+                BAM_TOOLS.runVersion(),
                 BAM_TOOLS.jar(),
                 BAM_TOOLS.maxHeapStr(),
                 formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
@@ -41,7 +41,7 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add("-write_old_style");
 
         if(targetRegionsBed != null)
-            arguments.add(format("-regions_bed_file %s", targetRegionsBed));
+            arguments.add(format("-regions_file %s", targetRegionsBed));
 
         return arguments;
     }

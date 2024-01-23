@@ -32,6 +32,7 @@ import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
@@ -137,17 +138,21 @@ public class BwaAligner implements Aligner {
 
             List<InputDownloadCommand> laneBams = perLaneBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
 
+            List<InputDownloadCommand> laneBamIndexs = perLaneBams.stream()
+                    .map(x -> x.transform(FileTypes::bai))
+                    .map(InputDownloadCommand::new).collect(Collectors.toList());
+
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
             laneBams.forEach(mergeMarkdupsBash::addCommand);
+            laneBamIndexs.forEach(mergeMarkdupsBash::addCommand);
 
             List<String> laneBamPaths = laneBams.stream()
                     .map(InputDownloadCommand::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged =
-                    new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths, arguments.useTargetRegions()).apply(
-                            SubStageInputOutput.empty(metadata.sampleName()));
+            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths)
+                    .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 

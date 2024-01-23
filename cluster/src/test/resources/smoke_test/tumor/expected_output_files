@@ -31,11 +31,10 @@ cobalt/COLO829v003T.cobalt.ratio.pcf
 cobalt/COLO829v003T.cobalt.ratio.tsv.gz
 cobalt/cobalt.version
 cobalt/run.log
-cuppa/COLO829v003T.cup.data.csv
-cuppa/COLO829v003T.cup.report.summary.png
-cuppa/COLO829v003T.cuppa.chart.png
-cuppa/COLO829v003T.cuppa.conclusion.txt
-cuppa/COLO829v003T_cup_report.pdf
+cuppa/COLO829v003T.cuppa.pred_summ.tsv
+cuppa/COLO829v003T.cuppa.vis.png
+cuppa/COLO829v003T.cuppa.vis_data.tsv
+cuppa/COLO829v003T.cuppa_data.tsv.gz
 cuppa/run.log
 gridss/COLO829v003T.gridss.vcf.gz.assembly.bam.gridss.working/COLO829v003T.gridss.vcf.gz.assembly.bam.alignment_summary_metrics
 gridss/COLO829v003T.gridss.vcf.gz.assembly.bam.gridss.working/COLO829v003T.gridss.vcf.gz.assembly.bam.cigar_metrics
@@ -141,6 +140,7 @@ pipeline.version
 purple/COLO829v003T.purple.driver.catalog.somatic.tsv
 purple/COLO829v003T.purple.cnv.gene.tsv
 purple/COLO829v003T.purple.cnv.somatic.tsv
+purple/COLO829v003T.purple.hrd.tsv
 purple/COLO829v003T.purple.purity.range.tsv
 purple/COLO829v003T.purple.purity.tsv
 purple/COLO829v003T.purple.qc
@@ -165,7 +165,6 @@ purple/circos/COLO829v003T.map.circos
 purple/circos/COLO829v003T.ratio.circos
 purple/circos/COLO829v003T.snp.circos
 purple/circos/gaps.txt
-purple/circos/null.ratio.circos
 purple/plot/COLO829v003T.circos.png
 purple/plot/COLO829v003T.copynumber.png
 purple/plot/COLO829v003T.input.png
@@ -175,14 +174,13 @@ purple/plot/COLO829v003T.segment.png
 purple/plot/COLO829v003T.somatic.clonality.png
 purple/plot/COLO829v003T.somatic.png
 purple/plot/COLO829v003T.somatic.rainfall.png
+purple/plot/COLO829v003T.somatic_data.tsv
 purple/purple.version
 purple/run.log
 sage_somatic/COLO829v003T.sage.bqr.png
 sage_somatic/COLO829v003T.sage.bqr.tsv
 sage_somatic/COLO829v003T.sage.exon.medians.tsv
 sage_somatic/COLO829v003T.sage.gene.coverage.tsv
-sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz
-sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz.tbi
 sage_somatic/COLO829v003T.sage.somatic.vcf.gz
 sage_somatic/COLO829v003T.sage.somatic.vcf.gz.tbi
 sage_somatic/run.log

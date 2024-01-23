@@ -18,9 +18,10 @@ one of these when a new tool or version of an existing tool is added. To create 
 ./create_public_image.sh
 ```
 
-The image will be named for the current version in development, along with a timestamp of creation.
-
-This image will be appropriate for development testing but production will need a private image, see below.
+The image will be named for the current version in development, along with a timestamp of creation. The "family" of the image is
+set and the pipeline uses the latest image in a family when a specific image is not given, which is convenient for development.
+The image should be manually copied to production and the launcher updated with the particular image name when the release is
+rolled out.
 
 ## Creating a public image with overrides
 
@@ -58,15 +59,6 @@ be auto-located.
 
 In addition, `Hmftool.java` contains an enum with flags to enable pilot mode. Set the flag to true for the tool being tested before 
 compiling/running the Pipeline5 application with the above arguments.
-
-## Creating a private image
-
-A private image overlays the contents of the `common-resources-private` repository on a previously created public image.
-These images are meant for production sequencing services.
-
-```shell
-./create_private_image.sh {source_image}
-```
 
 ## Creating a custom Docker container
 

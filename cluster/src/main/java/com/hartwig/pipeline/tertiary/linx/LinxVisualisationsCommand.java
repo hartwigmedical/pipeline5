@@ -16,10 +16,7 @@ class LinxVisualisationsCommand extends JavaClassCommand {
     LinxVisualisationsCommand(final String sample, final String sampleVisDir, final RefGenomeVersion refGenomeVersion) {
 
         super(LINX.getToolName(),
-                LINX.getVersion(),
-                LINX.jar(),
-                LINX_VISUALISER,
-                LINX.maxHeapStr(),
+                LINX.runVersion(), LINX.jar(), LINX_VISUALISER, LINX.maxHeapStr(),
                 Collections.emptyList(),
                 List.of("-sample",
                         sample,

@@ -151,7 +151,9 @@ public class SmokeTest {
                 .runGermlineCaller(false)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
                 .useTargetRegions(false)
-                .refGenomeVersion(refGenomeVersion);
+                .refGenomeVersion(refGenomeVersion)
+                .network("projects/hmf-vpc-network/global/networks/vpc-network-prod-1")
+                .subnet("projects/hmf-vpc-network/regions/europe-west4/subnetworks/vpc-network-subnet-patient-pilot-1");
 
         Arguments arguments = builder.build();
         Storage storage = StorageProvider.from(arguments, GoogleCredentials.getApplicationDefault()).get();

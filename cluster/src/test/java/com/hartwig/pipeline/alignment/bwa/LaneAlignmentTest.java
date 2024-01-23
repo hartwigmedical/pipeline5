@@ -27,7 +27,7 @@ public class LaneAlignmentTest extends SubStageTest {
 
     @Test
     public void alignsBamsAndSortsEachLaneFastqPair() {
-        assertThat(bash()).contains("(/opt/tools/bwa/0.7.17/bwa mem -R "
+        assertThat(bash()).contains("(/opt/tools/bwa-mem2/2.2.1/bwa-mem2 mem -R "
                 + "\"@RG\\tID:AHHKYHDSXX_S13_L001_001\\tLB:NA\\tPL:ILLUMINA\\tPU:flowCell\\tSM:NA\" "
                 + "-Y -t $(grep -c '^processor' /proc/cpuinfo) reference.fasta COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz "
                 + "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz "

@@ -100,7 +100,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                         + "-log_level INFO "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                         + "-write_old_style "
-                        + "-regions_bed_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
+                        + "-regions_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 
 import java.util.List;
@@ -112,7 +114,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private void addTargetRegionsArguments(final List<String> amberArguments) {
         if (arguments.useTargetRegions()) {
-            amberArguments.add("-tumor_only_min_depth 80");
+            amberArguments.add(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()));
         }
     }
 

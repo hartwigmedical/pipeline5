@@ -49,7 +49,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER, "GermlineHetPon.37.vcf.gz");
+        return formPath(AMBER, "AmberGermlineSites.37.tsv.gz");
     }
 
     @Override
@@ -91,6 +91,9 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String mappabilityBed() {
         return formPath(MAPPABILITY, "mappability_150.37.bed.gz");
     }
+
+    @Override
+    public String unmapRegionsFile() { return formPath(MAPPABILITY, "unmap_regions.37.tsv"); }
 
     @Override
     public String germlinePon() {

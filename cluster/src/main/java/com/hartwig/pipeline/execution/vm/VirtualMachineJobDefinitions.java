@@ -12,9 +12,11 @@ import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
@@ -82,7 +84,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(SageConfiguration.SAGE_SOMATIC_NAMESPACE.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(16, 64))
+                .performanceProfile(custom(SAGE.getCpus(), SAGE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -93,7 +95,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(SageConfiguration.SAGE_GERMLINE_NAMESPACE.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 20))
+                .performanceProfile(custom(SAGE.getCpus(), SAGE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -221,7 +223,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name("merge-markdup")
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 120))
+                .performanceProfile(custom(MARK_DUPS.getCpus(), MARK_DUPS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
