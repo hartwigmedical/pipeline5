@@ -46,7 +46,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER, "GermlineHetPon.38.vcf.gz");
+        return formPath(AMBER, "AmberGermlineSites.38.tsv.gz");
     }
 
     @Override
@@ -88,6 +88,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String mappabilityBed() {
         return formPath(MAPPABILITY, "mappability_150.38.bed.gz");
     }
+
+    @Override
+    public String unmapRegionsFile() { return formPath(MAPPABILITY, "unmap_regions.38.tsv"); }
 
     @Override
     public String germlinePon() {

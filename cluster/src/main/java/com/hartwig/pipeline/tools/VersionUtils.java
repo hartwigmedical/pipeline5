@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tools;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ public final class VersionUtils {
         logger.info("HMF tool versions:");
 
         for (HmfTool tool : HmfTool.values()) {
-            logger.info(String.format("%s: %s", tool.toString(), tool.runVersion()));
+            logger.info(String.format("%s: %s", tool.toString(), tool.versionInfo()));
         }
 
         logger.info("External tools versions:");
@@ -52,7 +53,8 @@ public final class VersionUtils {
     }
 
     public static List<HmfTool> inArtifactRegistry() {
-        return List.of(HmfTool.ORANGE);
+        //return List.of(HmfTool.ORANGE);
+        return Collections.emptyList();
     }
 
     public static String format(final Field field) {
@@ -69,7 +71,7 @@ public final class VersionUtils {
 
     public static void main(final String[] args) {
         if (args.length != 0 && args[0].equals("tools")) {
-            VersionUtils.inArtifactRegistry().forEach(t -> System.out.printf("%s %s\n", t.getToolName(), t.getVersion()));
+            VersionUtils.inArtifactRegistry().forEach(t -> System.out.printf("%s %s\n", t.getToolName(), t.runVersion()));
         } else {
             System.out.println(VersionUtils.imageVersion());
         }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 function do_curl() {
     # New versions (>7.52.1) of `curl` work properly with `--oauth2-bearer` instead of the explicit setting of a header
@@ -10,7 +10,7 @@ function do_curl() {
 }
 
 AR_URL="https://europe-west4-maven.pkg.dev/hmf-build/hmf-maven/com/hartwig"
-TOOL_DIR="/opt/tools"
+TOOL_DIR="/tmp/tools"
 
 [[ $# -ne 2 ]] && echo "USAGE: $0 [tool name] [tool version]" && exit 1
 
@@ -26,7 +26,7 @@ do_curl -o ${localDir}/${tool}.jar -L ${remoteDir}/${tool}-${version}-jar-with-d
 actual_md5="$(md5sum ${localDir}/${tool}.jar | awk '{print $1}')"
 [[ $actual_md5 == "" ]] && echo "No local md5" && exit 1
 if [[ $actual_md5 != $expected_md5 ]]; then
-    echo "Checksum not as expected for ${tool} version ${version}" 
+    echo "Checksum not as expected or version not found in Artifact Registry for ${tool} version ${version}" 
     rm ${localDir}/${tool}.jar
     exit 1
 else

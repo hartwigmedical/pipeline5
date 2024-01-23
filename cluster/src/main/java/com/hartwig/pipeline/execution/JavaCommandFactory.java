@@ -14,12 +14,12 @@ public final class JavaCommandFactory {
     }
 
     public static JavaJarCommand javaJarCommand(HmfTool hmfTool, List<String> arguments) {
-        return new JavaJarCommand(hmfTool.getToolName(), hmfTool.getVersion(), hmfTool.jar(), hmfTool.maxHeapStr(), arguments);
+        return new JavaJarCommand(hmfTool.getToolName(), hmfTool.runVersion(), hmfTool.jar(), hmfTool.maxHeapStr(), arguments);
     }
 
     public static JavaClassCommand javaClassCommand(HmfTool hmfTool, String mainClass, List<String> arguments) {
         return new JavaClassCommand(hmfTool.getToolName(),
-                hmfTool.getVersion(),
+                hmfTool.runVersion(),
                 hmfTool.jar(),
                 mainClass,
                 hmfTool.maxHeapStr(),

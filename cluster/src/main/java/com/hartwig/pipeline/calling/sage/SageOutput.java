@@ -21,9 +21,7 @@ public interface SageOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeSomaticTumorSampleBqrPlot();
 
-    default GoogleStorageLocation variants() {
-        return maybeVariants().orElse(GoogleStorageLocation.empty());
-    }
+    default GoogleStorageLocation variants() { return maybeVariants().orElse(GoogleStorageLocation.empty()); }
 
     default GoogleStorageLocation germlineGeneCoverage() {
         return maybeGermlineGeneCoverage().orElse(GoogleStorageLocation.empty());

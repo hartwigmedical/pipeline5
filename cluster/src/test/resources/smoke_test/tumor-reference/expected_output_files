@@ -60,11 +60,10 @@ cobalt/COLO829v003T.cobalt.ratio.pcf
 cobalt/COLO829v003T.cobalt.ratio.tsv.gz
 cobalt/cobalt.version
 cobalt/run.log
-cuppa/COLO829v003T.cup.data.csv
-cuppa/COLO829v003T.cup.report.summary.png
-cuppa/COLO829v003T.cuppa.chart.png
-cuppa/COLO829v003T.cuppa.conclusion.txt
-cuppa/COLO829v003T_cup_report.pdf
+cuppa/COLO829v003T.cuppa.pred_summ.tsv
+cuppa/COLO829v003T.cuppa.vis.png
+cuppa/COLO829v003T.cuppa.vis_data.tsv
+cuppa/COLO829v003T.cuppa_data.tsv.gz
 cuppa/run.log
 gridss/COLO829v003R.sv_prep.sorted.bam.gridss.working/COLO829v003R.sv_prep.sorted.bam.computesamtags.changes.tsv
 gridss/COLO829v003R.sv_prep.sorted.bam.gridss.working/COLO829v003R.sv_prep.sorted.bam.idsv_metrics
@@ -171,8 +170,7 @@ orange/plot/COLO829v003R.sage.bqr.png
 orange/plot/COLO829v003T.circos.png
 orange/plot/COLO829v003T.cluster-1.sv1.003.png
 orange/plot/COLO829v003T.copynumber.png
-orange/plot/COLO829v003T.cup.report.summary.png
-orange/plot/COLO829v003T.cuppa.chart.png
+orange/plot/COLO829v003T.cuppa.vis.png
 orange/plot/COLO829v003T.input.png
 orange/plot/COLO829v003T.purity.range.png
 orange/plot/COLO829v003T.sage.bqr.png
@@ -186,8 +184,7 @@ orange_no_germline/plot/COLO829v003R.sage.bqr.png
 orange_no_germline/plot/COLO829v003T.circos.png
 orange_no_germline/plot/COLO829v003T.cluster-1.sv1.003.png
 orange_no_germline/plot/COLO829v003T.copynumber.png
-orange_no_germline/plot/COLO829v003T.cup.report.summary.png
-orange_no_germline/plot/COLO829v003T.cuppa.chart.png
+orange_no_germline/plot/COLO829v003T.cuppa.vis.png
 orange_no_germline/plot/COLO829v003T.input.png
 orange_no_germline/plot/COLO829v003T.purity.range.png
 orange_no_germline/plot/COLO829v003T.sage.bqr.png
@@ -212,6 +209,7 @@ purple/COLO829v003T.purple.cnv.somatic.tsv
 purple/COLO829v003T.purple.germline.deletion.tsv
 purple/COLO829v003T.purple.germline.vcf.gz
 purple/COLO829v003T.purple.germline.vcf.gz.tbi
+purple/COLO829v003T.purple.hrd.tsv
 purple/COLO829v003T.purple.purity.range.tsv
 purple/COLO829v003T.purple.purity.tsv
 purple/COLO829v003T.purple.qc
@@ -248,6 +246,7 @@ purple/plot/COLO829v003T.segment.png
 purple/plot/COLO829v003T.somatic.clonality.png
 purple/plot/COLO829v003T.somatic.png
 purple/plot/COLO829v003T.somatic.rainfall.png
+purple/plot/COLO829v003T.somatic_data.tsv
 purple/purple.version
 purple/run.log
 sage_germline/COLO829v003R.sage.bqr.png
@@ -256,8 +255,6 @@ sage_germline/COLO829v003R.sage.exon.medians.tsv
 sage_germline/COLO829v003R.sage.gene.coverage.tsv
 sage_germline/COLO829v003T.sage.bqr.png
 sage_germline/COLO829v003T.sage.bqr.tsv
-sage_germline/COLO829v003T.sage.germline.filtered.vcf.gz
-sage_germline/COLO829v003T.sage.germline.filtered.vcf.gz.tbi
 sage_germline/COLO829v003T.sage.germline.vcf.gz
 sage_germline/COLO829v003T.sage.germline.vcf.gz.tbi
 sage_germline/run.log
@@ -268,8 +265,6 @@ sage_somatic/COLO829v003T.sage.bqr.png
 sage_somatic/COLO829v003T.sage.bqr.tsv
 sage_somatic/COLO829v003T.sage.exon.medians.tsv
 sage_somatic/COLO829v003T.sage.gene.coverage.tsv
-sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz
-sage_somatic/COLO829v003T.sage.somatic.filtered.vcf.gz.tbi
 sage_somatic/COLO829v003T.sage.somatic.vcf.gz
 sage_somatic/COLO829v003T.sage.somatic.vcf.gz.tbi
 sage_somatic/run.log

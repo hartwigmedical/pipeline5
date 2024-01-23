@@ -1,12 +1,17 @@
 package com.hartwig.pipeline.tertiary.orange;
 
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
-import com.hartwig.computeengine.execution.vm.command.InputDownloadIfBlobExistsCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -47,12 +52,6 @@ import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
@@ -78,10 +77,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownloadCommand linxSomaticOutputDir;
     private final InputDownloadCommand linxGermlineDataDir;
     private final InputDownloadCommand chordPredictionTxt;
-    private final InputDownloadCommand cuppaSummaryPlot;
-    private final InputDownloadCommand cuppaResultCsv;
-    private final InputDownloadIfBlobExistsCommand cuppaFeaturePlot;
-    private final InputDownloadCommand cuppaChartPlot;
+    private final InputDownloadCommand cuppaVisPlot;
+    private final InputDownloadCommand cuppaVisData;
+    private final InputDownloadCommand cuppaPredSumm;
     private final InputDownloadCommand peachGenotypeTsv;
     private final InputDownloadCommand sigsAllocationTsv;
     private final InputDownloadCommand annotatedVirusTsv;
@@ -109,13 +107,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.sageSomaticTumorSampleBqrPlot = new InputDownloadCommand(sageSomaticOutput.somaticTumorSampleBqrPlot());
         LinxSomaticOutputLocations linxSomaticOutputLocations = linxSomaticOutput.linxOutputLocations();
         this.linxSomaticOutputDir = new InputDownloadCommand(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
-        this.linxGermlineDataDir = new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
+        this.linxGermlineDataDir =
+                new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
         this.chordPredictionTxt = new InputDownloadCommand(chordOutput.predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
-        this.cuppaResultCsv = new InputDownloadCommand(cuppaOutputLocations.resultCsv());
-        this.cuppaSummaryPlot = new InputDownloadCommand(cuppaOutputLocations.summaryChartPng());
-        this.cuppaFeaturePlot = new InputDownloadIfBlobExistsCommand(cuppaOutputLocations.featurePlot());
-        this.cuppaChartPlot = new InputDownloadCommand(cuppaOutputLocations.conclusionChart());
+        this.cuppaVisData = new InputDownloadCommand(cuppaOutputLocations.visData());
+        this.cuppaVisPlot = new InputDownloadCommand(cuppaOutputLocations.visPlot());
+        this.cuppaPredSumm = new InputDownloadCommand(cuppaOutputLocations.predSumm());
         this.peachGenotypeTsv = new InputDownloadCommand(peachOutput.genotypes());
         this.sigsAllocationTsv = new InputDownloadCommand(sigsOutput.allocationTsv());
         this.annotatedVirusTsv = new InputDownloadCommand(virusOutput.virusAnnotations());
@@ -140,10 +138,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 lilacResult,
                 linxSomaticOutputDir,
                 linxGermlineDataDir,
-                cuppaFeaturePlot,
-                cuppaChartPlot,
-                cuppaResultCsv,
-                cuppaSummaryPlot,
+                cuppaVisData,
+                cuppaVisPlot,
+                cuppaPredSumm,
                 chordPredictionTxt,
                 annotatedVirusTsv,
                 peachGenotypeTsv,
@@ -158,6 +155,53 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return buildCommands(metadata);
+    }
+
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinitions.orange(bash, resultsDirectory, namespace());
+    }
+
+    @Override
+    public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        return OrangeOutput.builder()
+                .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addAllDatatypes(addDatatypes(metadata))
+                .build();
+    }
+
+    @Override
+    public OrangeOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return OrangeOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
+    }
+
+    @Override
+    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        if (includeGermline) {
+            final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
+            final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
+            return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), orangeJson)),
+                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), orangePdf)));
+        } else {
+            return List.of();
+        }
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return !arguments.shallow() && arguments.runTertiary();
     }
 
     private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
@@ -230,55 +274,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
         JavaJarCommand orangeJarCommand = JavaCommandFactory.javaJarCommand(ORANGE, argumentListBuilder.build());
 
-        return List.of(
-                new MkDirCommand(linxPlotDir),
+        return List.of(new MkDirCommand(linxPlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
-                orangeJarCommand
-        );
-    }
-
-    @Override
-    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinitions.orange(bash, resultsDirectory, namespace());
-    }
-
-    @Override
-    public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
-        return OrangeOutput.builder()
-                .status(jobStatus)
-                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addAllDatatypes(addDatatypes(metadata))
-                .build();
-    }
-
-    @Override
-    public OrangeOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(PipelineStatus.SKIPPED).build();
-    }
-
-    @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary();
-    }
-
-    @Override
-    public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata)).build();
-    }
-
-    @Override
-    public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
-        if (includeGermline) {
-            final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
-            final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
-            return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), orangeJson)),
-                    new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf)));
-        } else {
-            return List.of();
-        }
+                orangeJarCommand);
     }
 }
