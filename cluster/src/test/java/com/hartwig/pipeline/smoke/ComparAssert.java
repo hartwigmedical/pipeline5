@@ -74,11 +74,10 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
     private class ComparWrapper {
         void run(final File victim, final File truthset, final File outputDir) throws ParseException {
 
-            List<String> arguments = List.of(
-                    "-match_level",
-                    "REPORTABLE", // KEY_FIELDS
+            List<String> arguments = List.of("-match_level",
+                    "REPORTABLE",
                     "-categories",
-                    "PURPLE,LINX,LILAC,CUPPA",
+                    "PURPLE,LINX,LILAC",
                     "-sample",
                     "COLO829v003T",
                     "-output_dir",

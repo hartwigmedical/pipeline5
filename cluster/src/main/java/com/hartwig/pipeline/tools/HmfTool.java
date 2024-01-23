@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tools;
 
 import static java.lang.String.format;
+
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
@@ -10,14 +11,14 @@ public enum HmfTool {
     CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
     CIDER("1.0.2", 12, 16, 4, false),
     COBALT("1.16rc", 20, 24, 16, false), // 1.15 -> 1.16
-    CUPPA("1.8.1", Defaults.JAVA_HEAP, 16, 4, false),
+    CUPPA("2.0rc", Defaults.JAVA_HEAP, 16, 4, false),
     GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.4rc", 16, 24, 4, false), // 2.3.5 -> 2.4
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.6rc", 16, 24, 8, false), // 1.5 -> 1.6
     LINX("1.25rc", 8, 12, 4, false), // 1.24.1 -> 1.25
     MARK_DUPS("1.1rc", 40, 64, 24, false), // 1.1 -> 1.2
-    ORANGE("3.0.2", 16, 18, 4, false),
+    ORANGE("3.1.0-beta.1", 16, 18, 4, false),
     PAVE("1.6rc", 30, 40, 8, false), // 1.5 -> 1.6
     PEACH("1.7", 1, 4, 2, false),
     PURPLE("4.0rc", 30, 40, 8, false), // 3.9.2 -> 4.0
@@ -28,14 +29,13 @@ public enum HmfTool {
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
 
+    private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
     private final String toolName;
     private final String version;
     private final int maxHeap;
     private final int memoryGb;
     private final int cpus;
     private final boolean usePilot;
-
-    private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
 
     HmfTool(final String version, final int maxHeap, final int memoryGb, final int cpus, final boolean usePilot) {
         toolName = this.toString().toLowerCase().replace('_', '-');
@@ -50,14 +50,22 @@ public enum HmfTool {
         return toolName;
     }
 
-    public String runVersion() { return usePilot ? PILOT_VERSION : version; }
+    public String runVersion() {
+        return usePilot ? PILOT_VERSION : version;
+    }
 
-    public String versionInfo() { return usePilot ? format("%s, using pilot", version) : version; }
+    public String versionInfo() {
+        return usePilot ? format("%s, using pilot", version) : version;
+    }
 
     public int getMaxHeap() {
         return maxHeap;
     }
-    public int getMemoryGb() { return memoryGb; }
+
+    public int getMemoryGb() {
+        return memoryGb;
+    }
+
     public int getCpus() {
         return cpus;
     }

@@ -16,7 +16,7 @@ steps:
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
-    timeout: 3000s
+    timeout: 3600s
     args:
       - 'install'
       - '-Drelease'

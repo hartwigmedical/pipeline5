@@ -60,8 +60,9 @@ fi
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
 set -e
-GCL="gcloud beta compute --project=${PROJECT}"
-SSH="$GCL ssh $source_instance --zone=${ZONE}"
+GCL="gcloud compute --project=${PROJECT}"
+SSH_ARGS="--zone=${ZONE} --tunnel-through-iap"
+SSH="$GCL ssh $source_instance $SSH_ARGS"
 generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 
 (
@@ -70,10 +71,10 @@ echo
 echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
-    --image-family=${source_family} --scopes=default,cloud-source-repos-ro
-echo sleep 10
-echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
-echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
+    --image-family=${source_family} --scopes=default,cloud-source-repos-ro --network diskimager --subnet diskimager
+echo sleep 30
+echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ $SSH_ARGS"
+echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ $SSH_ARGS"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$SSH --command=\"$cmd\""
