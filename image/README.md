@@ -1,8 +1,8 @@
 # What is this directory?
 
 These are scripts and data for creating new disk images for running PipelineV5 VMs on GCP. The image must include all of the tools
-that are required by the pipeline version being executed, and must be functional standalone OS. The images we create are based on
-the Debian image provided by Google.
+that are required by the pipeline version being executed, and must be a functional standalone OS. The images we create are based
+on the Debian image provided by Google.
 
 Resources and tools are copied in from buckets and other sources at imaging time. The image is created with a name and "family"
 that make it clear which version of the pipeline it should work with. The contract between the image and the pipeline code version
@@ -64,7 +64,7 @@ be auto-located.
 In addition, `Hmftool.java` contains an enum with flags to enable pilot mode. Set the flag to true for the tool being tested before 
 compiling/running the Pipeline5 application with the above arguments.
 
-## Creating a custom Docker container
+# Creating a custom Docker container
 
 The above scripts all deal in VM images, but in some cases (for instance to use pilot jars) we also need a custom 
 docker container image. There is no script for this but it can be done by execution the following commands:
