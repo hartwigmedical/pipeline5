@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tools;
 
-import static java.lang.String.format;
-
 import com.hartwig.computeengine.execution.vm.VmDirectories;
+
+import static java.lang.String.format;
 
 public enum HmfTool {
 
@@ -12,7 +12,7 @@ public enum HmfTool {
     CIDER("1.0.2", 12, 16, 4, false),
     COBALT("1.16rc", 20, 24, 16, false), // 1.15 -> 1.16
     CUPPA("2.0rc", Defaults.JAVA_HEAP, 16, 4, false),
-    GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
+    GRIDSS("2.13.3-beta", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.4rc", 16, 24, 4, false), // 2.3.5 -> 2.4
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.6rc", 16, 24, 8, false), // 1.5 -> 1.6
@@ -26,7 +26,7 @@ public enum HmfTool {
     SIGS("1.2rc", Defaults.JAVA_HEAP, 16, 4, false),
     SV_PREP("1.2.3rc", 48, 64, 24, false), // 1.2 -> 1.2.3
     TEAL("1.2.1", 30, 32, 16, false),
-    VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
+    VIRUSBREAKEND_GRIDSS("2.13.3-beta", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
 
     private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
