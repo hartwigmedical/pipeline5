@@ -1,38 +1,7 @@
 # Use this to build the R dependencies for the pipeline.  It is not an automated part of image creation (to keep the imaging time
 # down) but can be invoked manually when the dependencies are in need of updating.
-#
-#   1.  Start a VM and MAKE SURE `/usr/local/lib/R/site-library` both exists and is empty. 
-#   2.  Confirm `/usr/local/lib/R/site-library` is first in the output of `.libPaths()` from an R shell
-#   3.  Run `apt -y build-dep libcurl4-gnutls-dev`
-#   4.  Install required build-time packages with:
-#       ```
-#       apt install libcurl4-gnutls-dev libssl-dev libxml2-dev dirmngr apt-transport-https ca-certificates \
-#       software-properties-common gnupg2 libmagick++-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev \
-#       libpng-dev libtiff5-dev libjpeg-dev 
-#       ```
-#   5.  Install cran40 R:
-#       a. `apt -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2`
-#       b. `apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7'`
-#       c. `add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian bookworm-cran40/'`
-#       d. `apt update`
-#       e. `apt install r-base`
-#   6.  Run this script with `Rscript ./installDependencies.R | tee rebuild.log`. You may find running this in a `screen` session
-#       beneficial.
-#   7.  Make sure `/usr/local/lib/R/site-library` was populated as expected
-#   8.  Check for errors/missing libraries in the rebuild log as the whole build may exit with 0 but if an underlying library is
-#       missing then it won't build the R extension
-#   9.  Make a new tarball: `cd /; tar cvf rlibs_$(date "+%Y-%m-%d").tar /usr/local/lib/R/site-library`
-#   10. Copy the new tarball up to the common-tools bucket (see imager script for details)
-#   11. Re-run the imaging script and verify installed versions of R libs. See `./listInstalledLibs.R`.
-#
-# Once built the dependencies tarball is placed in the "tools" bucket on GCP from which it is copied and extracted at image
-# creation time.
-#
-# We make the assumption that any libraries installed in the R library search path (try `.libPaths()` from an R shell) will not
-# contain anything other than what has been packaged with the in-use R distribution. We do not use a custom library path via
-# `R_LIBS_USER` because it complicates all R client programs.
 
-install.packages("BiocManager")
+install.packages("BiocManager", version="3.17")
 install.packages("usethis")
 install.packages("httr")
 install.packages("roxygen2")
@@ -44,9 +13,12 @@ library(devtools)
 
 install.packages("dplyr")
 install.packages("ggplot2", update = T, ask = F)
+install.packages("patchwork", update = T, ask = F)
+install.packages("ggh4x", update = T, ask = F)
+install.packages("stringr", update = T, ask = F)
+
 install.packages("magick", update = T, ask = F)
 install.packages("VariantAnnotation", update = T, ask = F)
-install.packages("copynumber", update = T, ask = F)
 install.packages("cowplot", update = T, ask = F)
 
 install.packages("argparser", update = T, ask = F)
@@ -72,6 +44,7 @@ BiocManager::install("Biostrings")
 BiocManager::install("Rsamtools")
 BiocManager::install("GenomicAlignments")
 BiocManager::install("Gviz")
+BiocManager::install("copynumber", update = T, ask = F)
 
 install.packages("testthat", update = T, ask = F)
 install.packages("stringdist", update = T, ask = F)

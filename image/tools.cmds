@@ -1,27 +1,24 @@
+sudo rm -rf /opt/tools/*
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
+sudo mv /tmp/etc_profile-d_pv5.sh /etc/profile.d/pv5_r_env.sh
+sudo chmod +x /etc/profile.d/pv5_r_env.sh
+sudo mv /tmp/bashrc /root/.bashrc
+sudo mv /tmp/bash_profile /root/.bash_profile
 
-# The below tarball is a capture of the result of running this on a live instance:
-# curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | sudo bash
-# Doing that every time blindly is insecure
-sudo rm -rf /root/.pyenv
-sudo tar xvzf /opt/tools/python/pyenv.tar.gz -C /root
 sudo chmod a+x /tmp/mk_python_venv
+sudo /tmp/mk_python_venv peach 1.8 
 
-sudo /root/.pyenv/bin/pyenv install 3.6.10
-sudo /root/.pyenv/versions/3.6.10/bin/pip install --upgrade pip
-sudo /tmp/mk_python_venv peach 1.7 3.6.10
+# NOTE: This extracts overtop the system-managed R libraries.
+#sudo tar xvf /opt/tools/R/rlibs_debian12_cran40.tar -C /
+# This script came from here:
+# https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
 
-sudo dpkg -i /opt/tools/python/libffi6_3.2.1-9_amd64.deb
-sudo dpkg -i /opt/tools/python/libffi-dev_3.2.1-9_amd64.deb
-sudo /root/.pyenv/bin/pyenv install 3.9.4
-sudo /root/.pyenv/versions/3.9.4/bin/pip install --upgrade pip
+sudo tar -C /root -xvzf /opt/tools/R/anaconda3.tar.gz 
+
 sudo mkdir -p /opt/tools/pycuppa/2.0rc/
 sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0rc
 sudo mv /tmp/pycuppa-2.0rc/pycuppa/* /opt/tools/pycuppa/2.0rc
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc 3.9.4
-
-# NOTE: This extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs_20240122.tar -C /
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
@@ -38,13 +35,14 @@ sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
 
-sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
-sudo chmod a+x /opt/tools/gridss/2.13.3/gridsstools
-sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
-sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
-sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridsstools
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/virusbreakend
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss_annotate_vcf_kraken2
+sudo chmod a+x /opt/tools/gridss/2.13.3-beta/gridss_annotate_vcf_repeatmasker
 
 sudo chmod a+x /opt/tools/sv-prep/1.2.3rc/gridss.run.sh
+
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
