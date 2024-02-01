@@ -1,14 +1,5 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -24,11 +15,7 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -37,6 +24,13 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static java.lang.String.format;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -371,7 +365,11 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(JavaCommandFactory.javaJarCommand(PURPLE, arguments));
+        return List.of(
+                () -> "eval `/root/anaconda3/bin/conda shell.bash hook`",
+                () -> "source /root/anaconda3/bin/activate",
+                () -> "conda activate /root/anaconda3/envs/bioconductor-r42",
+                JavaCommandFactory.javaJarCommand(PURPLE, arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,

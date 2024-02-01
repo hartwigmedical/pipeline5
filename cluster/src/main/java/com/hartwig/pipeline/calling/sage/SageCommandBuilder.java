@@ -1,15 +1,15 @@
 package com.hartwig.pipeline.calling.sage;
 
-import static com.hartwig.pipeline.tools.HmfTool.SAGE;
-
-import java.util.List;
-import java.util.StringJoiner;
-
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.resource.ResourceFiles;
+
+import java.util.List;
+import java.util.StringJoiner;
+
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 public class SageCommandBuilder {
 
@@ -132,6 +132,9 @@ public class SageCommandBuilder {
         arguments.add(String.format("-output_vcf %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
+        result.add(() -> "eval `/root/anaconda3/bin/conda shell.bash hook`");
+        result.add(() -> "source /root/anaconda3/bin/activate");
+        result.add(() -> "conda activate /root/anaconda3/envs/bioconductor-r42");
         result.add(JavaCommandFactory.javaJarCommand(SAGE, arguments));
 
         return result;

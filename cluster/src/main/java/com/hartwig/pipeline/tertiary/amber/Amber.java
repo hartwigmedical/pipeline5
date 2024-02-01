@@ -1,11 +1,5 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.HmfTool.AMBER;
-
-import java.util.List;
-
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -21,16 +15,17 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+import static java.lang.String.format;
 
 @Namespace(Amber.NAMESPACE)
 public class Amber extends TertiaryStage<AmberOutput> {
@@ -89,7 +84,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     private List<BashCommand> formCommand(final List<String> arguments) {
-        List<BashCommand> commands = Lists.newArrayList();
+        List<BashCommand> commands = Lists.newArrayList(List.of(
+                () -> "eval `/root/anaconda3/bin/conda shell.bash hook`",
+                () -> "source /root/anaconda3/bin/activate",
+                () -> "conda activate /root/anaconda3/envs/bioconductor-r42"));
         commands.add(JavaCommandFactory.javaJarCommand(AMBER, arguments));
         return commands;
     }
