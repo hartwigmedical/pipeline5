@@ -274,7 +274,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(CUPPA.getCpus(), CUPPA.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+//                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -307,7 +307,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+//                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -318,7 +318,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(PEACH.getCpus(), PEACH.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+//                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -329,7 +329,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(SIGS.getCpus(), SIGS.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+//                .workingDiskSpaceGb(375)
                 .build();
     }
 
