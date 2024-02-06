@@ -1,9 +1,5 @@
 package com.hartwig.pipeline;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -21,19 +17,11 @@ import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.input.InputMode;
-import com.hartwig.pipeline.input.JsonPipelineInput;
-import com.hartwig.pipeline.input.MetadataProvider;
-import com.hartwig.pipeline.input.ModeResolver;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
+import com.hartwig.pipeline.input.*;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.output.NoopOutputPublisher;
-import com.hartwig.pipeline.output.OutputPublisher;
-import com.hartwig.pipeline.output.PipelineCompleteEventPublisher;
-import com.hartwig.pipeline.output.PipelineOutputComposerProvider;
-import com.hartwig.pipeline.output.VmExecutionLogSummary;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.reruns.InputPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
@@ -42,13 +30,22 @@ import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.VersionUtils;
 import com.hartwig.pipeline.turquoise.Turquoise;
-
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+
 public class PipelineMain {
+    private static final List<String> EXTRA_SOMATIC_ARGS = List.of(
+            "eval `/root/anaconda3/bin/conda shell.bash hook`",
+            "source /root/anaconda3/bin/activate",
+            "conda activate /root/anaconda3/envs/bioconductor-r42"
+    );
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
@@ -58,16 +55,17 @@ public class PipelineMain {
     }
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
-            final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+                                                   final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
+                                                   final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
+                                                   final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
+                                                   final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap()),
+                        arguments.publishEventsOnly() ? new NoOpComputeEngine() :
+                                GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap(), EXTRA_SOMATIC_ARGS),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -92,7 +90,8 @@ public class PipelineMain {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap()),
+                        arguments.publishEventsOnly() ? new NoOpComputeEngine() :
+                                GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap(), EXTRA_SOMATIC_ARGS),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
