@@ -1,13 +1,19 @@
 # What is this directory?
 
-These are scripts and data for creating new disk images for running PipelineV5 VMs on GCP. The image must include all of the tools
-that are required by the pipeline version being executed, and must be a functional standalone OS. The images we create are based
-on the Debian image provided by Google.
+Tools for creating new disk images for running PipelineV5 VMs on GCP. The image must include all of the tools that are required by
+the pipeline version being executed, and must be a functional standalone OS. The images we create are based on the Debian image
+provided by Google. There are multiple aspects to this image:
 
-Resources and tools are copied in from buckets and other sources at imaging time. The image is created with a name and "family"
-that make it clear which version of the pipeline it should work with. The contract between the image and the pipeline code version
-is quite loose so production pipeline builds specify the exact image name in their arguments. Without this argument the latest
-image in the same family as the executing pipeline will be used, which is convenient for development.
+* Our tools or their dependencies use Python, R and Perl. As of the update to Debian 12 the latter two of these are managed
+  via `anaconda`.
+* Resources are layered in from both cloud storage buckets (for very large files) and cloud source repositories.
+* Both HMF-maintained and external tools are copied in from a cloud storage bucket. Additionally, `Artifact Registry` may be used
+  as a source, see below.
+
+The image is created with a name and "family" that make it clear which version of the pipeline it should work with. The contract
+between the image and the pipeline code version is quite loose so production pipeline builds specify the exact image name in their
+arguments. Without this argument the latest image in the same family as the executing pipeline will be used, which is convenient
+for development.
 
 As of December 2023 migration has begun to a situation in which only externally-maintained tools should be pulled from the
 `common-tools` bucket, HMF tools should be pushed to Artifact Registry via tags and retrieved from there as well. See the
@@ -16,7 +22,7 @@ As of December 2023 migration has begun to a situation in which only externally-
 # Creating a public image
 
 A public image contains all tools and resources with no licensing or confidentiality restriction. The developer will need to make
-one of these when a new tool or version of an existing tool is added. To create one run from this directory:
+one of these when a new tool or version of an existing tool is added. To create one, run from this directory:
 
 ```shell
 ./create_public_image.sh
@@ -80,3 +86,29 @@ docker push eu.gcr.io/hmf-build/pipeline5:{your_version}
 
 Where `your_version` is some descriptive name for the image, usually prefixed with the major version of the pipeline
 (eg 5.31.pmc-1). The image can then be accessed from platinum or other docker based tools via the tag `eu.gcr.io/hmf-build/pipeline5:{your_version}`
+
+# Maintenance
+
+Hints on what to do when this image has to change.
+
+## OS Update
+
+Essentially this is starting from scratch with the new version. General ideas:
+
+* Modify the source image in the main `create_public_image.sh` script and try to run it in-place. Most likely won't work.
+* Change any custom repository URLs, etc. to align with the new release.
+* All changes from the Google-supplied image need to be captured in these scripts so they can be run every time from scratch.
+
+## R/Perl/Python Dependencies
+
+Manually create a new VM from the latest functional image. The Anaconda-created environment is in `/root/anaconda3` and can be
+enabled using a few activation commands. Look at the `pipeline5` Java code to see how this is done by the application.
+
+The `anaconda.yaml` file here can be used as a reference or to start from scratch (eg using `conda env create -f ...`)  and should
+also be updated when you are finished. This file is not used in the regular imaging flow but is used any time the Anaconda
+environment needs to be modified. Keep it up to date by running a `conda env export` when you are finished.
+
+When the environment is functioning as expected it can be bundled into a compressed TAR and the existing file in the tools bucket
+backed up before the new tarball is copied overtop it. Be mindful, if your changes are not backward-compatible the new file should
+be copied with a new name so that imaging runs on existing production versions continue to work if needed.
+

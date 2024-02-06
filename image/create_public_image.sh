@@ -84,10 +84,6 @@ echo "  [[ \$? -eq 0 ]] && echo "Instance is reachable" && break"
 echo "done"
 echo "set -e"
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ ${SSH_ARGS}"
-echo "$GCL scp $(dirname $0)/bashrc ${source_instance}:/tmp/ ${SSH_ARGS}"
-echo "$GCL scp $(dirname $0)/bash_profile ${source_instance}:/tmp/ ${SSH_ARGS}"
-echo "$GCL scp $(dirname $0)/etc_profile-d_pv5.sh ${source_instance}:/tmp/ ${SSH_ARGS}"
-#echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ ${SSH_ARGS}"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$SSH --command=\"$cmd\""

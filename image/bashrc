@@ -1,2 +1,0 @@
-echo "bashrc"
-/etc/profile.d/pv5_r_env.sh
