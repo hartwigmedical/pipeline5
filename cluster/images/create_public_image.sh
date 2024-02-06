@@ -64,11 +64,15 @@ GCL="gcloud beta compute --project=${PROJECT}"
 SSH="$GCL ssh $source_instance --zone=${ZONE}"
 generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 
+# extra params for instances create below to avoid ssh issues
+# these could be removed in the future if issues are addressed
+# --network diskimager --subnet diskimager
+
 (
 echo "#!/usr/bin/env bash"
 echo
 echo "set -e"
-echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
+echo $GCL instances create $source_instance --network diskimager --subnet diskimager --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
     --image-family=${source_family} --scopes=default,cloud-source-repos-ro
 echo sleep 10
