@@ -44,7 +44,7 @@ set +e
 [[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 
 echo "Building public image for pipeline version ${version}"
-image_family="ned-pipeline5-${version}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
+image_family="pipeline5-${version}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
 source_instance="${image_family}-$(whoami)"
 image_name="${image_family}-$(date +%Y%m%d%H%M)"
 source_project="hmf-pipeline-development"

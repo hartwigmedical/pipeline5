@@ -1,18 +1,11 @@
 sudo rm -rf /opt/tools/*
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
-sudo mv /tmp/etc_profile-d_pv5.sh /etc/profile.d/pv5_r_env.sh
-sudo chmod +x /etc/profile.d/pv5_r_env.sh
-sudo mv /tmp/bashrc /root/.bashrc
-sudo mv /tmp/bash_profile /root/.bash_profile
 
 sudo chmod a+x /tmp/mk_python_venv
 sudo /tmp/mk_python_venv peach 1.8 
 
-# NOTE: This extracts overtop the system-managed R libraries.
-#sudo tar xvf /opt/tools/R/rlibs_debian12_cran40.tar -C /
-# This script came from here:
+# This tarball was built starting with a script that came from here:
 # https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
-
 sudo tar -C /root -xvzf /opt/tools/R/anaconda3.tar.gz 
 
 sudo mkdir -p /opt/tools/pycuppa/2.0rc/
