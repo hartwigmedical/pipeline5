@@ -16,10 +16,10 @@ sudo dpkg -i /opt/tools/python/libffi6_3.2.1-9_amd64.deb
 sudo dpkg -i /opt/tools/python/libffi-dev_3.2.1-9_amd64.deb
 sudo /root/.pyenv/bin/pyenv install 3.9.4
 sudo /root/.pyenv/versions/3.9.4/bin/pip install --upgrade pip
-sudo mkdir -p /opt/tools/pycuppa/2.0rc/
-sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0rc
-sudo mv /tmp/pycuppa-2.0rc/pycuppa/* /opt/tools/pycuppa/2.0rc
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0rc 3.9.4
+sudo mkdir -p /opt/tools/pycuppa/2.0/
+sudo unzip /opt/tools/cuppa/2.0/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0
+sudo mv /tmp/pycuppa-2.0/pycuppa/* /opt/tools/pycuppa/2.0
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0 3.9.4
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs_20240122.tar -C /
@@ -45,7 +45,7 @@ sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
 
-sudo chmod a+x /opt/tools/sv-prep/1.2.3rc/gridss.run.sh
+sudo chmod a+x /opt/tools/sv-prep/1.2.3/gridss.run.sh
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
