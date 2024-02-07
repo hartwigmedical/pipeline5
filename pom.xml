@@ -36,7 +36,7 @@
         <htsjdk.version>2.23.0</htsjdk.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <google-api-services-serviceusage.version>v1beta1-rev20200804-1.30.10</google-api-services-serviceusage.version>
-        <events.version>3.13.0-beta.5</events.version>
+        <events.version>local-SNAPSHOT</events.version>
         <java-client.version>1.31.1</java-client.version>
         <compar.version>1.1</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
