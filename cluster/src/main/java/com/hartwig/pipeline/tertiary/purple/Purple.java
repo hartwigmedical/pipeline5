@@ -365,11 +365,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return List.of(
-                () -> "eval `/root/anaconda3/bin/conda shell.bash hook`",
-                () -> "source /root/anaconda3/bin/activate",
-                () -> "conda activate /root/anaconda3/envs/bioconductor-r42",
-                JavaCommandFactory.javaJarCommand(PURPLE, arguments));
+        return List.of(JavaCommandFactory.javaJarCommand(PURPLE, arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,

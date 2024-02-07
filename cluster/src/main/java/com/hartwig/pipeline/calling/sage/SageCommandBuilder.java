@@ -132,9 +132,6 @@ public class SageCommandBuilder {
         arguments.add(String.format("-output_vcf %s", outputVcf));
         arguments.add(String.format("-threads %s", Bash.allCpus()));
 
-        result.add(() -> "eval `/root/anaconda3/bin/conda shell.bash hook`");
-        result.add(() -> "source /root/anaconda3/bin/activate");
-        result.add(() -> "conda activate /root/anaconda3/envs/bioconductor-r42");
         result.add(JavaCommandFactory.javaJarCommand(SAGE, arguments));
 
         return result;

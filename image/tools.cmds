@@ -6,7 +6,7 @@ sudo /tmp/mk_python_venv peach 1.8
 
 # This tarball was built starting with a script that came from here:
 # https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
-sudo tar -C /root -xvzf /opt/tools/R/anaconda3.tar.gz 
+sudo tar -C /root -xzf /opt/tools/R/anaconda3.tar.gz 
 
 sudo mkdir -p /opt/tools/pycuppa/2.0rc/
 sudo unzip /opt/tools/cuppa/2.0rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0rc

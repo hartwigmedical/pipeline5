@@ -22,6 +22,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hartwig.pipeline.tools.HmfTool.AMBER;
@@ -84,12 +85,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     private List<BashCommand> formCommand(final List<String> arguments) {
-        List<BashCommand> commands = Lists.newArrayList(List.of(
-                () -> "eval `/root/anaconda3/bin/conda shell.bash hook`",
-                () -> "source /root/anaconda3/bin/activate",
-                () -> "conda activate /root/anaconda3/envs/bioconductor-r42"));
-        commands.add(JavaCommandFactory.javaJarCommand(AMBER, arguments));
-        return commands;
+        return new ArrayList<>(List.of(JavaCommandFactory.javaJarCommand(AMBER, arguments)));
     }
 
     private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
