@@ -1,16 +1,5 @@
 package com.hartwig.pipeline.tertiary.peach;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.tools.HmfTool.PEACH;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
@@ -22,6 +11,15 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+import static com.hartwig.pipeline.tools.HmfTool.PEACH;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
@@ -81,7 +79,7 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
                         VmDirectories.TOOLS,
                         PEACH.getToolName(),
                         PEACH.runVersion())
-                        + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.7 "
+                        + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.8 "
                         + "--outputdir /data/output --panel /opt/resources/peach/peach.json");
     }
 
