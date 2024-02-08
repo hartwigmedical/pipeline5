@@ -1,15 +1,15 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+
+import java.util.List;
+import java.util.StringJoiner;
+
 import com.google.api.client.util.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.resource.ResourceFiles;
-
-import java.util.List;
-import java.util.StringJoiner;
-
-import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 public class SageCommandBuilder {
 

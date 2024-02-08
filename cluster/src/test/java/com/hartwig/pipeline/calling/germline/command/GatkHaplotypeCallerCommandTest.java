@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.calling.germline.command;
 
-import org.junit.Test;
-
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class GatkHaplotypeCallerCommandTest {
     @Test
@@ -13,11 +13,12 @@ public class GatkHaplotypeCallerCommandTest {
         String snpDb = randStr();
         String outputVcf = randStr();
 
-        String expected = "/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller "
-                + "-nct $(grep -c '^processor' /proc/cpuinfo) --input_file " + inputBam
-                + " -o " + outputVcf + " --reference_sequence " + referenceFasta
-                + " -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0"
-                + " -ERC GVCF -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2";
+        String expected =
+                "/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller "
+                        + "-nct $(grep -c '^processor' /proc/cpuinfo) --input_file " + inputBam + " -o " + outputVcf
+                        + " --reference_sequence " + referenceFasta
+                        + " -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0"
+                        + " -ERC GVCF -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2";
 
         assertThat(new GatkHaplotypeCallerCommand(inputBam, referenceFasta, outputVcf).asBash()).isEqualTo(expected);
     }

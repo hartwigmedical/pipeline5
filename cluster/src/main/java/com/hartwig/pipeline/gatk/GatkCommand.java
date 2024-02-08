@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.gatk;
 
-import com.google.common.collect.Lists;
+import static com.hartwig.pipeline.tools.ExternalTool.GATK;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.hartwig.pipeline.tools.ExternalTool.GATK;
+import com.google.common.collect.Lists;
 
 public class GatkCommand extends AdoptiumJava8JarCommand {
 

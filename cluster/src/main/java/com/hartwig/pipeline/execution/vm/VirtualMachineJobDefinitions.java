@@ -1,5 +1,26 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.HmfTool.AMBER;
+import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
+import static com.hartwig.pipeline.tools.HmfTool.CIDER;
+import static com.hartwig.pipeline.tools.HmfTool.COBALT;
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
+import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
+import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
+import static com.hartwig.pipeline.tools.HmfTool.LILAC;
+import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.PAVE;
+import static com.hartwig.pipeline.tools.HmfTool.PEACH;
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.SAGE;
+import static com.hartwig.pipeline.tools.HmfTool.SIGS;
+import static com.hartwig.pipeline.tools.HmfTool.TEAL;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
@@ -26,12 +47,10 @@ import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tools.VersionUtils;
 
-import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.HmfTool.*;
-
 public final class VirtualMachineJobDefinitions {
 
     private VirtualMachineJobDefinitions() {
+
     }
 
     private static final String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();

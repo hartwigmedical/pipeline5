@@ -1,5 +1,13 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -15,7 +23,11 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.*;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
+import com.hartwig.pipeline.output.Folder;
+import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -24,13 +36,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
-import static java.lang.String.format;
 
 @Namespace(Purple.NAMESPACE)
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
@@ -116,7 +121,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                false, svRecoveryVcfDownload.getLocalTargetPath()));
+                false,
+                svRecoveryVcfDownload.getLocalTargetPath()));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -133,7 +139,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(),
+                germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.add("-no_charts");
         return buildCommand(arguments);

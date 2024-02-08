@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.snpgenotype;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
@@ -7,12 +12,8 @@ import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
 import org.junit.Before;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRunMetadata> {
 
