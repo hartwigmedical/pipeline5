@@ -3,10 +3,13 @@ package com.hartwig.pipeline.tertiary.orange;
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
@@ -52,6 +55,8 @@ import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
@@ -62,6 +67,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/" + Purple.NAMESPACE;
     private static final String LOCAL_LINX_SOMATIC_DIR = VmDirectories.INPUT + "/" + LinxSomatic.NAMESPACE;
     private static final String LOCAL_LINX_GERMLINE_DIR = VmDirectories.INPUT + "/" + LinxGermline.NAMESPACE;
+    private static final String PIPELINE_VERSION_FILE_PATH = VmDirectories.INPUT + "/orange_pipeline.version.txt";
 
     private final ResourceFiles resourceFiles;
     private final InputDownloadCommand refMetrics;
@@ -85,13 +91,14 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownloadCommand annotatedVirusTsv;
     private final Pipeline.Context context;
     private final boolean includeGermline;
+    private final boolean isTargeted;
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
+            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline, final boolean isTargeted) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownloadCommand(referenceMetrics.metricsOutputFile());
@@ -100,6 +107,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.tumFlagstat = new InputDownloadCommand(tumorFlagstat.flagstatOutputFile());
         this.context = context;
         this.includeGermline = includeGermline;
+        this.isTargeted = isTargeted;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDir = new InputDownloadCommand(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownloadCommand(sageGermlineOutput.germlineGeneCoverage());
@@ -153,8 +161,27 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        if (includeGermline) {
+            List<String> orangeArguments = new ArrayList<>();
+            orangeArguments.addAll(commonArguments());
+            orangeArguments.addAll(tumorArguments(metadata));
+            return buildCommands(orangeArguments);
+        } else {
+            return Stage.disabled();
+        }
+    }
+
+    @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return buildCommands(metadata);
+        List<String> orangeArguments = new ArrayList<>();
+        orangeArguments.addAll(commonArguments());
+        orangeArguments.addAll(tumorArguments(metadata));
+        orangeArguments.addAll(germlineArguments(metadata));
+        if (!includeGermline) {
+            orangeArguments.add("-convert_germline_to_somatic");
+        }
+        return buildCommands(orangeArguments);
     }
 
     @Override
@@ -204,78 +231,97 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         return !arguments.shallow() && arguments.runTertiary();
     }
 
-    private List<BashCommand> buildCommands(final SomaticRunMetadata metadata) {
+    @NotNull
+    private List<String> commonArguments() {
+        final String experimentType = isTargeted ? "PANEL" : "WGS";
+        final List<String> arguments = Lists.newArrayList("-output_dir",
+                VmDirectories.OUTPUT,
+                "-experiment_type",
+                experimentType,
+                "-ref_genome_version",
+                resourceFiles.version().numeric(),
+                "-doid_json",
+                resourceFiles.doidJson(),
+                "-sample_data_dir",
+                VmDirectories.INPUT,
+                "-purple_dir",
+                purpleOutputDir.getLocalTargetPath(),
+                "-purple_plot_dir",
+                purpleOutputDir.getLocalTargetPath() + "/plot",
+                "-lilac_dir",
+                VmDirectories.INPUT,
+                "-pipeline_version_file",
+                PIPELINE_VERSION_FILE_PATH,
+                "-cohort_mapping_tsv",
+                resourceFiles.orangeCohortMapping(),
+                "-cohort_percentiles_tsv",
+                resourceFiles.orangeCohortPercentiles(),
+                "-driver_gene_panel",
+                resourceFiles.driverGenePanel(),
+                "-known_fusion_file",
+                resourceFiles.knownFusionData(),
+                "-ensembl_data_dir",
+                resourceFiles.ensemblDataCache());
 
-        final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
-        final String pipelineVersion = VersionUtils.pipelineMajorMinorVersion();
-        final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
-        String linxPlotDir = linxSomaticOutputDir.getLocalTargetPath() + "/plot";
-        final String experimentType = "WGS";
-        ImmutableList.Builder<String> argumentListBuilder = ImmutableList.<String>builder()
-                .add("-output_dir",
-                        VmDirectories.OUTPUT,
-                        "-experiment_type",
-                        experimentType,
-                        "-ref_genome_version",
-                        resourceFiles.version().numeric(),
-                        "-tumor_sample_id",
-                        metadata.tumor().sampleName(),
-                        "-reference_sample_id",
-                        metadata.reference().sampleName(),
-                        "-doid_json",
-                        resourceFiles.doidJson(),
-                        "-primary_tumor_doids",
-                        primaryTumorDoidsString,
-                        "-ref_sample_wgs_metrics_file",
-                        refMetrics.getLocalTargetPath(),
-                        "-tumor_sample_wgs_metrics_file",
-                        tumMetrics.getLocalTargetPath(),
-                        "-ref_sample_flagstat_file",
-                        refFlagstat.getLocalTargetPath(),
-                        "-tumor_sample_flagstat_file",
-                        tumFlagstat.getLocalTargetPath(),
-                        "-sample_data_dir",
-                        VmDirectories.INPUT,
-                        "-purple_dir",
-                        purpleOutputDir.getLocalTargetPath(),
-                        "-purple_plot_dir",
-                        purpleOutputDir.getLocalTargetPath() + "/plot",
-                        "-linx_germline_dir",
-                        linxGermlineDataDir.getLocalTargetPath(),
-                        "-linx_plot_dir",
-                        linxPlotDir,
-                        "-linx_dir",
-                        linxSomaticOutputDir.getLocalTargetPath(),
-                        "-lilac_dir",
-                        VmDirectories.INPUT,
-                        "-sage_dir",
-                        VmDirectories.INPUT,
-                        "-pipeline_version_file",
-                        pipelineVersionFilePath,
-                        "-cohort_mapping_tsv",
-                        resourceFiles.orangeCohortMapping(),
-                        "-cohort_percentiles_tsv",
-                        resourceFiles.orangeCohortPercentiles(),
-                        "-driver_gene_panel",
-                        resourceFiles.driverGenePanel(),
-                        "-known_fusion_file",
-                        resourceFiles.knownFusionData(),
-                        "-ensembl_data_dir",
-                        resourceFiles.ensemblDataCache());
         if (context.equals(Pipeline.Context.RESEARCH)) {
-            argumentListBuilder.add("-add_disclaimer");
+            arguments.add("-add_disclaimer");
         }
-        if (!includeGermline) {
-            argumentListBuilder.add("-convert_germline_to_somatic");
-        }
-        metadata.tumor()
-                .samplingDate()
-                .ifPresent(sd -> argumentListBuilder.add("-sampling_date", DateTimeFormatter.ofPattern("yyMMdd").format(sd)));
-        JavaJarCommand orangeJarCommand = JavaCommandFactory.javaJarCommand(ORANGE, argumentListBuilder.build());
+        return arguments;
+    }
 
-        return List.of(new MkDirCommand(linxPlotDir),
-                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+    @NotNull
+    private List<String> tumorArguments(final SomaticRunMetadata metadata) {
+        final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
+        final String primaryTumorDoidsString = "\"" + String.join(";", primaryTumorDoids) + "\"";
+
+        final List<String> arguments = Lists.newArrayList("-tumor_sample_id",
+                metadata.tumor().sampleName(),
+                "-primary_tumor_doids",
+                primaryTumorDoidsString,
+                "-tumor_sample_wgs_metrics_file",
+                tumMetrics.getLocalTargetPath(),
+                "-tumor_sample_flagstat_file",
+                tumFlagstat.getLocalTargetPath(),
+                "-linx_plot_dir",
+                getLinxPlotDir(),
+                "-linx_dir",
+                linxSomaticOutputDir.getLocalTargetPath(),
+                "-sage_dir",
+                VmDirectories.INPUT);
+
+        final Optional<LocalDate> optionalSamplingDate = metadata.tumor().samplingDate();
+        if (optionalSamplingDate.isPresent()) {
+            arguments.add("-sampling_date");
+            arguments.add(DateTimeFormatter.ofPattern("yyMMdd").format(optionalSamplingDate.get()));
+        }
+        return arguments;
+    }
+
+    @NotNull
+    private List<String> germlineArguments(final SomaticRunMetadata metadata) {
+        return List.of("-reference_sample_id",
+                metadata.reference().sampleName(),
+                "-ref_sample_wgs_metrics_file",
+                refMetrics.getLocalTargetPath(),
+                "-ref_sample_flagstat_file",
+                refFlagstat.getLocalTargetPath(),
+                "-linx_germline_dir",
+                linxGermlineDataDir.getLocalTargetPath());
+    }
+
+    @NotNull
+    private List<BashCommand> buildCommands(final List<String> orangeArguments) {
+        final String pipelineVersion = VersionUtils.pipelineMajorMinorVersion();
+
+        JavaJarCommand orangeJarCommand = JavaCommandFactory.javaJarCommand(ORANGE, orangeArguments);
+
+        return List.of(new MkDirCommand(getLinxPlotDir()),
+                () -> "echo '" + pipelineVersion + "' | tee " + PIPELINE_VERSION_FILE_PATH,
                 orangeJarCommand);
+    }
+
+    @NotNull
+    private String getLinxPlotDir() {
+        return linxSomaticOutputDir.getLocalTargetPath() + "/plot";
     }
 }
