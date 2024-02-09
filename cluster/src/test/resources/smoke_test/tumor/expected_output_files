@@ -140,7 +140,6 @@ pipeline.version
 purple/COLO829v003T.purple.driver.catalog.somatic.tsv
 purple/COLO829v003T.purple.cnv.gene.tsv
 purple/COLO829v003T.purple.cnv.somatic.tsv
-purple/COLO829v003T.purple.hrd.tsv
 purple/COLO829v003T.purple.purity.range.tsv
 purple/COLO829v003T.purple.purity.tsv
 purple/COLO829v003T.purple.qc

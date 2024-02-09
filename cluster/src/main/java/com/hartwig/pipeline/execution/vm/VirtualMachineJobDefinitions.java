@@ -201,7 +201,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(Flagstat.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 120))
+                .performanceProfile(custom(32, 48))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -212,7 +212,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(name)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(96, 96))
+                .performanceProfile(custom(96, 128))
                 .startupCommand(startupScript)
                 .build();
     }
