@@ -213,7 +213,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.34' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.35' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
