@@ -54,7 +54,7 @@ public final class VirtualMachineJobDefinitions {
     }
 
     private static final String STANDARD_IMAGE = "pipeline5-" + VersionUtils.imageVersion();
-    private static final int LOCAL_SSD_DISK_SPACE_GB = 375;
+    private static final int MINIMAL_DISK_SPACE_GB = 0;
 
     public static VirtualMachineJobDefinition snpGenotyping(final BashStartupScript startupScript,
             final ResultsDirectory resultsDirectory) {
@@ -128,7 +128,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(PURPLE.getCpus(), PURPLE.getMemoryGb()))
                 .startupCommand(bash)
-                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -140,7 +140,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(PAVE.getCpus(), PAVE.getMemoryGb()))
                 .startupCommand(bash)
-                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -236,7 +236,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(LINX.getCpus(), LINX.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -247,7 +247,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(CHORD.getCpus(), CHORD.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -292,7 +292,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(CUPPA.getCpus(), CUPPA.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -325,7 +325,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -336,7 +336,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(PEACH.getCpus(), PEACH.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 
@@ -347,7 +347,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(SIGS.getCpus(), SIGS.getMemoryGb()))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(375)
+                .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
     }
 

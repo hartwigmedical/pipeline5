@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.cobalt;
 
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -92,9 +93,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     private List<BashCommand> formCommand(final List<String> arguments) {
-        List<BashCommand> commands = Lists.newArrayList();
-        commands.add(JavaCommandFactory.javaJarCommand(COBALT, arguments));
-        return commands;
+        return new ArrayList<>(List.of(JavaCommandFactory.javaJarCommand(COBALT, arguments)));
     }
 
     private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {

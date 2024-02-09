@@ -81,7 +81,7 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
                         VmDirectories.TOOLS,
                         PEACH.getToolName(),
                         PEACH.runVersion())
-                        + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.7 "
+                        + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.8 "
                         + "--outputdir /data/output --panel /opt/resources/peach/peach.json");
     }
 

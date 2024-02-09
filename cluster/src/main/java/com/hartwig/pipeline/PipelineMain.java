@@ -1,5 +1,6 @@
 package com.hartwig.pipeline;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -49,6 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PipelineMain {
+    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/root/anaconda3/bin/conda shell.bash hook`",
+            "source /root/anaconda3/bin/activate",
+            "conda activate /root/anaconda3/envs/bioconductor-r42");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
@@ -67,7 +71,9 @@ public class PipelineMain {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap()),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap(), EXTRA_SOMATIC_ARGS),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -92,7 +98,9 @@ public class PipelineMain {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
-                        arguments.publishEventsOnly() ? new NoOpComputeEngine() : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap()),
+                        arguments.publishEventsOnly()
+                                ? new NoOpComputeEngine()
+                                : GoogleComputeEngine.from(computeEngineConfig, credentials, labels.asMap(), EXTRA_SOMATIC_ARGS),
                         ResultsDirectory.defaultDirectory(),
                         startingPoint,
                         labels,
@@ -145,7 +153,9 @@ public class PipelineMain {
             InputMode mode = new ModeResolver().apply(somaticRunMetadata);
             RunApi runApi = HmfApi.create(arguments.hmfApiUrl().orElse("")).runs();
             HmfApiStatusUpdate apiStatusUpdateOrNot = HmfApiStatusUpdate.from(arguments, runApi, input);
-            try (var turquoise = Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"), arguments, somaticRunMetadata)) {
+            try (var turquoise = Turquoise.create(PublisherProvider.from(arguments, credentials).get("turquoise.events"),
+                    arguments,
+                    somaticRunMetadata)) {
                 LOGGER.info("Starting pipeline in [{}] mode", mode);
                 apiStatusUpdateOrNot.start();
                 turquoise.publishStarted();

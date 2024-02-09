@@ -1,23 +1,26 @@
 package com.hartwig.pipeline.tertiary.chord;
 
-import static com.hartwig.pipeline.tools.HmfTool.CHORD;
-
 import com.hartwig.computeengine.execution.vm.VmDirectories;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.computeengine.execution.vm.command.r.RscriptCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
-class ChordExtractSigPredictHRD extends VersionedToolCommand {
+import java.util.List;
+
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
+
+class ChordExtractSigPredictHRD extends RscriptCommand {
 
     ChordExtractSigPredictHRD(final String sampleName, final String somaticVcfPath, final String structuralVcfPath,
-            final RefGenomeVersion refGenomeVersion) {
+                              final RefGenomeVersion refGenomeVersion) {
         super(CHORD.getToolName(),
-                "extractSigPredictHRD.R",
                 CHORD.runVersion(),
-                VmDirectories.TOOLS + "/chord/" + CHORD.runVersion(),
-                VmDirectories.OUTPUT,
-                sampleName,
-                somaticVcfPath,
-                structuralVcfPath,
-                refGenomeVersion.alphaNumeric());
+                "extractSigPredictHRD.R",
+                List.of(VmDirectories.TOOLS + "/chord/" + CHORD.runVersion(),
+                        VmDirectories.OUTPUT,
+                        sampleName,
+                        somaticVcfPath,
+                        structuralVcfPath,
+                        refGenomeVersion.alphaNumeric())
+        );
     }
 }

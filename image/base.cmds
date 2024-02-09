@@ -1,12 +1,19 @@
-# NB: This file has been gutted as of May 2023 due to the upstream Debian 9 package mirror having been moved off the primary
-# servers. This means that the packages we used to install every time are no longer available in the same place with the same
-# versions that we were working with.
-#
-# When we decide to upgrade the base image to a Debian version >9, the git history can be consulted to see what the contents of
-# this file (as well as tools.cmd) used to look like. In the meantime however public images are being built from a private copy
-# of the old image based off of the last-successful Debian 9 imaging run.
+# Eliminate stale cache issues with gsutil
+echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
+
+sudo apt -y upgrade
+sudo apt -y update
+sudo apt -y install perl-modules make time python3-pip python3-venv vcftools openjdk-17-jdk bc python3-crcmod libncurses5 unzip
+sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev parallel pigz git libmagick++-dev libffi8 libffi-dev
+sudo apt -y install mdadm --no-install-recommends
+sudo mkdir /data
+sudo mkdir /opt/tools
+
+# This is the only approach for installing a 1.8 JDK as of Debian 12 I could find. Other ways lead to a Frankendebian or
+# broken packages. The GATK tools (or versions we're using) do not run on non-1.8 JDKs as installed, perhaps they could be
+# coerced but I felt it better to just install this JDK.
+gsutil cat gs://common-tools/adoptium/OpenJDK8U-jdk_x64_linux_hotspot_8u302b08.tar.gz | sudo tar -C /usr/lib/jvm -zxvf -
 
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
-
 # Note the "-n", bucket-based files should never overwrite what came from the repository
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-resources/* /opt/resources/

@@ -6,7 +6,6 @@ import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
@@ -122,7 +121,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
                 resourceFiles,
-                false, svRecoveryVcfDownload.getLocalTargetPath()));
+                false,
+                svRecoveryVcfDownload.getLocalTargetPath()));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -139,7 +139,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 cobaltOutputDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
+                germlineVcfDownload.getLocalTargetPath(),
+                germlineSvVcfDownload.getLocalTargetPath(),
                 resourceFiles));
         arguments.add("-no_charts");
         return buildCommand(arguments);
@@ -371,7 +372,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     private List<BashCommand> buildCommand(final List<String> arguments) {
-        return Collections.singletonList(JavaCommandFactory.javaJarCommand(PURPLE, arguments));
+        return List.of(JavaCommandFactory.javaJarCommand(PURPLE, arguments));
     }
 
     private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,

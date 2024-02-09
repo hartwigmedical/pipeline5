@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -89,9 +90,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     private List<BashCommand> formCommand(final List<String> arguments) {
-        List<BashCommand> commands = Lists.newArrayList();
-        commands.add(JavaCommandFactory.javaJarCommand(AMBER, arguments));
-        return commands;
+        return new ArrayList<>(List.of(JavaCommandFactory.javaJarCommand(AMBER, arguments)));
     }
 
     private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
