@@ -16,10 +16,10 @@ sudo dpkg -i /opt/tools/python/libffi6_3.2.1-9_amd64.deb
 sudo dpkg -i /opt/tools/python/libffi-dev_3.2.1-9_amd64.deb
 sudo /root/.pyenv/bin/pyenv install 3.9.4
 sudo /root/.pyenv/versions/3.9.4/bin/pip install --upgrade pip
-sudo mkdir -p /opt/tools/pycuppa/2.0/
-sudo unzip /opt/tools/cuppa/2.0/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0
-sudo mv /tmp/pycuppa-2.0/pycuppa/* /opt/tools/pycuppa/2.0
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0 3.9.4
+sudo mkdir -p /opt/tools/pycuppa/2.0.1/
+sudo unzip /opt/tools/cuppa/2.0.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0.1
+sudo mv /tmp/pycuppa-2.0.1/pycuppa/* /opt/tools/pycuppa/2.0.1
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0.1 3.9.4
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs_20240122.tar -C /
