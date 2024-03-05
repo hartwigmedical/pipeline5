@@ -33,7 +33,6 @@ public class MarkDupsCommand extends JavaJarCommand
         arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
         arguments.add("-form_consensus");
-        arguments.add("-multi_bam");
         arguments.add(format("-sambamba %s", ExternalTool.SAMBAMBA.binaryPath()));
         arguments.add(format("-samtools %s", ExternalTool.SAMTOOLS.binaryPath()));
         arguments.add(format("-output_bam %s", outputBam));

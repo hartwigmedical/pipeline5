@@ -49,8 +49,8 @@ public class PublishingTurquoise implements Turquoise {
 
     private String collectTurquoiseSubject(final SomaticRunMetadata somaticRunMetadata) {
         return somaticRunMetadata.maybeTumor()
-                .map(SingleSampleRunMetadata::turquoiseSubject)
-                .orElse(somaticRunMetadata.reference().turquoiseSubject())
+                .or(somaticRunMetadata::maybeReference)
+                .flatMap(SingleSampleRunMetadata::turquoiseSubject)
                 .orElseThrow(() -> new IllegalArgumentException("Turquoise is enabled but no turquoise subject is specified in the PDL. "
                         + "You can disable turquoise with the -publish_to_turquoise arg, or add turquoiseSubject to the sample input."));
     }

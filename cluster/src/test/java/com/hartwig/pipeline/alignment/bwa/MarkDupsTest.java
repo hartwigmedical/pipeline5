@@ -46,7 +46,6 @@ public class MarkDupsTest extends SubStageTest{
                         + "-ref_genome_version V37 "
                         + "-unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv "
                         + "-form_consensus "
-                        + "-multi_bam "
                         + "-sambamba " + sambamba
                         + " -samtools " + samtools
                         + " -output_bam /data/output/tumor.bam "
