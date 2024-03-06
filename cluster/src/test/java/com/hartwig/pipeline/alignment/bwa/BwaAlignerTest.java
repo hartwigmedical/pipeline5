@@ -86,6 +86,22 @@ public class BwaAlignerTest {
     }
 
     @Test
+    public void doesNotAnonimyseIfFastqFileNameFormatUnknown() {
+        String inputFastqFileName1 = "SAMPLE.fastq.gz";
+        String inputFastqFileName2 = "SAMPLE_FLOWCELL_S1_L001_R1.fastq.gz";
+        assertThat(BwaAligner.anonymiseFastqFileName(inputFastqFileName1)).isEqualTo(inputFastqFileName1);
+        assertThat(BwaAligner.anonymiseFastqFileName(inputFastqFileName2)).isEqualTo(inputFastqFileName2);
+    }
+
+    @Test
+    public void doesAnonimyseIfFastqFileNameFormatKnown() {
+        String inputFastqFileName = "SAMPLE_FLOWCELL_S1_L001_R1_001.fastq.gz";
+        String renamedFastqFileName = "ANONIMISED_FLOWCELL_S1_L001_R1_001.fastq.gz";
+        assertThat(BwaAligner.anonymiseFastqFileName("/path/to/" + inputFastqFileName)).isEqualTo("/path/to/" + renamedFastqFileName);
+        assertThat(BwaAligner.anonymiseFastqFileName(inputFastqFileName)).isEqualTo(renamedFastqFileName);
+    }
+
+    @Test
     public void mergesAllLanesIntoOneComputeEngineJob() throws Exception {
         setupMocks();
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);

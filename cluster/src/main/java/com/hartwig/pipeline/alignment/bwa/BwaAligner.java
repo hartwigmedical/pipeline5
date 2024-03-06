@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Storage;
+import com.google.common.annotations.VisibleForTesting;
 import com.hartwig.computeengine.execution.ComputeEngineStatus;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
@@ -22,6 +23,7 @@ import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
+import com.hartwig.computeengine.execution.vm.command.unix.MvCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -111,10 +113,16 @@ public class BwaAligner implements Aligner {
                     fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
 
+            String anonymisedPathR1 = anonymiseFastqFileName(first.getLocalTargetPath());
+            String anonymisedPathR2 = anonymiseFastqFileName(second.getLocalTargetPath());
+
+            bash.addCommand(new MvCommand(first.getLocalTargetPath(), anonymisedPathR1));
+            bash.addCommand(new MvCommand(second.getLocalTargetPath(), anonymisedPathR2));
+
             SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
                     resourceFiles.refGenomeFile(),
-                    first.getLocalTargetPath(),
-                    second.getLocalTargetPath(),
+                    anonymisedPathR1,
+                    anonymisedPathR2,
                     lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
             perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(),
                     resultsDirectory.path(alignment.outputFile().fileName())));
@@ -238,6 +246,23 @@ public class BwaAligner implements Aligner {
 
     private static String fastQFileName(final String sample, final String fullFastQPath) {
         return format("samples/%s/%s", sample, new File(fullFastQPath).getName());
+    }
+
+    @VisibleForTesting
+    static String anonymiseFastqFileName(final String fastqFilePath) {
+        // To support fastq file name formats other than our own we only anonymise if format is as-expected
+        // Assumed format is <sample-identifier>_<flowcell-identifier>_S1_L001_R1_001.fastq.gz
+        String[] pathParts = fastqFilePath.split("/");
+        String oldSampleName = pathParts[pathParts.length - 1];
+        String[] fileParts = oldSampleName.split("_");
+        if (fileParts.length == 6){
+            fileParts[0] = "ANONIMISED";
+            pathParts[pathParts.length - 1] = String.join("_", fileParts);
+            return String.join("/", pathParts);
+        }else{
+            return fastqFilePath;
+        }
+
     }
 
     private static ComputeEngineStatus getFuture(final Future<ComputeEngineStatus> future) {
