@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
 
+import java.io.File;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -160,11 +161,20 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 format("-output_dir %s", VmDirectories.OUTPUT));
 
         List<BashCommand> cuppaCommands = Lists.newArrayList(JavaCommandFactory.javaClassCommand(CUPPA, CUPPA_DATA_PREP, cuppaArguments));
-        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cuppa_data.tsv.gz", metadata.tumor().sampleName()));
 
-        List<String> pycuppaPredictArguments = Lists.newArrayList(format("--features_path %s", cuppaInputFeaturesFile),
+        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cuppa_data.tsv.gz", metadata.tumor().sampleName()));
+        String cuppaClassifierFile = resourceFiles.cuppaClassifier();
+        String cuppaCvPredictionsFile = resourceFiles.cuppaCvPredictions();
+
+        List<String> pycuppaPredictArguments = Lists.newArrayList(
+                format("--classifier_path %s", cuppaClassifierFile),
+                format("--features_path %s", cuppaInputFeaturesFile),
                 format("--output_dir %s", VmDirectories.OUTPUT),
                 format("--sample_id %s", metadata.tumor().sampleName()));
+
+        if(new File(cuppaCvPredictionsFile).exists()){
+            pycuppaPredictArguments.add(format("--cv_predictions_path %s", cuppaCvPredictionsFile));
+        }
 
         cuppaCommands.add(new SubShellCommand(new Python3ModuleCommand("pycuppa",
                 CUPPA.runVersion(),
