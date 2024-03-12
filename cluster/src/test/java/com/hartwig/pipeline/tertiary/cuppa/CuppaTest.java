@@ -99,7 +99,9 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 + "-sample_data_dir /data/input/results "
                 + "-output_dir /data/output",
                 "(source /opt/tools/pycuppa/2.1.0rc_venv/bin/activate && "
-                + "python -m cuppa.predict --classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
+                + "python -m cuppa.predict "
+                + "--cv_predictions_path /opt/resources/cuppa/37/cuppa_cv_predictions.37.tsv.gz "
+                + "--classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
                 + "--features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor "
                 + "&& deactivate)");
         // @formatter:on
