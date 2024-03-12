@@ -175,14 +175,12 @@ public class SomaticPipeline {
                         Future<TealOutput> tealOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Teal(pair, purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics, resourceFiles,
                                         persistedDataset)));
-                        composer.add(state.add(tealOutputFuture.get()));
 
                         Future<LilacBamSliceOutput> lilacBamSliceOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LilacBamSlicer(pair, resourceFiles, persistedDataset)));
                         LilacBamSliceOutput lilacBamSliceOutput = composer.add(state.add(lilacBamSliceOutputFuture.get()));
                         Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Lilac(lilacBamSliceOutput, resourceFiles, purpleOutput, persistedDataset)));
-                        LilacOutput lilacOutput = composer.add(state.add(lilacOutputFuture.get()));
 
                         VirusBreakendOutput virusBreakendOutput = composer.add(state.add(virusBreakendOutputFuture.get()));
                         Future<VirusInterpreterOutput> virusInterpreterOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -214,8 +212,11 @@ public class SomaticPipeline {
                         VirusInterpreterOutput virusInterpreterOutput = composer.add(state.add(virusInterpreterOutputFuture.get()));
                         Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Cuppa(purpleOutput, linxSomaticOutput, virusInterpreterOutput, resourceFiles, persistedDataset, arguments)));
+
                         CuppaOutput cuppaOutput = composer.add(state.add(cuppaOutputFuture.get()));
                         SigsOutput sigsOutput = composer.add(state.add(signatureOutputFuture.get()));
+                        LilacOutput lilacOutput = composer.add(state.add(lilacOutputFuture.get()));
+                        composer.add(state.add(tealOutputFuture.get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
