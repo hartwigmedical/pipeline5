@@ -168,6 +168,7 @@ dependencies:
   - perl-svg=2.87=pl5321hdfd78af_0
   - perl-test-fatal=0.016=pl5321ha770c72_0
   - perl-text-format=0.62=pl5321hdfd78af_0
+  - perl-text-soundex=3.05
   - perl-try-tiny=0.31=pl5321ha770c72_0
   - perl-xml-parser=2.44_01=pl5321hc3e0081_1003
   - pip=23.3.2=pyhd8ed1ab_0
