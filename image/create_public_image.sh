@@ -74,7 +74,7 @@ echo "#!/usr/bin/env bash"
 echo
 echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
-    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-standard-2 --image-project=${source_project} \
+    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-standard-4 --image-project=${source_project} \
     --image-family=${source_family} --scopes=default,cloud-source-repos-ro,storage-rw \
     --network projects/hmf-vpc-network/global/networks/vpc-network-prod-1 \
     --subnet projects/hmf-vpc-network/regions/europe-west4/subnetworks/vpc-network-subnet-pipeline-development-1
