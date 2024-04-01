@@ -8,10 +8,10 @@ sudo /tmp/mk_python_venv peach 1.8
 # https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
 sudo tar -C /root -xzf /opt/tools/R/anaconda3.tar.gz
 
-sudo mkdir -p /opt/tools/pycuppa/2.0.1/
-sudo unzip /opt/tools/cuppa/2.0.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.0.1
-sudo mv /tmp/pycuppa-2.0.1/pycuppa/* /opt/tools/pycuppa/2.0.1
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.0.1
+sudo mkdir -p /opt/tools/pycuppa/2.1.0/
+sudo unzip /opt/tools/cuppa/2.1.0/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.0
+sudo mv /tmp/pycuppa-2.1.0/pycuppa/* /opt/tools/pycuppa/2.1.0
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.1.0
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/

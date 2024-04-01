@@ -2,6 +2,7 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.COBALT;
+import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
 import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
@@ -197,5 +198,15 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     private static UnsupportedOperationException targetRegionsNotSupported() {
         return new UnsupportedOperationException("Target regions are not supported in HG37");
+    }
+
+    @Override
+    public String cuppaClassifier() {
+        return formPath(CUPPA, "cuppa_classifier.37.pickle.gz");
+    }
+
+    @Override
+    public String cuppaCvPredictions() {
+        return formPath(CUPPA, "cuppa_cv_predictions.37.tsv.gz");
     }
 }

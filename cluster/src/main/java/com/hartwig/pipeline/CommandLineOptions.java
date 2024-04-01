@@ -73,6 +73,7 @@ public class CommandLineOptions {
     private static final String PUBSUB_WORKFLOW_FLAG = "pubsub_workflow";
     private static final String PUBSUB_ENVIRONMENT_FLAG = "pubsub_environment";
     private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
+    private static final String USE_PRIVATE_RESOURCES_FLAG = "use_private_resources";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -124,6 +125,7 @@ public class CommandLineOptions {
                 .addOption(useCrams())
                 .addOption(pubsubProject())
                 .addOption(anonymize())
+                .addOption(usePrivateResources())
                 .addOption(context())
                 .addOption(costCenterLabel())
                 .addOption(userLabel())
@@ -157,6 +159,10 @@ public class CommandLineOptions {
 
     private static Option anonymize() {
         return optionWithArg(ANONYMIZE_FLAG, "Use barcodes instead of sample names in files, headers and annotations");
+    }
+
+    private static Option usePrivateResources() {
+        return optionWithArg(USE_PRIVATE_RESOURCES_FLAG, "Use resources specific to private repo where applicable");
     }
 
     private static Option pubsubProject() {
@@ -324,6 +330,7 @@ public class CommandLineOptions {
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
+                    .usePrivateResources(booleanOptionWithDefault(commandLine, USE_PRIVATE_RESOURCES_FLAG, defaults.publishEventsOnly()))
                     .context(context(commandLine, defaults))
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))

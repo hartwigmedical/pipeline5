@@ -1,11 +1,5 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -23,11 +17,7 @@ import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.execution.vm.python.Python3ModuleCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.RunLogComponent;
+import com.hartwig.pipeline.output.*;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -37,8 +27,12 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+import static java.lang.String.format;
 
 @Namespace(Cuppa.NAMESPACE)
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
@@ -54,15 +48,17 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final InputDownloadCommand virusInterpreterAnnotations;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
+    private final Arguments arguments;
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusInterpreterOutput virusInterpreterOutput,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+                 final ResourceFiles resourceFiles, final PersistedDataset persistedDataset, final Arguments arguments) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDirectory = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
         this.linxOutputDirectory = new InputDownloadCommand(linxOutput.linxOutputLocations().outputDirectory());
         this.virusInterpreterAnnotations = new InputDownloadCommand(virusInterpreterOutput.virusAnnotations());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+        this.arguments = arguments;
     }
 
     @Override
@@ -160,11 +156,20 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 format("-output_dir %s", VmDirectories.OUTPUT));
 
         List<BashCommand> cuppaCommands = Lists.newArrayList(JavaCommandFactory.javaClassCommand(CUPPA, CUPPA_DATA_PREP, cuppaArguments));
-        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cuppa_data.tsv.gz", metadata.tumor().sampleName()));
 
-        List<String> pycuppaPredictArguments = Lists.newArrayList(format("--features_path %s", cuppaInputFeaturesFile),
+        String cuppaInputFeaturesFile = VmDirectories.outputFile(format("%s.cuppa_data.tsv.gz", metadata.tumor().sampleName()));
+        String cuppaClassifierFile = resourceFiles.cuppaClassifier();
+        String cuppaCvPredictionsFile = resourceFiles.cuppaCvPredictions();
+
+        List<String> pycuppaPredictArguments = Lists.newArrayList(
+                format("--classifier_path %s", cuppaClassifierFile),
+                format("--features_path %s", cuppaInputFeaturesFile),
                 format("--output_dir %s", VmDirectories.OUTPUT),
                 format("--sample_id %s", metadata.tumor().sampleName()));
+
+        if (arguments.usePrivateResources()) {
+            pycuppaPredictArguments.add(format("--cv_predictions_path %s", cuppaCvPredictionsFile));
+        }
 
         cuppaCommands.add(new SubShellCommand(new Python3ModuleCommand("pycuppa",
                 CUPPA.runVersion(),
