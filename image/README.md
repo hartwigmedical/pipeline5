@@ -1,11 +1,13 @@
 # What is this directory?
 
-Tools for creating new disk images for running PipelineV5 VMs on GCP. The image must include all of the tools that are required by
-the pipeline version being executed, and must be a functional standalone OS. The images we create are based on the Debian image
-provided by Google. There are multiple aspects to this image:
+Tools for creating new disk images for running `pipeline5` VMs on GCP. The `pipeline5` application consists of a Java application
+that is packaged into a Docker container which implements a purpose-built workflow engine. The stages of the workflow are run on
+VMs using a disk image compatible with the version of the Java application. The image must include all of the tools that are
+required by all stages of the pipeline, and must be a functional standalone OS. The images we create are based on the
+Debian image provided by Google with custom additions:
 
-* Our tools or their dependencies use Python, R and Perl. As of the update to Debian 12 the latter two of these are managed
-  via `anaconda`.
+* Our tools or their dependencies use Python, R and Perl. As of the update to Debian 12 these are managed via `anaconda`. Other
+  dependencies are managed using the Debian package manager.
 * Resources are layered in from both cloud storage buckets (for very large files) and cloud source repositories.
 * Both HMF-maintained and external tools are copied in from a cloud storage bucket. Additionally, `Artifact Registry` may be used
   as a source, see below.
@@ -19,7 +21,22 @@ As of December 2023 migration has begun to a situation in which only externally-
 `common-tools` bucket, HMF tools should be pushed to Artifact Registry via tags and retrieved from there as well. See the
 `VersionUtils` and `HmfTool` classes in the `pipeline5` code to see how to make this happen for your dependency.
 
-# Creating a public image
+# Quickstart
+
+Usually these scripts are used to update the image for a new version of `pipeline5`. The steps in this case are:
+
+1. Update the Java application code to reference new versions of the tools in the stages and if necessary change anything else
+2. Ensure new tools are in the `common-tools` bucket or the Artifact Registry as appropriate
+3. Update any resources in the `common-resources` bucket, public repository or private repository
+4. Run the `create_public_image.sh` script
+5. Run the `create_private_image.sh` script passing the name of the public image created in the previous step
+6. Update references to the image in your launch configurations
+
+# Details
+
+More on each step from the quickstart and special uses.
+
+## Creating a public image
 
 A public image contains all tools and resources with no licensing or confidentiality restriction. The developer will need to make
 one of these when a new tool or version of an existing tool is added. To create one, run from this directory:
@@ -33,7 +50,7 @@ set and the pipeline uses the latest image in a family when a specific image is 
 The image should be manually copied to production and the launcher updated with the particular image name when the release is
 rolled out.
 
-# Creating a public image with overrides
+## Creating a public image with overrides
 
 Creating a public image will use resources (static configuration of the pipeline like gene panels, reference genomes
 etc) from the common-resources-public repository and common-resources bucket (large files). To override the files in
@@ -51,7 +68,7 @@ gsutil cp /path/to/overridden/DriverGenePanel.38.tsv gs://common-resources-pmc-o
 ./create_public_image.sh --flavour pmc
 ```
 
-# Creating a public image with pilot JAR
+## Creating a public image with pilot JAR
 
 Images can also be created using local pilot versions of tools JARs. The source image must be a previously-created public
 image as created by `./create_public_image.sh`.
@@ -70,7 +87,7 @@ be auto-located.
 In addition, `Hmftool.java` contains an enum with flags to enable pilot mode. Set the flag to true for the tool being tested before 
 compiling/running the Pipeline5 application with the above arguments.
 
-# Creating a custom Docker container
+## Creating a custom Docker container
 
 The above scripts all deal in VM images, but in some cases (for instance to use pilot jars) we also need a custom 
 docker container image. There is no script for this but it can be done by execution the following commands:
@@ -87,11 +104,11 @@ docker push eu.gcr.io/hmf-build/pipeline5:{your_version}
 Where `your_version` is some descriptive name for the image, usually prefixed with the major version of the pipeline
 (eg 5.31.pmc-1). The image can then be accessed from platinum or other docker based tools via the tag `eu.gcr.io/hmf-build/pipeline5:{your_version}`
 
-# Maintenance
+## Maintenance
 
 Hints on what to do when this image has to change.
 
-## OS Update
+### OS Update
 
 Essentially this is starting from scratch with the new version. General ideas:
 
@@ -99,7 +116,7 @@ Essentially this is starting from scratch with the new version. General ideas:
 * Change any custom repository URLs, etc. to align with the new release.
 * All changes from the Google-supplied image need to be captured in these scripts so they can be run every time from scratch.
 
-## R/Perl/Python Dependencies
+### R/Perl/Python Dependencies
 
 Manually create a new VM from the latest functional image. The Anaconda-created environment is in `/root/anaconda3` and can be
 enabled using a few activation commands. Look at the `pipeline5` Java code to see how this is done by the application.

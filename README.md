@@ -132,21 +132,14 @@ rules](https://chris.beams.io/posts/git-commit/) and follow them.
 
 ### CI 
 
-After each push our CI build runs on Google's Cloud Build in our development project. In addition to the tests you might run
-locally the CI build also:
+There is a CI environment that will test the pipeline using cut-down COLO829 "mini" FASTQs against the most-recent disk image
+available for the version of the pipeline. This is usually initiated by pushing a `beta` tag to the PR branch being modified.
 
-- Runs the "smoke" test which checks the output of the full pipeline run against expectations
-- Pushes a Docker image which can be used to run the pipeline in Kubernetes as we do in production
+See `image/README.md` to see if you need to create a new image, currently it is not automatic.
 
 ### Running Locally
 
 Pv5 can be run locally, we include some sample configurations in `.run` which Intellij should pick up automatically. Open those
 from `Edit Configurations...` under the `Run` menu and amend as needed. If significant changes are needed to get the application
 running then commit those back to the repo.
-
-### Disk Images
-
-Pv5 uses a custom disk image to launch the VMs that implement the stages it runs. When components are upgraded or if resources
-change a new image must be created, by the developer. See `image/README.md` for specifics.
-
 
