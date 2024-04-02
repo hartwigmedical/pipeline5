@@ -8,15 +8,16 @@ CONFIG_YAML="/tmp/anaconda.yaml"
 [[ ! -f $CONFIG_YAML ]] && echo "No configuration for Anaconda present, skipping env rebuild" && exit 0
 
 echo "Found $CONFIG_YAML so rebuilding Anaconda environment"
-cd /root/anaconda3
+cd /root
 eval `/root/anaconda3/bin/conda shell.bash hook`
 source /root/anaconda3/bin/activate
 conda activate /root/anaconda3/envs/bioconductor-r42
-conda env update --file $CONFIG_YAML --prune
+mamba env update --file $CONFIG_YAML --prune
+conda env export > /root/anaconda3/anaconda.yaml
+echo "Environment has been written to 'anaconda.yaml' in the artifact"
+echo "It may be worth updating the same-named file in the imager directory with this as the environment was updated"
 
-tarball="$(date +%Y%m%d%H%M).tar.gz"
 echo "Creating $tarball from rebuilt Anaconda environment"
-tar czf $tarball anaconda3/
-echo "Tarball created, uploading to tools bucket"
-gsutil cp $tarball gs://common-tools/anaconda/$(cat /tmp/pipeline.version)/
-
+remote="gs://common-tools/anaconda/$(cat /tmp/pipeline.version)/$(date +%Y%m%d%H%M).tar.gz"
+tar -I pigz -cf - anaconda3/ | gsutil cp - $remote
+echo "Archive copied to $remote"
