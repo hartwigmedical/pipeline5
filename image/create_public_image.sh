@@ -19,13 +19,11 @@ Optional arguments:
   --flavour [flavour]          Use resources from `gs://common-resources-[flavour]-overrides` instead of default
   --checkout-target [target]   Checkout [target] instead of the HEAD of "master" and do not create any new tags.
                                May be anything accepted by "git checkout".
-  --rebuild-anaconda-env       Rebuild Perl, Python and R dependencies using `anaconda.yaml`. Very slow and only necessary when
-                               the dependencies have changed.
 EOM
 }
 
 "$(dirname "$0")/check_deps.sh" || exit 1
-args=$(getopt -o "" --longoptions tools-only,rebuild-anaconda-env,flavour:,checkout-target: -- "$@")
+args=$(getopt -o "" --longoptions tools-only,flavour:,checkout-target: -- "$@")
 [[ $? != 0 ]] && print_usage && exit 1
 eval set -- "$args"
 
@@ -34,7 +32,6 @@ while true; do
         --tools-only) tools_only=true; shift ;;
         --flavour) flavour="$2"; shift 2 ;;
         --checkout-target) checkout_target="$2"; shift 2 ;;
-        --rebuild-anaconda-env) rebuild_anaconda_env=true; shift ;;
         --) shift; break ;;
     esac
 done
@@ -89,8 +86,7 @@ echo "set -e"
 echo "$SSH --command=\"echo $version | tee /tmp/pipeline.version\""
 echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ ${SSH_ARGS}"
 echo "$GCL scp $(dirname $0)/rebuild_anaconda_env.sh ${source_instance}:/tmp/ ${SSH_ARGS}"
-
-[[ -n "$rebuild_anaconda_env" ]] && echo "$GCL scp $(dirname $0)/anaconda.yaml ${source_instance}:/tmp/ ${SSH_ARGS}"
+echo "$GCL scp $(dirname $0)/anaconda.yaml ${source_instance}:/tmp/ ${SSH_ARGS}"
 
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
