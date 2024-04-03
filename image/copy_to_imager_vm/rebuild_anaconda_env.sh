@@ -11,4 +11,4 @@ cd /root
 eval `/root/anaconda3/bin/conda shell.bash hook`
 source /root/anaconda3/bin/activate
 conda activate /root/anaconda3/envs/bioconductor-r42
-mamba env update --file $CONFIG_YAML --prune
+mamba env update --file $CONFIG_YAML 
