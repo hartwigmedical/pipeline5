@@ -84,9 +84,7 @@ echo "  [[ \$? -eq 0 ]] && echo "Instance is reachable" && break"
 echo "done"
 echo "set -e"
 echo "$SSH --command=\"echo $version | tee /tmp/pipeline.version\""
-echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ ${SSH_ARGS}"
-echo "$GCL scp $(dirname $0)/rebuild_anaconda_env.sh ${source_instance}:/tmp/ ${SSH_ARGS}"
-echo "$GCL scp $(dirname $0)/anaconda.yaml ${source_instance}:/tmp/ ${SSH_ARGS}"
+echo "$GCL scp $(dirname $0)/copy_to_imager_vm/* ${source_instance}:/tmp/ ${SSH_ARGS}"
 
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
