@@ -26,8 +26,7 @@ As of December 2023 migration has begun to a situation in which only externally-
 Usually these scripts are used to update the image for a new version of `pipeline5`. The steps in this case are:
 
 1. Update the Java application code to reference new versions of the tools in the stages and if necessary change anything else
-2. Ensure new versions of tools are either in the `common-tools` bucket (if absolutely necessary) or in the Artifact Registry
-   (preferrable because they will be managed by Maven; see above)
+2. Ensure new versions of tools are available in `common-tools`
 3. Update any resources in the `common-resources` bucket, public repository or private repository
 4. Run the `create_public_image.sh` script
 5. Run the `create_private_image.sh` script passing the name of the public image created in the previous step
