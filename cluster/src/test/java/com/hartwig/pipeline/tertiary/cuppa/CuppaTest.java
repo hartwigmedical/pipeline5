@@ -1,18 +1,5 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
-import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
-import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.testsupport.TestInputs.linxSomaticOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.testsupport.TestInputs.virusInterpreterOutput;
-import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.Arguments;
@@ -24,6 +11,14 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
+import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
+import static com.hartwig.pipeline.testsupport.TestInputs.*;
+import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
@@ -102,7 +97,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 "(source /opt/tools/pycuppa/2.1.1_venv/bin/activate && "
                 + "python -m cuppa.predict "
                 + "--classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
-                + "--features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor "
+                + "--features_path /data/output/tumor.cuppa_data.tsv.gz "
+                + "--output_dir /data/output "
+                + "--sample_id tumor "
+                + "--clf_group 'dna' "
                 + "&& deactivate)");
         // @formatter:on
     }

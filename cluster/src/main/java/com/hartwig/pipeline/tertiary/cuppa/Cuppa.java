@@ -165,7 +165,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 format("--classifier_path %s", cuppaClassifierFile),
                 format("--features_path %s", cuppaInputFeaturesFile),
                 format("--output_dir %s", VmDirectories.OUTPUT),
-                format("--sample_id %s", metadata.tumor().sampleName()));
+                format("--sample_id %s", metadata.tumor().sampleName()),
+                "--clf_group 'dna'"
+        );
 
         if (arguments.usePrivateResources()) {
             pycuppaPredictArguments.add(format("--cv_predictions_path %s", cuppaCvPredictionsFile));
