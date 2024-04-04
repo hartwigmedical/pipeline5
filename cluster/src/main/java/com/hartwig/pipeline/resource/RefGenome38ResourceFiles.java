@@ -2,6 +2,7 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.COBALT;
+import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
 import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
@@ -191,5 +192,16 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String targetRegionsMsiIndels() {
         return formPath(ResourceNames.TARGET_REGIONS, "target_regions_msi_indels.38.tsv");
+    }
+
+    // hg38 model for CUPPA does not yet exist
+    @Override
+    public String cuppaClassifier() {
+        return formPath(CUPPA, "cuppa_classifier.38.pickle.gz");
+    }
+
+    @Override
+    public String cuppaCvPredictions() {
+        return formPath(CUPPA, "cuppa_cv_predictions.38.tsv.gz");
     }
 }

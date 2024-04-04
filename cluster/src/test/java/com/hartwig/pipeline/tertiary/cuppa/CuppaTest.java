@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -86,7 +87,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 linxSomaticOutput(),
                 virusInterpreterOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                persistedDataset);
+                persistedDataset, Arguments.testDefaults());
     }
 
     @Override
@@ -98,8 +99,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 + "-ref_genome_version V37 "
                 + "-sample_data_dir /data/input/results "
                 + "-output_dir /data/output",
-                "(source /opt/tools/pycuppa/2.0.1_venv/bin/activate && "
-                + "python -m cuppa.predict --features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor "
+                "(source /opt/tools/pycuppa/2.1.1_venv/bin/activate && "
+                + "python -m cuppa.predict "
+                + "--classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
+                + "--features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor --clf_group 'dna' "
                 + "&& deactivate)");
         // @formatter:on
     }
