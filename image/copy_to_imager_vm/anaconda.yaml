@@ -85,6 +85,7 @@ dependencies:
   - gxx_impl_linux-64=11.2.0=h1234567_1
   - gxx_linux-64=11.2.0=hc2dff05_0
   - harfbuzz=6.0.0=h8e241bc_0
+  - h5py
   - icu=70.1=h27087fc_0
   - imagemagick=7.1.1_5=pl5321h211c493_1
   - jbig=2.1=h7f98852_2003

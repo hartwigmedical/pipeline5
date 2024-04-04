@@ -22,6 +22,7 @@ sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
 sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
+sudo cp /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
