@@ -22,7 +22,6 @@ sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
 sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
-sudo cp /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
@@ -33,13 +32,17 @@ sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
 
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
-sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
 
+# Local overrides for Debian 12
+sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
 sudo mv /tmp/gridss.run.sh /opt/tools/sv-prep/1.2.3/
+sudo mv /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
+sudo mv /tmp/virusbreakend /opt/tools/gridss/2.13.3/virusbreakend
+
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
