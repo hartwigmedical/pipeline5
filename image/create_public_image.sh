@@ -110,8 +110,7 @@ echo "$GCL instances -q delete ${source_instance} --zone=${ZONE}"
 ) > "$generated_script"
 chmod +x "$generated_script"
 
-echo "# ===================="
-echo "# Finished with setup, inspect commands:"
-echo "cat $generated_script"
-echo "# Run the generated script (and delete afterwards):"
-echo "nohup $generated_script > ${generated_script}.log &"
+echo
+echo "Imager script generated to ${generated_script}. It will not be deleted if it fails."
+$generated_script 2>&1 | tee ${generated_script}.log 
+rm $generated_script
