@@ -69,6 +69,7 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
+                    .usePrivateResources(false)
                     .context(DEFAULT_CONTEXT)
                     .sampleJson(DEFAULT_SAMPLE_JSON);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
@@ -100,6 +101,7 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
+                    .usePrivateResources(false)
                     .context(DEFAULT_CONTEXT)
                     .userLabel(System.getProperty("user.name"))
                     .sampleJson(DEFAULT_SAMPLE_JSON);
@@ -132,6 +134,7 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
+                    .usePrivateResources(false)
                     .context(DEFAULT_CONTEXT)
                     .sampleJson(DEFAULT_SAMPLE_JSON);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
@@ -163,6 +166,7 @@ public interface Arguments extends CommonArguments {
                     .useCrams(false)
                     .useTargetRegions(false)
                     .anonymize(false)
+                    .usePrivateResources(false)
                     .context(DEFAULT_CONTEXT)
                     .sampleJson(DEFAULT_SAMPLE_JSON);
         }
@@ -210,6 +214,8 @@ public interface Arguments extends CommonArguments {
     boolean useCrams();
 
     boolean anonymize();
+
+    boolean usePrivateResources();
 
     Pipeline.Context context();
 

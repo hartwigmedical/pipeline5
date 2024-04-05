@@ -65,6 +65,12 @@ public class StartingPoint {
                         SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         VirusBreakend.NAMESPACE))),
 
+        RERUN_534(concat(SKIP_GRIDSS.namespaces,
+                List.of(Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        SageConfiguration.SAGE_SOMATIC_NAMESPACE,
+                        VirusBreakend.NAMESPACE))),
+
         RESEARCH_AFTER_531_DIAGNOSTIC(concat(ALIGNMENT_COMPLETE.namespaces, List.of(GermlineCaller.NAMESPACE))),
         BWA_COMPLETE(List.of(Aligner.NAMESPACE));
 

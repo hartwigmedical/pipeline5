@@ -89,9 +89,8 @@ public interface ResourceFiles {
     String targetRegionsRatios();
     String targetRegionsMsiIndels();
 
-    default String cuppaRefData() {
-        return of(CUPPA);
-    }
+    String cuppaClassifier();
+    String cuppaCvPredictions();
 
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "doid.json");
