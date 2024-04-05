@@ -7,6 +7,9 @@ sudo /tmp/mk_python_venv peach 1.8
 # This tarball was built starting with a script that came from here:
 # https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
 sudo tar -C /root -xzf /opt/tools/R/anaconda3.tar.gz
+sudo /tmp/rebuild_anaconda_env.sh
+sudo rm /usr/bin/perl
+sudo ln -s /root/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
 
 sudo mkdir -p /opt/tools/pycuppa/2.1.1/
 sudo unzip /opt/tools/cuppa/2.1.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.1
@@ -31,14 +34,18 @@ sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
 
-sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
+# Local overrides for Debian 12
 sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
+sudo mv /tmp/gridss.run.sh /opt/tools/sv-prep/1.2.3/
+sudo mv /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
+sudo mv /tmp/virusbreakend /opt/tools/gridss/2.13.3/virusbreakend
+
+sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
 
-sudo chmod a+x /opt/tools/sv-prep/1.2.3/gridss.run.sh
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR

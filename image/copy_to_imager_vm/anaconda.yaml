@@ -1,7 +1,7 @@
 name: bioconductor-r42
 channels:
-  - conda-forge
   - bioconda
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
@@ -85,6 +85,7 @@ dependencies:
   - gxx_impl_linux-64=11.2.0=h1234567_1
   - gxx_linux-64=11.2.0=hc2dff05_0
   - harfbuzz=6.0.0=h8e241bc_0
+  - h5py
   - icu=70.1=h27087fc_0
   - imagemagick=7.1.1_5=pl5321h211c493_1
   - jbig=2.1=h7f98852_2003
@@ -168,6 +169,7 @@ dependencies:
   - perl-svg=2.87=pl5321hdfd78af_0
   - perl-test-fatal=0.016=pl5321ha770c72_0
   - perl-text-format=0.62=pl5321hdfd78af_0
+  - perl-text-soundex=3.05=pl5321hd8ed1ab_1001
   - perl-try-tiny=0.31=pl5321ha770c72_0
   - perl-xml-parser=2.44_01=pl5321hc3e0081_1003
   - pip=23.3.2=pyhd8ed1ab_0

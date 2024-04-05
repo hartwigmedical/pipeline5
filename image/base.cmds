@@ -3,8 +3,9 @@ echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 
 sudo apt -y upgrade
 sudo apt -y update
-sudo apt -y install perl-modules make time python3-pip python3-venv vcftools openjdk-17-jdk bc python3-crcmod libncurses5 unzip
+sudo apt -y install perl-modules make time python3-pip python3-venv vcftools openjdk-17-jdk bc python3-crcmod libncurses5 unzip 
 sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev parallel pigz git libmagick++-dev libffi8 libffi-dev
+sudo apt -y install libarchive13 libxau6 pigz
 sudo apt -y install mdadm --no-install-recommends
 sudo mkdir /data
 sudo mkdir /opt/tools

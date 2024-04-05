@@ -16,7 +16,7 @@ USAGE: $0 [--tools-only] [--flavour flavour] [--checkout-target target]
 
 Optional arguments:
   --tools-only                 Only copy down tools, don't bother with resources
-  --flavour [flavour]          ...
+  --flavour [flavour]          Use resources from `gs://common-resources-[flavour]-overrides` instead of default
   --checkout-target [target]   Checkout [target] instead of the HEAD of "master" and do not create any new tags.
                                May be anything accepted by "git checkout".
 EOM
@@ -29,7 +29,7 @@ eval set -- "$args"
 
 while true; do
     case "$1" in
-        --tools-only) tools_only=true ; shift ;;
+        --tools-only) tools_only=true; shift ;;
         --flavour) flavour="$2"; shift 2 ;;
         --checkout-target) checkout_target="$2"; shift 2 ;;
         --) shift; break ;;
@@ -71,8 +71,8 @@ echo "#!/usr/bin/env bash"
 echo
 echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
-    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
-    --image-family=${source_family} --scopes=default,cloud-source-repos-ro \
+    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-standard-4 --image-project=${source_project} \
+    --image-family=${source_family} --scopes=default,cloud-source-repos-ro,storage-rw \
     --network projects/hmf-vpc-network/global/networks/vpc-network-prod-1 \
     --subnet projects/hmf-vpc-network/regions/europe-west4/subnetworks/vpc-network-subnet-pipeline-development-1
 echo "set +e"
@@ -83,7 +83,9 @@ echo "  $SSH --command=\"exit 0\""
 echo "  [[ \$? -eq 0 ]] && echo "Instance is reachable" && break"
 echo "done"
 echo "set -e"
-echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ ${SSH_ARGS}"
+echo "$SSH --command=\"echo $version | tee /tmp/pipeline.version\""
+echo "$GCL scp $(dirname $0)/copy_to_imager_vm/* ${source_instance}:/tmp/ ${SSH_ARGS}"
+
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$SSH --command=\"$cmd\""
