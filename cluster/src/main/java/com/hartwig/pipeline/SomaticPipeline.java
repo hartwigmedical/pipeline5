@@ -198,7 +198,6 @@ public class SomaticPipeline {
                                 new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                         LinxGermlineOutput linxGermlineOutput = composer.add(state.add(linxGermlineOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = composer.add(state.add(linxSomaticOutputFuture.get()));
-                        composer.add(state.add(tealOutputFuture.get()));
                         composer.add(state.add(healthCheckOutputFuture.get()));
 
                         Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
