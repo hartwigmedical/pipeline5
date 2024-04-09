@@ -2,10 +2,8 @@ package com.hartwig.pipeline.tools;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +51,13 @@ public final class VersionUtils {
     }
 
     public static List<HmfTool> inArtifactRegistry() {
-        //return List.of(HmfTool.ORANGE);
-        return Collections.emptyList();
+        return List.of(HmfTool.BAM_TOOLS,
+                HmfTool.CUPPA,
+                HmfTool.MARK_DUPS,
+                HmfTool.ORANGE,
+                HmfTool.PURPLE,
+                HmfTool.SAGE,
+                HmfTool.TEAL);
     }
 
     public static String format(final Field field) {
