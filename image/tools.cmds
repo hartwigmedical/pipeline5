@@ -16,9 +16,6 @@ sudo unzip /opt/tools/cuppa/2.1.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.1
 sudo mv /tmp/pycuppa-2.1.1/pycuppa/* /opt/tools/pycuppa/2.1.1
 sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.1.1
 
-# NOTE: This extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs_20240122.tar -C /
-
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
