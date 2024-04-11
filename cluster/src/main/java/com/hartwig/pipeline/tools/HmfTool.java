@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.tools;
 
-import com.hartwig.computeengine.execution.vm.VmDirectories;
-
 import static java.lang.String.format;
+
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 
@@ -18,7 +18,7 @@ public enum HmfTool {
     LILAC("1.6", 16, 24, 8, false),
     LINX("1.25", 8, 12, 4, false),
     MARK_DUPS("1.1.4", 40, 120, 24, false),
-    ORANGE("3.3.0", 16, 18, 4, false),
+    ORANGE("3.3.1", 16, 18, 4, false),
     PAVE("1.6", 30, 40, 8, false),
     PEACH("1.8", 1, 4, 2, false),
     PURPLE("4.0.2", 30, 40, 8, false),
