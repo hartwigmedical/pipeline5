@@ -92,12 +92,12 @@ echo "done"
 echo "set -e"
 echo "$SSH --command=\"echo $version | tee /tmp/pipeline.version\""
 echo "$GCL scp $(dirname $0)/copy_to_imager_vm/* ${source_instance}:/tmp/ ${SSH_ARGS}"
+echo "$SSH --command=\"sudo mkdir -p /opt/tools\""
 echo "$SSH --command=\"sudo rm -rf /opt/tools/*\""
 for tool in "${!tool_versions[@]}"; do
     tool_version="${tool_versions[$tool]}"
     echo "$SSH --command=\"sudo /tmp/fetch_tool_from_registry.sh $tool $tool_version\""
 done
-
 
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do

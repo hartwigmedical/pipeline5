@@ -10,7 +10,7 @@ function do_curl() {
 }
 
 AR_URL="https://europe-west4-maven.pkg.dev/hmf-build/hmf-maven/com/hartwig"
-TOOL_DIR="/tmp/tools"
+TOOL_DIR="/opt/tools"
 
 [[ $# -ne 2 ]] && echo "USAGE: $0 [tool name] [tool version]" && exit 1
 

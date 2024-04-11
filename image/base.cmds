@@ -8,7 +8,6 @@ sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev pa
 sudo apt -y install libarchive13 libxau6 pigz
 sudo apt -y install mdadm --no-install-recommends
 sudo mkdir /data
-sudo mkdir /opt/tools
 
 # This is the only approach for installing a 1.8 JDK as of Debian 12 I could find. Other ways lead to a Frankendebian or
 # broken packages. The GATK tools (or versions we're using) do not run on non-1.8 JDKs as installed, perhaps they could be
