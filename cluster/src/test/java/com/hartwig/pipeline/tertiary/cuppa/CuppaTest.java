@@ -87,7 +87,8 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 linxSomaticOutput(),
                 virusInterpreterOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                persistedDataset, Arguments.testDefaults());
+                persistedDataset,
+                Arguments.testDefaults());
     }
 
     @Override
@@ -102,7 +103,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 "(source /opt/tools/pycuppa/2.1.1_venv/bin/activate && "
                 + "python -m cuppa.predict "
                 + "--classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
-                + "--features_path /data/output/tumor.cuppa_data.tsv.gz --output_dir /data/output --sample_id tumor --clf_group 'dna' "
+                + "--features_path /data/output/tumor.cuppa_data.tsv.gz "
+                + "--output_dir /data/output "
+                + "--sample_id tumor "
+                + "--clf_group 'dna' "
                 + "&& deactivate)");
         // @formatter:on
     }
