@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptyList;
+
 public final class VersionUtils {
 
     public static void printAll() {
@@ -51,13 +53,7 @@ public final class VersionUtils {
     }
 
     public static List<HmfTool> inArtifactRegistry() {
-        return List.of(HmfTool.BAM_TOOLS,
-                HmfTool.CUPPA,
-                HmfTool.MARK_DUPS,
-                HmfTool.ORANGE,
-                HmfTool.PURPLE,
-                HmfTool.SAGE,
-                HmfTool.TEAL);
+        return emptyList();
     }
 
     public static String format(final Field field) {
