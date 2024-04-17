@@ -26,7 +26,9 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     @Override
     default String runName() {
-        if (maybeReference().isPresent() && maybeTumor().isPresent()) {
+        if (maybeExternalIds().isPresent()) {
+            return String.valueOf(maybeExternalIds().get().runId());
+        } else if (maybeReference().isPresent() && maybeTumor().isPresent()) {
             return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
         } else if (maybeReference().isPresent()) {
             return truncate(reference().barcode());
