@@ -1,8 +1,11 @@
 package com.hartwig.pipeline.tertiary.peach;
 
+import static java.lang.String.format;
+
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
@@ -10,13 +13,13 @@ import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
-import com.hartwig.computeengine.execution.vm.command.python.Python3Command;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -60,12 +63,12 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
-        return peachCommands(metadata.reference().sampleName(), metadata.reference().sampleName());
+        return peachCommands(metadata.reference().sampleName());
     }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
-        return peachCommands(metadata.tumor().sampleName(), metadata.reference().sampleName());
+        return peachCommands(metadata.reference().sampleName());
     }
 
     @Override
@@ -117,22 +120,16 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return !arguments.shallow() && arguments.runTertiary();
     }
 
-    public List<BashCommand> peachCommands(final String filenameId, final String referenceId) {
-        return List.of(new Python3Command(PEACH.getToolName(),
-                PEACH.runVersion(),
-                "src/main.py",
-                List.of("--vcf",
-                        purpleGermlineVariantsDownload.getLocalTargetPath(),
-                        "--sample_t_id",
-                        filenameId,
-                        "--sample_r_id",
-                        referenceId,
-                        "--tool_version",
-                        PEACH.runVersion(),
-                        "--outputdir",
-                        VmDirectories.OUTPUT,
-                        "--panel",
-                        resourceFiles.peachFilterBed())));
+    public List<BashCommand> peachCommands(final String referenceId) {
+        List<String> arguments = List.of(
+                format("-vcf_file %s", purpleGermlineVariantsDownload.getLocalTargetPath()),
+                format("-sample_name %s", referenceId),
+                format("-haplotypes_file %s", resourceFiles.peachHaplotypes()),
+                format("-function_file %s", resourceFiles.peachHaplotypeFunctions()),
+                format("-drugs_file %s", resourceFiles.peachDrugs()),
+                format("-output_dir %s", VmDirectories.OUTPUT)
+        );
+        return Collections.singletonList(JavaCommandFactory.javaJarCommand(PEACH, arguments));
     }
 
     @NotNull
