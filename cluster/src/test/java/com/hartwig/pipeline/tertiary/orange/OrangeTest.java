@@ -78,7 +78,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.vis.png", "tumor.cuppa.vis.png"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.tsv", "tumor.lilac.tsv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.tsv", "tumor.lilac.qc.tsv"),
-                input(expectedRuntimeBucketName() + "/peach/tumor.peach.genotype.tsv", "tumor.peach.genotype.tsv"),
+                input(expectedRuntimeBucketName() + "/peach/reference.peach.haplotypes.best.tsv", "reference.peach.haplotypes.best.tsv"),
                 input(expectedRuntimeBucketName() + "/sigs/tumor.sig.allocation.tsv", "tumor.sig.allocation.tsv"));
     }
 

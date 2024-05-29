@@ -39,8 +39,11 @@ import org.jetbrains.annotations.NotNull;
 @Namespace(Peach.NAMESPACE)
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "peach";
-    public static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
-    private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
+    public static final String PEACH_EVENTS_TSV = ".peach.events.tsv";
+    public static final String PEACH_EVENTS_PER_GENE_TSV = ".peach.gene.events.tsv";
+    public static final String PEACH_ALL_HAPLOTYPES_TSV = ".peach.haplotypes.all.tsv";
+    public static final String PEACH_GENOTYPE_TSV = ".peach.haplotypes.best.tsv";
+    public static final String PEACH_QC_TSV = ".peach.qc.tsv";
     private final InputDownloadCommand purpleGermlineVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
@@ -81,7 +84,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return PeachOutput.builder()
                 .status(jobStatus)
-                .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv(metadata.sampleName()))))
+                .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv(metadata.reference().sampleName()))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
@@ -95,7 +98,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public PeachOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String genotypeTsv = genotypeTsv(metadata.sampleName());
+        String genotypeTsv = genotypeTsv(metadata.reference().sampleName());
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeGenotypes(persistedDataset.path(metadata.sampleName(), DataType.PEACH_GENOTYPE)
@@ -107,12 +110,22 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
+        String sampleName = metadata.reference().sampleName();
         return List.of(new AddDatatype(DataType.PEACH_CALLS,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + PEACH_CALLS_TSV)),
+                        new ArchivePath(Folder.root(), namespace(), sampleName + PEACH_EVENTS_TSV)),
+                new AddDatatype(DataType.PEACH_CALLS_PER_GENE,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), sampleName + PEACH_EVENTS_PER_GENE_TSV)),
+                new AddDatatype(DataType.PEACH_ALL_HAPLOTYPES,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), sampleName + PEACH_ALL_HAPLOTYPES_TSV)),
                 new AddDatatype(DataType.PEACH_GENOTYPE,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), genotypeTsv(metadata.sampleName()))));
+                        new ArchivePath(Folder.root(), namespace(), genotypeTsv(sampleName))),
+                new AddDatatype(DataType.PEACH_QC,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), sampleName + PEACH_QC_TSV)));
     }
 
     @Override
