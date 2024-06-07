@@ -213,7 +213,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.35' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
@@ -231,7 +231,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
                 + "-sampling_date 230519";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.35' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
