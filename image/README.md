@@ -2,7 +2,7 @@
 
 Tools for creating new disk images for running `pipeline5` VMs on GCP. The `pipeline5` application consists of a Java application
 that is packaged into a Docker container which implements a purpose-built workflow engine. The stages of the workflow are run on
-VMs using a disk image compatible with the version of the Java application. The image must include all of the tools that are
+VMs using a disk image compatible with the version of the Java application. The image must include all the tools that are
 required by all stages of the pipeline, and must be a functional standalone OS. The images we create are based on the
 Debian image provided by Google with custom additions:
 
@@ -54,7 +54,7 @@ rolled out.
 ## Creating a public image with overrides
 
 Creating a public image will use resources (static configuration of the pipeline like gene panels, reference genomes
-etc) from the common-resources-public repository and common-resources bucket (large files). To override the files in
+etc.) from the common-resources-public repository and common-resources bucket (large files). To override the files in
 either of these locations, for instance to make an image for an external group, you can use the `--flavour` option.
 
 First create a bucket of the conventions `gs://common-resources-{name}-overrides` where `name` is some identifier for the

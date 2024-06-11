@@ -6,7 +6,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 
-    AMBER("4.0", 20, 24, 16, false),
+    AMBER("4.0.1", 20, 24, 16, false),
     BAM_TOOLS("1.2.1", 16, 24, 16, false),
     CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
     CIDER("1.0.3", 12, 16, 4, false),
@@ -17,14 +17,14 @@ public enum HmfTool {
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.6", 16, 24, 8, false),
     LINX("1.25", 8, 12, 4, false),
-    MARK_DUPS("1.1.4", 40, 120, 24, false),
-    ORANGE("3.3.1", 16, 18, 4, false),
+    MARK_DUPS("1.1.7", 40, 120, 24, false),
+    ORANGE("3.5.1", 16, 18, 4, false),
     PAVE("1.6", 30, 40, 8, false),
     PEACH("1.8", 1, 4, 2, false),
     PURPLE("4.0.2", 30, 40, 8, false),
-    SAGE("3.4.1", 48, 64, 24, false),
+    SAGE("3.4.3", 48, 64, 24, false),
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
-    SV_PREP("1.2.3", 48, 64, 24, false),
+    SV_PREP("1.2.4", 48, 64, 24, false),
     TEAL("1.2.2", 30, 32, 16, false),
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
