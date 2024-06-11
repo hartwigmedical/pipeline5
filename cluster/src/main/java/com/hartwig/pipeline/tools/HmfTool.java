@@ -18,7 +18,7 @@ public enum HmfTool {
     LILAC("1.6", 16, 24, 8, false),
     LINX("1.25", 8, 12, 4, false),
     MARK_DUPS("1.1.7", 40, 120, 24, false),
-    ORANGE("3.5.0", 16, 18, 4, false),
+    ORANGE("3.5.1", 16, 18, 4, false),
     PAVE("1.6", 30, 40, 8, false),
     PEACH("1.8", 1, 4, 2, false),
     PURPLE("4.0.2", 30, 40, 8, false),
