@@ -31,7 +31,7 @@ sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
 
 # Local overrides for Debian 12
 sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
-sudo mv /tmp/gridss.run.sh /opt/tools/sv-prep/1.2.3/
+sudo mv /tmp/gridss.run.sh /opt/tools/sv-prep/1.2.4/
 sudo mv /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo mv /tmp/virusbreakend /opt/tools/gridss/2.13.3/virusbreakend
 
