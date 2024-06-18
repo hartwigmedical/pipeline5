@@ -124,8 +124,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow() && arguments.biopsy().isEmpty() && !arguments.context()
-                .equals(Pipeline.Context.RESEARCH) && !arguments.useTargetRegions();
+        return arguments.runTertiary()
+                && !arguments.shallow()
+                && arguments.biopsy().isEmpty()
+                && !arguments.context().equals(Pipeline.Context.RESEARCH)
+                && !arguments.context().equals(Pipeline.Context.RESEARCH2)
+                && !arguments.useTargetRegions();
     }
 
     @NotNull
