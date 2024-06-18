@@ -263,7 +263,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 "-ensembl_data_dir",
                 resourceFiles.ensemblDataCache());
 
-        if (context.equals(Pipeline.Context.RESEARCH)) {
+        if (context.equals(Pipeline.Context.RESEARCH) || context.equals(Pipeline.Context.RESEARCH2)) {
             arguments.add("-add_disclaimer");
         }
         return arguments;

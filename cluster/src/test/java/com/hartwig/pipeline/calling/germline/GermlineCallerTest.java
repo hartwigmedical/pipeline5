@@ -53,8 +53,14 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     }
 
     @Override
-    protected Arguments defaultArguments() {
-        return Arguments.testDefaultsBuilder().context(Pipeline.Context.RESEARCH).build();
+    public void enabledAppropriately() {
+        checkEnabledAppropriately(Pipeline.Context.RESEARCH);
+        checkEnabledAppropriately(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkEnabledAppropriately(Pipeline.Context context) {
+        var arguments = Arguments.testDefaultsBuilder().context(context).build();
+        assertThat(victim.shouldRun(arguments)).isTrue();
     }
 
     @Override

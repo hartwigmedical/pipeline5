@@ -9,7 +9,7 @@ public enum HmfTool {
     AMBER("4.0.1", 20, 24, 16, false),
     BAM_TOOLS("1.2.1", 16, 24, 16, false),
     CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
-    CIDER("1.0.3", 12, 16, 4, false),
+    CIDER("1.0.3", 16, 24, 4, false),
     COBALT("1.16", 20, 24, 16, false),
     CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
     GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
@@ -87,8 +87,6 @@ public enum HmfTool {
     }
 
     private static final class Defaults {
-        private static final int CORES = 1;
         private static final int JAVA_HEAP = 4;
-        private static final int MEMORY = 8;
     }
 }
