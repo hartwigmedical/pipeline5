@@ -212,7 +212,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(name)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(96, 128))
+                .performanceProfile(custom(64, 128))
                 .startupCommand(startupScript)
                 .build();
     }
