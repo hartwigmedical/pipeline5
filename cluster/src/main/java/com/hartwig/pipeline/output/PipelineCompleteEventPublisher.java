@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.hartwig.events.EventPublisher;
 import com.hartwig.events.pipeline.Analysis;
 import com.hartwig.events.pipeline.AnalysisOutputBlob;
 import com.hartwig.events.pipeline.ImmutableAnalysis;
@@ -16,7 +17,6 @@ import com.hartwig.events.pipeline.ImmutableAnalysisOutputBlob;
 import com.hartwig.events.pipeline.ImmutablePipeline;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
-import com.hartwig.events.pubsub.EventPublisher;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;

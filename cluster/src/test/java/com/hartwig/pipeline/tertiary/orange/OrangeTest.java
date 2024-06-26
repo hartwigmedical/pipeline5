@@ -84,18 +84,24 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Test
     public void shouldAddResearchDisclaimerWhenResearchContext() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        checkResearchDisclaimerForContext(Pipeline.Context.RESEARCH);
+        checkResearchDisclaimerForContext(Pipeline.Context.RESEARCH2);
+    }
+
+    public void checkResearchDisclaimerForContext(Pipeline.Context context) {
+        Orange victim = constructOrange(context, false, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(context, false, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
+        victim = constructOrange(context, true, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(context, true, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
     }
+
 
     @Test
     public void shouldNotAddResearchDisclaimerWhenDiagnosticContext() {
@@ -118,6 +124,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-convert_germline_to_somatic");
 
+        victim = constructOrange(Pipeline.Context.RESEARCH2, false, false);
+        assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
+        assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-convert_germline_to_somatic");
+
         victim = constructOrange(Pipeline.Context.DIAGNOSTIC, false, true);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-convert_germline_to_somatic");
@@ -132,47 +142,71 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
         victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-convert_germline_to_somatic");
+
+        victim = constructOrange(Pipeline.Context.RESEARCH2, true, true);
+        assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE);
+        assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-convert_germline_to_somatic");
     }
 
     @Test
     public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        checkReturnNoFurtherOperationsWhenGermlineNotIncluded(Pipeline.Context.RESEARCH);
+        checkReturnNoFurtherOperationsWhenGermlineNotIncluded(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkReturnNoFurtherOperationsWhenGermlineNotIncluded(Pipeline.Context context) {
+        Orange victim = constructOrange(context, false, false);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(context, false, true);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
     @Test
     public void shouldSetRunModusByIsTargetedForTumorReference() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        checkSetRunModusByIsTargetedForTumorReference(Pipeline.Context.RESEARCH);
+        checkSetRunModusByIsTargetedForTumorReference(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkSetRunModusByIsTargetedForTumorReference(Pipeline.Context context) {
+        Orange victim = constructOrange(context, false, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(context, false, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("PANEL");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
+        victim = constructOrange(context, true, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(context, true, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("PANEL");
     }
 
     @Test
     public void shouldSetRunModusByIsTargetedForTumorOnly() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
+        checkSetRunModusByIsTargetedForTumorOnly(Pipeline.Context.RESEARCH);
+        checkSetRunModusByIsTargetedForTumorOnly(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkSetRunModusByIsTargetedForTumorOnly(Pipeline.Context context) {
+        Orange victim = constructOrange(context, true, false);
         assertThat(orangeTumorOnlyCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(context, true, true);
         assertThat(orangeTumorOnlyCommand(victim).asBash()).contains("PANEL");
     }
 
     @Test
     public void shouldSkipOrangeNoGermlineForTumorOnly() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        checkSkipOrangeNoGermlineForTumorOnly(Pipeline.Context.RESEARCH);
+        checkSkipOrangeNoGermlineForTumorOnly(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkSkipOrangeNoGermlineForTumorOnly(Pipeline.Context context) {
+        Orange victim = constructOrange(context, false, false);
         assertThat(victim.tumorOnlyCommands(TestInputs.defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(context, false, true);
         assertThat(victim.tumorOnlyCommands(TestInputs.defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
