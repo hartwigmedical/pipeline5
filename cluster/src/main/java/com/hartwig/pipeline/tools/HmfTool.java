@@ -15,7 +15,7 @@ public enum HmfTool {
     GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
     GRIPSS("2.4", 16, 24, 4, false),
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
-    LILAC("1.6", 16, 24, 8, false),
+    LILAC("1.6", 32, 40, 8, false),
     LINX("1.25", 8, 12, 4, false),
     MARK_DUPS("1.1.4", 64, 120, 24, false),
     ORANGE("3.3.1", 16, 18, 4, false),
