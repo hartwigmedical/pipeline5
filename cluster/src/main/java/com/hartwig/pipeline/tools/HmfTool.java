@@ -20,7 +20,7 @@ public enum HmfTool {
     MARK_DUPS("1.1.7", 40, 120, 24, false),
     ORANGE("3.5.1", 16, 18, 4, false),
     PAVE("1.6", 30, 40, 8, false),
-    PEACH("2.0.0-beta.1", 1, 4, 2, false),
+    PEACH("2.0.0", 1, 4, 2, false),
     PURPLE("4.0.2", 30, 40, 8, false),
     SAGE("3.4.3", 48, 64, 24, false),
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
