@@ -1,7 +1,6 @@
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
 
 sudo chmod a+x /tmp/mk_python_venv
-sudo /tmp/mk_python_venv peach 1.8
 
 # This tarball was built starting with a script that came from here:
 # https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
