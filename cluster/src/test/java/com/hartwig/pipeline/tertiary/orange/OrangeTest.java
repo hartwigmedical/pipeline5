@@ -12,7 +12,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -34,7 +33,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
         return victim.tumorOnlyCommands(TestInputs.defaultSomaticRunMetadata()).get(2);
     }
 
-    private Orange constructOrange(final Pipeline.Context context, final boolean includeGermline, final boolean isTargeted) {
+    private Orange constructOrange(final boolean includeGermline, final boolean isTargeted) {
         return new Orange(TestInputs.tumorMetricsOutput(),
                 TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorFlagstatOutput(),
@@ -51,7 +50,6 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                context,
                 includeGermline,
                 isTargeted);
     }
@@ -83,96 +81,66 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     }
 
     @Test
-    public void shouldAddResearchDisclaimerWhenResearchContext() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-add_disclaimer");
-    }
-
-    @Test
-    public void shouldNotAddResearchDisclaimerWhenDiagnosticContext() {
-        Orange victim = constructOrange(Pipeline.Context.DIAGNOSTIC, false, false);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.DIAGNOSTIC, false, true);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.DIAGNOSTIC, true, false);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-add_disclaimer");
-
-        victim = constructOrange(Pipeline.Context.DIAGNOSTIC, true, true);
-        assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-add_disclaimer");
-    }
-
-    @Test
     public void shouldAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        Orange victim = constructOrange(false, false);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-convert_germline_to_somatic");
 
-        victim = constructOrange(Pipeline.Context.DIAGNOSTIC, false, true);
+        victim = constructOrange(false, true);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("-convert_germline_to_somatic");
     }
 
     @Test
     public void shouldNotAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
-        Orange victim = constructOrange(Pipeline.Context.DIAGNOSTIC, true, false);
+        Orange victim = constructOrange(true, false);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-convert_germline_to_somatic");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(true, true);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).doesNotContain("-convert_germline_to_somatic");
     }
 
     @Test
     public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        Orange victim = constructOrange(false, false);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(false, true);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
     @Test
     public void shouldSetRunModusByIsTargetedForTumorReference() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        Orange victim = constructOrange(false, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(false, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("PANEL");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
+        victim = constructOrange(true, false);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(true, true);
         assertThat(orangeTumorReferenceCommand(victim).asBash()).contains("PANEL");
     }
 
     @Test
     public void shouldSetRunModusByIsTargetedForTumorOnly() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, true, false);
+        Orange victim = constructOrange(true, false);
         assertThat(orangeTumorOnlyCommand(victim).asBash()).contains("WGS");
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, true, true);
+        victim = constructOrange(true, true);
         assertThat(orangeTumorOnlyCommand(victim).asBash()).contains("PANEL");
     }
 
     @Test
     public void shouldSkipOrangeNoGermlineForTumorOnly() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false, false);
+        Orange victim = constructOrange(false, false);
         assertThat(victim.tumorOnlyCommands(TestInputs.defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
 
-        victim = constructOrange(Pipeline.Context.RESEARCH, false, true);
+        victim = constructOrange(false, true);
         assertThat(victim.tumorOnlyCommands(TestInputs.defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
@@ -193,7 +161,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected Stage<OrangeOutput, SomaticRunMetadata> createVictim() {
-        return constructOrange(Pipeline.Context.DIAGNOSTIC, true, false);
+        return constructOrange(true, false);
     }
 
     @Override
@@ -206,10 +174,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-tumor_sample_id tumor " + "-primary_tumor_doids \"01;02\" "
-                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
-                + "-sampling_date 230519 " + "-reference_sample_id reference "
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor "
+                + "-primary_tumor_doids \"01;02\" " + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                + "-tumor_sample_flagstat_file /data/input/tumor.flagstat " + "-linx_plot_dir /data/input/linx/plot "
+                + "-linx_dir /data/input/linx " + "-sage_dir /data/input " + "-sampling_date 230519 " + "-reference_sample_id reference "
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
@@ -226,10 +194,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-tumor_sample_id tumor " + "-primary_tumor_doids \"01;02\" "
-                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
-                + "-sampling_date 230519";
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor "
+                + "-primary_tumor_doids \"01;02\" " + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                + "-tumor_sample_flagstat_file /data/input/tumor.flagstat " + "-linx_plot_dir /data/input/linx/plot "
+                + "-linx_dir /data/input/linx " + "-sage_dir /data/input " + "-sampling_date 230519";
 
         return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.34' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
