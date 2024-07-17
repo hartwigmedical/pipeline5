@@ -200,10 +200,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                         "-known_fusion_file",
                         resourceFiles.knownFusionData(),
                         "-ensembl_data_dir",
-                        resourceFiles.ensemblDataCache());
-        if (context.equals(Pipeline.Context.RESEARCH)) {
-            argumentListBuilder.add("-add_disclaimer");
-        }
+                        resourceFiles.ensemblDataCache(),
+                        "-add_disclaimer");
         if (!includeGermline) {
             argumentListBuilder.add("-convert_germline_to_somatic");
         }
