@@ -91,9 +91,9 @@ else
 fi
 
 rm -r .git/
-find . -type f | while read f; do
-    dirname $(echo "$f" | sed 's#^\./##')
-done | sort -u | while read d; do
-    [[ $d != "." ]] && rm -rf /opt/resources/$d
-done
+#find . -type f | while read f; do
+#    dirname $(echo "$f" | sed 's#^\./##')
+#done | sort -u | while read d; do
+#    [[ $d != "." ]] && rm -rf /opt/resources/$d
+#done
 tar -cf - * | tar -C /opt/resources -xv

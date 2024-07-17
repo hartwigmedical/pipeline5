@@ -7,8 +7,8 @@ import static com.hartwig.pipeline.tools.ExternalTool.CIRCOS;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 final class PurpleArguments {
@@ -41,11 +41,7 @@ final class PurpleArguments {
     public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
         return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()),
                 format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios()),
-                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()),
-                "-min_diploid_tumor_ratio_count 3",
-                "-min_diploid_tumor_ratio_count_centromere 3",
-                "-ploidy_penalty_factor 0.6",
-                "-ploidy_penalty_standard_deviation 0.15");
+                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()));
     }
 
     public static List<String> addCommonArguments(final String amberOutputPath, final String cobaltOutputPath,

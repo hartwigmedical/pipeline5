@@ -5,16 +5,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSampleRunMetadata> {
 
@@ -53,8 +55,14 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     }
 
     @Override
-    protected Arguments defaultArguments() {
-        return Arguments.testDefaultsBuilder().context(Pipeline.Context.RESEARCH).build();
+    public void enabledAppropriately() {
+        checkEnabledAppropriately(Pipeline.Context.RESEARCH);
+        checkEnabledAppropriately(Pipeline.Context.RESEARCH2);
+    }
+
+    private void checkEnabledAppropriately(Pipeline.Context context) {
+        var arguments = Arguments.testDefaultsBuilder().context(context).build();
+        assertThat(victim.shouldRun(arguments)).isTrue();
     }
 
     @Override

@@ -14,14 +14,10 @@ import java.util.List;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ComposeInPipelineOutputBucket;
-import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.output.OutputComponent;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;

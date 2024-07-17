@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 
 import org.junit.Before;
 import org.junit.Test;

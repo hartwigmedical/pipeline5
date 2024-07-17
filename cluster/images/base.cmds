@@ -3,8 +3,8 @@
 # versions that we were working with.
 #
 # When we decide to upgrade the base image to a Debian version >9, the git history can be consulted to see what the contents of
-# this file (as well as tools.cmd) used to look like. In the meantime however public images are being built from a private image
-# based off of the last-successful Debian 9 imaging run.
+# this file (as well as tools.cmd) used to look like. In the meantime however public images are being built from a private copy
+# of the old image based off of the last-successful Debian 9 imaging run.
 
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
 

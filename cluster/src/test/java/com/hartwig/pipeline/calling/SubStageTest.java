@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
@@ -29,6 +29,10 @@ public abstract class SubStageTest {
 
     protected String bash() {
         return output.bash().stream().map(BashCommand::asBash).collect(Collectors.joining());
+    }
+
+    protected String bash(final String delim) {
+        return output.bash().stream().map(BashCommand::asBash).collect(Collectors.joining(delim));
     }
 
     protected String sampleName() {

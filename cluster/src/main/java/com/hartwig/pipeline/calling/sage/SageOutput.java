@@ -2,9 +2,9 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.Optional;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -21,9 +21,7 @@ public interface SageOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeSomaticTumorSampleBqrPlot();
 
-    default GoogleStorageLocation variants() {
-        return maybeVariants().orElse(GoogleStorageLocation.empty());
-    }
+    default GoogleStorageLocation variants() { return maybeVariants().orElse(GoogleStorageLocation.empty()); }
 
     default GoogleStorageLocation germlineGeneCoverage() {
         return maybeGermlineGeneCoverage().orElse(GoogleStorageLocation.empty());

@@ -15,22 +15,29 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.ComputeEngineStatus;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.ComputeEngine;
+import com.hartwig.computeengine.execution.vm.RuntimeFiles;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
+import com.hartwig.computeengine.storage.RuntimeBucketOptions;
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.RuntimeFiles;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -43,8 +50,6 @@ import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
@@ -78,8 +83,7 @@ public class BwaAligner implements Aligner {
 
         StageTrace trace =
                 new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments, labels);
-
+        RuntimeBucket rootBucket = createRuntimeBucket(NAMESPACE, metadata);
         SampleInput sample = Inputs.sampleFor(input, metadata);
         if (sample.bam().isPresent()) {
             return AlignmentOutput.builder()
@@ -91,19 +95,19 @@ public class BwaAligner implements Aligner {
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         sampleUpload.run(sample, rootBucket);
 
-        List<Future<PipelineStatus>> futures = new ArrayList<>();
+        List<Future<ComputeEngineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<OutputComponent> laneLogComponents = new ArrayList<>();
         List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (LaneInput lane : sample.lanes()) {
 
-            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments, labels);
+            RuntimeBucket laneBucket = createRuntimeBucket(laneNamespace(lane), metadata);
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
-            InputDownload first = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+            InputDownloadCommand first = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     fastQFileName(sample.name(), lane.firstOfPairPath())));
-            InputDownload second = new InputDownload(GoogleStorageLocation.of(rootBucket.name(),
+            InputDownloadCommand second = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
 
@@ -116,11 +120,12 @@ public class BwaAligner implements Aligner {
                     resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
-                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
+                    .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
                             RuntimeFiles.typical()));
-            futures.add(executorService.submit(() -> runWithRetries(metadata,
+            var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
                     laneBucket,
-                    VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
+                    VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
+            futures.add(pipelineFuture);
             laneLogComponents.add(new RunLogComponent(laneBucket,
                     laneNamespace(lane),
                     Folder.from(metadata),
@@ -131,40 +136,42 @@ public class BwaAligner implements Aligner {
         AlignmentOutput output;
         if (lanesSuccessfullyComplete(futures)) {
 
-            List<InputDownload> laneBams = perLaneBams.stream().map(InputDownload::new).collect(Collectors.toList());
+            List<InputDownloadCommand> laneBams = perLaneBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
+
+            List<InputDownloadCommand> laneBamIndexs = perLaneBams.stream()
+                    .map(x -> x.transform(FileTypes::bai))
+                    .map(InputDownloadCommand::new).collect(Collectors.toList());
 
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
             laneBams.forEach(mergeMarkdupsBash::addCommand);
+            laneBamIndexs.forEach(mergeMarkdupsBash::addCommand);
 
             List<String> laneBamPaths = laneBams.stream()
-                    .map(InputDownload::getLocalTargetPath)
+                    .map(InputDownloadCommand::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths, arguments.useTargetRegions())
+            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths)
                     .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
-            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(),
+            mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(),
                     resultsDirectory.path()), RuntimeFiles.typical()));
 
-            PipelineStatus status = runWithRetries(metadata,
-                    rootBucket,
-                    VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+            ComputeEngineStatus computeEngineStatus =
+                    runWithRetries(metadata, rootBucket, VirtualMachineJobDefinitions.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+
+            PipelineStatus pipelineStatus = PipelineStatus.of(computeEngineStatus);
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
-                    .status(status)
-                    .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(),
-                            resultsDirectory.path(merged.outputFile().fileName())))
+                    .status(pipelineStatus)
+                    .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(merged.outputFile().fileName())))
                     .addAllReportComponents(laneLogComponents)
                     .addAllFailedLogLocations(laneFailedLogs)
                     .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
-                    .addReportComponents(new RunLogComponent(rootBucket,
-                            Aligner.NAMESPACE,
-                            Folder.from(metadata),
-                            resultsDirectory));
+                    .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
                                         Aligner.NAMESPACE,
@@ -198,7 +205,7 @@ public class BwaAligner implements Aligner {
         return output;
     }
 
-    public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
+    public ComputeEngineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
         return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
                 metadata.toString(),
@@ -213,15 +220,27 @@ public class BwaAligner implements Aligner {
         return lane.flowCellId() + "-" + lane.laneNumber();
     }
 
-    private boolean lanesSuccessfullyComplete(final List<Future<PipelineStatus>> futures) {
-        return futures.stream().map(BwaAligner::getFuture).noneMatch(status -> status.equals(PipelineStatus.FAILED));
+    private boolean lanesSuccessfullyComplete(final List<Future<ComputeEngineStatus>> futures) {
+        return futures.stream().map(BwaAligner::getFuture).noneMatch(status -> status.equals(ComputeEngineStatus.FAILED));
+    }
+
+    private RuntimeBucket createRuntimeBucket(String namespace, SingleSampleRunMetadata metadata) {
+        var runIdentifier = ArgumentUtil.toRunIdentifier(arguments, metadata);
+        var runtimeBucketOptions = RuntimeBucketOptions.builder()
+                .namespace(namespace)
+                .region(arguments.region())
+                .labels(labels.asMap())
+                .runIdentifier(runIdentifier)
+                .cmek(arguments.cmek())
+                .build();
+        return RuntimeBucket.from(storage, runtimeBucketOptions);
     }
 
     private static String fastQFileName(final String sample, final String fullFastQPath) {
         return format("samples/%s/%s", sample, new File(fullFastQPath).getName());
     }
 
-    private static PipelineStatus getFuture(final Future<PipelineStatus> future) {
+    private static ComputeEngineStatus getFuture(final Future<ComputeEngineStatus> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {

@@ -8,10 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.TestPersistedDataset;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -49,10 +49,8 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
                         + "-ref_genome_version V37 "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-write_bqr_data -write_bqr_plot "
-                        + "-out /data/output/tumor.sage.germline.vcf.gz "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo)",
-                "(/opt/tools/bcftools/1.9/bcftools filter -i 'FILTER=\"PASS\"' /data/output/tumor.sage.germline.vcf.gz -O z -o /data/output/tumor.sage.germline.filtered.vcf.gz)",
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.germline.filtered.vcf.gz -p vcf");
+                        + "-output_vcf /data/output/tumor.sage.germline.vcf.gz "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Override
@@ -73,7 +71,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected void validatePersistedOutput(final SageOutput output) {
         assertThat(output.variants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/sage_germline/tumor.sage.germline.filtered.vcf.gz"));
+                "set/sage_germline/tumor.sage.germline.vcf.gz"));
     }
 
     @Override

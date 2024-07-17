@@ -23,6 +23,7 @@ import com.hartwig.pipeline.stages.NamespacesTest;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.chord.Chord;
+import com.hartwig.pipeline.tertiary.cider.Cider;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
@@ -33,6 +34,7 @@ import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
+import com.hartwig.pipeline.tertiary.teal.Teal;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 
 import org.junit.Test;
@@ -94,7 +96,7 @@ public class StartingPointTest {
     @Test
     public void startingPointsAreUpToDate() {
         List<Namespace> endStages = namespacesOf(Sigs.class, Orange.class, Cram2Bam.class, HealthChecker.class, Lilac.class,
-                Cuppa.class, Peach.class, LinxSomatic.class, LinxGermline.class, Chord.class, VirusInterpreter.class);
+                Cuppa.class, Peach.class, LinxSomatic.class, LinxGermline.class, Chord.class, VirusInterpreter.class, Cider.class, Teal.class);
         NamespacesTest.allNamespaces().stream().filter(n -> !endStages.contains(n)).map(Namespace::value).collect(toList()).forEach(n -> {
             boolean referenced = false;
             for (StartingPoints points: StartingPoints.values()) {

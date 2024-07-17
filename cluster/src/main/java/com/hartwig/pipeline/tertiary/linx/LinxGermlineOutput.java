@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.storage.GoogleStorageLocation.empty;
+import static com.hartwig.computeengine.storage.GoogleStorageLocation.empty;
 
 import java.util.Optional;
 

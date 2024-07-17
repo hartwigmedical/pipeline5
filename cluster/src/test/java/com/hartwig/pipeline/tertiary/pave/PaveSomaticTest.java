@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -17,7 +18,6 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.stages.TestPersistedDataset;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -49,6 +49,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
                         + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
                         + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
                         + "-read_pass_only "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                         + "-pon_file /opt/resources/sage/37/SageGermlinePon.1000x.37.tsv.gz "
                         + "-pon_filters \"HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0\"");
     }
@@ -60,7 +61,9 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"));
+        return List.of(
+                input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
+                input("run-reference-tumor-test/sage_somatic/results/tumor.somatic.vcf.gz.tbi", "tumor.somatic.vcf.gz.tbi"));
     }
 
     @Override

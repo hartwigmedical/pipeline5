@@ -8,12 +8,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.output.AddDatatype;
-import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
+import com.hartwig.pipeline.output.AddDatatype;
+import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -69,10 +69,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                 input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
-                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
-                                + "-r /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
-                                + "--samtools-binary /opt/tools/samtools/1.14/samtools --sambamba-binary /opt/tools/sambamba/0.6"
-                                + ".8/sambamba",
+                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 --samtools-binary /opt/tools/samtools/1.14/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
                         input,
                         output));
     }

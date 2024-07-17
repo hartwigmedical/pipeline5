@@ -2,10 +2,10 @@ package com.hartwig.pipeline.calling.germline;
 
 import java.util.Optional;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.execution.OutputFile;
 
 import org.immutables.value.Value;
 

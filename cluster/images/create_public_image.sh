@@ -43,7 +43,7 @@ set +e
 [[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 
 echo "Building public image for pipeline version ${version}"
-image_family="pipeline5-${version}${flavour+"-$flavour"}${checkout_target:+"-unofficial"}"
+image_family="pipeline5-${version}${flavour+"-$flavour"}"
 source_instance="${image_family}-$(whoami)"
 image_name="${image_family}-$(date +%Y%m%d%H%M)"
 source_project="hmf-pipeline-development"
@@ -60,8 +60,9 @@ fi
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
 set -e
-GCL="gcloud beta compute --project=${PROJECT}"
-SSH="$GCL ssh $source_instance --zone=${ZONE}"
+GCL="gcloud compute --project=${PROJECT}"
+SSH_ARGS="--zone=${ZONE} --tunnel-through-iap"
+SSH="$GCL ssh $source_instance $SSH_ARGS"
 generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 
 (
@@ -70,10 +71,10 @@ echo
 echo "set -e"
 echo $GCL instances create $source_instance --description=\"Pipeline5 disk imager started $(date) by $(whoami)\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${source_project} \
-    --image-family=${source_family} --scopes=default,cloud-source-repos-ro
-echo sleep 10
-echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ --zone=${ZONE}"
-echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ --zone=${ZONE}"
+    --image-family=${source_family} --scopes=default,cloud-source-repos-ro --network diskimager --subnet diskimager
+echo sleep 30
+echo "$GCL scp $(dirname $0)/mk_python_venv ${source_instance}:/tmp/ $SSH_ARGS"
+echo "$GCL scp $(dirname $0)/jranke.asc ${source_instance}:/tmp/ $SSH_ARGS"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$SSH --command=\"$cmd\""
@@ -86,7 +87,7 @@ if [ -n "$flavour" ]; then
 fi
 
 if [ -n "${checkout_target}" ]; then
-    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target}\""
+    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target} && sudo git tag ${image_name} && git push origin ${image_name}\""
 else
     echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && git push origin ${image_name}\""
 fi
@@ -95,7 +96,11 @@ echo "$SSH --command=\"sudo rm -r /opt/resources/.git\""
 echo "$GCL instances stop ${source_instance} --zone=${ZONE}"
 echo "$GCL images create ${image_name} --family=${image_family} --source-disk=${source_instance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
 echo "$GCL instances -q delete ${source_instance} --zone=${ZONE}"
-) > $generated_script
-chmod +x $generated_script
-$generated_script
-rm $generated_script
+) > "$generated_script"
+chmod +x "$generated_script"
+
+echo "# ===================="
+echo "# Finished with setup, inspect commands:"
+echo "cat $generated_script"
+echo "# Run the generated script (and delete afterwards):"
+echo "nohup $generated_script > ${generated_script}.log &"

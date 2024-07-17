@@ -8,9 +8,11 @@ import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPS
 import java.time.LocalDate;
 import java.util.List;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.OperationalReferences;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -24,7 +26,6 @@ import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -35,7 +36,6 @@ import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.resource.RefGenome38ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
@@ -79,20 +79,18 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public class TestInputs {
 
-    private static final String RESULTS = "results/";
-    private static final String REFERENCE_SAMPLE = "reference";
-    private static final String TUMOR_SAMPLE = "tumor";
-
-    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
-    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
-    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
-
     public static final ResourceFiles REF_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
     public static final long EXTERNAL_RUN_ID = 1L;
     public static final long EXTERNAL_SET_ID = 2L;
+    private static final String RESULTS = "results/";
+    private static final String REFERENCE_SAMPLE = "reference";
+    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
+    private static final String TUMOR_SAMPLE = "tumor";
+    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
+    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
     public static PipelineInput pipelineInput() {
         return PipelineInput.builder()
@@ -395,13 +393,9 @@ public class TestInputs {
         return CuppaOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
-                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
-                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
-                        .summaryChartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
-                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_FEATURE_PLOT))
-                        .conclusionChart(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE),
-                                TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_CHART))
+                        .visData(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_DATA))
+                        .visPlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_VIS_PLOT))
+                        .predSumm(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_PRED_SUMM))
                         .build())
                 .build();
     }

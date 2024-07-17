@@ -16,7 +16,7 @@ public final class VersionUtils {
         logger.info("HMF tool versions:");
 
         for (HmfTool tool : HmfTool.values()) {
-            logger.info(String.format("%s: %s", tool.toString(), tool.runVersion()));
+            logger.info(String.format("%s: %s", tool.toString(), tool.versionInfo()));
         }
 
         logger.info("External tools versions:");
@@ -59,7 +59,7 @@ public final class VersionUtils {
     }
 
     public static String imageVersion() {
-        return "5-33";
+        return "5-34";
     }
 
     public static void main(final String[] args) {

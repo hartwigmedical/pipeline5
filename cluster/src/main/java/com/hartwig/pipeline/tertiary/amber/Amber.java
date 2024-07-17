@@ -1,20 +1,25 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
@@ -25,8 +30,6 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 @Namespace(Amber.NAMESPACE)
@@ -87,7 +90,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new JavaJarCommand(AMBER, arguments));
+        commands.add(JavaCommandFactory.javaJarCommand(AMBER, arguments));
         return commands;
     }
 
@@ -111,13 +114,13 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private void addTargetRegionsArguments(final List<String> amberArguments) {
         if (arguments.useTargetRegions()) {
-            amberArguments.add("-tumor_only_min_depth 80");
+            amberArguments.add(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()));
         }
     }
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.amber(bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.amber(bash, resultsDirectory);
     }
 
     @Override

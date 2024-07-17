@@ -2,8 +2,8 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -23,7 +23,7 @@ public class SageGermlineCaller extends SageCaller {
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
                 .addReference(metadata.reference().sampleName(),
-                        getReferenceBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess().apply(metadata))
+                        getReferenceBamDownload().getLocalTargetPath()))
                 .apply(SubStageInputOutput.empty(metadata.reference().sampleName()))
                 .bash();
     }

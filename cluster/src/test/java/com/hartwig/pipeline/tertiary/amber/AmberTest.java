@@ -7,14 +7,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -68,7 +68,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                 + "-reference reference -reference_bam /data/input/reference.bam "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-ref_genome_version V37 "
-                + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz "
+                + "-loci /opt/resources/amber/37/AmberGermlineSites.37.tsv.gz "
                 + "-output_dir /data/output "
                 + "-threads 12");
     }

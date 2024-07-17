@@ -7,7 +7,7 @@ import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,11 @@ class BamMetricsCommand extends JavaJarCommand
             final String sampleId, final String inputBam, final ResourceFiles resourceFiles, final String outputDir, final String threads,
             @Nullable final String targetRegionsBed) {
 
-        super(BAM_TOOLS, formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
+        super(BAM_TOOLS.getToolName(),
+                BAM_TOOLS.runVersion(),
+                BAM_TOOLS.jar(),
+                BAM_TOOLS.maxHeapStr(),
+                formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
     }
 
     private static List<String> formArguments(
@@ -37,7 +41,7 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add("-write_old_style");
 
         if(targetRegionsBed != null)
-            arguments.add(format("-regions_bed_file %s", targetRegionsBed));
+            arguments.add(format("-regions_file %s", targetRegionsBed));
 
         return arguments;
     }

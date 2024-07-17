@@ -24,7 +24,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;

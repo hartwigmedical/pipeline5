@@ -3,7 +3,8 @@ package com.hartwig.pipeline.storage;
 import static java.lang.String.format;
 
 import com.google.cloud.storage.Blob;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

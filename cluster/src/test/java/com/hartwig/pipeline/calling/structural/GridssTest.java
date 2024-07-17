@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
@@ -22,8 +23,8 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
@@ -150,7 +151,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + " --output /data/output/tumor.gridss.vcf.gz "
                 + "--workingdir /data/output "
                 + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "--jar /opt/tools/gridss/2.13.2/gridss.jar "
+                + "--jar /opt/tools/gridss/" + HmfTool.GRIDSS.runVersion() + "/gridss.jar "
                 + "--blacklist /opt/resources/gridss/37/gridss_blacklist.37.bed.gz "
                 + "--configuration /opt/resources/gridss/gridss.properties "
                 + "--labels reference,tumor "
@@ -174,7 +175,7 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                 + ".use_async_io_write_samtools=true "
                 + "-Dsamjdk.use_async_io_write_tribble=true "
                 + "-Dsamjdk.buffer_size=4194304 "
-                + "-cp /opt/tools/gridss/2.13.2/gridss.jar "
+                + "-cp /opt/tools/gridss/" + HmfTool.GRIDSS.runVersion() + "/gridss.jar "
                 + "gridss.AnnotateInsertedSequence "
                 + "REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa "
                 + "INPUT=/data/output/tumor.gridss.driver.vcf.gz " + "OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz "

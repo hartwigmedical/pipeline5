@@ -13,8 +13,13 @@ export PATH="/root/.pyenv/versions/${3}/bin:$PATH"
 python -m venv /opt/tools/${1}/${2}_venv
 source /opt/tools/${1}/${2}_venv/bin/activate
 pip install --upgrade pip
-grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do 
-  pip install $l
-done
+if [[ -f /opt/tools/${1}/${2}/requirements.txt ]]; then
+  grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do
+    pip install $l
+  done
+else
+  pip install /opt/tools/${1}/${2}
+fi
 deactivate
 echo Environment created in /opt/tools/${1}/${2}_venv
+

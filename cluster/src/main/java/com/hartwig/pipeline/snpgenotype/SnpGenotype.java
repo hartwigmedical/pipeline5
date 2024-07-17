@@ -6,16 +6,19 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.BashStartupScript;
+import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
@@ -25,8 +28,6 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 
 @Namespace(SnpGenotype.NAMESPACE)
 public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
@@ -36,13 +37,13 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload bamDownload;
-    private final InputDownload baiDownload;
+    private final InputDownloadCommand bamDownload;
+    private final InputDownloadCommand baiDownload;
 
     public SnpGenotype(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
         this.resourceFiles = resourceFiles;
-        this.bamDownload = new InputDownload(alignmentOutput.alignments());
-        this.baiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
+        this.bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
+        this.baiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
     }
 
     @Override
@@ -79,7 +80,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.snpGenotyping(bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.snpGenotyping(bash, resultsDirectory);
     }
 
     @Override

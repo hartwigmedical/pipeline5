@@ -2,8 +2,8 @@ package com.hartwig.pipeline.tertiary.cuppa;
 
 import java.util.Optional;
 
+import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -22,11 +22,9 @@ public interface CuppaOutput extends StageOutput {
 
     default CuppaOutputLocations cuppaOutputLocations() {
         return maybeCuppaOutputLocations().orElse(CuppaOutputLocations.builder()
-                .conclusionTxt(GoogleStorageLocation.empty())
-                .conclusionChart(GoogleStorageLocation.empty())
-                .featurePlot(GoogleStorageLocation.empty())
-                .resultCsv(GoogleStorageLocation.empty())
-                .summaryChartPng(GoogleStorageLocation.empty())
+                .visData(GoogleStorageLocation.empty())
+                .visPlot(GoogleStorageLocation.empty())
+                .predSumm(GoogleStorageLocation.empty())
                 .build());
     }
 }

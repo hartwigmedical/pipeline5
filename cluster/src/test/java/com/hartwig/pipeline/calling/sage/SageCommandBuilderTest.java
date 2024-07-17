@@ -8,8 +8,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class SageCommandBuilderTest {
                     + "-coverage_bed /opt/resources/sage/37/CoverageCodingPanel.37.bed.gz "
                     + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
                     + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-write_bqr_data -write_bqr_plot "
-                    + "-out /data/output/COLO829v003R.out.vcf.gz " + "-threads $(grep -c '^processor' /proc/cpuinfo)";
+                    + "-output_vcf /data/output/COLO829v003R.out.vcf.gz " + "-threads $(grep -c '^processor' /proc/cpuinfo)";
     public static final String EMPTY = "";
 
     @Test

@@ -20,12 +20,13 @@
 # `R_LIBS_USER` because it complicates all R client programs.
 
 install.packages("BiocManager")
-install.packages("devtools")
 library(BiocManager)
-library(devtools)
 
 install.packages("dplyr")
 install.packages("ggplot2", update = T, ask = F)
+install.packages("patchwork", update = T, ask = F)
+install.packages("ggh4x", update = T, ask = F)
+install.packages("stringr", update = T, ask = F)
 install.packages("magick", update = T, ask = F)
 install.packages("VariantAnnotation", update = T, ask = F)
 install.packages("copynumber", update = T, ask = F)

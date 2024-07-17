@@ -2,41 +2,40 @@ package com.hartwig.pipeline.tools;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 
-    AMBER("3.9", 32, 64, 16, false),
-    BAM_TOOLS("1.1", 16, 24, 16, false),
+    AMBER("4.0", 20, 24, 16, false),
+    BAM_TOOLS("1.2", 16, 24, 16, false),
     CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
-    COBALT("1.15.2", 20, 24, 16, false),
-    CUPPA("1.8.1", Defaults.JAVA_HEAP, 16, 4, false),
-    GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 24, false),
-    GRIPSS("2.3.5", 16, 24, 4, false),
+    CIDER("1.0.3", 16, 24, 4, false),
+    COBALT("1.16", 20, 24, 16, false),
+    CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
+    GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
+    GRIPSS("2.4", 16, 24, 4, false),
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
-    LILAC("1.5.2", 16, 24, 8, false),
-    LINX("1.24.1", 8, 12, 4, false),
-    MARK_DUPS("1.0", 16, 24, 16, false),
-    ORANGE("2.6.1", 16, 18, 4, false),
-    PAVE("1.5.1", 16, 24, 4, false),
+    LILAC("1.6", 32, 40, 8, false),
+    LINX("1.25", 8, 12, 4, false),
+    MARK_DUPS("1.1.4", 64, 120, 24, false),
+    ORANGE("3.3.1", 16, 18, 4, false),
+    PAVE("1.6", 30, 40, 8, false),
     PEACH("1.7", 1, 4, 2, false),
-    PURPLE("3.9.2", 31, 39, 6, false),
-    SAGE("3.3"),
-    SIGS("1.1", Defaults.JAVA_HEAP, 16, 4, false),
-    SV_PREP("1.2", 48, 64, 24, false),
-    VIRUSBREAKEND_GRIDSS("2.13.2", Defaults.JAVA_HEAP, 64, 12, false),
+    PURPLE("4.0", 30, 40, 8, false),
+    SAGE("3.4", 48, 64, 24, false),
+    SIGS("1.2", Defaults.JAVA_HEAP, 16, 4, false),
+    SV_PREP("1.2.3", 48, 64, 24, false),
+    TEAL("1.2.2", 30, 32, 16, false),
+    VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
 
+    private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
     private final String toolName;
     private final String version;
     private final int maxHeap;
     private final int memoryGb;
     private final int cpus;
     private final boolean usePilot;
-
-    HmfTool(final String version) {
-        this(version, Defaults.JAVA_HEAP, Defaults.MEMORY, Defaults.CORES, false);
-    }
 
     HmfTool(final String version, final int maxHeap, final int memoryGb, final int cpus, final boolean usePilot) {
         toolName = this.toString().toLowerCase().replace('_', '-');
@@ -51,8 +50,12 @@ public enum HmfTool {
         return toolName;
     }
 
-    public String getVersion() {
-        return version;
+    public String runVersion() {
+        return usePilot ? PILOT_VERSION : version;
+    }
+
+    public String versionInfo() {
+        return usePilot ? format("%s, using pilot", version) : version;
     }
 
     public int getMaxHeap() {
@@ -65,10 +68,6 @@ public enum HmfTool {
 
     public int getCpus() {
         return cpus;
-    }
-
-    public String runVersion() {
-        return usePilot ? Defaults.PILOT_VERSION : version;
     }
 
     public String directory() {
@@ -88,7 +87,6 @@ public enum HmfTool {
     }
 
     private static final class Defaults {
-        public static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
         private static final int CORES = 1;
         private static final int JAVA_HEAP = 4;
         private static final int MEMORY = 8;

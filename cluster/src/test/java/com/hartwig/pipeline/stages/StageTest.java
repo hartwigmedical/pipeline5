@@ -18,15 +18,15 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.storage.ResultsDirectory;
+import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.input.RunMetadata;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -75,6 +75,14 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
                 .stream()
                 .map(BashCommand::asBash)
                 .collect(Collectors.toList())).isEqualTo(commands(expectedCommands()));
+    }
+
+    @Test
+    public void declaredExpectedTumorOnlyCommands() {
+        if (!expectedTumorOnlyCommands().isEmpty()) {
+            assertThat(victim.tumorOnlyCommands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(
+                    commands(expectedTumorOnlyCommands()));
+        }
     }
 
     @Test
@@ -172,6 +180,10 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected abstract String expectedRuntimeBucketName();
 
     protected abstract List<String> expectedCommands();
+
+    protected List<String> expectedTumorOnlyCommands() {
+        return Collections.emptyList();
+    }
 
     protected List<String> expectedReferenceOnlyCommands() {
         return Collections.emptyList();
