@@ -88,7 +88,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownloadCommand peachGenotypeTsv;
     private final InputDownloadCommand sigsAllocationTsv;
     private final InputDownloadCommand annotatedVirusTsv;
-
     private final boolean includeGermline;
     private final boolean isTargeted;
 
