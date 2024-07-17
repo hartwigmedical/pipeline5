@@ -219,10 +219,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor " + "-primary_tumor_doids \"01;02\" "
-                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
-                + "-sampling_date 230519 " + "-reference_sample_id reference "
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor "
+                + "-primary_tumor_doids \"01;02\" " + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                + "-tumor_sample_flagstat_file /data/input/tumor.flagstat " + "-linx_plot_dir /data/input/linx/plot "
+                + "-linx_dir /data/input/linx " + "-sage_dir /data/input " + "-sampling_date 230519 " + "-reference_sample_id reference "
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
@@ -239,10 +239,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor " + "-primary_tumor_doids \"01;02\" "
-                + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics " + "-tumor_sample_flagstat_file /data/input/tumor.flagstat "
-                + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
-                + "-sampling_date 230519";
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ " + "-add_disclaimer " + "-tumor_sample_id tumor "
+                + "-primary_tumor_doids \"01;02\" " + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
+                + "-tumor_sample_flagstat_file /data/input/tumor.flagstat " + "-linx_plot_dir /data/input/linx/plot "
+                + "-linx_dir /data/input/linx " + "-sage_dir /data/input " + "-sampling_date 230519";
 
         return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.34' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
