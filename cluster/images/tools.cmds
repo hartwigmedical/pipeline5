@@ -29,8 +29,6 @@ sudo tar xvf /opt/tools/R/rlibs.tar -C /
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
-sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
-sudo tar xvf /opt/tools/samtools/1.9/samtools.tar.gz -C /opt/tools/samtools/1.9/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
@@ -49,13 +47,10 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/gridsstools
 sudo chmod a+x /opt/tools/gridss/2.13.2/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
-sudo chmod a+x /opt/tools/sv-prep/1.1/gridss.run.sh
 sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
 
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
-sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo chmod a+x /opt/tools/rmblast/2.10.0/rmblastn
 sudo chmod a+x /opt/tools/trf/4.0.9/trf
-sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
