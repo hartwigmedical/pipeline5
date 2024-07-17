@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -70,7 +69,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload peachGenotypeTsv;
     private final InputDownload sigsAllocationTsv;
     private final InputDownload annotatedVirusTsv;
-    private final Pipeline.Context context;
     private final boolean includeGermline;
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
@@ -78,14 +76,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline) {
+            final ResourceFiles resourceFiles, final boolean includeGermline) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
         this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
         this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
         this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
-        this.context = context;
         this.includeGermline = includeGermline;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);

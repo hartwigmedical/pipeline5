@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -30,10 +29,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected Stage<OrangeOutput, SomaticRunMetadata> createVictim() {
-        return constructOrange(Pipeline.Context.DIAGNOSTIC, true);
+        return constructOrange(true);
     }
 
-    private Orange constructOrange(final Pipeline.Context context, final boolean includeGermline) {
+    private Orange constructOrange(final boolean includeGermline) {
         return new Orange(TestInputs.tumorMetricsOutput(),
                 TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorFlagstatOutput(),
@@ -50,7 +49,6 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                context,
                 includeGermline);
     }
 
@@ -117,14 +115,14 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Test
     public void shouldAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
+        Orange victim = constructOrange(false);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeCommand(victim).asBash()).contains("-convert_germline_to_somatic");
     }
 
     @Test
     public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
+        Orange victim = constructOrange(false);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 

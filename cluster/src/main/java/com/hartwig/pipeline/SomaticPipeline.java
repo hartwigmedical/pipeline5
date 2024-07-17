@@ -221,7 +221,6 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles,
-                                        arguments.context(),
                                         true)));
                         Future<OrangeOutput> orangeNoGermlineFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
@@ -240,7 +239,6 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles,
-                                        arguments.context(),
                                         false)));
                         composer.add(state.add(orangeOutputFuture.get()));
                         composer.add(state.add(orangeNoGermlineFuture.get()));
