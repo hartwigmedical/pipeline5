@@ -18,6 +18,10 @@
     <dependencies>
         <dependency>
             <groupId>com.hartwig.events</groupId>
+            <artifactId>events-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hartwig.events</groupId>
             <artifactId>events-pipeline</artifactId>
         </dependency>
         <dependency>
