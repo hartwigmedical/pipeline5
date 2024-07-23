@@ -5,6 +5,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
+import com.hartwig.pipeline.calling.structural.esvee.Esvee;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -47,7 +48,7 @@ public class StartingPoint {
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageConfiguration.SAGE_SOMATIC_NAMESPACE,
                         GermlineCaller.NAMESPACE,
-                        Gridss.NAMESPACE,
+                        Esvee.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE,
