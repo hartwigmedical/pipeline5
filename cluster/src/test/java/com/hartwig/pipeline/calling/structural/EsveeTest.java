@@ -19,20 +19,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
-import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
+import com.hartwig.pipeline.calling.structural.esvee.Esvee;
+import com.hartwig.pipeline.calling.structural.esvee.EsveeOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
-public class EsveeTest extends StageTest<GridssOutput, SomaticRunMetadata> {
-    private static final String TUMOR_GRIDSS_UNFILTERED_VCF_GZ = "tumor.gridss.unfiltered.vcf.gz";
-    private static final String GRIDSS = "gridss/";
+public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
+    private static final String TUMOR_ESVEE_UNFILTERED_VCF_GZ = "tumor.esvee.unfiltered.vcf.gz";
+    private static final String ESVEE_DIR = "esvee/";
 
     @Override
     @Before
@@ -57,18 +56,18 @@ public class EsveeTest extends StageTest<GridssOutput, SomaticRunMetadata> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIDSS, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ);
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final GridssOutput output) {
-        assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
+    protected void validatePersistedOutputFromPersistedDataset(final EsveeOutput output) {
+        assertThat(output.unfilteredVcfFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
     }
 
     @Override
-    protected void validatePersistedOutput(final GridssOutput output) {
-        assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/gridss/" + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
+    protected void validatePersistedOutput(final EsveeOutput output) {
+        assertThat(output.unfilteredVcfFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/esvee/" + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
     }
 
     @Override
@@ -77,8 +76,8 @@ public class EsveeTest extends StageTest<GridssOutput, SomaticRunMetadata> {
     }
 
     @Override
-    protected Stage<GridssOutput, SomaticRunMetadata> createVictim() {
-        return new Gridss(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+    protected Stage<EsveeOutput, SomaticRunMetadata> createVictim() {
+        return new Esvee(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -153,26 +152,13 @@ public class EsveeTest extends StageTest<GridssOutput, SomaticRunMetadata> {
                         + " -output_dir /data/output"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );
-
-
-        expectedCommands.add("java -Xmx8G -Dsamjdk.create_index=true "
-                + "-Dsamjdk.use_async_io_read_samtools=true "
-                + "-Dsamjdk"
-                + ".use_async_io_write_samtools=true "
-                + "-Dsamjdk.use_async_io_write_tribble=true "
-                + "-Dsamjdk.buffer_size=4194304 "
-                + "-cp /opt/tools/gridss/" + HmfTool.GRIDSS.runVersion() + "/gridss.jar "
-                + "gridss.AnnotateInsertedSequence "
-                + "REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa "
-                + "INPUT=/data/output/tumor.gridss.driver.vcf.gz " + "OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz "
-                + "ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
         // @formatter:on
 
         return expectedCommands;
     }
 
     @Override
-    protected void validateOutput(final GridssOutput output) {
+    protected void validateOutput(final EsveeOutput output) {
         // no further validation yet
     }
 
