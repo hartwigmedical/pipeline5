@@ -30,7 +30,7 @@ import com.hartwig.pipeline.tools.HmfTool;
 
 import org.junit.Before;
 
-public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
+public class EsveeTest extends StageTest<GridssOutput, SomaticRunMetadata> {
     private static final String TUMOR_GRIDSS_UNFILTERED_VCF_GZ = "tumor.gridss.unfiltered.vcf.gz";
     private static final String GRIDSS = "gridss/";
 
