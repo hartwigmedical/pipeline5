@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.structural.gridss.GridssAnnotation;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
