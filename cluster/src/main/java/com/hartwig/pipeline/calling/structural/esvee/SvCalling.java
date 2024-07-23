@@ -45,7 +45,7 @@ public class SvCalling extends SubStage {
     }
 
     public SvCalling(final ResourceFiles resourceFiles) {
-        super("gridss.driver", FileTypes.GZIPPED_VCF);
+        super("esvee", FileTypes.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
     }
 
