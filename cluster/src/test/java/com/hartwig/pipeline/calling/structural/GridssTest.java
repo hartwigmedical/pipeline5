@@ -2,12 +2,14 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.GRIDSS_SCRIPT;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_DEPTH_ANNOTATION;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.ASSEMBLE_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.CALLER_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_CLASS_PATH;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.SV_PREP;
+import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -101,73 +103,57 @@ public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
     protected List<String> expectedCommands() {
         List<String> expectedCommands = Lists.newArrayList();
 
-        expectedCommands.add("export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"");
-        expectedCommands.add("export PATH=\"${PATH}:/opt/tools/samtools/1.14\"");
-
         // @formatter:off
         expectedCommands.add(
-                toolCommand(SV_PREP)
-                + " -sample tumor "
-                + "-bam_file /data/input/tumor.bam "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
-                + "-known_fusion_bed /opt/resources/fusions/37/known_fusions.37.bedpe "
-                + "-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\" "
-                + "-output_dir /data/output "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
-
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools sort "
-                + "-@ $(grep -c '^processor' /proc/cpuinfo) -m 2G -T tmp "
-                + "-O bam /data/output/tumor.sv_prep.bam "
-                + "-o /data/output/tumor.sv_prep.sorted.bam");
-
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools index "
-                + "-@ $(grep -c '^processor' /proc/cpuinfo) /data/output/tumor.sv_prep.sorted.bam");
+                toolCommand(ESVEE, SV_PREP_CLASS_PATH)
+                        + " -sample reference,tumor"
+                        + " -bam_files /data/input/reference.bam,/data/input/tumor.bam"
+                        + " -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed"
+                        + " -known_fusion_bed /opt/resources/fusions/37/known_fusions.37.bedpe"
+                        + " -bamtool /opt/tools/sambamba/0.6.8/sambamba"
+                        + " -write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\""
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -output_dir /data/output"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+        );
 
         expectedCommands.add(
-                toolCommand(SV_PREP)
-                + " -sample reference "
-                + "-bam_file /data/input/reference.bam "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed "
-                + "-known_fusion_bed /opt/resources/fusions/37/known_fusions.37.bedpe "
-                + "-existing_junction_file /data/output/tumor.sv_prep.junctions.tsv "
-                + "-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\" "
-                + "-output_dir /data/output "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
-
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools sort "
-                + "-@ $(grep -c '^processor' /proc/cpuinfo) -m 2G -T tmp "
-                + "-O bam /data/output/reference.sv_prep.bam "
-                + "-o /data/output/reference.sv_prep.sorted.bam");
-
-        expectedCommands.add("/opt/tools/samtools/1.14/samtools index "
-                + "-@ $(grep -c '^processor' /proc/cpuinfo) /data/output/reference.sv_prep.sorted.bam");
+                toolCommand(ESVEE, ASSEMBLE_CLASS_PATH)
+                        + " -tumor tumor"
+                        + " -tumor_bam /data/output/tumor.esvee.prep.bam"
+                        + " -reference reference"
+                        + " -reference_bam /data/output/reference.esvee.prep.bam"
+                        + " -junction_files /data/output/tumor.esvee.prep.junctions.tsv"
+                        + " -write_types \"JUNC_ASSEMBLY;ALIGNMENT;ALIGNMENT_DATA;BREAKEND;VCF\""
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -output_dir /data/output"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+        );
 
         expectedCommands.add(
-                format("/opt/tools/%s/%s/%s --steps all", SV_PREP.directory(), SV_PREP.runVersion(), GRIDSS_SCRIPT)
-                + " --output /data/output/tumor.gridss.vcf.gz "
-                + "--workingdir /data/output "
-                + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "--jar /opt/tools/gridss/" + HmfTool.GRIDSS.runVersion() + "/gridss.jar "
-                + "--blacklist /opt/resources/gridss/37/gridss_blacklist.37.bed.gz "
-                + "--configuration /opt/resources/gridss/gridss.properties "
-                + "--labels reference,tumor "
-                + "--bams /data/input/reference.bam,/data/input/tumor.bam "
-                + "--filtered_bams /data/output/reference.sv_prep.sorted.bam,/data/output/tumor.sv_prep.sorted.bam "
-                + "--jvmheap 48G --threads 10");
+                toolCommand(ESVEE, DEPTH_ANNOTATOR_CLASS_PATH)
+                        + " -samples reference,tumor"
+                        + " -bam_files /data/input/reference.bam,/data/input/tumor.bam"
+                        + " -input_vcf /data/output/tumor.esvee.raw.vcf.gz"
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -output_dir /data/output"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+        );
 
         expectedCommands.add(
-                toolCommand(SV_PREP, SV_PREP_DEPTH_ANNOTATION)
-                + " -input_vcf /data/output/tumor.gridss.vcf.gz "
-                + "-output_vcf /data/output/tumor.gridss.driver.vcf.gz "
-                + "-samples reference,tumor "
-                + "-bam_files /data/input/reference.bam,/data/input/tumor.bam "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
+                toolCommand(ESVEE, CALLER_CLASS_PATH)
+                        + " -sample tumor"
+                        + " -reference reference"
+                        + " -input_vcf /data/output/tumor.esvee.ref_depth.vcf.gz"
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -output_dir /data/output"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+        );
+
 
         expectedCommands.add("java -Xmx8G -Dsamjdk.create_index=true "
                 + "-Dsamjdk.use_async_io_read_samtools=true "
