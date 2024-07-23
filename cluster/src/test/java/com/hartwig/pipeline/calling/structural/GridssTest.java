@@ -2,10 +2,10 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.ASSEMBLE_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.CALLER_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.gridss.stage.SvCalling.SV_PREP_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ASSEMBLE_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.CALLER_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.SV_PREP_CLASS_PATH;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.stage;
+package com.hartwig.pipeline.calling.structural.esvee;
 
 import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
 import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
@@ -22,9 +22,6 @@ public class SvCalling extends SubStage {
     public static final String ASSEMBLE_CLASS_PATH = "com.hartwig.hmftools.esvee.EsveeApplication";
     public static final String DEPTH_ANNOTATOR_CLASS_PATH = "com.hartwig.hmftools.esvee.depth.DepthAnnotator";
     public static final String CALLER_CLASS_PATH = "com.hartwig.hmftools.esvee.caller.CallerApplication";
-
-    public static final String SV_PREP_DEPTH_ANNOTATION = "com.hartwig.hmftools.svprep.depth.DepthAnnotator";
-    public static final String GRIDSS_SCRIPT = "gridss.run.sh";
 
     private final ResourceFiles resourceFiles;
     private final List<SampleArgument> sampleArguments = new ArrayList<>();
