@@ -1,27 +1,19 @@
 package com.hartwig.pipeline.calling.structural.esvee;
 
-import static java.lang.String.format;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_GERMLINE_VCF;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_SOMATIC_VCF;
+import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_UNFILTERED_VCF;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.unix.ExportPathCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.command.BwaCommand;
-import com.hartwig.pipeline.calling.command.SamtoolsCommand;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.structural.gridss.GridssAnnotation;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
@@ -46,7 +38,6 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private String unfilteredVcf;
 
     public Esvee(final AlignmentPair pair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(pair);
@@ -63,19 +54,22 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        SvCalling svCalling = new SvCalling(resourceFiles).tumorSample(tumorSampleName,
-                tumorBamPath);
-        return esveeCommands(svCalling, tumorSampleName);
+
+        return new SvCalling(resourceFiles)
+                .tumorSample(tumorSampleName, tumorBamPath)
+                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .bash();
     }
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         String referenceSampleName = metadata.reference().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
-        SvCalling svCalling = new SvCalling(resourceFiles).referenceSample(
-                referenceSampleName,
-                refBamPath);
-        return esveeCommands(svCalling, referenceSampleName);
+
+        return new SvCalling(resourceFiles)
+                .referenceSample(referenceSampleName, refBamPath)
+                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .bash();
     }
 
     @Override
@@ -84,52 +78,82 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        return esveeCommands(new SvCalling(resourceFiles).tumorSample(
-                tumorSampleName,
-                tumorBamPath).referenceSample(referenceSampleName, refBamPath), tumorSampleName);
-    }
 
-    private List<BashCommand> esveeCommands(final SvCalling svCalling, final String sampleName) {
-        SubStageInputOutput unfilteredVcfOutput = svCalling.apply(SubStageInputOutput.empty(sampleName));
-        unfilteredVcf = unfilteredVcfOutput.outputFile().path();
-
-        return unfilteredVcfOutput.bash();
-    }
-
-    private static String basename(final String filename) {
-        return new File(filename).getName();
+        return new SvCalling(resourceFiles)
+                .tumorSample(tumorSampleName, tumorBamPath)
+                .referenceSample(referenceSampleName, refBamPath)
+                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .bash();
     }
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinitions.gridds(bash, resultsDirectory);
+        return VirtualMachineJobDefinitions.esvee(bash, resultsDirectory);
+    }
+
+    private static String mainSampleName(SomaticRunMetadata metadata) {
+        return (metadata.maybeTumor().isPresent()) ?
+                metadata.tumor().sampleName() :
+                metadata.reference().sampleName();
+    }
+
+    private static String formSampleOutputFilename(SomaticRunMetadata metadata, String filenameSuffix) {
+        return String.format("%s.%s", mainSampleName(metadata), filenameSuffix);
+    }
+
+    private static GoogleStorageLocation formOutputLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
+            final String filename) {
+        return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filename));
     }
 
     @Override
     public EsveeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return EsveeOutput.builder()
+
+        final ImmutableEsveeOutput.Builder builder = EsveeOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeUnfilteredVcfLocation(resultLocation(bucket, resultsDirectory, unfilteredVcf))
-                .maybeUnfilteredVcfIndexLocation(resultLocation(bucket, resultsDirectory, unfilteredVcf + ".tbi"))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.root(),
-                        basename(unfilteredVcf),
-                        basename(unfilteredVcf),
-                        resultsDirectory))
-                .addReportComponents(new EntireOutputComponent(bucket,
-                        Folder.root(),
-                        NAMESPACE,
-                        resultsDirectory,
-                        s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
+
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_ESVEE,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))))
-                .build();
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory));
+
+
+        String unfilteredVcf = formSampleOutputFilename(metadata, ESVEE_UNFILTERED_VCF);
+        String somaticVcf = formSampleOutputFilename(metadata, ESVEE_SOMATIC_VCF);
+        String germlineVcf = formSampleOutputFilename(metadata, ESVEE_GERMLINE_VCF);
+
+        builder
+                .maybeUnfilteredVcfLocation(formOutputLocation(bucket, resultsDirectory, unfilteredVcf))
+                .maybeUnfilteredVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, unfilteredVcf + FileTypes.TBI))
+                .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), unfilteredVcf, resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE,
+                        metadata.barcode(), new ArchivePath(Folder.root(), namespace(), unfilteredVcf)
+                ));
+
+        if(metadata.maybeTumor().isPresent()) {
+            builder
+                    .maybeSomaticVcfLocation(formOutputLocation(bucket, resultsDirectory, somaticVcf))
+                    .maybeSomaticVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, somaticVcf + FileTypes.TBI))
+                    .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), somaticVcf, resultsDirectory))
+                    .addDatatypes(new AddDatatype(
+                            DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE,
+                            metadata.barcode(), new ArchivePath(Folder.root(), namespace(), somaticVcf)
+                    ));
+        }
+
+        if(metadata.maybeReference().isPresent()) {
+            builder
+                    .maybeGermlineVcfLocation(formOutputLocation(bucket, resultsDirectory, germlineVcf))
+                    .maybeGermlineVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, germlineVcf + FileTypes.TBI))
+                    .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), germlineVcf, resultsDirectory))
+                    .addDatatypes(new AddDatatype(
+                            DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE,
+                            metadata.barcode(), new ArchivePath(Folder.root(), namespace(), germlineVcf)
+                    ));
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -137,32 +161,45 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         return EsveeOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
+    private GoogleStorageLocation formPersistedOutputLocation(final SomaticRunMetadata metadata, DataType dataType, String filenameSuffix) {
+
+        return persistedDataset.path(mainSampleName(metadata), dataType)
+                .orElse(GoogleStorageLocation.of(
+                        metadata.bucket(),
+                        PersistedLocations.blobForSet(
+                                metadata.set(),
+                                namespace(),
+                                formSampleOutputFilename(metadata, filenameSuffix)
+                        )
+                ));
+    }
+
     @Override
     public EsveeOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        GoogleStorageLocation unfilteredVcfLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_ESVEE)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(),
-                                        namespace(),
-                                        format("%s.%s.%s",
-                                                metadata.tumor().sampleName(),
-                                                "esvee.unfiltered",
-                                                FileTypes.GZIPPED_VCF))));
-
-        return EsveeOutput.builder()
+        final ImmutableEsveeOutput.Builder builder = EsveeOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcfLocation(unfilteredVcfLocation)
-                .maybeUnfilteredVcfIndexLocation(unfilteredVcfLocation.transform(FileTypes::tabixIndex))
-                .build();
-    }
+                .maybeUnfilteredVcfLocation(formPersistedOutputLocation(
+                        metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF))
+                .maybeUnfilteredVcfIndexLocation(formPersistedOutputLocation(
+                        metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF + FileTypes.TBI));
 
-    private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
-            final String filename) {
-        return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filename)));
-    }
+        if(metadata.maybeTumor().isPresent()) {
+            builder
+                    .maybeSomaticVcfLocation(formPersistedOutputLocation(
+                            metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF))
+                    .maybeSomaticVcfIndexLocation(formPersistedOutputLocation(
+                            metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF + FileTypes.TBI));
+        }
 
-    private static ExportPathCommand exportPathCommandFrom(final VersionedToolCommand command) {
-        return new ExportPathCommand(new File(command.asBash()).getParent());
+        if(metadata.maybeReference().isPresent()) {
+            builder
+                    .maybeGermlineVcfLocation(formPersistedOutputLocation(
+                            metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF))
+                    .maybeGermlineVcfIndexLocation(formPersistedOutputLocation(
+                            metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF + FileTypes.TBI));
+        }
+
+        return builder.build();
     }
 }
