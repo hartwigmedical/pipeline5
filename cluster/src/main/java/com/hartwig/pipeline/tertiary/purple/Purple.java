@@ -17,7 +17,7 @@ import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.calling.structural.esvee.EsveeOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
@@ -68,16 +68,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final Arguments arguments;
 
     public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
-            final GripssOutput gripssSomaticOutput, final GripssOutput gripssGermlineOutput, final AmberOutput amberOutput,
-            final CobaltOutput cobaltOutput, final PersistedDataset persistedDataset, final Arguments arguments) {
+            final EsveeOutput esveeOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
+            final PersistedDataset persistedDataset, final Arguments arguments) {
         this.resourceFiles = resourceFiles;
         this.somaticVcfDownload = new InputDownloadCommand(paveSomaticOutput.annotatedVariants());
         this.germlineVcfDownload = new InputDownloadCommand(paveGermlineOutput.annotatedVariants());
-        this.somaticSvVcfDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants());
-        this.somaticSvVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.filteredVariants().transform(FileTypes::tabixIndex));
-        this.svRecoveryVcfDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(gripssSomaticOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
-        this.germlineSvVcfDownload = new InputDownloadCommand(gripssGermlineOutput.filteredVariants());
+        this.somaticSvVcfDownload = new InputDownloadCommand(esveeOutput.somaticVcf());
+        this.somaticSvVcfIndexDownload = new InputDownloadCommand(esveeOutput.somaticVcf().transform(FileTypes::tabixIndex));
+        this.svRecoveryVcfDownload = new InputDownloadCommand(esveeOutput.unfilteredVcf());
+        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(esveeOutput.unfilteredVcf().transform(FileTypes::tabixIndex));
+        this.germlineSvVcfDownload = new InputDownloadCommand(esveeOutput.germlineVcf());
         this.amberOutputDownload = new InputDownloadCommand(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
