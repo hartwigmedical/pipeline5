@@ -124,8 +124,8 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         String germlineVcf = formSampleOutputFilename(metadata, ESVEE_GERMLINE_VCF);
 
         builder
-                .maybeUnfilteredVcfLocation(formOutputLocation(bucket, resultsDirectory, unfilteredVcf))
-                .maybeUnfilteredVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, unfilteredVcf + FileTypes.TBI))
+                .maybeUnfilteredVcf(formOutputLocation(bucket, resultsDirectory, unfilteredVcf))
+                .maybeUnfilteredVcfIndex(formOutputLocation(bucket, resultsDirectory, unfilteredVcf + FileTypes.TBI))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), unfilteredVcf, resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE,
                         metadata.barcode(), new ArchivePath(Folder.root(), namespace(), unfilteredVcf)
@@ -133,8 +133,8 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         if(metadata.maybeTumor().isPresent()) {
             builder
-                    .maybeSomaticVcfLocation(formOutputLocation(bucket, resultsDirectory, somaticVcf))
-                    .maybeSomaticVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, somaticVcf + FileTypes.TBI))
+                    .maybeSomaticVcf(formOutputLocation(bucket, resultsDirectory, somaticVcf))
+                    .maybeSomaticVcfIndex(formOutputLocation(bucket, resultsDirectory, somaticVcf + FileTypes.TBI))
                     .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), somaticVcf, resultsDirectory))
                     .addDatatypes(new AddDatatype(
                             DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE,
@@ -144,8 +144,8 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         if(metadata.maybeReference().isPresent()) {
             builder
-                    .maybeGermlineVcfLocation(formOutputLocation(bucket, resultsDirectory, germlineVcf))
-                    .maybeGermlineVcfIndexLocation(formOutputLocation(bucket, resultsDirectory, germlineVcf + FileTypes.TBI))
+                    .maybeGermlineVcf(formOutputLocation(bucket, resultsDirectory, germlineVcf))
+                    .maybeGermlineVcfIndex(formOutputLocation(bucket, resultsDirectory, germlineVcf + FileTypes.TBI))
                     .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), germlineVcf, resultsDirectory))
                     .addDatatypes(new AddDatatype(
                             DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE,
@@ -179,24 +179,24 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         final ImmutableEsveeOutput.Builder builder = EsveeOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcfLocation(formPersistedOutputLocation(
+                .maybeUnfilteredVcf(formPersistedOutputLocation(
                         metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF))
-                .maybeUnfilteredVcfIndexLocation(formPersistedOutputLocation(
+                .maybeUnfilteredVcfIndex(formPersistedOutputLocation(
                         metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF + FileTypes.TBI));
 
         if(metadata.maybeTumor().isPresent()) {
             builder
-                    .maybeSomaticVcfLocation(formPersistedOutputLocation(
+                    .maybeSomaticVcf(formPersistedOutputLocation(
                             metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF))
-                    .maybeSomaticVcfIndexLocation(formPersistedOutputLocation(
+                    .maybeSomaticVcfIndex(formPersistedOutputLocation(
                             metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF + FileTypes.TBI));
         }
 
         if(metadata.maybeReference().isPresent()) {
             builder
-                    .maybeGermlineVcfLocation(formPersistedOutputLocation(
+                    .maybeGermlineVcf(formPersistedOutputLocation(
                             metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF))
-                    .maybeGermlineVcfIndexLocation(formPersistedOutputLocation(
+                    .maybeGermlineVcfIndex(formPersistedOutputLocation(
                             metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF + FileTypes.TBI));
         }
 

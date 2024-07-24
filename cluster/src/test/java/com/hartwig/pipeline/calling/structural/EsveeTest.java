@@ -61,12 +61,12 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final EsveeOutput output) {
-        assertThat(output.unfilteredVcfFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
+        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
     }
 
     @Override
     protected void validatePersistedOutput(final EsveeOutput output) {
-        assertThat(output.unfilteredVcfFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/esvee/" + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
     }
 

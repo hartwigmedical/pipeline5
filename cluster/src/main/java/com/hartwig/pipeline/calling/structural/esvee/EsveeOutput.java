@@ -15,28 +15,28 @@ public interface EsveeOutput extends StageOutput {
         return Esvee.NAMESPACE;
     }
 
-    Optional<GoogleStorageLocation> maybeUnfilteredVcfLocation();
+    Optional<GoogleStorageLocation> maybeUnfilteredVcf();
 
-    Optional<GoogleStorageLocation> maybeUnfilteredVcfIndexLocation();
+    Optional<GoogleStorageLocation> maybeUnfilteredVcfIndex();
 
-    Optional<GoogleStorageLocation> maybeSomaticVcfLocation();
+    Optional<GoogleStorageLocation> maybeSomaticVcf();
 
-    Optional<GoogleStorageLocation> maybeSomaticVcfIndexLocation();
+    Optional<GoogleStorageLocation> maybeSomaticVcfIndex();
 
-    Optional<GoogleStorageLocation> maybeGermlineVcfLocation();
+    Optional<GoogleStorageLocation> maybeGermlineVcf();
 
-    Optional<GoogleStorageLocation> maybeGermlineVcfIndexLocation();
+    Optional<GoogleStorageLocation> maybeGermlineVcfIndex();
 
-    default GoogleStorageLocation unfilteredVcfFile() {
-        return maybeUnfilteredVcfLocation().orElse(GoogleStorageLocation.empty());
+    default GoogleStorageLocation unfilteredVcf() {
+        return maybeUnfilteredVcf().orElse(GoogleStorageLocation.empty());
     }
 
-    default GoogleStorageLocation somaticVcfFile() {
-        return maybeSomaticVcfLocation().orElse(GoogleStorageLocation.empty());
+    default GoogleStorageLocation somaticVcf() {
+        return maybeSomaticVcf().orElse(GoogleStorageLocation.empty());
     }
 
-    default GoogleStorageLocation germlineVcfFile() {
-        return maybeGermlineVcfLocation().orElse(GoogleStorageLocation.empty());
+    default GoogleStorageLocation germlineVcf() {
+        return maybeGermlineVcf().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableEsveeOutput.Builder builder() {
