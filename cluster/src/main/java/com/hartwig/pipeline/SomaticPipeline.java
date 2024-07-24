@@ -4,11 +4,8 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
-import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
+import com.hartwig.pipeline.calling.structural.esvee.Esvee;
+import com.hartwig.pipeline.calling.structural.esvee.EsveeOutput;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -111,8 +108,8 @@ public class SomaticPipeline {
                     new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments)));
             Future<SageOutput> sageGermlineOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, persistedDataset, resourceFiles)));
-            Future<GridssOutput> structuralCallerOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new Gridss(pair, resourceFiles, persistedDataset)));
+            Future<EsveeOutput> EsveeOutputFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new Esvee(pair, resourceFiles, persistedDataset)));
             Future<VirusBreakendOutput> virusBreakendOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles, persistedDataset)));
 
@@ -126,7 +123,7 @@ public class SomaticPipeline {
             CobaltOutput cobaltOutput = composer.add(state.add(cobaltOutputFuture.get()));
             composer.add(state.add(ciderOutputFuture.get())); // output is unused
 
-            GridssOutput structuralCallerOutput = composer.add(state.add(structuralCallerOutputFuture.get()));
+            EsveeOutput esveeOutput = composer.add(state.add(EsveeOutputFuture.get()));
 
             if (state.shouldProceed()) {
                 Future<PaveOutput> paveSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -134,23 +131,15 @@ public class SomaticPipeline {
                 Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
 
-                Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles, arguments)));
-                Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
-
                 PaveOutput paveSomaticOutput = composer.add(state.add(paveSomaticOutputFuture.get()));
                 PaveOutput paveGermlineOutput = composer.add(state.add(paveGermlineOutputFuture.get()));
-                GripssOutput gripssSomaticProcessOutput = composer.add(state.add(gripssSomaticOutputFuture.get()));
-                GripssOutput gripssGermlineProcessOutput = composer.add(state.add(gripssGermlineOutputFuture.get()));
 
                 if (state.shouldProceed()) {
                     PurpleOutput purpleOutput = executorService.submit(() -> composer.add(state.add(stageRunner.run(metadata,
                             new Purple(resourceFiles,
                                     paveSomaticOutput,
                                     paveGermlineOutput,
-                                    metadata.maybeTumor().map(t -> gripssSomaticProcessOutput).orElse(gripssGermlineProcessOutput),
-                                    gripssGermlineProcessOutput,
+                                    esveeOutput,
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
