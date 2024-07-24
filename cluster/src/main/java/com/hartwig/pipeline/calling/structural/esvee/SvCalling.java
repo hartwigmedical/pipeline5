@@ -23,6 +23,10 @@ public class SvCalling extends SubStage {
     public static final String DEPTH_ANNOTATOR_CLASS_PATH = "com.hartwig.hmftools.esvee.depth.DepthAnnotator";
     public static final String CALLER_CLASS_PATH = "com.hartwig.hmftools.esvee.caller.CallerApplication";
 
+    public static final String ESVEE_UNFILTERED_VCF = "esvee.unfiltered.vcf.gz";
+    public static final String ESVEE_SOMATIC_VCF = "esvee.somatic.vcf.gz";
+    public static final String ESVEE_GERMLINE_VCF = "esvee.germline.vcf.gz";
+
     private final ResourceFiles resourceFiles;
     private final List<SampleArgument> sampleArguments = new ArrayList<>();
 
@@ -147,8 +151,11 @@ public class SvCalling extends SubStage {
         arguments.add(String.format("-junction_files %s", junctionsFile()));
         arguments.add("-write_types \"JUNC_ASSEMBLY;ALIGNMENT;ALIGNMENT_DATA;BREAKEND;VCF\"");
 
-        // TODO: add decoy genome arg
-        // arguments.add(String.format("-decoy_genome %s", ));
+        // TODO: add decoy genome to resources
+        // if(resourceFiles.version().equals(RefGenomeVersion.V37))
+        // {
+        //     arguments.add(String.format("-decoy_genome %s", resourceFiles.decoyGenome()));
+        // }
 
         arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
