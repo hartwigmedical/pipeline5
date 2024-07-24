@@ -21,6 +21,8 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
+import com.hartwig.pipeline.calling.structural.esvee.Esvee;
+import com.hartwig.pipeline.calling.structural.esvee.EsveeOutput;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
@@ -285,6 +287,27 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static EsveeOutput esveeOutput() {
+        String unfiltered = ".esvee.unfiltered.";
+        String somatic = ".esvee.somatic.";
+        String germline = ".esvee.germline.";
+        return EsveeOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF))
+                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF + FileTypes.TBI))
+                .maybeSomaticVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + somatic + FileTypes.GZIPPED_VCF))
+                .maybeSomaticVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + somatic + FileTypes.GZIPPED_VCF + FileTypes.TBI))
+                .maybeGermlineVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + germline + FileTypes.GZIPPED_VCF))
+                .maybeGermlineVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + germline + FileTypes.GZIPPED_VCF + FileTypes.TBI))
                 .build();
     }
 
