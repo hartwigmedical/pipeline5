@@ -7,6 +7,7 @@ import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 import static com.hartwig.pipeline.tools.HmfTool.CIDER;
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
+import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
@@ -26,6 +27,7 @@ import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
+import com.hartwig.pipeline.calling.structural.esvee.Esvee;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -96,6 +98,16 @@ public final class VirtualMachineJobDefinitions {
                 .name(SageConfiguration.SAGE_GERMLINE_NAMESPACE.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(SAGE.getCpus(), SAGE.getMemoryGb()))
+                .startupCommand(startupScript)
+                .build();
+    }
+
+    public static VirtualMachineJobDefinition esvee(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.builder()
+                .imageFamily(STANDARD_IMAGE)
+                .name(Esvee.NAMESPACE)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(ESVEE.getCpus(), ESVEE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
