@@ -1,15 +1,5 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.events.pipeline.Pipeline;
@@ -21,8 +11,15 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
@@ -247,7 +244,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.37' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
@@ -265,7 +262,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
                 + "-sampling_date 230519";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.37' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
