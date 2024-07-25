@@ -8,8 +8,6 @@ import static com.hartwig.pipeline.tools.HmfTool.CIDER;
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
 import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
-import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
@@ -29,7 +27,6 @@ import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.esvee.Esvee;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
@@ -109,27 +106,6 @@ public final class VirtualMachineJobDefinitions {
                 .name(Esvee.NAMESPACE)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(ESVEE.getCpus(), ESVEE.getMemoryGb()))
-                .startupCommand(startupScript)
-                .build();
-    }
-
-    public static VirtualMachineJobDefinition gridds(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(STANDARD_IMAGE)
-                .name(Gridss.NAMESPACE)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
-                .startupCommand(startupScript)
-                .build();
-    }
-
-    public static VirtualMachineJobDefinition gripss(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
-            final String namespace) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(STANDARD_IMAGE)
-                .name(namespace.replace("_", "-"))
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIPSS.getCpus(), GRIPSS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
