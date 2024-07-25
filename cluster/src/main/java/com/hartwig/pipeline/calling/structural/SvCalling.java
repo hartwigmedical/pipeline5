@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.esvee;
+package com.hartwig.pipeline.calling.structural;
 
 import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
 import static com.hartwig.pipeline.tools.HmfTool.ESVEE;

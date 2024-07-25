@@ -2,10 +2,10 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ASSEMBLE_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.CALLER_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.SV_PREP_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ASSEMBLE_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.SvCalling.CALLER_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.SvCalling.SV_PREP_CLASS_PATH;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
@@ -19,8 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.calling.structural.esvee.Esvee;
-import com.hartwig.pipeline.calling.structural.esvee.EsveeOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;

@@ -1,8 +1,8 @@
-package com.hartwig.pipeline.calling.structural.esvee;
+package com.hartwig.pipeline.calling.structural;
 
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_GERMLINE_VCF;
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_SOMATIC_VCF;
-import static com.hartwig.pipeline.calling.structural.esvee.SvCalling.ESVEE_UNFILTERED_VCF;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_GERMLINE_VCF;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_SOMATIC_VCF;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_UNFILTERED_VCF;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.structural.ImmutableEsveeOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;

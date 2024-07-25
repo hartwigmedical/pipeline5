@@ -26,7 +26,7 @@ import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.calling.structural.esvee.Esvee;
+import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
