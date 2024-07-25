@@ -20,6 +20,7 @@ import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
@@ -172,7 +173,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(VirusBreakend.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
+                .performanceProfile(custom(VIRUSBREAKEND_GRIDSS.getCpus(), VIRUSBREAKEND_GRIDSS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
