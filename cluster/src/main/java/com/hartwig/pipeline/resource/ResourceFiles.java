@@ -1,7 +1,8 @@
 package com.hartwig.pipeline.resource;
 
+import com.hartwig.computeengine.execution.vm.VmDirectories;
+
 import static com.hartwig.pipeline.resource.ResourceNames.BLAST_DB;
-import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
@@ -10,8 +11,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
-
-import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public interface ResourceFiles {
 
@@ -96,8 +95,16 @@ public interface ResourceFiles {
         return of(DISEASE_ONTOLOGY, "doid.json");
     }
 
+    default String signaturesEtiologyTsv() {
+        return of(SIGS, "signatures_etiology.tsv");
+    }
+
     default String snvSignatures() {
         return of(SIGS, "snv_cosmic_signatures.csv");
+    }
+
+    default String virusInterpreterBlacklistingDb() {
+        return of(VIRUS_INTERPRETER, "virus_blacklisting_db.tsv");
     }
 
     default String virusInterpreterTaxonomyDb() {
@@ -131,4 +138,5 @@ public interface ResourceFiles {
     default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }
+
 }

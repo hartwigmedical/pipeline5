@@ -1,9 +1,5 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
-
-import java.util.List;
-
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
@@ -31,6 +27,9 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import java.util.List;
+
+import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 @Namespace(VirusInterpreter.NAMESPACE)
 public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
@@ -139,6 +138,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                         resourceFiles.virusInterpreterTaxonomyDb(),
                         "-virus_reporting_db_tsv",
                         resourceFiles.virusReportingDb(),
+                        "-virus_blacklisting_db_tsv",
+                        resourceFiles.virusInterpreterBlacklistingDb(),
                         "-output_dir",
                         VmDirectories.OUTPUT)));
     }

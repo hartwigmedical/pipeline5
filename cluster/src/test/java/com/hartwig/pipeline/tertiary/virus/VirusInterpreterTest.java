@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.tertiary.virus;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-import java.util.Optional;
-
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -19,8 +11,13 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.HmfTool;
-
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutput> {
 
@@ -89,6 +86,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
                         + "-virus_breakend_tsv /data/input/tumor.virusbreakend.vcf.summary.tsv "
                         + "-taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv "
                         + "-virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv "
+                        + "-virus_blacklisting_db_tsv /opt/resources/virus_interpreter/virus_blacklisting_db.tsv "
                         + "-output_dir /data/output");
     }
 }

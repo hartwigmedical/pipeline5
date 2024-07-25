@@ -1,14 +1,5 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
-import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -54,8 +45,15 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreterOutput;
 import com.hartwig.pipeline.tools.VersionUtils;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+
+import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 
 @Namespace(Orange.NAMESPACE)
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
@@ -261,7 +259,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 "-known_fusion_file",
                 resourceFiles.knownFusionData(),
                 "-ensembl_data_dir",
-                resourceFiles.ensemblDataCache());
+                resourceFiles.ensemblDataCache(),
+                "-signatures_etiology_tsv",
+                resourceFiles.signaturesEtiologyTsv());
 
         if (context.equals(Pipeline.Context.RESEARCH) || context.equals(Pipeline.Context.RESEARCH2)) {
             arguments.add("-add_disclaimer");
