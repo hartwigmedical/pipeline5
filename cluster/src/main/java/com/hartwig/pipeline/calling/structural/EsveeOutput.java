@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.calling.structural.ImmutableEsveeOutput;
 
 import org.immutables.value.Value;
 
