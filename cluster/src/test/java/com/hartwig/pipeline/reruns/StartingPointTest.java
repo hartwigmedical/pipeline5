@@ -12,7 +12,6 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.esvee.Esvee;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.flagstat.Flagstat;
