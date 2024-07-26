@@ -198,8 +198,11 @@ pave_germline/run.log
 pave_somatic/COLO829v003T.pave.somatic.vcf.gz
 pave_somatic/COLO829v003T.pave.somatic.vcf.gz.tbi
 pave_somatic/run.log
-peach/COLO829v003T.peach.calls.tsv
-peach/COLO829v003T.peach.genotype.tsv
+peach/COLO829v003R.peach.events.tsv
+peach/COLO829v003R.peach.gene.events.tsv
+peach/COLO829v003R.peach.haplotypes.all.tsv
+peach/COLO829v003R.peach.haplotypes.best.tsv
+peach/COLO829v003R.peach.qc.tsv
 peach/run.log
 pipeline.version
 purple/COLO829v003T.purple.driver.catalog.germline.tsv

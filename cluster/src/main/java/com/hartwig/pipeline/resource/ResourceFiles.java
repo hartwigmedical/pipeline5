@@ -6,7 +6,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
-import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
@@ -92,6 +91,10 @@ public interface ResourceFiles {
     String cuppaClassifier();
     String cuppaCvPredictions();
 
+    String peachHaplotypes();
+    String peachHaplotypeFunctions();
+    String peachDrugs();
+
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "doid.json");
     }
@@ -118,10 +121,6 @@ public interface ResourceFiles {
 
     default String lilacResources() {
         return of(LILAC);
-    }
-
-    default String peachFilterBed() {
-        return of(PEACH, "peach.json");
     }
 
     default String blastDb() {

@@ -80,8 +80,11 @@ metadata.json
 pave_germline/COLO829v003R.pave.germline.vcf.gz
 pave_germline/COLO829v003R.pave.germline.vcf.gz.tbi
 pave_germline/run.log
-peach/COLO829v003R.peach.calls.tsv
-peach/COLO829v003R.peach.genotype.tsv
+peach/COLO829v003R.peach.events.tsv
+peach/COLO829v003R.peach.gene.events.tsv
+peach/COLO829v003R.peach.haplotypes.all.tsv
+peach/COLO829v003R.peach.haplotypes.best.tsv
+peach/COLO829v003R.peach.qc.tsv
 peach/run.log
 pipeline.version
 purple/COLO829v003R.purple.driver.catalog.germline.tsv
