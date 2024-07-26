@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
@@ -30,10 +29,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected Stage<OrangeOutput, SomaticRunMetadata> createVictim() {
-        return constructOrange(Pipeline.Context.DIAGNOSTIC, true);
+        return constructOrange(true);
     }
 
-    private Orange constructOrange(final Pipeline.Context context, final boolean includeGermline) {
+    private Orange constructOrange(final boolean includeGermline) {
         return new Orange(TestInputs.tumorMetricsOutput(),
                 TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorFlagstatOutput(),
@@ -50,7 +49,6 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 TestInputs.peachOutput(),
                 TestInputs.sigsOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                context,
                 includeGermline);
     }
 
@@ -108,7 +106,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv "
                         + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
-                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -experiment_date 230519";
+                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ -add_disclaimer -experiment_date 230519";
 
         return Arrays.asList("mkdir -p /data/input/linx/plot",
                 "echo '5.33' | tee /data/input/orange_pipeline.version.txt",
@@ -116,21 +114,15 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     }
 
     @Test
-    public void shouldAddResearchDisclaimerWhenResearchContext() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, true);
-        assertThat(orangeCommand(victim).asBash()).contains("-add_disclaimer");
-    }
-
-    @Test
     public void shouldAddGermlineToSomaticConversionAndChangeNamespaceWhenNotIncludeGermline() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
+        Orange victim = constructOrange(false);
         assertThat(victim.namespace()).isEqualTo(Orange.NAMESPACE_NO_GERMLINE);
         assertThat(orangeCommand(victim).asBash()).contains("-convert_germline_to_somatic");
     }
 
     @Test
     public void shouldReturnNoFurtherOperationsWhenGermlineNotIncluded() {
-        Orange victim = constructOrange(Pipeline.Context.RESEARCH, false);
+        Orange victim = constructOrange(false);
         assertThat(victim.addDatatypes(defaultSomaticRunMetadata())).isEqualTo(Collections.emptyList());
     }
 
