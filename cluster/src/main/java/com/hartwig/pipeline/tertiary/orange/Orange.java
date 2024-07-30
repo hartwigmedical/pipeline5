@@ -11,7 +11,6 @@ import com.hartwig.computeengine.execution.vm.command.unix.MkDirCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
-import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -87,7 +86,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownloadCommand peachGenotypeTsv;
     private final InputDownloadCommand sigsAllocationTsv;
     private final InputDownloadCommand annotatedVirusTsv;
-    private final Pipeline.Context context;
     private final boolean includeGermline;
     private final boolean isTargeted;
 
@@ -96,14 +94,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
-            final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline, final boolean isTargeted) {
+                  final ResourceFiles resourceFiles, final boolean includeGermline, final boolean isTargeted) {
 
         this.resourceFiles = resourceFiles;
         this.refMetrics = new InputDownloadCommand(referenceMetrics.metricsOutputFile());
         this.tumMetrics = new InputDownloadCommand(tumorMetrics.metricsOutputFile());
         this.refFlagstat = new InputDownloadCommand(referenceFlagstat.flagstatOutputFile());
         this.tumFlagstat = new InputDownloadCommand(tumorFlagstat.flagstatOutputFile());
-        this.context = context;
         this.includeGermline = includeGermline;
         this.isTargeted = isTargeted;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
@@ -232,7 +229,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @NotNull
     private List<String> commonArguments() {
         final String experimentType = isTargeted ? "PANEL" : "WGS";
-        final List<String> arguments = Lists.newArrayList("-output_dir",
+        return Lists.newArrayList("-output_dir",
                 VmDirectories.OUTPUT,
                 "-experiment_type",
                 experimentType,
@@ -261,12 +258,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 "-ensembl_data_dir",
                 resourceFiles.ensemblDataCache(),
                 "-signatures_etiology_tsv",
-                resourceFiles.signaturesEtiologyTsv());
-
-        if (context.equals(Pipeline.Context.RESEARCH) || context.equals(Pipeline.Context.RESEARCH2)) {
-            arguments.add("-add_disclaimer");
-        }
-        return arguments;
+                resourceFiles.signaturesEtiologyTsv(),
+                "-add_disclaimer");
     }
 
     @NotNull
