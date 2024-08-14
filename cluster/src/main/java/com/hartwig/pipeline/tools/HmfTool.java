@@ -24,6 +24,7 @@ public enum HmfTool {
     SAGE("4.0rc", 60, 64, 24, false), // 3.4.3 -> 4.0
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
     TEAL("1.3.2rc", 30, 32, 16, false), // 1.2.2 -> 1.3.2
+    VCHORD("0.1", Defaults.JAVA_HEAP, 8, 2, false),
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.6rc", Defaults.JAVA_HEAP, 8, 2, false); // 1.3 -> 1.6
 

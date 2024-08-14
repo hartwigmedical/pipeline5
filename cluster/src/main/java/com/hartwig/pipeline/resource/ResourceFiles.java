@@ -116,6 +116,10 @@ public interface ResourceFiles {
         return ResourceFiles.of(BLAST_DB);
     }
 
+    default String vChordModel() {
+        return formPath(ResourceNames.V_CHORD, "v_chord.model.hmf_oncopanel_v3.pt");
+    }
+
     default String formPath(final String name, final String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }

@@ -18,6 +18,7 @@ import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
+import static com.hartwig.pipeline.tools.HmfTool.VCHORD;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
@@ -43,6 +44,7 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.teal.Teal;
 import com.hartwig.pipeline.tertiary.teal.TealBam;
+import com.hartwig.pipeline.tertiary.vchord.VChord;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tools.VersionUtils;
@@ -346,6 +348,16 @@ public final class VirtualMachineJobDefinitions {
                 .name(Teal.NAMESPACE)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
+                .startupCommand(startupScript)
+                .build();
+    }
+
+    public static VirtualMachineJobDefinition vchord(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.builder()
+                .imageFamily(STANDARD_IMAGE)
+                .name(VChord.NAMESPACE)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(VCHORD.getCpus(), VCHORD.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }

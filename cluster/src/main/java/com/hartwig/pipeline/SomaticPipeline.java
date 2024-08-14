@@ -48,6 +48,8 @@ import com.hartwig.pipeline.tertiary.teal.Teal;
 import com.hartwig.pipeline.tertiary.teal.TealBam;
 import com.hartwig.pipeline.tertiary.teal.TealBamOutput;
 import com.hartwig.pipeline.tertiary.teal.TealOutput;
+import com.hartwig.pipeline.tertiary.vchord.VChord;
+import com.hartwig.pipeline.tertiary.vchord.VChordOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
@@ -189,10 +191,14 @@ public class SomaticPipeline {
                         VirusInterpreterOutput virusInterpreterOutput = composer.add(state.add(virusInterpreterOutputFuture.get()));
                         Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Cuppa(purpleOutput, linxSomaticOutput, virusInterpreterOutput, resourceFiles, persistedDataset, arguments)));
+                        Future<VChordOutput> vChordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new VChord(purpleOutput, resourceFiles, persistedDataset)));
 
                         CuppaOutput cuppaOutput = composer.add(state.add(cuppaOutputFuture.get()));
                         SigsOutput sigsOutput = composer.add(state.add(signatureOutputFuture.get()));
                         LilacOutput lilacOutput = composer.add(state.add(lilacOutputFuture.get()));
+                        composer.add(state.add(tealOutputFuture.get()));
+                        composer.add(state.add(vChordOutputFuture.get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,

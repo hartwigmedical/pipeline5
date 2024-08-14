@@ -24,6 +24,7 @@ public interface ResourceNames {
     String ORANGE = "orange";
     String PURPLE = "purple";
     String LILAC = "lilac";
+    String V_CHORD = "v_chord";
     String TARGET_REGIONS = "target_regions";
     String BLAST_DB = "blastdb";
 }
