@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.slf4j.Logger;
+import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
@@ -36,18 +36,15 @@ import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@RunWith(Parallelized.class)
+@RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
     protected static final String FILE_ENCODING = "UTF-8";
     protected static final String STAGED_FLAG_FILE = "STAGED";
-    protected static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
     protected static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
     protected static final String INPUT_MODE_TUMOR_ONLY = "tumor";
     protected static final String INPUT_MODE_REF_ONLY = "reference";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmokeTest.class);
 
     private File resultsDir;
     private String whoami;
@@ -74,18 +71,13 @@ public class SmokeTest {
     }
 
     protected static String findCloudSdk(final String whoami) {
-//        if (whoami.equals("root")) {
-//            return CLOUD_SDK_PATH;
-//        }
-        LOGGER.debug("Locating Google SDK");
         try {
             Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }
         } catch (Exception e) {
-            LOGGER.warn("Failed to locate SDK, will use default", e);
-            // Fall through to using the default
+            LoggerFactory.getLogger(SmokeTest.class).warn("Failed to locate SDK, will use default location", e);
         }
         return format("/Users/%s/google-cloud-sdk/bin", whoami);
     }
@@ -134,7 +126,6 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
             final RefGenomeVersion refGenomeVersion) throws Exception {
-        LOGGER.debug("Creating pipeline main");
         PipelineMain victim = new PipelineMain();
         String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
@@ -144,7 +135,6 @@ public class SmokeTest {
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
         String setName = pipelineInput.setName() + "-" + runTag;
-        LOGGER.debug("Constructing arguments");
         ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
@@ -161,9 +151,7 @@ public class SmokeTest {
 
         cleanupBucket(setName, arguments.outputBucket(), storage);
 
-        LOGGER.debug("Starting pipeline");
         PipelineState state = victim.start(arguments);
-        LOGGER.debug("Pipeline completed");
         assertThat(state.status()).isEqualTo(expectedStatus);
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
@@ -181,7 +169,6 @@ public class SmokeTest {
     }
 
     private void cleanupBucket(final String setName, final String archiveBucket, final Storage storage) {
-        LOGGER.debug("Cleaning up bucket");
         archiveBlobs(setName, archiveBucket, storage).forEach(Blob::delete);
     }
 

@@ -14,23 +14,18 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.4-beta.6
-    id: 'Build and install to Maven'
+    id: 'Build artifacts and install to Maven'
     entrypoint: mvn
     timeout: 3600s
     args:
       - 'install'
       - '-Drelease'
-      - '--debug'
       - '--batch-mode'
     env:
       - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: gcr.io/cloud-builders/gcloud
-    id: Try to dump logs
-    entrypoint: 'bash'
-    args: [ '-c', "find /workspace/cluster/target -type f -iname '*dump*' | xargs cat" ]
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Update Maven cache after dependency resolution'
     args:
