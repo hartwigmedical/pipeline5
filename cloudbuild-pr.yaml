@@ -20,6 +20,7 @@ steps:
     args:
       - 'install'
       - '-Drelease'
+      - '--debug'
       - '--batch-mode'
     env:
       - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
