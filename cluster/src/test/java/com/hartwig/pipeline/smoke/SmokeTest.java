@@ -78,13 +78,14 @@ public class SmokeTest {
 //        if (whoami.equals("root")) {
 //            return CLOUD_SDK_PATH;
 //        }
-        LOGGER.
+        LOGGER.debug("Locating Google SDK");
         try {
             Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }
         } catch (Exception e) {
+            LOGGER.warn("Failed to locate SDK, will use default", e);
             // Fall through to using the default
         }
         return format("/Users/%s/google-cloud-sdk/bin", whoami);
