@@ -308,9 +308,9 @@
                     <version>3.4.0</version>
                     <configuration>
                         <testFailureIgnore>true</testFailureIgnore>
-                        
                         <!--<forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>-->
                         <reuseForks>true</reuseForks>
+                        <forkCount>1</forkCount>
                     </configuration>
                 </plugin>
                 <plugin>
