@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parallelized.class)
+//@RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
