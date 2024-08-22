@@ -1,19 +1,5 @@
 package com.hartwig.pipeline.smoke;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
-import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
@@ -28,7 +14,12 @@ import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
-
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +29,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
+import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
@@ -75,9 +71,9 @@ public class SmokeTest {
     }
 
     protected static String findCloudSdk(final String whoami) {
-        if (whoami.equals("root")) {
-            return CLOUD_SDK_PATH;
-        }
+//        if (whoami.equals("root")) {
+//            return CLOUD_SDK_PATH;
+//        }
         try {
             Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
