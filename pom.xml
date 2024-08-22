@@ -307,7 +307,9 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.2.5</version>
                     <configuration>
-                        <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+                        <!--<forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>-->
+                        <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                        <reuseForks>true</reuseForks>
                     </configuration>
                 </plugin>
                 <plugin>
