@@ -29,6 +29,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.tools.VersionUtils.imageVersion;
@@ -45,6 +47,8 @@ public class SmokeTest {
     protected static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
     protected static final String INPUT_MODE_TUMOR_ONLY = "tumor";
     protected static final String INPUT_MODE_REF_ONLY = "reference";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmokeTest.class);
 
     private File resultsDir;
     private String whoami;
@@ -74,6 +78,7 @@ public class SmokeTest {
 //        if (whoami.equals("root")) {
 //            return CLOUD_SDK_PATH;
 //        }
+        LOGGER.
         try {
             Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
@@ -129,6 +134,7 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus,
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<String> targetedRegionsBed,
             final RefGenomeVersion refGenomeVersion) throws Exception {
+        LOGGER.debug("Creating pipeline main");
         PipelineMain victim = new PipelineMain();
         String fixtureDir = "smoke_test/" + inputMode + "/";
         @SuppressWarnings("deprecation")
@@ -138,6 +144,7 @@ public class SmokeTest {
         String sampleJson = Resources.testResource(fixtureDir + "samples.json");
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
         String setName = pipelineInput.setName() + "-" + runTag;
+        LOGGER.debug("Constructing arguments");
         ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
@@ -154,7 +161,9 @@ public class SmokeTest {
 
         cleanupBucket(setName, arguments.outputBucket(), storage);
 
+        LOGGER.debug("Starting pipeline");
         PipelineState state = victim.start(arguments);
+        LOGGER.debug("Pipeline completed");
         assertThat(state.status()).isEqualTo(expectedStatus);
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
@@ -172,6 +181,7 @@ public class SmokeTest {
     }
 
     private void cleanupBucket(final String setName, final String archiveBucket, final Storage storage) {
+        LOGGER.debug("Cleaning up bucket");
         archiveBlobs(setName, archiveBucket, storage).forEach(Blob::delete);
     }
 
