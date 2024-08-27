@@ -57,7 +57,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         return new SvCalling(resourceFiles)
                 .tumorSample(tumorSampleName, tumorBamPath)
-                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .apply(SubStageInputOutput.empty(tumorSampleName))
                 .bash();
     }
 
@@ -68,7 +68,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         return new SvCalling(resourceFiles)
                 .referenceSample(referenceSampleName, refBamPath)
-                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .apply(SubStageInputOutput.empty(referenceSampleName))
                 .bash();
     }
 
@@ -82,7 +82,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         return new SvCalling(resourceFiles)
                 .tumorSample(tumorSampleName, tumorBamPath)
                 .referenceSample(referenceSampleName, refBamPath)
-                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .apply(SubStageInputOutput.empty(tumorSampleName))
                 .bash();
     }
 
