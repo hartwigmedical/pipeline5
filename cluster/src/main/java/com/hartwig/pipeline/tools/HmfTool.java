@@ -12,8 +12,7 @@ public enum HmfTool {
     CIDER("1.0.3", 16, 24, 4, false),
     COBALT("1.16", 20, 24, 16, false),
     CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
-    GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 24, false),
-    GRIPSS("2.4", 16, 24, 4, false),
+    ESVEE("1.0.0rc", Defaults.JAVA_HEAP, 64, 24, true),
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
     LILAC("1.6", 16, 24, 8, false),
     LINX("1.25", 8, 12, 4, false),
@@ -25,7 +24,7 @@ public enum HmfTool {
     SAGE("3.4.3", 48, 64, 24, false),
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
     SV_PREP("1.2.4", 48, 64, 24, false),
-    TEAL("1.3.0", 30, 32, 16, false),
+    TEAL("1.2.2", 30, 32, 16, false),
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
 

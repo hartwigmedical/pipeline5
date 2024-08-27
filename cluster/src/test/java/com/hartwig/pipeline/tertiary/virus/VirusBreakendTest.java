@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +89,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
                 "export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
                 "/opt/tools/gridss/" + VIRUSBREAKEND_GRIDSS.runVersion() + "/virusbreakend --output /data/output/tumor.virusbreakend.vcf " + "--workingdir /data/output "
                         + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/" + GRIDSS.runVersion() + "/gridss.jar --gridssargs \"--jvmheap 60G\" "
+                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/" + VIRUSBREAKEND_GRIDSS.runVersion() + "/gridss.jar --gridssargs \"--jvmheap 60G\" "
                         + "/data/input/tumor.bam");
     }
 }

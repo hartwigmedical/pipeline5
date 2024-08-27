@@ -2,9 +2,6 @@ package com.hartwig.pipeline.testsupport;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gripss.GripssGermline.GRIPSS_GERMLINE_NAMESPACE;
-import static com.hartwig.pipeline.calling.structural.gripss.GripssSomatic.GRIPSS_SOMATIC_NAMESPACE;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,9 +18,8 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
-import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.calling.structural.Esvee;
+import com.hartwig.pipeline.calling.structural.EsveeOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -288,38 +284,24 @@ public class TestInputs {
                 .build();
     }
 
-    public static GridssOutput structuralCallerOutput() {
-        String unfiltered = ".gridss.unfiltered.";
-        return GridssOutput.builder()
+    public static EsveeOutput esveeOutput() {
+        String unfiltered = ".esvee.unfiltered.";
+        String somatic = ".esvee.somatic.";
+        String germline = ".esvee.germline.";
+        return EsveeOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeUnfilteredVcf(gsLocation(somaticBucket(Gridss.NAMESPACE),
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Gridss.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF + ".tbi"))
-                .build();
-    }
-
-    public static GripssOutput gripssSomaticOutput() {
-        String filtered = ".gripss.filtered.somatic.";
-        String full = ".gripss.somatic.";
-        return GripssOutput.builder(GRIPSS_SOMATIC_NAMESPACE)
-                .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_SOMATIC_NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
-                .build();
-    }
-
-    public static GripssOutput gripssGermlineOutput() {
-        String filtered = ".gripss.filtered.germline.";
-        String full = ".gripss.germline.";
-        return GripssOutput.builder(GRIPSS_GERMLINE_NAMESPACE)
-                .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GRIPSS_GERMLINE_NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
+                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF + FileTypes.TBI))
+                .maybeSomaticVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + somatic + FileTypes.GZIPPED_VCF))
+                .maybeSomaticVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + somatic + FileTypes.GZIPPED_VCF + FileTypes.TBI))
+                .maybeGermlineVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + germline + FileTypes.GZIPPED_VCF))
+                .maybeGermlineVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + germline + FileTypes.GZIPPED_VCF + FileTypes.TBI))
                 .build();
     }
 

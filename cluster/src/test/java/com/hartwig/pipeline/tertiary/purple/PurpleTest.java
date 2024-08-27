@@ -49,8 +49,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticOutput(),
-                TestInputs.gripssGermlineOutput(),
+                TestInputs.esveeOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
@@ -59,17 +58,14 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
+        return ImmutableList.of(
+                input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz",
-                        "tumor.gripss.filtered.somatic.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.somatic.vcf.gz.tbi",
-                        "tumor.gripss.filtered.somatic.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz", "tumor.gripss.somatic.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.somatic.vcf.gz.tbi",
-                        "tumor.gripss.somatic.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gripss_germline/results/tumor.gripss.filtered.germline.vcf.gz",
-                        "tumor.gripss.filtered.germline.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.somatic.vcf.gz", "tumor.esvee.somatic.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.somatic.vcf.gz.tbi", "tumor.esvee.somatic.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.unfiltered.vcf.gz", "tumor.esvee.unfiltered.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.unfiltered.vcf.gz.tbi", "tumor.esvee.unfiltered.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.germline.vcf.gz", "tumor.esvee.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
@@ -82,11 +78,11 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
                 + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-tumor tumor " + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
-                + "-somatic_sv_vcf /data/input/tumor.gripss.filtered.somatic.vcf.gz "
+                + "-somatic_sv_vcf /data/input/tumor.esvee.somatic.vcf.gz "
                 + "-somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
-                + "-circos /opt/tools/circos/0.69.6/bin/circos " + "-sv_recovery_vcf /data/input/tumor.gripss.somatic.vcf.gz "
+                + "-circos /opt/tools/circos/0.69.6/bin/circos " + "-sv_recovery_vcf /data/input/tumor.esvee.unfiltered.vcf.gz "
                 + "-reference reference " + "-germline_vcf /data/input/tumor.germline.vcf.gz "
-                + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
+                + "-germline_sv_vcf /data/input/tumor.esvee.germline.vcf.gz "
                 + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                 + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv");
     }
@@ -102,7 +98,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                         + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-reference reference "
                         + "-germline_vcf /data/input/tumor.germline.vcf.gz "
-                        + "-germline_sv_vcf /data/input/tumor.gripss.filtered.germline.vcf.gz "
+                        + "-germline_sv_vcf /data/input/tumor.esvee.germline.vcf.gz "
                         + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                         + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv -no_charts");
     }
@@ -112,8 +108,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         Purple victim = new Purple(new RefGenome37ResourceFiles(),
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.gripssSomaticOutput(),
-                TestInputs.gripssGermlineOutput(),
+                TestInputs.esveeOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new TestPersistedDataset(),

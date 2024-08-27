@@ -11,7 +11,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -77,7 +77,7 @@ public class StartingPointTest {
         assertThat(victim.usePersisted(Amber.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Cobalt.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SageConfiguration.SAGE_SOMATIC_NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Gridss.NAMESPACE)).isTrue();
+        assertThat(victim.usePersisted(Esvee.NAMESPACE)).isTrue();
     }
 
     @Test
@@ -89,7 +89,7 @@ public class StartingPointTest {
         assertThat(victim.usePersisted(Amber.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Cobalt.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SageConfiguration.SAGE_SOMATIC_NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Gridss.NAMESPACE)).isTrue();
+        assertThat(victim.usePersisted(Esvee.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Purple.NAMESPACE)).isTrue();
     }
 
