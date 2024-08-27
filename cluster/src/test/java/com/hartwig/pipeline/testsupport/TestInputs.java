@@ -442,7 +442,7 @@ public class TestInputs {
     public static PeachOutput peachOutput() {
         return PeachOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
+                .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), REFERENCE_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
                 .build();
     }
 

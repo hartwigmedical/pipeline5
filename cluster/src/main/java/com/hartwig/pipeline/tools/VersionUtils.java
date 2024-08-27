@@ -66,7 +66,7 @@ public final class VersionUtils {
     }
 
     public static String imageVersion() {
-        return "5-36";
+        return "6-0";
     }
 
     public static void main(final String[] args) {

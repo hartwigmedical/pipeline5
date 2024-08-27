@@ -78,7 +78,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.vis.png", "tumor.cuppa.vis.png"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.tsv", "tumor.lilac.tsv"),
                 input(expectedRuntimeBucketName() + "/lilac/tumor.lilac.qc.tsv", "tumor.lilac.qc.tsv"),
-                input(expectedRuntimeBucketName() + "/peach/tumor.peach.genotype.tsv", "tumor.peach.genotype.tsv"),
+                input(expectedRuntimeBucketName() + "/peach/reference.peach.haplotypes.best.tsv", "reference.peach.haplotypes.best.tsv"),
                 input(expectedRuntimeBucketName() + "/sigs/tumor.sig.allocation.tsv", "tumor.sig.allocation.tsv"));
     }
 
@@ -247,7 +247,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics "
                 + "-ref_sample_flagstat_file /data/input/reference.flagstat " + "-linx_germline_dir /data/input/linx_germline";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
@@ -265,7 +265,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + "-linx_plot_dir /data/input/linx/plot " + "-linx_dir /data/input/linx " + "-sage_dir /data/input "
                 + "-sampling_date 230519";
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '5.36' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override

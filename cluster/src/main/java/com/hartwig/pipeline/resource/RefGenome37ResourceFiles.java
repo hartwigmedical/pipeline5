@@ -14,6 +14,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
@@ -208,5 +209,20 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String cuppaCvPredictions() {
         return formPath(CUPPA, "cuppa_cv_predictions.37.tsv.gz");
+    }
+
+    @Override
+    public String peachHaplotypes() {
+        return formPath(PEACH, "haplotypes.37.tsv");
+    }
+
+    @Override
+    public String peachHaplotypeFunctions() {
+        return formPath(PEACH, "haplotype_functions.37.tsv");
+    }
+
+    @Override
+    public String peachDrugs() {
+        return formPath(PEACH, "peach_drugs.37.tsv");
     }
 }

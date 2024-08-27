@@ -66,7 +66,7 @@ purity, ploidy, drivers and annotated variants.
 from Purple and calls fusions and homozygously disrupted genes.
 
 #### PEACH
-[PEACH](https://github.com/hartwigmedical/peach/tree/master) is an HMF in-house tool which matches SAGE germline calls with pharmacogenetic
+[PEACH](https://github.com/hartwigmedical/hmftools/tree/master/peach) is an HMF in-house tool which matches SAGE germline calls with pharmacogenetic
 evidence.
 
 #### VIRUSBreakend
