@@ -38,6 +38,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
@@ -45,7 +46,6 @@ public class SmokeTest {
 
     protected static final String FILE_ENCODING = "UTF-8";
     protected static final String STAGED_FLAG_FILE = "STAGED";
-    protected static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
     protected static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
     protected static final String INPUT_MODE_TUMOR_ONLY = "tumor";
     protected static final String INPUT_MODE_REF_ONLY = "reference";
@@ -75,16 +75,13 @@ public class SmokeTest {
     }
 
     protected static String findCloudSdk(final String whoami) {
-        if (whoami.equals("root")) {
-            return CLOUD_SDK_PATH;
-        }
         try {
             Process process = Runtime.getRuntime().exec(new String[] { "/usr/bin/which", "gcloud" });
             if (process.waitFor() == 0) {
                 return new File(new String(process.getInputStream().readAllBytes())).getParent();
             }
         } catch (Exception e) {
-            // Fall through to using the default
+            LoggerFactory.getLogger(SmokeTest.class).warn("Failed to locate SDK, will use default location", e);
         }
         return format("/Users/%s/google-cloud-sdk/bin", whoami);
     }
