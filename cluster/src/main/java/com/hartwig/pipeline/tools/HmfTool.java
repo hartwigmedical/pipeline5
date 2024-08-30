@@ -6,24 +6,23 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 
-    AMBER("4.0.1", 20, 24, 16, false),
-    BAM_TOOLS("1.2.1", 16, 24, 16, false),
-    CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false),
+    AMBER("4.1rc", 20, 24, 16, false), // 4.0.1 -> 4.1
+    BAM_TOOLS("1.3", 20, 24, 16, false), // 1.2.1 -> 1.3
+    CHORD("2.02_1.14", Defaults.JAVA_HEAP, 12, 4, false), // 2.02_1.14 ->
     CIDER("1.0.3", 16, 24, 4, false),
-    COBALT("1.16", 20, 24, 16, false),
+    COBALT("2.0rc", 20, 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
-    ESVEE("1.0.0rc", Defaults.JAVA_HEAP, 64, 24, false),
+    ESVEE("1.0rc", 60, 64, 24, false),
     HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
-    LILAC("1.6", 16, 24, 8, false),
-    LINX("1.25", 8, 12, 4, false),
-    MARK_DUPS("1.1.7", 40, 120, 24, false),
+    LILAC("1.6", 20, 24, 8, false),
+    LINX("2.0rc", 8, 12, 4, false), // 1.25
+    REDUX("1.0rc", 100, 120, 24, false), // MarkDups 1.1.7 -> Redux 1.0
     ORANGE("3.5.1", 16, 18, 4, false),
-    PAVE("1.6", 30, 40, 8, false),
+    PAVE("1.7rc", 30, 40, 8, false), // 1.6 -> 1.7
     PEACH("2.0.0", 1, 4, 2, false),
-    PURPLE("4.0.2", 30, 40, 8, false),
-    SAGE("3.4.3", 48, 64, 24, false),
+    PURPLE("4.1", 30, 40, 8, false), // 4.0.2 -> 4.1
+    SAGE("4.0rc", 60, 64, 24, false), // 3.4.3 -> 4.0
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
-    SV_PREP("1.2.4", 48, 64, 24, false),
     TEAL("1.2.2", 30, 32, 16, false),
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
     VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);

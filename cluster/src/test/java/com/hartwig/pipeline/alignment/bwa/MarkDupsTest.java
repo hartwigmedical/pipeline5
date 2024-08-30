@@ -1,14 +1,12 @@
 package com.hartwig.pipeline.alignment.bwa;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
-import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.StringJoiner;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;
@@ -39,7 +37,7 @@ public class MarkDupsTest extends SubStageTest{
         StringJoiner expectedCommands = new StringJoiner(" ");
 
         expectedCommands.add(
-                toolCommand(MARK_DUPS)
+                toolCommand(REDUX)
                         + " -sample tumor "
                         + "-input_bam tumor.l001.bam,tumor.l002.bam "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

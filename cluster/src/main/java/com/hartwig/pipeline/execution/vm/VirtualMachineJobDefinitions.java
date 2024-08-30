@@ -11,7 +11,7 @@ import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
-import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
@@ -212,7 +212,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name("merge-markdup")
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(MARK_DUPS.getCpus(), MARK_DUPS.getMemoryGb()))
+                .performanceProfile(custom(REDUX.getCpus(), REDUX.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }

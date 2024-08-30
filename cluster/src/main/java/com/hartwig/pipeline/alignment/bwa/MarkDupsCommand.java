@@ -2,7 +2,7 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class MarkDupsCommand extends JavaJarCommand
             final String outputDir, final String threads) {
 
         super(
-                MARK_DUPS.getToolName(), MARK_DUPS.runVersion(), MARK_DUPS.jar(), MARK_DUPS.maxHeapStr(),
+                REDUX.getToolName(), REDUX.runVersion(), REDUX.jar(), REDUX.maxHeapStr(),
                 formArguments(sampleId, inputBam, outputBam, resourceFiles, outputDir, threads));
     }
 
