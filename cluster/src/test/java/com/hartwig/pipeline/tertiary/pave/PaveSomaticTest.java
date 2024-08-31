@@ -48,6 +48,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                         + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
                         + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
+                        + "-clinvar_vcf /opt/resources/sage/37/clinvar.37.vcf.gz "
                         + "-read_pass_only "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo) "
                         + "-pon_file /opt/resources/sage/37/SageGermlinePon.1000x.37.tsv.gz "

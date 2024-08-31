@@ -105,8 +105,8 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                 toolCommand(ESVEE, SV_PREP_CLASS_PATH)
                         + " -sample reference,tumor"
                         + " -bam_files /data/input/reference.bam,/data/input/tumor.bam"
-                        + " -blacklist_bed /opt/resources/gridss/37/sv_prep_blacklist.37.bed"
-                        + " -known_fusion_bed /opt/resources/fusions/37/known_fusions.37.bedpe"
+                        + " -blacklist_bed /opt/resources/sv/37/sv_prep_blacklist.37.bed"
+                        + " -known_fusion_bed /opt/resources/sv/37/known_fusions.37.bedpe"
                         + " -bamtool /opt/tools/sambamba/0.6.8/sambamba"
                         + " -write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\""
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"

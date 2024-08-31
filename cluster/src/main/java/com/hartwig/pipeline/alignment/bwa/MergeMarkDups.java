@@ -34,7 +34,7 @@ public class MergeMarkDups extends SubStage {
 
         String inputBams = Strings.join(inputBamPaths, ",");
 
-        cmds.add(new MarkDupsCommand(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus()));
+        cmds.add(new ReduxCommand(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus()));
 
         return cmds;
     }

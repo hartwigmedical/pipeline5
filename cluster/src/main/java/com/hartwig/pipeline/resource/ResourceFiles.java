@@ -1,9 +1,7 @@
 package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.BLAST_DB;
-import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS;
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
@@ -23,74 +21,64 @@ public interface ResourceFiles {
     }
 
     RefGenomeVersion version();
+        String versionDirectory();
 
-    String versionDirectory();
-
+    // ref genome and mappability
     String refGenomeFile();
+    String mappabilityBed();
+    String unmapRegionsFile();
+    String msiJitterSitesFile();
 
+    // drivers and other common files
+    String ensemblDataCache();
+    String driverGenePanel();
+
+    // copy number
     String gcProfileFile();
-
     String diploidRegionsBed();
-
     String amberHeterozygousLoci();
+    String purpleCohortGermlineDeletions();
 
+    // variant calling
     String sageSomaticHotspots();
     String sagePanelBed();
     String sageGermlineHotspots();
     String sageGeneCoverageBed();
-
     String germlineBlacklistVcf();
     String germlineBlacklistBed();
-
     String clinvarVcf();
-
-    String mappabilityBed();
-    String unmapRegionsFile();
-
     String germlinePon();
-
     String gnomadPonCache();
-
     String giabHighConfidenceBed();
+    String genotypeSnpsDB(); // will be decommission when Sage germline covers entire genome or exome
 
-    default String gridssPropertiesFile() {
-        return of(GRIDSS, "gridss.properties");
-    }
-
+    // structural variants and virus
     String repeatMaskerDb();
+    String svPrepBlacklistBed();
+    String sglBreakendPon();
+    String svBreakpointPon();
+    String knownFusionData();
+    String knownFusionPairBedpe();
 
     default String gridssVirusRefGenomeFile() {
         return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
     }
 
-    String gridssBlacklistBed();
-    String svPrepBlacklistBed();
-
-    String sglBreakendPon();
-    String svBreakpointPon();
-
-    String ensemblDataCache();
-
-    String knownFusionData();
-    String knownFusionPairBedpe();
-
-    String genotypeSnpsDB();
-
-    String driverGenePanel();
-
+    // immune
     String hlaRegionBed();
 
-    String purpleCohortGermlineDeletions();
-
+    // targeted panel
     String targetRegionsPonArtefacts();
     String targetRegionsBed();
     String targetRegionsNormalisation();
     String targetRegionsRatios();
     String targetRegionsMsiIndels();
 
+    // CUP
     String cuppaClassifier();
     String cuppaCvPredictions();
 
+    // misc other
     String peachHaplotypes();
     String peachHaplotypeFunctions();
     String peachDrugs();

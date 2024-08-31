@@ -7,13 +7,14 @@ import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.ExternalTool;
 
-public class MarkDupsCommand extends JavaJarCommand
+public class ReduxCommand extends JavaJarCommand
 {
-    public MarkDupsCommand(
+    public ReduxCommand(
             final String sampleId, final String inputBam, final String outputBam, final ResourceFiles resourceFiles,
             final String outputDir, final String threads) {
 
@@ -32,12 +33,13 @@ public class MarkDupsCommand extends JavaJarCommand
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
         arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
+        arguments.add(format("-ref_genome_msi_file %s", resourceFiles.msiJitterSitesFile()));
         arguments.add("-form_consensus");
-        arguments.add(format("-sambamba %s", ExternalTool.SAMBAMBA.binaryPath()));
-        arguments.add(format("-samtools %s", ExternalTool.SAMTOOLS.binaryPath()));
+        arguments.add("-use_supp_bam");
+        arguments.add(format("-bamtool %s", ExternalTool.SAMBAMBA.binaryPath()));
         arguments.add(format("-output_bam %s", outputBam));
         arguments.add(format("-output_dir %s", outputDir));
-        arguments.add("-log_level DEBUG"); // for now
+        arguments.add("-log_debug"); // for now
         arguments.add(format("-threads %s", threads));
 
         return arguments;
