@@ -55,6 +55,7 @@ public interface ResourceFiles {
     // structural variants and virus
     String repeatMaskerDb();
     String svPrepBlacklistBed();
+    String decoyGenome();
     String sglBreakendPon();
     String svBreakpointPon();
     String knownFusionData();

@@ -100,6 +100,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String svPrepBlacklistBed() {
         return formPath(SV, "sv_prep_blacklist.37.bed");
     }
+    public String decoyGenome() { return formPath(SV, "hg38_decoys.fa.img"); }
     public String sglBreakendPon() {
         return formPath(SV, "sgl_pon.37.bed.gz");
     }

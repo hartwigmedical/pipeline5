@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.StringJoiner;
 
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.alignment.redux.MergeMarkDups;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.testsupport.TestInputs;

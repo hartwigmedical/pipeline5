@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.bwa;
+package com.hartwig.pipeline.alignment.redux;
 
 import static java.lang.String.format;
 

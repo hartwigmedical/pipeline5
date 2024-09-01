@@ -32,6 +32,7 @@ import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
+import com.hartwig.pipeline.alignment.redux.MergeMarkDups;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;

@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMBAMBA;
 import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 
@@ -103,31 +106,31 @@ public class SvCalling extends SubStage {
 
         List<String> arguments = new ArrayList<>();
 
-        arguments.add(String.format("-sample %s", samplesString));
-        arguments.add(String.format("-bam_files %s", bamFilesString));
-        arguments.add(String.format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
-        arguments.add(String.format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
-        arguments.add(String.format("-bamtool %s", SAMBAMBA.binaryPath()));
+        arguments.add(format("-sample %s", samplesString));
+        arguments.add(format("-bam_files %s", bamFilesString));
+        arguments.add(format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
+        arguments.add(format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
+        arguments.add(format("-bamtool %s", SAMBAMBA.binaryPath()));
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
 
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
+        arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, SV_PREP_CLASS_PATH, arguments);
     }
 
     private String junctionsFile() {
-        return String.format("%s/%s.esvee.prep.junctions.tsv", VmDirectories.OUTPUT, mainSampleName());
+        return format("%s/%s.esvee.prep.junctions.tsv", VmDirectories.OUTPUT, mainSampleName());
     }
 
     private String tumorPrepBam() {
-        return String.format("%s/%s.esvee.prep.bam", VmDirectories.OUTPUT, getSample(SampleType.TUMOR).SampleName);
+        return format("%s/%s.esvee.prep.bam", VmDirectories.OUTPUT, getSample(SampleType.TUMOR).SampleName);
     }
 
     private String referencePrepBam() {
-        return String.format("%s/%s.esvee.prep.bam", VmDirectories.OUTPUT, getSample(SampleType.REFERENCE).SampleName);
+        return format("%s/%s.esvee.prep.bam", VmDirectories.OUTPUT, getSample(SampleType.REFERENCE).SampleName);
     }
 
     private BashCommand buildAssembleCommand() {
@@ -137,36 +140,37 @@ public class SvCalling extends SubStage {
         SampleArgument tumorSample = getSample(SampleType.TUMOR);
         if(tumorSample != null)
         {
-            arguments.add(String.format("-tumor %s", tumorSample.SampleName));
-            arguments.add(String.format("-tumor_bam %s", tumorPrepBam()));
+            arguments.add(format("-tumor %s", tumorSample.SampleName));
+            arguments.add(format("-tumor_bam %s", tumorPrepBam()));
         }
 
         SampleArgument referenceSample = getSample(SampleType.REFERENCE);
         if(referenceSample != null)
         {
-            arguments.add(String.format("-reference %s", referenceSample.SampleName));
-            arguments.add(String.format("-reference_bam %s", referencePrepBam()));
+            arguments.add(format("-reference %s", referenceSample.SampleName));
+            arguments.add(format("-reference_bam %s", referencePrepBam()));
         }
 
-        arguments.add(String.format("-junction_files %s", junctionsFile()));
-        arguments.add("-write_types \"JUNC_ASSEMBLY;ALIGNMENT;ALIGNMENT_DATA;BREAKEND;VCF\"");
+        arguments.add(format("-junction_files %s", junctionsFile()));
+        arguments.add(format("-junction_files %s", junctionsFile()));
+        arguments.add("-write_types \"JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENTS;BREAKEND;VCF\"");
 
-        // TODO: add decoy genome to resources
-        // if(resourceFiles.version().equals(RefGenomeVersion.V37))
-        // {
-        //     arguments.add(String.format("-decoy_genome %s", resourceFiles.decoyGenome()));
-        // }
+        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
 
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        if(resourceFiles.version().equals(V37))
+        {
+            arguments.add(format("-decoy_genome %s", resourceFiles.decoyGenome()));
+        }
+
+        arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, ASSEMBLE_CLASS_PATH, arguments);
     }
 
     private String rawVcfFile() {
-        return String.format("%s/%s.esvee.raw.vcf.gz", VmDirectories.OUTPUT, mainSampleName());
+        return format("%s/%s.esvee.raw.vcf.gz", VmDirectories.OUTPUT, mainSampleName());
     }
 
     private BashCommand buildDepthAnnotatorCommand() {
@@ -181,40 +185,46 @@ public class SvCalling extends SubStage {
                 .map(sampleArgument -> sampleArgument.BamPath)
                 .collect(Collectors.joining(","));
 
-        arguments.add(String.format("-samples %s", samplesString));
-        arguments.add(String.format("-bam_files %s", bamFilesString));
+        arguments.add(format("-samples %s", samplesString));
+        arguments.add(format("-bam_files %s", bamFilesString));
 
-        arguments.add(String.format("-input_vcf %s", rawVcfFile()));
+        arguments.add(format("-input_vcf %s", rawVcfFile()));
 
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
+        arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, DEPTH_ANNOTATOR_CLASS_PATH, arguments);
     }
 
     private String refDepthVcfFile() {
-        return String.format("%s/%s.esvee.ref_depth.vcf.gz", VmDirectories.OUTPUT, mainSampleName());
+        return format("%s/%s.esvee.ref_depth.vcf.gz", VmDirectories.OUTPUT, mainSampleName());
     }
 
     private BashCommand buildCallerCommand() {
         List<String> arguments = new ArrayList<>();
 
-        arguments.add(String.format("-sample %s", mainSampleName()));
+        arguments.add(format("-sample %s", mainSampleName()));
 
         SampleArgument referenceSample = getSample(SampleType.REFERENCE);
         if(referenceSample != null)
         {
-            arguments.add(String.format("-reference %s", referenceSample.SampleName));
+            arguments.add(format("-reference %s", referenceSample.SampleName));
         }
 
-        arguments.add(String.format("-input_vcf %s", refDepthVcfFile()));
+        arguments.add(format("-input_vcf %s", refDepthVcfFile()));
 
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        arguments.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
-        arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(String.format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
+
+        arguments.add(format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
+        arguments.add(format("-pon_sgl_file %s", resourceFiles.sglBreakendPon()));
+        arguments.add(format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
+        arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
+
+        arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
+        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
     }

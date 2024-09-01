@@ -72,16 +72,24 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList(toolCommand(PURPLE) + " -amber /data/input/results " + "-cobalt /data/input/results "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " + "-ref_genome_version V37 "
+        return Collections.singletonList(toolCommand(PURPLE)
+                + " -amber /data/input/results "
+                + "-cobalt /data/input/results "
+                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-ref_genome_version V37 "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-tumor tumor " + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
+                + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
+                + "-output_dir /data/output "
+                + "-threads $(grep -c '^processor' /proc/cpuinfo) "
+                + "-tumor tumor "
+                + "-somatic_vcf /data/input/tumor.somatic.vcf.gz "
                 + "-somatic_sv_vcf /data/input/tumor.esvee.somatic.vcf.gz "
                 + "-somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
-                + "-circos /opt/tools/circos/0.69.6/bin/circos " + "-sv_recovery_vcf /data/input/tumor.esvee.unfiltered.vcf.gz "
-                + "-reference reference " + "-germline_vcf /data/input/tumor.germline.vcf.gz "
+                + "-circos /opt/tools/circos/0.69.6/bin/circos "
+                + "-sv_recovery_vcf /data/input/tumor.esvee.unfiltered.vcf.gz "
+                + "-reference reference "
+                + "-germline_vcf /data/input/tumor.germline.vcf.gz "
                 + "-germline_sv_vcf /data/input/tumor.esvee.germline.vcf.gz "
                 + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                 + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv");
@@ -91,12 +99,16 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected List<String> expectedReferenceOnlyCommands() {
         return Collections.singletonList(
                 // "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
-                toolCommand(PURPLE) + " -amber /data/input/results " + "-cobalt /data/input/results "
+                toolCommand(PURPLE)
+                        + " -amber /data/input/results "
+                        + "-cobalt /data/input/results "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-ref_genome_version V37 -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                         + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp " + "-output_dir /data/output "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) " + "-reference reference "
+                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
+                        + "-output_dir /data/output "
+                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
+                        + "-reference reference "
                         + "-germline_vcf /data/input/tumor.germline.vcf.gz "
                         + "-germline_sv_vcf /data/input/tumor.esvee.germline.vcf.gz "
                         + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "

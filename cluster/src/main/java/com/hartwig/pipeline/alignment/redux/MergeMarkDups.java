@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.bwa;
+package com.hartwig.pipeline.alignment.redux;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class MergeMarkDups extends SubStage {
     private final ResourceFiles resourceFiles;
     private final List<String> inputBamPaths;
 
-    MergeMarkDups(
+    public MergeMarkDups(
             final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths) {
         super("", FileTypes.BAM);
         this.sampleId = sampleId;
