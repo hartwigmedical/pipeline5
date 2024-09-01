@@ -122,9 +122,10 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -reference reference"
                         + " -reference_bam /data/output/reference.esvee.prep.bam"
                         + " -junction_files /data/output/tumor.esvee.prep.junctions.tsv"
-                        + " -write_types \"JUNC_ASSEMBLY;ALIGNMENT;ALIGNMENT_DATA;BREAKEND;VCF\""
+                        + " -write_types \"JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENTS;BREAKEND;VCF\""
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -ref_genome_version V37"
+                        + " -decoy_genome /opt/resources/sv/37/hg38_decoys.fa.img"
                         + " -output_dir /data/output"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );
@@ -140,6 +141,30 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );
 
+        // "java -Xmx60G -cp /opt/tools/esvee/1.0rc/esvee.jar com.hartwig.hmftools.esvee.EsveeApplication
+        // -tumor tumor -tumor_bam /data/output/tumor.esvee.prep.bam
+        // -reference reference -reference_bam /data/output/reference.esvee.prep.bam
+        // -junction_files /data/output/tumor.esvee.prep.junctions.tsv -junction_files /data/output/tumor.esvee.prep.junctions.tsv
+        // -write_types "JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENTS;BREAKEND;VCF"
+        // -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta
+        // -ref_genome_version V37
+        // -decoy_genome /opt/resources/sv/37/hg38_decoys.fa.img -output_dir /data/output -threads $(grep -c '^processor' /proc/cpuinfo)",
+
+        //        "java -Xmx60G -cp /opt/tools/esvee/1.0rc/esvee.jar com.hartwig.hmftools.esvee.depth.DepthAnnotator -samples reference,tumor -bam_files /data/input/reference.bam,/data/input/tumor.bam -input_vcf /data/output/tumor.esvee.raw.vcf.gz -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version V37 -output_dir /data/output -threads $(grep -c '^processor' /proc/cpuinfo)",
+
+        // java -Xmx60G -cp /opt/tools/esvee/1.0rc/esvee.jar com.hartwig.hmftools.esvee.caller.CallerApplication
+        // -sample tumor
+        // -reference reference
+        // -input_vcf /data/output/tumor.esvee.ref_depth.vcf.gz
+        // -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta
+        // -ref_genome_version V37
+        // -known_hotspot_file /opt/resources/sv/37/known_fusions.37.bedpe
+        // -pon_sgl_file /opt/resources/sv/37/sgl_pon.37.bed.gz
+        // -pon_sv_file /opt/resources/sv/37/sv_pon.37.bedpe.gz
+        // -repeat_mask_file /opt/resources/sv/37/repeat_mask_data.37.fa.gz
+        // -output_dir /data/output
+        // -threads $(grep -c '^processor' /proc/cpuinfo)"]
+
         expectedCommands.add(
                 toolCommand(ESVEE, CALLER_CLASS_PATH)
                         + " -sample tumor"
@@ -147,6 +172,10 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -input_vcf /data/output/tumor.esvee.ref_depth.vcf.gz"
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -ref_genome_version V37"
+                        + " -known_hotspot_file /opt/resources/sv/37/known_fusions.37.bedpe"
+                        + " -pon_sgl_file /opt/resources/sv/37/sgl_pon.37.bed.gz"
+                        + " -pon_sv_file /opt/resources/sv/37/sv_pon.37.bedpe.gz"
+                        + " -repeat_mask_file /opt/resources/sv/37/repeat_mask_data.37.fa.gz"
                         + " -output_dir /data/output"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );

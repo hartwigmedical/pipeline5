@@ -45,12 +45,13 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
 
         commands.add(
                 toolCommand(LINX)
-                + " -sample tumor -germline "
-                + "-sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz "
-                + "-ref_genome_version V37 "
-                + "-output_dir /data/output "
-                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
+                + " -sample tumor"
+                + " -germline"
+                + " -sv_vcf /data/input/tumor.purple.sv.germline.vcf.gz"
+                + " -ref_genome_version V37"
+                + " -output_dir /data/output"
+                + " -ensembl_data_dir /opt/resources/ensembl_data_cache/37/"
+                + " -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv");
 
         return commands;
     }

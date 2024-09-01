@@ -38,19 +38,19 @@ public class ReduxTest extends SubStageTest{
 
         expectedCommands.add(
                 toolCommand(REDUX)
-                        + " -sample tumor "
-                        + "-input_bam tumor.l001.bam,tumor.l002.bam "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 "
-                        + "-unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv "
-                        + "-ref_genome_msi_file /opt/resources/mappability/37/msi_jitter_sites.37.tsv.gz "
-                        + "-form_consensus "
-                        + "-use_supp_bam "
-                        + "-bamtool " + sambamba
-                        + " -output_bam /data/output/tumor.bam "
-                        + "-output_dir /data/output "
-                        + "-log_debug "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo)");
+                        + " -sample tumor"
+                        + " -input_bam tumor.l001.bam,tumor.l002.bam"
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
+                        + " -ref_genome_msi_file /opt/resources/mappability/37/msi_jitter_sites.37.tsv.gz"
+                        + " -form_consensus"
+                        + " -use_supp_bam"
+                        + " -bamtool " + sambamba
+                        + " -output_bam /data/output/tumor.bam"
+                        + " -output_dir /data/output"
+                        + " -log_debug"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)");
 
         assertThat(bash(" ")).contains(expectedCommands.toString());
     }

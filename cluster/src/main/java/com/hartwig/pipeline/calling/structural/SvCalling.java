@@ -152,7 +152,6 @@ public class SvCalling extends SubStage {
         }
 
         arguments.add(format("-junction_files %s", junctionsFile()));
-        arguments.add(format("-junction_files %s", junctionsFile()));
         arguments.add("-write_types \"JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENTS;BREAKEND;VCF\"");
 
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
