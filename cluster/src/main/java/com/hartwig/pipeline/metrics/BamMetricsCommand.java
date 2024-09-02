@@ -38,7 +38,6 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add(format("-output_dir %s", outputDir));
         arguments.add("-log_level INFO");
         arguments.add(format("-threads %s", threads));
-        arguments.add("-write_old_style");
 
         if(targetRegionsBed != null)
             arguments.add(format("-regions_file %s", targetRegionsBed));

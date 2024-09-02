@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
@@ -62,9 +63,25 @@ public class SvCalling extends SubStage {
     }
 
     public SvCalling referenceSample(final String referenceSampleName, final String referenceSamplePath) {
-        // ensure reference sample is processed first since this has a bearing on the order in the VCF where ref is first by convention
-        sampleArguments.add(0, new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
+        sampleArguments.add(new SampleArgument(SampleType.REFERENCE, referenceSampleName, referenceSamplePath));
         return this;
+    }
+
+    private List<SampleArgument> orderedSamples()
+    {
+        List<SampleArgument> samples = Lists.newArrayList();
+
+        SampleArgument tumorSample = getSample(SampleType.TUMOR);
+
+        if(tumorSample != null)
+            samples.add(tumorSample);
+
+        SampleArgument referenceSample = getSample(SampleType.REFERENCE);
+
+        if(referenceSample != null)
+            samples.add(referenceSample);
+
+        return samples;
     }
 
     private SampleArgument getSample(SampleType sampleType)
@@ -96,11 +113,14 @@ public class SvCalling extends SubStage {
 
     private BashCommand buildSvPrepCommand() {
 
-        String samplesString = sampleArguments.stream()
+        // ensure tumor is passed in first since it's name is used for all prep output files
+        List<SampleArgument> samples = orderedSamples();
+
+        String samplesString = samples.stream()
                 .map(sampleArgument -> sampleArgument.SampleName)
                 .collect(Collectors.joining(","));
 
-        String bamFilesString = sampleArguments.stream()
+        String bamFilesString = samples.stream()
                 .map(sampleArgument -> sampleArgument.BamPath)
                 .collect(Collectors.joining(","));
 
@@ -176,11 +196,13 @@ public class SvCalling extends SubStage {
 
         List<String> arguments = new ArrayList<>();
 
-        String samplesString = sampleArguments.stream()
+        List<SampleArgument> samples = orderedSamples();
+
+        String samplesString = samples.stream()
                 .map(sampleArgument -> sampleArgument.SampleName)
                 .collect(Collectors.joining(","));
 
-        String bamFilesString = sampleArguments.stream()
+        String bamFilesString = samples.stream()
                 .map(sampleArgument -> sampleArgument.BamPath)
                 .collect(Collectors.joining(","));
 
@@ -214,7 +236,6 @@ public class SvCalling extends SubStage {
 
         arguments.add(format("-input_vcf %s", refDepthVcfFile()));
 
-        arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
 
         arguments.add(format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
@@ -223,7 +244,6 @@ public class SvCalling extends SubStage {
         arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
 
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads %s", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
     }

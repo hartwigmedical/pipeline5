@@ -72,14 +72,13 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
         return ImmutableList.of(
                 toolCommand(BAM_TOOLS)
-                + " -sample reference "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-bam_file /data/input/reference.bam "
-                + "-output_dir /data/output "
-                + "-log_level INFO "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                + "-write_old_style");
+                + " -sample reference"
+                + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                + " -ref_genome_version V37"
+                + " -bam_file /data/input/reference.bam"
+                + " -output_dir /data/output"
+                + " -log_level INFO"
+                + " -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
@@ -92,15 +91,14 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
                 toolCommand(BAM_TOOLS)
-                        + " -sample tumor "
-                        + "-ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
-                        + "-ref_genome_version V38 "
-                        + "-bam_file /data/input/tumor.bam "
-                        + "-output_dir /data/output "
-                        + "-log_level INFO "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-write_old_style "
-                        + "-regions_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
+                        + " -sample tumor"
+                        + " -ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+                        + " -ref_genome_version V38"
+                        + " -bam_file /data/input/tumor.bam"
+                        + " -output_dir /data/output"
+                        + " -log_level INFO"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -regions_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
     }
 
     @Override
