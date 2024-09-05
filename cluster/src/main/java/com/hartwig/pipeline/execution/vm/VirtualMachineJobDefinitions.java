@@ -28,7 +28,6 @@ import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -181,16 +180,6 @@ public final class VirtualMachineJobDefinitions {
                 .name(HealthChecker.NAMESPACE.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(HEALTH_CHECKER.getCpus(), HEALTH_CHECKER.getMemoryGb()))
-                .startupCommand(startupScript)
-                .build();
-    }
-
-    public static VirtualMachineJobDefinition flagstat(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(STANDARD_IMAGE)
-                .name(Flagstat.NAMESPACE)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 48))
                 .startupCommand(startupScript)
                 .build();
     }

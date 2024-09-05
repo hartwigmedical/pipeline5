@@ -37,8 +37,6 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     protected Stage<HealthCheckOutput, SomaticRunMetadata> createVictim() {
         return new HealthChecker(TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.tumorFlagstatOutput(),
                 TestInputs.purpleOutput());
     }
 
@@ -46,14 +44,9 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     protected List<String> expectedInputs() {
         return ImmutableList.of(
                 "mkdir -p /data/input/metrics",
-                //"mkdir -p /data/input/flagstat",
                 "mkdir -p /data/input/purple",
                 input("run-reference-test/bam_metrics/results/", "metrics"),
                 input("run-tumor-test/bam_metrics/results/", "metrics"),
-                // input("run-reference-test/bam_metrics/results/reference" + BAM_METRICS_SUMMARY_TSV, "metrics/reference" + BAM_METRICS_SUMMARY_TSV),
-                // input("run-tumor-test/bam_metrics/results/tumor" + BAM_METRICS_SUMMARY_TSV, "metrics/tumor" + BAM_METRICS_SUMMARY_TSV),
-                //input("run-reference-test/flagstat/reference.flagstat", "flagstat/reference.flagstat"),
-                // input("run-tumor-test/flagstat/tumor.flagstat", "flagstat/tumor.flagstat"),
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
     }
 
@@ -67,11 +60,6 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
                         + " -tumor_metrics_dir /data/input/metrics"
                         + " -reference reference"
                         + " -ref_metrics_dir /data/input/metrics");
-                        // + " -tum_flagstat_file "
-                        // + " /data/input/flagstat/tumor.flagstat -reference reference "
-                        // + " -ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics "
-                        //+ " -ref_flagstat_file "
-                        //+ " /data/input/flagstat/reference.flagstat");
     }
 
     @Test

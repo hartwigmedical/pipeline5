@@ -31,8 +31,6 @@ import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.calling.structural.EsveeOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.flagstat.Flagstat;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -211,26 +209,6 @@ public class TestInputs {
 
     public static SnpGenotypeOutput snpGenotypeOutput() {
         return SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
-    }
-
-    public static FlagstatOutput flagstatOutput() {
-        return referenceFlagstatOutput();
-    }
-
-    public static FlagstatOutput flagstatOutput(final String sample) {
-        return FlagstatOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .sample(sample)
-                .maybeFlagstatOutputFile(gsLocation(namespacedBucket(sample, Flagstat.NAMESPACE), sample + ".flagstat"))
-                .build();
-    }
-
-    public static FlagstatOutput referenceFlagstatOutput() {
-        return flagstatOutput(REFERENCE_SAMPLE);
-    }
-
-    public static FlagstatOutput tumorFlagstatOutput() {
-        return flagstatOutput(TUMOR_SAMPLE);
     }
 
     public static CramOutput cramOutput() {

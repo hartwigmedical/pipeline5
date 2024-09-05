@@ -22,7 +22,6 @@ import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
@@ -65,7 +64,6 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
@@ -81,8 +79,6 @@ public class PipelineMain {
                         mode),
                 referenceBamMetricsOutputQueue,
                 tumourBamMetricsOutputQueue,
-                referenceFlagstatOutputQueue,
-                tumorFlagstatOutputQueue,
                 metadata,
                 PipelineOutputComposerProvider.from(storage, arguments, VersionUtils.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
@@ -92,7 +88,7 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
             final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
@@ -112,7 +108,6 @@ public class PipelineMain {
                 arguments,
                 persistedDataset,
                 metricsOutputQueue,
-                flagstatOutputQueue,
                 germlineCallerOutputQueue);
     }
 
@@ -162,8 +157,6 @@ public class PipelineMain {
                 turquoise.publishStarted();
                 BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
                 BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
-                BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
-                BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
                 BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
                 StartingPoint startingPoint = new StartingPoint(arguments);
                 PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
@@ -175,7 +168,6 @@ public class PipelineMain {
                         somaticRunMetadata,
                         referenceBamMetricsOutputQueue,
                         germlineCallerOutputQueue,
-                        referenceFlagstatOutputQueue,
                         startingPoint,
                         persistedDataset,
                         mode),
@@ -187,7 +179,6 @@ public class PipelineMain {
                                 somaticRunMetadata,
                                 tumorBamMetricsOutputQueue,
                                 germlineCallerOutputQueue,
-                                tumorFlagstatOutputQueue,
                                 startingPoint,
                                 persistedDataset,
                                 mode),
@@ -197,8 +188,6 @@ public class PipelineMain {
                                 somaticRunMetadata,
                                 referenceBamMetricsOutputQueue,
                                 tumorBamMetricsOutputQueue,
-                                referenceFlagstatOutputQueue,
-                                tumorFlagstatOutputQueue,
                                 startingPoint,
                                 persistedDataset,
                                 mode),

@@ -14,7 +14,6 @@ import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.reruns.StartingPoint.StartingPoints;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -57,7 +56,6 @@ public class StartingPointTest {
         StartingPoint victim = new StartingPoint(testArgumentsWithStartingPoint("alignment_complete"));
         assertThat(victim.usePersisted(Aligner.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(BamMetrics.NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Flagstat.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SnpGenotype.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(CramConversion.NAMESPACE)).isFalse();
     }

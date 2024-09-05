@@ -7,7 +7,6 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -31,12 +30,11 @@ public class StartingPoint {
 
     enum StartingPoints {
         BEGINNING(Collections.emptyList()),
-        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE, BamMetrics.NAMESPACE, Flagstat.NAMESPACE, SnpGenotype.NAMESPACE)),
+        ALIGNMENT_COMPLETE(List.of(Aligner.NAMESPACE, BamMetrics.NAMESPACE, SnpGenotype.NAMESPACE)),
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         SKIP_ESVEE(List.of(Aligner.NAMESPACE,
                 BamMetrics.NAMESPACE,
                 GermlineCaller.NAMESPACE,
-                Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE,
                 Esvee.NAMESPACE,
                 CramConversion.NAMESPACE,

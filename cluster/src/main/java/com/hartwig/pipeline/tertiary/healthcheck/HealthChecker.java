@@ -23,7 +23,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -46,30 +45,20 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     public static final String NAMESPACE = "health_checker";
 
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
-    private static final String LOCAL_FLAGSTAT_DIR = VmDirectories.INPUT + "/flagstat";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/purple";
 
     private final InputDownloadCommand referenceMetricsDownload;
     private final InputDownloadCommand tumorMetricsDownload;
-    //private final InputDownloadCommand referenceFlagstatDownload;
-    //private final InputDownloadCommand tumorFlagstatDownload;
     private final InputDownloadCommand purpleDownload;
 
-    public HealthChecker(final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput,
-            final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
+    public HealthChecker(
+            final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput, final PurpleOutput purpleOutput) {
 
         referenceMetricsDownload = new InputDownloadCommand(
                 referenceMetricsOutput.outputLocations().outputDirectory(), LOCAL_METRICS_DIR);
 
         tumorMetricsDownload = new InputDownloadCommand(
                 tumorMetricsOutput.outputLocations().outputDirectory(), LOCAL_METRICS_DIR);
-
-        /*
-        referenceFlagstatDownload = new InputDownloadCommand(
-                referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
-
-        tumorFlagstatDownload = new InputDownloadCommand(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
-        */
 
         purpleDownload = new InputDownloadCommand(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
@@ -78,12 +67,9 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     public List<BashCommand> inputs() {
         return ImmutableList.of(
                 new MkDirCommand(LOCAL_METRICS_DIR),
-                //new MkDirCommand(LOCAL_FLAGSTAT_DIR),
                 new MkDirCommand(LOCAL_PURPLE_DIR),
                 referenceMetricsDownload,
                 tumorMetricsDownload,
-                //referenceFlagstatDownload,
-                //tumorFlagstatDownload,
                 purpleDownload);
     }
 
@@ -98,9 +84,6 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         List<String> arguments = commonArguments(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT);
         arguments.addAll(tumorArguments(metadata.tumor().sampleName(), tumorMetricsDownload.getLocalTargetPath()));
         return List.of(formCommand(arguments));
-
-        // return List.of(new HealthCheckerCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
-        //        .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorFlagstatDownload.getLocalTargetPath()).build());
     }
 
     @Override
@@ -108,9 +91,6 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         List<String> arguments = commonArguments(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT);
         arguments.addAll(referenceArguments(metadata.reference().sampleName(), referenceMetricsDownload.getLocalTargetPath()));
         return List.of(formCommand(arguments));
-
-        // return List.of(new HealthCheckerCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withReference(metadata.reference()
-        //        .sampleName(), referenceMetricsDownload.getLocalTargetPath(), referenceFlagstatDownload.getLocalTargetPath()).build());
     }
 
     @Override
@@ -119,15 +99,6 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         arguments.addAll(tumorArguments(metadata.tumor().sampleName(), tumorMetricsDownload.getLocalTargetPath()));
         arguments.addAll(referenceArguments(metadata.reference().sampleName(), referenceMetricsDownload.getLocalTargetPath()));
         return List.of(formCommand(arguments));
-
-        /*
-        return List.of(new HealthCheckerCommandBuilder(LOCAL_PURPLE_DIR, VmDirectories.OUTPUT).withTumor(metadata.tumor()
-                        .sampleName(), tumorMetricsDownload.getLocalTargetPath(), tumorFlagstatDownload.getLocalTargetPath())
-                .withReference(metadata.reference().sampleName(),
-                        referenceMetricsDownload.getLocalTargetPath(),
-                        referenceFlagstatDownload.getLocalTargetPath())
-                .build());
-        */
     }
 
     private List<String> commonArguments(final String purplePath, final String outputPath) {
@@ -228,13 +199,5 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
         throw new UnsupportedOperationException("No datatypes for HealthChecker");
-    }
-
-    private static String localMetricsPath(final BamMetricsOutput metricsOutput) {
-        return LOCAL_METRICS_DIR + "/" + metricsOutput.sample() + ".wgsmetrics";
-    }
-
-    private static String localFlagstatPath(final FlagstatOutput flagstatOutput) {
-        return LOCAL_FLAGSTAT_DIR + "/" + flagstatOutput.sample() + ".flagstat";
     }
 }

@@ -6,7 +6,6 @@ import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.calling.structural.EsveeOutput;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.Folder;
@@ -69,8 +68,6 @@ public class SomaticPipeline {
     private final StageRunner<SomaticRunMetadata> stageRunner;
     private final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue;
     private final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue;
-    private final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue;
-    private final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue;
     private final SomaticRunMetadata metadata;
     private final PipelineOutputComposer composer;
     private final ExecutorService executorService;
@@ -79,15 +76,12 @@ public class SomaticPipeline {
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final SomaticRunMetadata metadata, final PipelineOutputComposer composer, final ExecutorService executorService,
             final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
         this.tumorBamMetricsOutputQueue = tumorBamMetricsOutputQueue;
-        this.referenceFlagstatOutputQueue = referenceFlagstatOutputQueue;
-        this.tumorFlagstatOutputQueue = tumorFlagstatOutputQueue;
         this.metadata = metadata;
         this.composer = composer;
         this.executorService = executorService;
@@ -152,12 +146,6 @@ public class SomaticPipeline {
                         BamMetricsOutput referenceMetrics = metadata.maybeReference()
                                 .map(t -> pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics"))
                                 .orElse(skippedMetrics(metadata.sampleName()));
-                        FlagstatOutput tumorFlagstat = metadata.maybeTumor()
-                                .map(t -> pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat"))
-                                .orElse(skippedFlagstat(metadata.sampleName()));
-                        FlagstatOutput referenceFlagstat = metadata.maybeReference()
-                                .map(t -> pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat"))
-                                .orElse(skippedFlagstat(metadata.sampleName()));
 
                         Future<TealOutput> tealOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Teal(pair, purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics, resourceFiles,
@@ -176,7 +164,7 @@ public class SomaticPipeline {
                                         purpleOutput,
                                         tumorMetrics)));
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
+                                new HealthChecker(referenceMetrics, tumorMetrics, purpleOutput)));
                         Future<LinxSomaticOutput> linxSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                         Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -205,8 +193,6 @@ public class SomaticPipeline {
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
                                         referenceMetrics,
-                                        tumorFlagstat,
-                                        referenceFlagstat,
                                         sageSomaticOutput,
                                         sageGermlineOutput,
                                         purpleOutput,
@@ -225,8 +211,6 @@ public class SomaticPipeline {
                         Future<OrangeOutput> orangeNoGermlineFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
                                         referenceMetrics,
-                                        tumorFlagstat,
-                                        referenceFlagstat,
                                         sageSomaticOutput,
                                         sageGermlineOutput,
                                         purpleOutput,
@@ -257,10 +241,6 @@ public class SomaticPipeline {
 
     private BamMetricsOutput skippedMetrics(final String sample) {
         return BamMetricsOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
-    }
-
-    private FlagstatOutput skippedFlagstat(final String sample) {
-        return FlagstatOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
     }
 
     public static <T> T pollOrThrow(final BlockingQueue<T> tumourBamMetricsOutput, final String name) {

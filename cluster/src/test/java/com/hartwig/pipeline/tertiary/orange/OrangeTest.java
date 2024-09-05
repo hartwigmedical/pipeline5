@@ -40,8 +40,6 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
         return new Orange(
                 TestInputs.tumorMetricsOutput(),
                 TestInputs.referenceMetricsOutput(),
-                TestInputs.tumorFlagstatOutput(),
-                TestInputs.referenceFlagstatOutput(),
                 TestInputs.sageSomaticOutput(),
                 TestInputs.sageGermlineOutput(),
                 TestInputs.purpleOutput(),

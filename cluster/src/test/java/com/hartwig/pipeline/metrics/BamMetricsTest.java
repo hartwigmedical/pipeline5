@@ -145,7 +145,6 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
         assertThat(output.outputLocations().summary()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_SUMMARY));
-        // assertThat(output.datatypes()).containsExactly(ADD_DATATYPES);
     }
 
     @Override
