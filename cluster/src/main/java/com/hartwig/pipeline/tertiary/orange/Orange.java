@@ -260,7 +260,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 "-known_fusion_file",
                 resourceFiles.knownFusionData(),
                 "-ensembl_data_dir",
-                resourceFiles.ensemblDataCache());
+                resourceFiles.ensemblDataCache(),
+                "-signatures_etiology_tsv",
+                resourceFiles.signaturesEtiology());
 
         if (context.equals(Pipeline.Context.RESEARCH) || context.equals(Pipeline.Context.RESEARCH2)) {
             arguments.add("-add_disclaimer");

@@ -140,6 +140,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                         resourceFiles.virusInterpreterTaxonomyDb(),
                         "-virus_reporting_db_tsv",
                         resourceFiles.virusReportingDb(),
+                        "-virus_blacklisting_db_tsv",
+                        resourceFiles.virusBlacklistingDb(),
                         "-output_dir",
                         VmDirectories.OUTPUT)));
     }

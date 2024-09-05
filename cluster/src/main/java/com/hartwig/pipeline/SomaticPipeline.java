@@ -188,7 +188,6 @@ public class SomaticPipeline {
                         CuppaOutput cuppaOutput = composer.add(state.add(cuppaOutputFuture.get()));
                         SigsOutput sigsOutput = composer.add(state.add(signatureOutputFuture.get()));
                         LilacOutput lilacOutput = composer.add(state.add(lilacOutputFuture.get()));
-                        composer.add(state.add(tealOutputFuture.get()));
 
                         Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Orange(tumorMetrics,
@@ -226,6 +225,9 @@ public class SomaticPipeline {
                                         arguments.context(),
                                         false,
                                         arguments.useTargetRegions())));
+
+                        composer.add(state.add(tealOutputFuture.get()));
+
                         composer.add(state.add(orangeOutputFuture.get()));
                         composer.add(state.add(orangeNoGermlineFuture.get()));
 

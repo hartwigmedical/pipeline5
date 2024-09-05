@@ -88,17 +88,16 @@ public interface ResourceFiles {
         return of(DISEASE_ONTOLOGY, "doid.json");
     }
 
-    default String snvSignatures() {
-        return of(SIGS, "snv_cosmic_signatures.csv");
-    }
+    default String snvSignatures() { return of(SIGS, "snv_cosmic_signatures.csv"); }
+    default String signaturesEtiology() { return of(SIGS, "signatures_etiology.tsv"); }
 
     default String virusInterpreterTaxonomyDb() {
         return of(VIRUS_INTERPRETER, "taxonomy_db.tsv");
     }
-
     default String virusReportingDb() {
         return of(VIRUS_INTERPRETER, "virus_reporting_db.tsv");
     }
+    default String virusBlacklistingDb() { return of(VIRUS_INTERPRETER, "virus_blacklisting_db.tsv"); }
 
     default String orangeCohortMapping() {
         return of(ORANGE, "cohort_mapping.tsv");

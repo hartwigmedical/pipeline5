@@ -90,6 +90,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
                         + " -virus_breakend_tsv /data/input/tumor.virusbreakend.vcf.summary.tsv"
                         + " -taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv"
                         + " -virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv"
+                        + " -virus_blacklisting_db_tsv /opt/resources/virus_interpreter/virus_blacklisting_db.tsv"
                         + " -output_dir /data/output");
     }
 }
