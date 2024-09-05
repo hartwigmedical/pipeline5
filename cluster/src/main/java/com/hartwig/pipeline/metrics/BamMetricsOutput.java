@@ -20,6 +20,7 @@ public interface BamMetricsOutput extends StageOutput {
         return BamMetrics.NAMESPACE;
     }
 
+    /*
     Optional<GoogleStorageLocation> maybeMetricsOutputFile();
 
     default GoogleStorageLocation metricsOutputFile() {
@@ -29,8 +30,23 @@ public interface BamMetricsOutput extends StageOutput {
     static String outputFile(final String sample) {
         return String.format("%s.wgsmetrics", sample);
     }
+   */
 
     static ImmutableBamMetricsOutput.Builder builder() {
         return ImmutableBamMetricsOutput.builder();
+    }
+
+    Optional<BamMetricsOutputLocations> maybeOutputLocations();
+
+    default BamMetricsOutputLocations outputLocations()
+    {
+        return maybeOutputLocations().orElse(BamMetricsOutputLocations.builder()
+                .summary(GoogleStorageLocation.empty())
+                .flagCounts(GoogleStorageLocation.empty())
+                .fragmentLengths(GoogleStorageLocation.empty())
+                .partitionStats(GoogleStorageLocation.empty())
+                .coverage(GoogleStorageLocation.empty())
+                .outputDirectory(GoogleStorageLocation.empty())
+                .build());
     }
 }

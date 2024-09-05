@@ -13,19 +13,19 @@ public enum HmfTool {
     COBALT("2.0rc", 20, 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
     ESVEE("1.0rc", 60, 64, 24, false),
-    HEALTH_CHECKER("3.5", Defaults.JAVA_HEAP, 32, 8, false),
+    HEALTH_CHECKER("3.6rc", Defaults.JAVA_HEAP, 32, 8, false), // 3.5 -> 3.6
     LILAC("1.6", 20, 24, 8, false),
     LINX("2.0rc", 8, 12, 4, false), // 1.25 -> 2.0
     REDUX("1.0rc", 100, 120, 24, false), // MarkDups 1.1.7 -> Redux 1.0
-    ORANGE("3.5.1", 16, 18, 4, false),
+    ORANGE("3.7.0rc", 16, 18, 4, false), // 3.5.1 -> 3.7.0
     PAVE("1.7rc", 30, 40, 8, false), // 1.6 -> 1.7
     PEACH("2.0.0", 1, 4, 2, false),
     PURPLE("4.1rc", 30, 40, 8, false), // 4.0.2 -> 4.1
     SAGE("4.0rc", 60, 64, 24, false), // 3.4.3 -> 4.0
     SIGS("1.2.1", Defaults.JAVA_HEAP, 16, 4, false),
-    TEAL("1.2.2", 30, 32, 16, false),
+    TEAL("1.3.1rc", 30, 32, 16, false), // 1.2.2 -> 1.3.1
     VIRUSBREAKEND_GRIDSS("2.13.3", Defaults.JAVA_HEAP, 64, 12, false),
-    VIRUS_INTERPRETER("1.3", Defaults.JAVA_HEAP, 8, 2, false);
+    VIRUS_INTERPRETER("1.6rc", Defaults.JAVA_HEAP, 8, 2, false); // 1.3 -> 1.6
 
     private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
     private final String toolName;

@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
@@ -43,13 +44,16 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of("mkdir -p /data/input/metrics",
-                "mkdir -p /data/input/flagstat",
+        return ImmutableList.of(
+                "mkdir -p /data/input/metrics",
+                //"mkdir -p /data/input/flagstat",
                 "mkdir -p /data/input/purple",
-                input("run-reference-test/bam_metrics/results/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
-                input("run-tumor-test/bam_metrics/results/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
-                input("run-reference-test/flagstat/reference.flagstat", "flagstat/reference.flagstat"),
-                input("run-tumor-test/flagstat/tumor.flagstat", "flagstat/tumor.flagstat"),
+                input("run-reference-test/bam_metrics/results/", "metrics"),
+                input("run-tumor-test/bam_metrics/results/", "metrics"),
+                // input("run-reference-test/bam_metrics/results/reference" + BAM_METRICS_SUMMARY_TSV, "metrics/reference" + BAM_METRICS_SUMMARY_TSV),
+                // input("run-tumor-test/bam_metrics/results/tumor" + BAM_METRICS_SUMMARY_TSV, "metrics/tumor" + BAM_METRICS_SUMMARY_TSV),
+                //input("run-reference-test/flagstat/reference.flagstat", "flagstat/reference.flagstat"),
+                // input("run-tumor-test/flagstat/tumor.flagstat", "flagstat/tumor.flagstat"),
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
     }
 
@@ -57,11 +61,17 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList(
                 toolCommand(HEALTH_CHECKER)
-                        + " -purple_dir /data/input/purple -output_dir /data/output "
-                        + "-tumor tumor -tum_wgs_metrics_file /data/input/metrics/tumor.wgsmetrics -tum_flagstat_file "
-                        + "/data/input/flagstat/tumor.flagstat -reference reference "
-                        + "-ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -ref_flagstat_file "
-                        + "/data/input/flagstat/reference.flagstat");
+                        + " -purple_dir /data/input/purple"
+                        + " -output_dir /data/output"
+                        + " -tumor tumor"
+                        + " -tumor_metrics_dir /data/input/metrics"
+                        + " -reference reference"
+                        + " -ref_metrics_dir /data/input/metrics");
+                        // + " -tum_flagstat_file "
+                        // + " /data/input/flagstat/tumor.flagstat -reference reference "
+                        // + " -ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics "
+                        //+ " -ref_flagstat_file "
+                        //+ " /data/input/flagstat/reference.flagstat");
     }
 
     @Test

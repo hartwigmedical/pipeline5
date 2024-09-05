@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 
@@ -45,7 +46,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
     protected List<String> expectedInputs() {
         return List.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
-                input("run-tumor-test/bam_metrics/results/tumor.wgsmetrics", "tumor.wgsmetrics"),
+                input("run-tumor-test/bam_metrics/tumor" + BAM_METRICS_SUMMARY_TSV, "tumor" + BAM_METRICS_SUMMARY_TSV),
                 input(expectedRuntimeBucketName() + "/virusbreakend/tumor.virusbreakend.vcf.summary.tsv",
                         "tumor.virusbreakend.vcf.summary.tsv"));
     }
@@ -83,12 +84,12 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
     protected List<String> expectedCommands() {
         return List.of(
                 toolCommand(HmfTool.VIRUS_INTERPRETER)
-                        + " -sample tumor "
-                        + "-purple_dir /data/input "
-                        + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
-                        + "-virus_breakend_tsv /data/input/tumor.virusbreakend.vcf.summary.tsv "
-                        + "-taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv "
-                        + "-virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv "
-                        + "-output_dir /data/output");
+                        + " -sample tumor"
+                        + " -purple_dir /data/input"
+                        + " -tumor_metrics_dir /data/input"
+                        + " -virus_breakend_tsv /data/input/tumor.virusbreakend.vcf.summary.tsv"
+                        + " -taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv"
+                        + " -virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv"
+                        + " -output_dir /data/output");
     }
 }

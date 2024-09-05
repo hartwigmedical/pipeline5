@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.virus;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -52,7 +53,7 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
         this.virusBreakendOutput = new InputDownloadCommand(virusBreakendOutput.summary());
         this.purpleQc = new InputDownloadCommand(purpleOutput.outputLocations().qcFile());
         this.purplePurity = new InputDownloadCommand(purpleOutput.outputLocations().purity());
-        this.tumorBamMetrics = InputDownloadCommand.initialiseOptionalLocation(tumorBamMetricsOutput.maybeMetricsOutputFile());
+        this.tumorBamMetrics = new InputDownloadCommand(tumorBamMetricsOutput.outputLocations().summary());
     }
 
     @Override
@@ -131,8 +132,8 @@ public class VirusInterpreter extends TertiaryStage<VirusInterpreterOutput> {
                         metadata.tumor().sampleName(),
                         "-purple_dir",
                         VmDirectories.INPUT,
-                        "-tumor_sample_wgs_metrics_file",
-                        tumorBamMetrics.getLocalTargetPath(),
+                        "-tumor_metrics_dir",
+                        VmDirectories.INPUT,
                         "-virus_breakend_tsv",
                         virusBreakendOutput.getLocalTargetPath(),
                         "-taxonomy_db_tsv",

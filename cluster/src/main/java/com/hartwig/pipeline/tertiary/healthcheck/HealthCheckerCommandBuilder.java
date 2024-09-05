@@ -8,15 +8,16 @@ import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 
-class HealthCheckerApplicationCommandBuilder {
+class HealthCheckerCommandBuilder
+{
 
     private final List<String> arguments;
 
-    HealthCheckerApplicationCommandBuilder(final String purplePath, final String outputPath) {
+    HealthCheckerCommandBuilder(final String purplePath, final String outputPath) {
         arguments = Lists.newArrayList("-purple_dir", purplePath, "-output_dir", outputPath);
     }
 
-    HealthCheckerApplicationCommandBuilder withTumor(final String tumorSampleName, final String tumorMetricsPath,
+    HealthCheckerCommandBuilder withTumor(final String tumorSampleName, final String tumorMetricsPath,
             final String tumorFlagstatPath) {
         arguments.addAll(List.of("-tumor",
                 tumorSampleName,
@@ -27,7 +28,7 @@ class HealthCheckerApplicationCommandBuilder {
         return this;
     }
 
-    HealthCheckerApplicationCommandBuilder withReference(final String refSampleName, final String refMetricsPath,
+    HealthCheckerCommandBuilder withReference(final String refSampleName, final String refMetricsPath,
             final String refFlagstatPath) {
         arguments.addAll(List.of("-reference",
                 refSampleName,

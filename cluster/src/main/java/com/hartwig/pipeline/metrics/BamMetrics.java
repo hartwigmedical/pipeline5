@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.metrics;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +22,10 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
+import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
+import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
@@ -32,6 +35,9 @@ import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
+
+import org.jetbrains.annotations.NotNull;
 
 @Namespace(BamMetrics.NAMESPACE)
 public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
@@ -103,23 +109,40 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public BamMetricsOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
+        // String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
+
         return BamMetricsOutput.builder()
                 .status(jobStatus)
                 .sample(metadata.sampleName())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .maybeOutputLocations(BamMetricsOutputLocations.builder()
+                        .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
+                        .summary(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(summaryTsv(metadata))))
+                        .coverage(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(coverageTsv(metadata))))
+                        .fragmentLengths(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fragLengthTsv(metadata))))
+                        .flagCounts(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(flagCountTsv(metadata))))
+                        .partitionStats(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(partitionStatsTsv(metadata))))
+                        .build())
+                // .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.from(metadata)))
-                .addReportComponents(new SingleFileComponent(bucket,
-                        namespace(),
-                        Folder.from(metadata),
-                        outputFile,
-                        outputFile,
-                        resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                // .addReportComponents(new SingleFileComponent(bucket, namespace(), Folder.from(metadata), outputFile, outputFile, resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
+
+    public static final String BAM_METRICS_SUMMARY_TSV = ".bam_metric.summary.tsv";
+    public static final String BAM_METRICS_COVERAGE_TSV = ".bam_metric.coverage.tsv";
+    public static final String BAM_METRICS_FRAG_LENGTH_TSV = ".bam_metric.frag_length.tsv";
+    public static final String BAM_METRICS_FLAG_COUNT_TSV = ".bam_metric.flag_counts.tsv";
+    public static final String BAM_METRICS_PARTITION_STATS_TSV = ".bam_metric.partition_stats.tsv";
+
+    private String summaryTsv(final SingleSampleRunMetadata metadata) { return metadata.sampleName() + BAM_METRICS_SUMMARY_TSV; }
+    private String coverageTsv(final SingleSampleRunMetadata metadata) { return metadata.sampleName() + BAM_METRICS_COVERAGE_TSV; }
+    private String fragLengthTsv(final SingleSampleRunMetadata metadata) { return metadata.sampleName() + BAM_METRICS_FRAG_LENGTH_TSV; }
+    private String flagCountTsv(final SingleSampleRunMetadata metadata) { return metadata.sampleName() + BAM_METRICS_FLAG_COUNT_TSV; }
+    private String partitionStatsTsv(final SingleSampleRunMetadata metadata) { return metadata.sampleName() + BAM_METRICS_PARTITION_STATS_TSV; }
 
     @Override
     public BamMetricsOutput skippedOutput(final SingleSampleRunMetadata metadata) {
@@ -128,23 +151,48 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        String summmaryTsv = summaryTsv(metadata);
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
-                .maybeMetricsOutputFile(persistedDataset.path(metadata.sampleName(), DataType.WGSMETRICS)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSingle(metadata.set(),
-                                        metadata.sampleName(),
-                                        namespace(),
-                                        BamMetricsOutput.outputFile(metadata.sampleName())))))
+                .maybeOutputLocations(BamMetricsOutputLocations.builder()
+                        .summary(persistedOrDefault(metadata, DataType.METRICS_SUMMARY, summmaryTsv))
+                        .coverage(persistedOrDefault(metadata, DataType.METRICS_COVERAGE, coverageTsv(metadata)))
+                        .fragmentLengths(persistedOrDefault(metadata, DataType.METRICS_FRAG_LENGTH, fragLengthTsv(metadata)))
+                        .flagCounts(persistedOrDefault(metadata, DataType.METRICS_FLAG_COUNT, flagCountTsv(metadata)))
+                        .partitionStats(persistedOrDefault(metadata, DataType.METRICS_PARTITION, partitionStatsTsv(metadata)))
+                        .outputDirectory(persistedOrDefault(metadata,
+                                DataType.METRICS_SUMMARY,
+                                summmaryTsv).transform(f -> new File(f).getParent()).asDirectory())
+                        .build())
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
+    @NotNull
+    public GoogleStorageLocation persistedOrDefault(final SingleSampleRunMetadata metadata, final DataType dataType, final String path) {
+        return persistedDataset.path(metadata.sampleName(), dataType)
+                .orElse(GoogleStorageLocation.of(
+                        metadata.bucket(), PersistedLocations.blobForSingle(
+                                metadata.set(), metadata.sampleName(), namespace(), path)));
+    }
+
     @Override
     public List<AddDatatype> addDatatypes(final SingleSampleRunMetadata metadata) {
-        return Collections.singletonList(new AddDatatype(DataType.WGSMETRICS,
-                metadata.barcode(),
-                new ArchivePath(Folder.from(metadata), namespace(), BamMetricsOutput.outputFile(metadata.sampleName()))));
+        return List.of(new AddDatatype(
+                        DataType.METRICS_SUMMARY, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), summaryTsv(metadata))),
+                new AddDatatype(
+                        DataType.METRICS_COVERAGE, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), coverageTsv(metadata))),
+                new AddDatatype(
+                        DataType.METRICS_FRAG_LENGTH, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), fragLengthTsv(metadata))),
+                new AddDatatype(
+                        DataType.METRICS_FLAG_COUNT, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), flagCountTsv(metadata))),
+                new AddDatatype(
+                        DataType.METRICS_PARTITION, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), partitionStatsTsv(metadata))));
     }
 }

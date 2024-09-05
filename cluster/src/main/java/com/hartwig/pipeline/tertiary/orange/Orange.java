@@ -101,10 +101,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final ResourceFiles resourceFiles, final Pipeline.Context context, final boolean includeGermline, final boolean isTargeted) {
 
         this.resourceFiles = resourceFiles;
-        this.refMetrics = new InputDownloadCommand(referenceMetrics.metricsOutputFile());
-        this.tumMetrics = new InputDownloadCommand(tumorMetrics.metricsOutputFile());
-        this.refFlagstat = new InputDownloadCommand(referenceFlagstat.flagstatOutputFile());
-        this.tumFlagstat = new InputDownloadCommand(tumorFlagstat.flagstatOutputFile());
+        this.refMetrics = new InputDownloadCommand(referenceMetrics.outputLocations().summary());
+        this.tumMetrics = new InputDownloadCommand(tumorMetrics.outputLocations().summary());
+        this.refFlagstat = new InputDownloadCommand(referenceMetrics.outputLocations().flagCounts());
+        this.tumFlagstat = new InputDownloadCommand(tumorMetrics.outputLocations().flagCounts());
         this.context = context;
         this.includeGermline = includeGermline;
         this.isTargeted = isTargeted;
@@ -278,10 +278,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 "-primary_tumor_doids",
                 primaryTumorDoidsString,
-                "-tumor_sample_wgs_metrics_file",
-                tumMetrics.getLocalTargetPath(),
-                "-tumor_sample_flagstat_file",
-                tumFlagstat.getLocalTargetPath(),
+                "-tumor_metrics_dir",
+                VmDirectories.INPUT,
                 "-linx_plot_dir",
                 getLinxPlotDir(),
                 "-linx_dir",
@@ -301,10 +299,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private List<String> germlineArguments(final SomaticRunMetadata metadata) {
         return List.of("-reference_sample_id",
                 metadata.reference().sampleName(),
-                "-ref_sample_wgs_metrics_file",
-                refMetrics.getLocalTargetPath(),
-                "-ref_sample_flagstat_file",
-                refFlagstat.getLocalTargetPath(),
+                "-ref_metrics_dir",
+                VmDirectories.INPUT,
                 "-linx_germline_dir",
                 linxGermlineDataDir.getLocalTargetPath());
     }

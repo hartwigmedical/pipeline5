@@ -62,8 +62,8 @@ public class Teal extends TertiaryStage<TealOutput> {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
         cobaltOutputDirDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
-        referenceBamMetricsDownload = new InputDownloadCommand(referenceBamMetricsOutput.metricsOutputFile());
-        tumorBamMetricsDownload = new InputDownloadCommand(tumorBamMetricsOutput.metricsOutputFile());
+        referenceBamMetricsDownload = new InputDownloadCommand(referenceBamMetricsOutput.outputLocations().summary());
+        tumorBamMetricsDownload = new InputDownloadCommand(tumorBamMetricsOutput.outputLocations().summary());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
