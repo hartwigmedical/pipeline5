@@ -115,7 +115,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
                 toolCommand(BAM_TOOLS)
                         + " -sample tumor"
-                        + " -ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+                        + " -ref_genome /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta"
                         + " -ref_genome_version V38"
                         + " -bam_file /data/input/tumor.bam"
                         + " -output_dir /data/output"
