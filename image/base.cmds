@@ -18,4 +18,4 @@ sudo gcloud source repos clone common-resources-public /opt/resources --project=
 # Note the "-n", bucket-based files should never overwrite what came from the repository
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-resources/* /opt/resources/
 # Remove old reference genome files. Remove this command when these files have been removed from the bucket.
-rm -f /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.*
+sudo rm -f /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.*
