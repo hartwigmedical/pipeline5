@@ -28,7 +28,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     // ref genome and mappability
     public String refGenomeFile() {
-        return formPath(REFERENCE_GENOME, "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna");
+        return formPath(REFERENCE_GENOME, "Homo_sapiens_assembly38.alt.masked.fasta");
     }
     public String mappabilityBed() {
         return formPath(MAPPABILITY, "mappability_150.38.bed.gz");
