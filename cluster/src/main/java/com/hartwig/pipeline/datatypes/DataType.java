@@ -3,6 +3,8 @@ package com.hartwig.pipeline.datatypes;
 public enum DataType {
     ALIGNED_READS,
     ALIGNED_READS_INDEX,
+    REDUX_MS_TABLE,
+    REDUX_JITTER_PARAMS,
     METRICS_SUMMARY,
     METRICS_COVERAGE,
     METRICS_FLAG_COUNT,

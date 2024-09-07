@@ -2,6 +2,8 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.alignment.redux.Redux.jitterParamsTsv;
+import static com.hartwig.pipeline.alignment.redux.Redux.msTableTsv;
 import static com.hartwig.pipeline.datatypes.FileTypes.bai;
 import static com.hartwig.pipeline.datatypes.FileTypes.bam;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
@@ -20,6 +22,7 @@ import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -32,7 +35,7 @@ import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.alignment.redux.MergeMarkDups;
+import com.hartwig.pipeline.alignment.redux.Redux;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -152,7 +155,7 @@ public class BwaAligner implements Aligner {
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged = new MergeMarkDups(metadata.sampleName(), resourceFiles, laneBamPaths)
+            SubStageInputOutput merged = new Redux(metadata.sampleName(), resourceFiles, laneBamPaths)
                     .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
@@ -165,14 +168,20 @@ public class BwaAligner implements Aligner {
 
             PipelineStatus pipelineStatus = PipelineStatus.of(computeEngineStatus);
 
+            String jitterParams = resultsDirectory.path(jitterParamsTsv(metadata.sampleName()));
+            String msTableParams = resultsDirectory.path(msTableTsv(metadata.sampleName()));
+
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(pipelineStatus)
                     .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(merged.outputFile().fileName())))
+                    .maybeJitterParams(GoogleStorageLocation.of(rootBucket.name(), jitterParams))
+                    .maybeMsTable(GoogleStorageLocation.of(rootBucket.name(), msTableParams))
                     .addAllReportComponents(laneLogComponents)
                     .addAllFailedLogLocations(laneFailedLogs)
                     .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
                     .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
+
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
                                         Aligner.NAMESPACE,
@@ -186,16 +195,19 @@ public class BwaAligner implements Aligner {
                                         bai(bam(metadata.sampleName())),
                                         bai(bam(metadata.sampleName())),
                                         resultsDirectory))
-                        .addDatatypes(new AddDatatype(DataType.ALIGNED_READS,
-                                        metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata),
-                                                BwaAligner.NAMESPACE,
-                                                bam(metadata.sampleName()))),
+                        .addDatatypes(
+                                new AddDatatype(
+                                        DataType.ALIGNED_READS, metadata.barcode(),
+                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))),
                                 new AddDatatype(DataType.ALIGNED_READS_INDEX,
                                         metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata),
-                                                BwaAligner.NAMESPACE,
-                                                bai(metadata.sampleName()))));
+                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(metadata.sampleName()))),
+                                new AddDatatype(DataType.REDUX_JITTER_PARAMS,
+                                        metadata.barcode(),
+                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, jitterParamsTsv(metadata.sampleName()))),
+                                new AddDatatype(DataType.REDUX_MS_TABLE,
+                                        metadata.barcode(),
+                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, msTableTsv(metadata.sampleName()))));
             }
             output = outputBuilder.build();
         } else {

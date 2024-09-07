@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.StringJoiner;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.alignment.redux.MergeMarkDups;
+import com.hartwig.pipeline.alignment.redux.Redux;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -19,7 +19,7 @@ public class ReduxTest extends SubStageTest{
 
     @Override
     public SubStage createVictim() {
-        return new MergeMarkDups(
+        return new Redux(
                 "tumor", TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 Lists.newArrayList("tumor.l001.bam", "tumor.l002.bam"));
     }

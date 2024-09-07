@@ -20,18 +20,6 @@ public interface BamMetricsOutput extends StageOutput {
         return BamMetrics.NAMESPACE;
     }
 
-    /*
-    Optional<GoogleStorageLocation> maybeMetricsOutputFile();
-
-    default GoogleStorageLocation metricsOutputFile() {
-        return maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty());
-    }
-
-    static String outputFile(final String sample) {
-        return String.format("%s.wgsmetrics", sample);
-    }
-   */
-
     static ImmutableBamMetricsOutput.Builder builder() {
         return ImmutableBamMetricsOutput.builder();
     }

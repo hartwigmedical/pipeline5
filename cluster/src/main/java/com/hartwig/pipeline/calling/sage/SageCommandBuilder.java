@@ -128,6 +128,9 @@ public class SageCommandBuilder {
         arguments.add("-bqr_write_plot");
         arguments.add(format("-threads %s", Bash.allCpus()));
 
+        // add for regression testing
+        // arguments.add("-log_debug");
+
         result.add(JavaCommandFactory.javaJarCommand(SAGE, arguments));
 
         return result;

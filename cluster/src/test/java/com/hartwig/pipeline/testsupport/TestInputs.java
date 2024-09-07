@@ -2,9 +2,12 @@ package com.hartwig.pipeline.testsupport;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.alignment.redux.Redux.jitterParamsTsv;
+import static com.hartwig.pipeline.alignment.redux.Redux.msTableTsv;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_GERMLINE_VCF;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_SOMATIC_VCF;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_UNFILTERED_VCF;
+import static com.hartwig.pipeline.datatypes.FileTypes.bam;
 import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_COVERAGE_TSV;
 import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_FLAG_COUNT_TSV;
 import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_FRAG_LENGTH_TSV;
@@ -194,7 +197,9 @@ public class TestInputs {
         String bucket = namespacedBucket(sample, Aligner.NAMESPACE);
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeAlignments(gsLocation(bucket, RESULTS + sample + ".bam"))
+                .maybeAlignments(gsLocation(bucket, RESULTS + bam(sample)))
+                .maybeJitterParams(gsLocation(bucket, RESULTS + jitterParamsTsv(sample)))
+                .maybeMsTable(gsLocation(bucket, RESULTS + msTableTsv(sample)))
                 .sample(sample)
                 .build();
     }
