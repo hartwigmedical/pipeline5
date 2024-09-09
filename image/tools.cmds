@@ -41,7 +41,7 @@ sudo chmod a+x /opt/tools/gridss/2.13.3/virusbreakend
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss_annotate_vcf_repeatmasker
 
-sudo chmod a+x /opt/tools/samtools/1.14/samtools
+sudo chmod a+x /opt/tools/samtools/*/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo chmod a+x /opt/tools/rmblast/2.10.0/rmblastn
