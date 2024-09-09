@@ -45,6 +45,8 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.teal.Teal;
+import com.hartwig.pipeline.tertiary.teal.TealBam;
+import com.hartwig.pipeline.tertiary.teal.TealBamOutput;
 import com.hartwig.pipeline.tertiary.teal.TealOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakendOutput;
@@ -110,6 +112,9 @@ public class SomaticPipeline {
             Future<CiderOutput> ciderOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                     new Cider(pair, resourceFiles, persistedDataset)));
 
+            Future<TealBamOutput> tealbamOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                    new TealBam(pair, resourceFiles, persistedDataset)));
+
             SageOutput sageSomaticOutput = composer.add(state.add(sageSomaticOutputFuture.get()));
             SageOutput sageGermlineOutput = composer.add(state.add(sageGermlineOutputFuture.get()));
 
@@ -148,8 +153,8 @@ public class SomaticPipeline {
                                 .orElse(skippedMetrics(metadata.sampleName()));
 
                         Future<TealOutput> tealOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Teal(pair, purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics, resourceFiles,
-                                        persistedDataset)));
+                                new Teal(purpleOutput, cobaltOutput, referenceMetrics, tumorMetrics,
+                                        tealbamOutputFuture.get(), resourceFiles, persistedDataset)));
                         Future<LilacBamSliceOutput> lilacBamSliceOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new LilacBamSlicer(pair, resourceFiles, persistedDataset)));
                         LilacBamSliceOutput lilacBamSliceOutput = composer.add(state.add(lilacBamSliceOutputFuture.get()));

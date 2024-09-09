@@ -42,6 +42,7 @@ import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.teal.Teal;
+import com.hartwig.pipeline.tertiary.teal.TealBam;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tools.VersionUtils;
@@ -326,6 +327,16 @@ public final class VirtualMachineJobDefinitions {
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(SIGS.getCpus(), SIGS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
+                .build();
+    }
+
+    public static VirtualMachineJobDefinition tealBam(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.builder()
+                .imageFamily(STANDARD_IMAGE)
+                .name(TealBam.NAMESPACE.replace("_", "-"))
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(32, 32))
+                .startupCommand(startupScript)
                 .build();
     }
 
