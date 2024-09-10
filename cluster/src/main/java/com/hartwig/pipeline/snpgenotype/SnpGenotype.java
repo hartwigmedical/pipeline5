@@ -24,7 +24,6 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
 import com.hartwig.pipeline.output.StartupScriptComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
@@ -112,6 +111,6 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSnpGenotyper() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37);
+        return arguments.runSnpGenotyper();
     }
 }
