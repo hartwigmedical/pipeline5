@@ -8,6 +8,7 @@ sudo tar -C /root -xzf /opt/tools/R/anaconda3.tar.gz
 sudo /tmp/rebuild_anaconda_env.sh
 sudo rm /usr/bin/perl
 sudo ln -s /root/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
+sudo rm /opt/tools/R/anaconda3.tar.gz
 
 sudo mkdir -p /opt/tools/pycuppa/2.1.1/
 sudo unzip /opt/tools/cuppa/2.1.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.1
