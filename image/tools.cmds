@@ -25,9 +25,7 @@ sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/bwa-mem2/2.2.1/bwa-mem2*
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
-sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
-sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
-sudo chmod a+x /opt/tools/chord/2.02_1.14/extractSigPredictHRD.R
+sudo chmod a+x /opt/tools/chord/2.1.0rc/extractSigPredictHRD.R
 
 # Local overrides for Debian 12
 sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
