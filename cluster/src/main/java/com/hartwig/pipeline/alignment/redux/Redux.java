@@ -70,7 +70,7 @@ public class Redux extends SubStage {
         arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
         arguments.add(format("-ref_genome_msi_file %s", resourceFiles.msiJitterSitesFile()));
         arguments.add("-form_consensus");
-        // arguments.add("-use_supp_bam");
+        arguments.add("-use_supp_bam");
         arguments.add(format("-bamtool %s", ExternalTool.SAMBAMBA.binaryPath()));
         arguments.add(format("-output_bam %s", outputBam));
         arguments.add(format("-output_dir %s", outputDir));

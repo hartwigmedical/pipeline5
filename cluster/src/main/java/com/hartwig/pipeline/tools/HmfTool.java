@@ -12,11 +12,11 @@ public enum HmfTool {
     CIDER("1.0.3", 16, 24, 4, false),
     COBALT("2.0rc", 20, 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
-    ESVEE("1.0rc", 60, 64, 24, false),
+    ESVEE("1.0rc", 80, 96, 24, false),
     HEALTH_CHECKER("3.6rc", Defaults.JAVA_HEAP, 32, 8, false), // 3.5 -> 3.6
     LILAC("1.6", 20, 24, 8, false),
     LINX("2.0rc", 8, 12, 4, false), // 1.25 -> 2.0
-    REDUX("1.0rc", 100, 120, 24, false), // MarkDups 1.1.7 -> Redux 1.0
+    REDUX("1.0rc", 110, 128, 24, false), // MarkDups 1.1.7 -> Redux 1.0
     ORANGE("3.7.0rc", 16, 18, 4, false), // 3.5.1 -> 3.7.0
     PAVE("1.7rc", 30, 40, 8, false), // 1.6 -> 1.7
     PEACH("2.0.0", 1, 4, 2, false),
