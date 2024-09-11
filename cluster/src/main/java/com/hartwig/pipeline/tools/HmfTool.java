@@ -11,7 +11,7 @@ public enum HmfTool {
     CHORD("2.1.0rc", Defaults.JAVA_HEAP, 12, 4, false), // 2.02_1.14 ->
     CIDER("1.0.3", 16, 24, 4, false),
     COBALT("2.0rc", 20, 24, 16, false), // 1.16 -> 2.0
-    CUPPA("2.1.1", Defaults.JAVA_HEAP, 16, 4, false),
+    CUPPA("2.3", Defaults.JAVA_HEAP, 16, 4, false), // 2.1.1 -> 2.3
     ESVEE("1.0rc", 80, 96, 24, false),
     HEALTH_CHECKER("3.6rc", Defaults.JAVA_HEAP, 32, 8, false), // 3.5 -> 3.6
     LILAC("1.6", 20, 24, 8, false),

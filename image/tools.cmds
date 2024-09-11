@@ -10,10 +10,10 @@ sudo rm /usr/bin/perl
 sudo ln -s /root/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
 sudo rm /opt/tools/R/anaconda3.tar.gz
 
-sudo mkdir -p /opt/tools/pycuppa/2.1.1/
-sudo unzip /opt/tools/cuppa/2.1.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.1
-sudo mv /tmp/pycuppa-2.1.1/pycuppa/* /opt/tools/pycuppa/2.1.1
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.1.1
+sudo mkdir -p /opt/tools/pycuppa/2.3/
+sudo unzip /opt/tools/cuppa/2.3/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.3
+sudo mv /tmp/pycuppa-2.3/pycuppa/* /opt/tools/pycuppa/2.3
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.3
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
@@ -30,7 +30,6 @@ sudo chmod a+x /opt/tools/chord/2.1.0rc/extractSigPredictHRD.R
 
 # Local overrides for Debian 12
 sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
-sudo mv /tmp/gridss.run.sh /opt/tools/sv-prep/1.2.4/
 sudo mv /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo mv /tmp/virusbreakend /opt/tools/gridss/2.13.3/virusbreakend
 
