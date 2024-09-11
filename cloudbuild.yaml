@@ -17,7 +17,7 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
+  - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
     timeout: 2400s
