@@ -49,7 +49,6 @@ sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_kraken2
 sudo chmod a+x /opt/tools/gridss/2.13.2/gridss_annotate_vcf_repeatmasker
 sudo chmod a+x /opt/tools/sv-prep/1.2/gridss.run.sh
 
-sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/samtools/1.14/samtools
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo chmod a+x /opt/tools/rmblast/2.10.0/rmblastn
