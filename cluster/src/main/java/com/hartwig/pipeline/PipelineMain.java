@@ -135,7 +135,9 @@ public class PipelineMain {
     }
 
     public PipelineState start(final Arguments arguments) {
-        LOGGER.info("Arguments are [{}]", arguments);
+        for (String line : ArgumentUtil.prettyPrint(arguments).split("\n")) {
+            LOGGER.info(line);
+        }
         VersionUtils.printAll();
         try {
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();

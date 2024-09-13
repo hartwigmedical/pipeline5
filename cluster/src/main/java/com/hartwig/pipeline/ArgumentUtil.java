@@ -34,4 +34,30 @@ public final class ArgumentUtil {
                 .orElse(RunIdentifier.from(metadata.runName()));
     }
 
+    public static String prettyPrint(Arguments arguments) {
+        String s = arguments.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+        int indent = 4;
+        int indentLevel = 0;
+
+        // add indentation
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '{') {
+                indentLevel++;
+                stringBuilder.append(" {\n").append(" ".repeat(indentLevel * indent));
+            }
+            else if (c == '}') {
+                indentLevel--;
+                stringBuilder.append(" }");
+            }
+            else if (c == ',') {
+                stringBuilder.append(",\n").append(" ".repeat(indentLevel * indent - 1));
+            }
+            else {
+                stringBuilder.append(c);
+            }
+        }
+        return stringBuilder.toString();
+    }
 }
