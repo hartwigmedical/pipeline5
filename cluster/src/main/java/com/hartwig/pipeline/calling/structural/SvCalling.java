@@ -67,6 +67,8 @@ public class SvCalling extends SubStage {
         return this;
     }
 
+    private boolean germlineOnly() { return getSample(SampleType.TUMOR) == null; }
+
     private List<SampleArgument> orderedSamples()
     {
         List<SampleArgument> samples = Lists.newArrayList();
@@ -137,7 +139,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
-        arguments.add("-log_debug");
+        // arguments.add("-log_debug");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, SV_PREP_CLASS_PATH, arguments);
     }
@@ -158,18 +160,27 @@ public class SvCalling extends SubStage {
 
         List<String> arguments = new ArrayList<>();
 
-        SampleArgument tumorSample = getSample(SampleType.TUMOR);
-        if(tumorSample != null)
-        {
-            arguments.add(format("-tumor %s", tumorSample.SampleName));
-            arguments.add(format("-tumor_bam %s", tumorPrepBam()));
-        }
+        if(!germlineOnly()) {
 
-        SampleArgument referenceSample = getSample(SampleType.REFERENCE);
-        if(referenceSample != null)
-        {
-            arguments.add(format("-reference %s", referenceSample.SampleName));
-            arguments.add(format("-reference_bam %s", referencePrepBam()));
+            SampleArgument tumorSample = getSample(SampleType.TUMOR);
+            if(tumorSample != null)
+            {
+                arguments.add(format("-tumor %s", tumorSample.SampleName));
+                arguments.add(format("-tumor_bam %s", tumorPrepBam()));
+            }
+
+            SampleArgument referenceSample = getSample(SampleType.REFERENCE);
+            if(referenceSample != null)
+            {
+                arguments.add(format("-reference %s", referenceSample.SampleName));
+                arguments.add(format("-reference_bam %s", referencePrepBam()));
+            }
+        }
+        else {
+
+            SampleArgument referenceSample = getSample(SampleType.REFERENCE);
+            arguments.add(format("-tumor %s", referenceSample.SampleName));
+            arguments.add(format("-tumor_bam %s", referencePrepBam()));
         }
 
         arguments.add(format("-junction_files %s", junctionsFile()));
@@ -227,11 +238,19 @@ public class SvCalling extends SubStage {
     private BashCommand buildCallerCommand() {
         List<String> arguments = new ArrayList<>();
 
-        arguments.add(format("-sample %s", mainSampleName()));
+        if(!germlineOnly()){
 
-        SampleArgument referenceSample = getSample(SampleType.REFERENCE);
-        if(referenceSample != null)
-        {
+            arguments.add(format("-sample %s", mainSampleName()));
+
+            SampleArgument referenceSample = getSample(SampleType.REFERENCE);
+            if(referenceSample != null)
+            {
+                arguments.add(format("-reference %s", referenceSample.SampleName));
+            }
+        }
+        else {
+
+            SampleArgument referenceSample = getSample(SampleType.REFERENCE);
             arguments.add(format("-reference %s", referenceSample.SampleName));
         }
 
