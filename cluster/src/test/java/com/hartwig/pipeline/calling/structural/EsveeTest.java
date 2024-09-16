@@ -54,7 +54,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.ESVEE_UNFILTERED_VCF, ESVEE_DIR + TUMOR_ESVEE_UNFILTERED_VCF_GZ);
     }
 
     @Override

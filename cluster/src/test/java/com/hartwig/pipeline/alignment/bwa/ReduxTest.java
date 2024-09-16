@@ -45,7 +45,7 @@ public class ReduxTest extends SubStageTest{
                         + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
                         + " -ref_genome_msi_file /opt/resources/mappability/37/msi_jitter_sites.37.tsv.gz"
                         + " -form_consensus"
-                        // + " -use_supp_bam"
+                        + " -use_supp_bam"
                         + " -bamtool " + sambamba
                         + " -output_bam /data/output/tumor.bam"
                         + " -output_dir /data/output"

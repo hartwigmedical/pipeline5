@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
@@ -94,20 +96,22 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedCommands() {
         // @formatter:off
+        String cuppaPythonVersionedCommmand = format("/opt/tools/pycuppa/%s_venv/bin/activate", CUPPA.runVersion());
+
         return List.of(toolCommand(CUPPA, CUPPA_DATA_PREP)
-                + " -sample tumor "
-                + "-categories DNA "
-                + "-ref_genome_version V37 "
-                + "-sample_data_dir /data/input/results "
-                + "-output_dir /data/output",
-                "(source /opt/tools/pycuppa/2.1.1_venv/bin/activate && "
-                + "python -m cuppa.predict "
-                + "--classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz "
-                + "--features_path /data/output/tumor.cuppa_data.tsv.gz "
-                + "--output_dir /data/output "
-                + "--sample_id tumor "
-                + "--clf_group 'dna' "
-                + "&& deactivate)");
+                + " -sample tumor"
+                + " -categories DNA"
+                + " -ref_genome_version V37"
+                + " -sample_data_dir /data/input/results"
+                + " -output_dir /data/output",
+                "(source " + cuppaPythonVersionedCommmand + " &&"
+                + " python -m cuppa.predict"
+                + " --classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz"
+                + " --features_path /data/output/tumor.cuppa_data.tsv.gz"
+                + " --output_dir /data/output"
+                + " --sample_id tumor"
+                + " --clf_group 'dna'"
+                + " && deactivate)");
         // @formatter:on
     }
 

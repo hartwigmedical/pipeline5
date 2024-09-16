@@ -4,7 +4,15 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.alignment.redux.Redux.jitterParamsTsv;
 import static com.hartwig.pipeline.alignment.redux.Redux.msTableTsv;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ALIGNMENT_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ASSEMBLY_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_BREAKEND_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_FRAG_LENGTH_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_GERMLINE_VCF;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PHASED_ASSEMBLY_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_BAM_FILE;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_INDEX_FILE;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_JUNCTION_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_SOMATIC_VCF;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_UNFILTERED_VCF;
 import static com.hartwig.pipeline.datatypes.FileTypes.bam;
@@ -283,24 +291,29 @@ public class TestInputs {
                 .build();
     }
 
+    private static String formTumorFilename(final String esveeFileSuffix)
+    {
+        return RESULTS + TUMOR_SAMPLE + "." + esveeFileSuffix;
+    }
+
     public static EsveeOutput esveeOutput() {
         String unfilteredVcf = "." + ESVEE_UNFILTERED_VCF;
         String somaticVcf = "." + ESVEE_SOMATIC_VCF;
         String germlineVcf = "." + ESVEE_GERMLINE_VCF;
+
         return EsveeOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeUnfilteredVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + unfilteredVcf))
-                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + unfilteredVcf + FileTypes.TBI))
-                .maybeSomaticVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + somaticVcf))
-                .maybeSomaticVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + somaticVcf + FileTypes.TBI))
-                .maybeGermlineVcf(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + germlineVcf))
-                .maybeGermlineVcfIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + germlineVcf + FileTypes.TBI))
+                .maybePrepBam(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_PREP_BAM_FILE)))
+                .maybePrepBamIndex(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_PREP_INDEX_FILE)))
+                .maybePrepJunctionTsv(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_PREP_JUNCTION_TSV)))
+                .maybeFragLengths(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_FRAG_LENGTH_TSV)))
+                .maybeAssemblyTsv(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_ASSEMBLY_TSV)))
+                .maybePhasedAssemblyTsv(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_PHASED_ASSEMBLY_TSV)))
+                .maybeBreakendTsv(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_ALIGNMENT_TSV)))
+                .maybeAlignmentTsv(gsLocation(somaticBucket(Esvee.NAMESPACE),formTumorFilename(ESVEE_BREAKEND_TSV)))
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(Esvee.NAMESPACE), formTumorFilename(ESVEE_UNFILTERED_VCF)))
+                .maybeSomaticVcf(gsLocation(somaticBucket(Esvee.NAMESPACE), formTumorFilename(ESVEE_SOMATIC_VCF)))
+                .maybeGermlineVcf(gsLocation(somaticBucket(Esvee.NAMESPACE), formTumorFilename(ESVEE_GERMLINE_VCF)))
                 .build();
     }
 

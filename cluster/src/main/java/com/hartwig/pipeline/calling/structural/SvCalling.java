@@ -30,6 +30,14 @@ public class SvCalling extends SubStage {
     public static final String ESVEE_UNFILTERED_VCF = "esvee.unfiltered.vcf.gz";
     public static final String ESVEE_SOMATIC_VCF = "esvee.somatic.vcf.gz";
     public static final String ESVEE_GERMLINE_VCF = "esvee.germline.vcf.gz";
+    public static final String ESVEE_PREP_BAM_FILE = "esvee.prep.bam";
+    public static final String ESVEE_PREP_INDEX_FILE = "esvee.prep.bam.bai";
+    public static final String ESVEE_PREP_JUNCTION_TSV = "esvee.prep.junctions.tsv";
+    public static final String ESVEE_FRAG_LENGTH_TSV = "esvee.prep.fragment_lengths.tsv";
+    public static final String ESVEE_ASSEMBLY_TSV = "esvee.assembly.tsv";
+    public static final String ESVEE_PHASED_ASSEMBLY_TSV = "esvee.phased_assembly.tsv";
+    public static final String ESVEE_ALIGNMENT_TSV = "esvee.alignments.tsv";
+    public static final String ESVEE_BREAKEND_TSV = "esvee.breakend.tsv";
 
     private final ResourceFiles resourceFiles;
     private final List<SampleArgument> sampleArguments = new ArrayList<>();

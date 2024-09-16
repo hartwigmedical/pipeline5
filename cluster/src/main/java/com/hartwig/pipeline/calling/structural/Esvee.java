@@ -1,6 +1,14 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ALIGNMENT_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ASSEMBLY_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_BREAKEND_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_FRAG_LENGTH_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_GERMLINE_VCF;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PHASED_ASSEMBLY_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_BAM_FILE;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_INDEX_FILE;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PREP_JUNCTION_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_SOMATIC_VCF;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_UNFILTERED_VCF;
 
@@ -113,31 +121,59 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         final ImmutableEsveeOutput.Builder builder = EsveeOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory));
 
 
+        String prepBam = formSampleOutputFilename(metadata, ESVEE_PREP_BAM_FILE);
+        String prepBamIndex = formSampleOutputFilename(metadata, ESVEE_PREP_INDEX_FILE);
+        String prepJunctionTsv = formSampleOutputFilename(metadata, ESVEE_PREP_JUNCTION_TSV);
+        String fragmentLengths = formSampleOutputFilename(metadata, ESVEE_FRAG_LENGTH_TSV);
+        String assemblyTsv = formSampleOutputFilename(metadata, ESVEE_ASSEMBLY_TSV);
+        String phasedAssemblyTsv = formSampleOutputFilename(metadata, ESVEE_PHASED_ASSEMBLY_TSV);
+        String breakendTsv = formSampleOutputFilename(metadata, ESVEE_BREAKEND_TSV);
+        String alignmentTsv = formSampleOutputFilename(metadata, ESVEE_ALIGNMENT_TSV);
         String unfilteredVcf = formSampleOutputFilename(metadata, ESVEE_UNFILTERED_VCF);
         String somaticVcf = formSampleOutputFilename(metadata, ESVEE_SOMATIC_VCF);
         String germlineVcf = formSampleOutputFilename(metadata, ESVEE_GERMLINE_VCF);
 
-        builder
+        builder.maybePrepBam(formOutputLocation(bucket, resultsDirectory, prepBam))
+                .maybePrepBamIndex(formOutputLocation(bucket, resultsDirectory, prepBamIndex))
+                .maybePrepJunctionTsv(formOutputLocation(bucket, resultsDirectory, prepJunctionTsv))
+                .maybeFragLengths(formOutputLocation(bucket, resultsDirectory, fragmentLengths))
+                .maybeAssemblyTsv(formOutputLocation(bucket, resultsDirectory, assemblyTsv))
+                .maybePhasedAssemblyTsv(formOutputLocation(bucket, resultsDirectory, phasedAssemblyTsv))
+                .maybeBreakendTsv(formOutputLocation(bucket, resultsDirectory, breakendTsv))
+                .maybeAlignmentTsv(formOutputLocation(bucket, resultsDirectory, alignmentTsv))
                 .maybeUnfilteredVcf(formOutputLocation(bucket, resultsDirectory, unfilteredVcf))
-                .maybeUnfilteredVcfIndex(formOutputLocation(bucket, resultsDirectory, unfilteredVcf + FileTypes.TBI))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), unfilteredVcf, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE,
-                        metadata.barcode(), new ArchivePath(Folder.root(), namespace(), unfilteredVcf)
-                ));
+                .addDatatypes(
+                        new AddDatatype(
+                                DataType.ESVEE_PREP_BAM, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), prepBam)),
+                        new AddDatatype(
+                                DataType.ESVEE_PREP_INDEX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), prepBamIndex)),
+                        new AddDatatype(
+                                DataType.ESVEE_PREP_JUNCTIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), prepJunctionTsv)),
+                        new AddDatatype(
+                                DataType.ESVEE_FRAG_LENGTHS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), fragmentLengths)),
+                        new AddDatatype(
+                                DataType.ESVEE_ASSEMBLY, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), assemblyTsv)),
+                        new AddDatatype(
+                                DataType.ESVEE_PHASED_ASSEMBLY, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), phasedAssemblyTsv)),
+                        new AddDatatype(
+                                DataType.ESVEE_ALIGNMENT, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), alignmentTsv)),
+                        new AddDatatype(
+                                DataType.ESVEE_BREAKEND, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), breakendTsv)),
+                        new AddDatatype(
+                                DataType.ESVEE_UNFILTERED_VCF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), unfilteredVcf))
+                        );
 
         if(metadata.maybeTumor().isPresent()) {
-            builder
-                    .maybeSomaticVcf(formOutputLocation(bucket, resultsDirectory, somaticVcf))
-                    .maybeSomaticVcfIndex(formOutputLocation(bucket, resultsDirectory, somaticVcf + FileTypes.TBI))
+            builder.maybeSomaticVcf(formOutputLocation(bucket, resultsDirectory, somaticVcf))
                     .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), somaticVcf, resultsDirectory))
                     .addDatatypes(new AddDatatype(
-                            DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE,
+                            DataType.ESVEE_SOMATIC_VCF,
                             metadata.barcode(), new ArchivePath(Folder.root(), namespace(), somaticVcf)
                     ));
         }
@@ -145,10 +181,9 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         if(metadata.maybeReference().isPresent()) {
             builder
                     .maybeGermlineVcf(formOutputLocation(bucket, resultsDirectory, germlineVcf))
-                    .maybeGermlineVcfIndex(formOutputLocation(bucket, resultsDirectory, germlineVcf + FileTypes.TBI))
                     .addReportComponents(new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), germlineVcf, resultsDirectory))
                     .addDatatypes(new AddDatatype(
-                            DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE,
+                            DataType.ESVEE_GERMLINE_VCF,
                             metadata.barcode(), new ArchivePath(Folder.root(), namespace(), germlineVcf)
                     ));
         }
@@ -166,11 +201,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         return persistedDataset.path(mainSampleName(metadata), dataType)
                 .orElse(GoogleStorageLocation.of(
                         metadata.bucket(),
-                        PersistedLocations.blobForSet(
-                                metadata.set(),
-                                namespace(),
-                                formSampleOutputFilename(metadata, filenameSuffix)
-                        )
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), formSampleOutputFilename(metadata, filenameSuffix))
                 ));
     }
 
@@ -179,25 +210,22 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
 
         final ImmutableEsveeOutput.Builder builder = EsveeOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcf(formPersistedOutputLocation(
-                        metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF))
-                .maybeUnfilteredVcfIndex(formPersistedOutputLocation(
-                        metadata, DataType.UNFILTERED_STRUCTURAL_VARIANTS_ESVEE, ESVEE_UNFILTERED_VCF + FileTypes.TBI));
+                .maybePrepBam(formPersistedOutputLocation(metadata, DataType.ESVEE_PREP_BAM, ESVEE_PREP_BAM_FILE))
+                .maybePrepBamIndex(formPersistedOutputLocation(metadata, DataType.ESVEE_PREP_INDEX, ESVEE_PREP_INDEX_FILE))
+                .maybePrepJunctionTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_PREP_JUNCTIONS, ESVEE_PREP_JUNCTION_TSV))
+                .maybeFragLengths(formPersistedOutputLocation(metadata, DataType.ESVEE_FRAG_LENGTHS, ESVEE_FRAG_LENGTH_TSV))
+                .maybeAssemblyTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_ASSEMBLY, ESVEE_ASSEMBLY_TSV))
+                .maybePhasedAssemblyTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_PHASED_ASSEMBLY, ESVEE_PHASED_ASSEMBLY_TSV))
+                .maybeAlignmentTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_ALIGNMENT, ESVEE_ALIGNMENT_TSV))
+                .maybeBreakendTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_BREAKEND, ESVEE_BREAKEND_TSV))
+                .maybeUnfilteredVcf(formPersistedOutputLocation(metadata, DataType.ESVEE_UNFILTERED_VCF, ESVEE_UNFILTERED_VCF));
 
         if(metadata.maybeTumor().isPresent()) {
-            builder
-                    .maybeSomaticVcf(formPersistedOutputLocation(
-                            metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF))
-                    .maybeSomaticVcfIndex(formPersistedOutputLocation(
-                            metadata, DataType.SOMATIC_STRUCTURAL_VARIANTS_ESVEE, ESVEE_SOMATIC_VCF + FileTypes.TBI));
+            builder.maybeSomaticVcf(formPersistedOutputLocation(metadata, DataType.ESVEE_SOMATIC_VCF, ESVEE_SOMATIC_VCF));
         }
 
         if(metadata.maybeReference().isPresent()) {
-            builder
-                    .maybeGermlineVcf(formPersistedOutputLocation(
-                            metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF))
-                    .maybeGermlineVcfIndex(formPersistedOutputLocation(
-                            metadata, DataType.GERMLINE_STRUCTURAL_VARIANTS_ESVEE, ESVEE_GERMLINE_VCF + FileTypes.TBI));
+            builder.maybeGermlineVcf(formPersistedOutputLocation(metadata, DataType.ESVEE_GERMLINE_VCF, ESVEE_GERMLINE_VCF));
         }
 
         return builder.build();
