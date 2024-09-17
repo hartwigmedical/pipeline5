@@ -98,7 +98,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedReferenceOnlyCommands() {
         return Collections.singletonList(
-                // "java -Xmx31G -jar /opt/tools/purple/3.8.4/purple.jar "
                 toolCommand(PURPLE)
                         + " -amber /data/input/results"
                         + " -cobalt /data/input/results"

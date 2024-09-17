@@ -66,6 +66,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownloadCommand cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
     private final Arguments arguments;
+    private boolean germlineOnly;
 
     public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput paveGermlineOutput,
             final EsveeOutput esveeOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
@@ -82,6 +83,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
         this.arguments = arguments;
+        germlineOnly = false;
     }
 
     @Override
@@ -134,6 +136,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        germlineOnly = true;
+
         List<String> arguments = new ArrayList<>();
         arguments.addAll(PurpleArguments.addCommonArguments(amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
@@ -148,6 +152,13 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
+
+        if(germlineOnly)
+            return List.of(germlineSvVcfDownload,
+                    amberOutputDownload,
+                    cobaltOutputDownload,
+                    germlineVcfDownload);
+
         return List.of(somaticVcfDownload,
                 somaticSvVcfDownload,
                 somaticSvVcfIndexDownload,
