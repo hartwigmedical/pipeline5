@@ -200,7 +200,7 @@ public final class VirtualMachineJobDefinitions {
             final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
-                .name("merge-markdup")
+                .name("merge-redux")
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(REDUX.getCpus(), REDUX.getMemoryGb()))
                 .startupCommand(startupScript)

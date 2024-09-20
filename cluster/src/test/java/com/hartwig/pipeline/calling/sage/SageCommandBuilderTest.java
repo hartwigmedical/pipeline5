@@ -56,9 +56,4 @@ public class SageCommandBuilderTest {
         new SageCommandBuilder(TestInputs.REF_GENOME_37_RESOURCE_FILES).build(EMPTY);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwsExceptionOnShallowModeInGermline() {
-        new SageCommandBuilder(TestInputs.REF_GENOME_37_RESOURCE_FILES).germlineMode().shallowMode(true).build(EMPTY);
-    }
-
 }

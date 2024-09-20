@@ -24,7 +24,6 @@ public class SageCommandBuilder {
 
     private boolean somaticMode = true;
     private boolean germlineMode = false;
-    private boolean shallowSomaticMode = false;
     private boolean targetRegions = false;
 
     public SageCommandBuilder(final ResourceFiles resourceFiles) {
@@ -53,11 +52,6 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder shallowMode(final boolean enabled) {
-        this.shallowSomaticMode = enabled;
-        return this;
-    }
-
     public SageCommandBuilder targetRegionsMode(final boolean enabled) {
         this.targetRegions = enabled;
         return this;
@@ -65,10 +59,6 @@ public class SageCommandBuilder {
 
     public List<BashCommand> build(final String outputVcf) {
         List<BashCommand> result = Lists.newArrayList();
-
-        if (shallowSomaticMode && !somaticMode) {
-            throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
-        }
 
         if (tumorBam.isEmpty() && referenceBam.isEmpty()) {
             throw new IllegalStateException("Must be at least one tumor or reference");
@@ -91,11 +81,6 @@ public class SageCommandBuilder {
             }
 
             arguments.add(format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
-
-            if (shallowSomaticMode) {
-                arguments.add("-hotspot_min_tumor_qual 40");
-            }
-
         } else if (germlineMode) {
 
             arguments.add(format("-tumor %s", reference));

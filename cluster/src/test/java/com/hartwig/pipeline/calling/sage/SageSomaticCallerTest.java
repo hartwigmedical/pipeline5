@@ -37,14 +37,6 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
         return expectedInputs;
     }
 
-    @Test
-    public void shallowModeUsesHotspotQualOverride() {
-        SageSomaticCaller victim = new SageSomaticCaller(TestInputs.defaultPair(),
-                new TestPersistedDataset(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES, Arguments.testDefaultsBuilder().shallow(true).build());
-        assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
-    }
-
     @Override
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
         return new SageSomaticCaller(TestInputs.defaultPair(),
