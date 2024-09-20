@@ -1,0 +1,15 @@
+{
+  "setName": "COLO829v003",
+  "tumor": {
+    "type": "TUMOR",
+    "name": "COLO829v003T",
+    "turquoiseSubject": "COLO829v003T",
+    "bam": "gs://hmf-verification-data-bam/coloMini/COLO829v003T.bam"
+  },
+  "reference": {
+    "type": "REFERENCE",
+    "name": "COLO829v003R",
+    "turquoiseSubject": "COLO829v003R",
+    "bam": "gs://hmf-verification-data-bam/coloMini/COLO829v003R.bam"
+  }
+}

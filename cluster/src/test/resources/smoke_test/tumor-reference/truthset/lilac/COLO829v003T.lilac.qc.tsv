@@ -1,7 +1,2 @@
-Allele	RefTotal	RefUnique	RefShared	RefWild	TumorTotal	TumorUnique	TumorShared	TumorWild	RnaTotal	RnaUnique	RnaShared	RnaWild	TumorCopyNumber	SomaticMissense	SomaticNonsenseOrFrameshift	SomaticSplice	SomaticSynonymous	SomaticInframeIndel
-A*01:01	210	202	8	0	1602	1537	65	0	0	0	0	0	2.00	0.0	0.0	0.0	0.0	0.0
-A*01:01	211	203	8	0	1602	1537	65	0	0	0	0	0	0.00	0.0	0.0	0.0	0.0	0.0
-B*08:01	216	106	110	0	750	332	418	0	0	0	0	0	0.00	0.0	0.0	0.0	0.0	0.0
-B*40:02	196	83	113	0	721	291	430	0	0	0	0	0	2.00	0.0	0.0	0.0	0.0	0.0
-C*03:04	213	177	36	0	769	637	132	0	0	0	0	0	2.00	0.0	0.0	0.0	0.0	0.0
-C*07:01	225	187	38	0	767	619	148	0	0	0	0	0	0.00	0.0	0.0	0.0	0.0	0.0
+Status	ScoreMargin	NextSolutionAlleles	MedianBaseQuality	HlaYAllele	DiscardedIndels	DiscardedIndelMaxFrags	DiscardedAlignmentFragments	A_LowCoverageBases	B_LowCoverageBases	C_LowCoverageBases	ATypes	BTypes	CTypes	TotalFragments	FittedFragments	UnmatchedFragments	UninformativeFragments	HlaYFragments	PercentUnique	PercentShared	PercentWildcard	UnusedAminoAcids	UnusedAminoAcidMaxFrags	UnusedHaplotypes	UnusedHaplotypeMaxFrags	SomaticVariantsMatched	SomaticVariantsUnmatched
+PASS	5.644	B*40:384	37	NONE	0	0	21	0	0	0	1	2	2	1295	1271	20	7	0	0.754	0.246	0.000	0	0	0	0	0	0
