@@ -155,7 +155,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String genotypeMipSnpsDB() { return formPath(GENOTYPE_SNPS, "31SNPtaq.vcf"); }
+    public String genotypeMipSnpsDB() {
+        return formPath(GENOTYPE_SNPS, "31SNPtaq.vcf");
+    }
 
     @Override
     public String driverGenePanel() {
