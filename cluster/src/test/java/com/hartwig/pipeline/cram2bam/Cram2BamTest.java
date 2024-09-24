@@ -48,8 +48,8 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("/opt/tools/samtools/1.14/samtools view -O bam -o /data/output/tumor.bam -@ $(grep -c '^processor' /proc/cpuinfo) "
-                + "/data/input/tumor.bam", "/opt/tools/samtools/1.14/samtools index /data/output/tumor.bam");
+        return List.of("/opt/tools/samtools/1.20/samtools view -O bam -o /data/output/tumor.bam -@ $(grep -c '^processor' /proc/cpuinfo) "
+                + "/data/input/tumor.bam", "/opt/tools/samtools/1.20/samtools index /data/output/tumor.bam");
     }
 
     @Override

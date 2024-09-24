@@ -59,7 +59,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<String> expectedCommands() {
-        String samtools = "/opt/tools/samtools/1.14/samtools";
+        String samtools = "/opt/tools/samtools/1.20/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
         return ImmutableList.of(format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
@@ -69,7 +69,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                 input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
-                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta -1 %s -2 %s -n 6 --samtools-binary /opt/tools/samtools/1.14/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
+                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta -1 %s -2 %s -n 6 --samtools-binary /opt/tools/samtools/1.20/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
                         input,
                         output));
     }

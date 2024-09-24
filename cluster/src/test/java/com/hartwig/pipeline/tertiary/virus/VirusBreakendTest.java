@@ -84,7 +84,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
         return List.of("export PATH=\"${PATH}:/opt/tools/gridss/" + VIRUSBREAKEND_GRIDSS.runVersion() + "\"",
                 "export PATH=\"${PATH}:/opt/tools/repeatmasker/4.1.1\"",
                 "export PATH=\"${PATH}:/opt/tools/kraken2/2.1.0\"",
-                "export PATH=\"${PATH}:/opt/tools/samtools/1.14\"",
+                "export PATH=\"${PATH}:/opt/tools/samtools/1.20\"",
                 "export PATH=\"${PATH}:/opt/tools/bcftools/1.9\"",
                 "export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
                 "/opt/tools/gridss/" + VIRUSBREAKEND_GRIDSS.runVersion() + "/virusbreakend --output /data/output/tumor.virusbreakend.vcf " + "--workingdir /data/output "
