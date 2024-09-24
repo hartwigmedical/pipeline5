@@ -153,7 +153,7 @@ public class SvCalling extends SubStage {
     }
 
     private String junctionsFile() {
-        return format("%s/%s.esvee.prep.junctions.tsv", VmDirectories.OUTPUT, mainSampleName());
+        return format("%s/%s.%s", VmDirectories.OUTPUT, mainSampleName(), ESVEE_PREP_JUNCTION_TSV);
     }
 
     private String tumorPrepBam() {
