@@ -77,6 +77,8 @@ public interface ResourceFiles {
 
     String genotypeSnpsDB();
 
+    String genotypeMipSnpsDB();
+
     String driverGenePanel();
 
     String hlaRegionBed();
