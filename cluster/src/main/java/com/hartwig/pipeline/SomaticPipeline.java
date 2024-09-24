@@ -209,7 +209,6 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles,
-                                        arguments.context(),
                                         true,
                                         arguments.useTargetRegions())));
                         Future<OrangeOutput> orangeNoGermlineFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -227,7 +226,6 @@ public class SomaticPipeline {
                                         peachOutput,
                                         sigsOutput,
                                         resourceFiles,
-                                        arguments.context(),
                                         false,
                                         arguments.useTargetRegions())));
 
