@@ -18,6 +18,7 @@ COLO829v003R/pipeline.version
 COLO829v003R/snp_genotype/run.log
 COLO829v003R/snp_genotype/run.sh
 COLO829v003R/snp_genotype/snp_genotype_output.vcf
+COLO829v003R/snp_genotype/snp_genotype_output_mip.vcf
 COLO829v003T/aligner/NA-1/run.log
 COLO829v003T/aligner/NA-2/run.log
 COLO829v003T/aligner/NA-3/run.log
@@ -38,6 +39,7 @@ COLO829v003T/pipeline.version
 COLO829v003T/snp_genotype/run.log
 COLO829v003T/snp_genotype/run.sh
 COLO829v003T/snp_genotype/snp_genotype_output.vcf
+COLO829v003R/snp_genotype/snp_genotype_output_mip.vcf
 amber/COLO829v003R.amber.homozygousregion.tsv
 amber/COLO829v003R.amber.snp.vcf.gz
 amber/COLO829v003R.amber.snp.vcf.gz.tbi

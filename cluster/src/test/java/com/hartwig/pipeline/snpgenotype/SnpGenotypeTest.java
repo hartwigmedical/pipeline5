@@ -2,7 +2,7 @@ package com.hartwig.pipeline.snpgenotype;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -56,11 +56,16 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList(
-                "/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
-                        + "--input_file /data/input/reference.bam -o /data/output/snp_genotype_output.vcf -L "
-                        + "/opt/resources/genotype_snps/37/26SNPtaq.vcf --reference_sequence "
-                        + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta --output_mode EMIT_ALL_SITES");
+        final ArrayList<String> commands = new ArrayList<>();
+        commands.add("/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
+                + "--input_file /data/input/reference.bam -o /data/output/snp_genotype_output.vcf -L "
+                + "/opt/resources/genotype_snps/37/26SNPtaq.vcf --reference_sequence "
+                + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta --output_mode EMIT_ALL_SITES");
+        commands.add("/usr/lib/jvm/jdk8u302-b08/jre/bin/java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
+                + "--input_file /data/input/reference.bam -o /data/output/snp_genotype_output_mip.vcf -L "
+                + "/opt/resources/genotype_snps/37/31SNPtaq.vcf --reference_sequence "
+                + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta --output_mode EMIT_ALL_SITES");
+        return commands;
     }
 
     @Override

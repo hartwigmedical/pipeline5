@@ -51,6 +51,7 @@ public interface ResourceFiles {
     String gnomadPonCache();
     String giabHighConfidenceBed();
     String genotypeSnpsDB(); // will be decommission when Sage germline covers entire genome or exome
+    String genotypeMipSnpsDB(); // comment about decommission for genotypeSnpsDB above also applies here
 
     // structural variants and virus
     String repeatMaskerDb();

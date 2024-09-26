@@ -2,7 +2,7 @@ package com.hartwig.pipeline.snpgenotype;
 
 import static java.lang.String.format;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -34,6 +34,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     public static final String NAMESPACE = "snp_genotype";
 
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
+    private static final String OUTPUT_FILENAME_MIP = "snp_genotype_output_mip.vcf";
 
     private final ResourceFiles resourceFiles;
     private final InputDownloadCommand bamDownload;
@@ -71,10 +72,18 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     }
 
     public List<BashCommand> snpGenotypeCommands() {
-        return Collections.singletonList(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
+        final ArrayList<BashCommand> commands = new ArrayList<>();
+        // Temporarily we will run both the TaqMan array and MIP sequencing in production and therefor create two genotype outputs
+        // One with 26 positions for comparing to ARRAY output and one with 31 for comparing to MIP output
+        commands.add(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
                 resourceFiles.genotypeSnpsDB(),
                 format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)));
+        commands.add(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
+                resourceFiles.refGenomeFile(),
+                resourceFiles.genotypeMipSnpsDB(),
+                format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME_MIP)));
+        return commands;
     }
 
     @Override
@@ -100,6 +109,12 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
                         Folder.from(metadata),
                         OUTPUT_FILENAME,
                         OUTPUT_FILENAME,
+                        resultsDirectory))
+                .addReportComponents(new SingleFileComponent(bucket,
+                        NAMESPACE,
+                        Folder.from(metadata),
+                        OUTPUT_FILENAME_MIP,
+                        OUTPUT_FILENAME_MIP,
                         resultsDirectory))
                 .build();
     }
