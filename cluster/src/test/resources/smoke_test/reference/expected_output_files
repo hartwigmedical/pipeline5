@@ -18,6 +18,7 @@ COLO829v003R/pipeline.version
 COLO829v003R/snp_genotype/run.log
 COLO829v003R/snp_genotype/run.sh
 COLO829v003R/snp_genotype/snp_genotype_output.vcf
+COLO829v003R/snp_genotype/snp_genotype_output_mip.vcf
 amber/COLO829v003R.amber.baf.tsv.gz
 amber/COLO829v003R.amber.homozygousregion.tsv
 amber/COLO829v003R.amber.qc

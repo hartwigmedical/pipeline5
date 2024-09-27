@@ -120,6 +120,10 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String genotypeSnpsDB() {
         return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
     }
+    @Override
+    public String genotypeMipSnpsDB() {
+        return formPath(GENOTYPE_SNPS, "31SNPtaq.vcf");
+    }
     public String peachHaplotypes() {
         return formPath(PEACH, "haplotypes.38.tsv");
     }
