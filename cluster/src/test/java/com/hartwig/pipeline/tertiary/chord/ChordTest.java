@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.chord;
 
-import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -15,16 +14,12 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.hartwig.pipeline.tertiary.chord.Chord.CHORD_RUNNER;
-import static com.hartwig.pipeline.tertiary.cuppa.Cuppa.CUPPA_DATA_PREP;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.CHORD;
-import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-import static com.hartwig.pipeline.tools.HmfTool.LINX;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     private static final String CHORD_PREDICTION_TXT = "tumor_chord_prediction.txt";
+    private static final String CHORD_SIGNATURES_TXT = "tumor_chord_signatures.txt";
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
@@ -65,24 +61,45 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected void validateOutput(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
+
+        assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
                 ResultsDirectory.defaultDirectory().path(CHORD_PREDICTION_TXT)));
+
+        assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
+                ResultsDirectory.defaultDirectory().path(CHORD_SIGNATURES_TXT)));
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
+
         return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
-                TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_PREDICTION_TXT)));
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_PREDICTION_TXT)),
+                new AddDatatype(DataType.CHORD_SIGNATURES,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_SIGNATURES_TXT)));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.CHORD_PREDICTION, "chord/" + CHORD_PREDICTION_TXT);
+        persistedDataset.addPath(DataType.CHORD_SIGNATURES, "chord/" + CHORD_SIGNATURES_TXT);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "chord/" + CHORD_SIGNATURES_TXT));
     }
 
     @Override
     protected void validatePersistedOutput(final ChordOutput output) {
-        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/chord/" + CHORD_PREDICTION_TXT));
+
+        assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/chord/" + CHORD_PREDICTION_TXT));
+        assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/chord/" + CHORD_SIGNATURES_TXT));
     }
 }

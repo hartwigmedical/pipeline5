@@ -113,7 +113,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.linxSomaticOutputDir = new InputDownloadCommand(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
         this.linxGermlineDataDir =
                 new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
-        this.chordPredictionTxt = new InputDownloadCommand(chordOutput.predictions());
+        this.chordPredictionTxt = new InputDownloadCommand(chordOutput.chordOutputLocations().predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaVisData = new InputDownloadCommand(cuppaOutputLocations.visData());
         this.cuppaVisPlot = new InputDownloadCommand(cuppaOutputLocations.visPlot());

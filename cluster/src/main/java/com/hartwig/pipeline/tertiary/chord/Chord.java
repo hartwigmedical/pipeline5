@@ -35,7 +35,6 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +44,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "chord";
     public static final String PREDICTION_TXT = "_chord_prediction.txt";
+    public static final String SIGNATURES_TXT = "_chord_signatures.txt";
 
     private final RefGenomeVersion refGenomeVersion;
     private final InputDownloadCommand purpleStructuralVcfDownload;
@@ -101,10 +101,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public ChordOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String chordPredictionTxt = chordPredictionTxt(metadata);
         return ChordOutput.builder()
                 .status(jobStatus)
-                .maybePredictions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(chordPredictionTxt)))
+                .maybeChordOutputLocations(ChordOutputLocations.builder()
+                        .predictions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(chordPredictionTxt(metadata))))
+                        .signatures(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(chordSignaturesTxt(metadata))))
+                        .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
@@ -116,6 +118,11 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
         return metadata.tumor().sampleName() + PREDICTION_TXT;
     }
 
+    @NotNull
+    private String chordSignaturesTxt(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + SIGNATURES_TXT;
+    }
+
     @Override
     public ChordOutput skippedOutput(final SomaticRunMetadata metadata) {
         return ChordOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -125,18 +132,27 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public ChordOutput persistedOutput(final SomaticRunMetadata metadata) {
         return ChordOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybePredictions(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_PREDICTION)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), chordPredictionTxt(metadata)))))
+                .maybeChordOutputLocations(ChordOutputLocations.builder()
+                        .predictions(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_PREDICTION)
+                                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                        PersistedLocations.blobForSet(metadata.set(), namespace(), chordPredictionTxt(metadata)))))
+                        .signatures(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_SIGNATURES)
+                                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                        PersistedLocations.blobForSet(metadata.set(), namespace(), chordSignaturesTxt(metadata)))))
+                        .build())
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
     }
 
     @Override
     public List<AddDatatype> addDatatypes(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new AddDatatype(DataType.CHORD_PREDICTION,
-                metadata.barcode(),
-                new ArchivePath(Folder.root(), namespace(), chordPredictionTxt(metadata))));
+
+        return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), chordPredictionTxt(metadata))),
+                new AddDatatype(DataType.CHORD_SIGNATURES,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), chordSignaturesTxt(metadata))));
     }
 
     @Override

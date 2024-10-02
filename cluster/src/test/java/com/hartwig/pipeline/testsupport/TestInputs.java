@@ -55,6 +55,7 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
+import com.hartwig.pipeline.tertiary.chord.ChordOutputLocations;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
@@ -379,7 +380,10 @@ public class TestInputs {
     public static ChordOutput chordOutput() {
         return ChordOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybePredictions(gsLocation(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
+                .maybeChordOutputLocations(ChordOutputLocations.builder()
+                        .predictions(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
+                        .signatures(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.SIGNATURES_TXT))
+                        .build())
                 .build();
     }
 
