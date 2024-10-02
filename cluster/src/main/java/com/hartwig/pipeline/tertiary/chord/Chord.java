@@ -1,13 +1,18 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static java.lang.String.format;
+
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
+import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -16,6 +21,7 @@ import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -29,11 +35,14 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
 @Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
+    public static final String CHORD_RUNNER = "com.hartwig.hmftools.chord.ChordRunner";
+
     public static final String NAMESPACE = "chord";
     public static final String PREDICTION_TXT = "_chord_prediction.txt";
 
@@ -70,10 +79,18 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     }
 
     public List<BashCommand> chordCommands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
-                purpleSomaticVcfDownload.getLocalTargetPath(),
-                purpleStructuralVcfDownload.getLocalTargetPath(),
-                refGenomeVersion));
+
+        String chordToolDir = format("%s/%s/%s", VmDirectories.TOOLS, CHORD.getToolName(), CHORD.runVersion());
+
+        List<String> chordArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
+                format("-ref_genome_version %s", refGenomeVersion.toString()),
+                format("-purple_dir %s", VmDirectories.INPUT),
+                format("-output_dir %s", VmDirectories.OUTPUT),
+                format("-chord_tool_dir %s", chordToolDir));
+
+        List<BashCommand> chordCommands = Lists.newArrayList(JavaCommandFactory.javaClassCommand(CHORD, CHORD_RUNNER, chordArguments));
+
+        return chordCommands;
     }
 
     @Override
