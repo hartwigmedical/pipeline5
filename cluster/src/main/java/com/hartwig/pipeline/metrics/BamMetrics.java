@@ -126,7 +126,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                 // .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.from(metadata)))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(metadata), namespace(), resultsDirectory))
                 // .addReportComponents(new SingleFileComponent(bucket, namespace(), Folder.from(metadata), outputFile, outputFile, resultsDirectory))
                 .addAllDatatypes(addDatatypes(metadata))
                 .build();
