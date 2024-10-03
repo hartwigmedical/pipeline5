@@ -30,8 +30,8 @@ public final class ArgumentUtil {
     public static RunIdentifier toRunIdentifier(Arguments arguments, RunMetadata metadata) {
         return arguments.runTag()
                 .or(() -> arguments.sbpApiRunId().map(Objects::toString))
-                .map(tag -> RunIdentifier.from(metadata.runName(), tag))
-                .orElse(RunIdentifier.from(metadata.runName()));
+                .map(tag -> RunIdentifier.from(metadata.stagePrefix() + "-" + metadata.runName(), tag))
+                .orElse(RunIdentifier.from(metadata.stagePrefix() + "-" + metadata.runName()));
     }
 
     public static String prettyPrint(Arguments arguments) {
