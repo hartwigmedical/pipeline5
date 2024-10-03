@@ -5,7 +5,6 @@ import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -29,10 +28,10 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     protected List<String> expectedInputs() {
         List<String> expectedInputs = Lists.newArrayList(super.expectedInputs());
-        expectedInputs.add(input("run-tumor-test/aligner/results/tumor.jitter_params.tsv", "tumor.jitter_params.tsv"));
-        expectedInputs.add(input("run-tumor-test/aligner/results/tumor.ms_table.tsv.gz", "tumor.ms_table.tsv.gz"));
-        expectedInputs.add(input("run-reference-test/aligner/results/reference.jitter_params.tsv", "reference.jitter_params.tsv"));
-        expectedInputs.add(input("run-reference-test/aligner/results/reference.ms_table.tsv.gz", "reference.ms_table.tsv.gz"));
+        expectedInputs.add(input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.jitter_params.tsv", "tumor.jitter_params.tsv"));
+        expectedInputs.add(input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.ms_table.tsv.gz", "tumor.ms_table.tsv.gz"));
+        expectedInputs.add(input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.jitter_params.tsv", "reference.jitter_params.tsv"));
+        expectedInputs.add(input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.ms_table.tsv.gz", "reference.ms_table.tsv.gz"));
         return expectedInputs;
     }
 

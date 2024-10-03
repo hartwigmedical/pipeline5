@@ -62,13 +62,13 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected List<String> expectedInputs() {
         return List.of(
-                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz.tbi", "tumor.germline.vcf.gz.tbi"));
+                input(TestInputs.SOMATIC_BUCKET + "/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
+                input(TestInputs.SOMATIC_BUCKET + "/sage_germline/results/tumor.germline.vcf.gz.tbi", "tumor.germline.vcf.gz.tbi"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-tumor-test";
+        return TestInputs.SOMATIC_BUCKET;
     }
 
     @Override

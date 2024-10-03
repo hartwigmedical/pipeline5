@@ -45,8 +45,8 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
-                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        return ImmutableList.of(input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam", "reference.bam"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Override

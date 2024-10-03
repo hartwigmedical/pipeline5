@@ -27,7 +27,7 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
 
     @Override
     protected Stage<AlignmentOutput, SingleSampleRunMetadata> createVictim() {
-        return new Cram2Bam(GoogleStorageLocation.of(TestInputs.BUCKET, FileTypes.bam(TestInputs.tumorSample())),
+        return new Cram2Bam(GoogleStorageLocation.of(TestInputs.TUMOR_BUCKET, FileTypes.bam(TestInputs.tumorSample())),
                 SingleSampleRunMetadata.SampleType.TUMOR);
     }
 
@@ -38,12 +38,12 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("bucket/tumor.bam", "tumor.bam"));
+        return List.of(input(TestInputs.TUMOR_BUCKET + "/tumor.bam", "tumor.bam"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-tumor-test";
+        return TestInputs.TUMOR_BUCKET;
     }
 
     @Override
@@ -54,6 +54,6 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
 
     @Override
     protected void validateOutput(final AlignmentOutput output) {
-        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("run-tumor-test/cram2bam", "results/tumor.bam"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of(expectedRuntimeBucketName() + "/cram2bam", "results/tumor.bam"));
     }
 }

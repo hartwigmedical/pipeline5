@@ -29,7 +29,7 @@ public class LinxGermlineTest extends TertiaryStageTest<LinxGermlineOutput> {
     @Override
     protected List<String> expectedInputs() {
         return Collections.singletonList(input(
-                "run-reference-tumor-test/purple/tumor.purple.sv.germline.vcf.gz",
+                TestInputs.SOMATIC_BUCKET + "/purple/tumor.purple.sv.germline.vcf.gz",
                     "tumor.purple.sv.germline.vcf.gz"));
     }
 
