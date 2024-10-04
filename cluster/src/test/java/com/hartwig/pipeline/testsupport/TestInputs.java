@@ -242,7 +242,7 @@ public class TestInputs {
         String sample = metadata.sampleName();
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .sample(metadata.sampleName())
+                .sample(sample)
                 .maybeOutputLocations(BamMetricsOutputLocations.builder()
                         .outputDirectory(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), RESULTS))
                         .summary(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_SUMMARY_TSV))
