@@ -41,7 +41,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected void validateOutput(final AmberOutput output) {
-        assertThat(output.outputDirectory().bucket()).isEqualTo("run-reference-tumor-test/amber");
+        assertThat(output.outputDirectory().bucket()).isEqualTo(TestInputs.SOMATIC_BUCKET + "/amber");
         assertThat(output.outputDirectory().path()).isEqualTo("results");
         assertThat(output.outputDirectory().isDirectory()).isTrue();
     }

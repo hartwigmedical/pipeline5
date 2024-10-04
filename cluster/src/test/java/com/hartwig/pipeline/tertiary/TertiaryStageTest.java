@@ -31,15 +31,15 @@ public abstract class TertiaryStageTest<S extends StageOutput> extends StageTest
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input("run-tumor-test/aligner/results/tumor.bam", "tumor.bam"),
-                input("run-tumor-test/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
-                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
-                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        return ImmutableList.of(input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.bam", "tumor.bam"),
+                input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam", "reference.bam"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-tumor-test";
+        return TestInputs.SOMATIC_BUCKET;
     }
 
     @Test

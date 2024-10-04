@@ -29,7 +29,7 @@ public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return Collections.singletonList(input("run-reference-tumor-test/purple/results/", "results"));
+        return Collections.singletonList(input(TestInputs.SOMATIC_BUCKET + "/purple/results/", "results"));
     }
 
     @Override

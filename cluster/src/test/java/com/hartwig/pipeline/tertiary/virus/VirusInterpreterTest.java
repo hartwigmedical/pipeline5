@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
-import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,10 +43,10 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
-                input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
-                input("run-tumor-test/bam_metrics/tumor" + BAM_METRICS_SUMMARY_TSV, "tumor" + BAM_METRICS_SUMMARY_TSV),
-                input(expectedRuntimeBucketName() + "/virusbreakend/tumor.virusbreakend.vcf.summary.tsv",
+        return List.of(input(TestInputs.SOMATIC_BUCKET + "/purple/tumor.purple.qc", "tumor.purple.qc"),
+                input(TestInputs.SOMATIC_BUCKET + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
+                input(TestInputs.TUMOR_BUCKET + "/bam_metrics/tumor" + BAM_METRICS_SUMMARY_TSV, "tumor" + BAM_METRICS_SUMMARY_TSV),
+                input(TestInputs.SOMATIC_BUCKET + "/virusbreakend/tumor.virusbreakend.vcf.summary.tsv",
                         "tumor.virusbreakend.vcf.summary.tsv"));
     }
 
@@ -60,7 +59,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
 
     @Override
     protected void validateOutput(final VirusInterpreterOutput output) {
-        assertThat(output.maybeVirusAnnotations()).isEqualTo(Optional.of(GoogleStorageLocation.of(SOMATIC_BUCKET + "/virusintrprtr",
+        assertThat(output.maybeVirusAnnotations()).isEqualTo(Optional.of(GoogleStorageLocation.of(TestInputs.SOMATIC_BUCKET + "/virusintrprtr",
                 ResultsDirectory.defaultDirectory().path(ANNOTATED_VIRUS_TSV))));
     }
 

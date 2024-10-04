@@ -81,13 +81,13 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(
-                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
-                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam", "reference.bam"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-test";
+        return TestInputs.REFERENCE_BUCKET;
     }
 
     @Override
@@ -127,7 +127,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected void validateOutput(final BamMetricsOutput output) {
         GoogleStorageLocation metricsOutputFile = output.outputLocations().summary();
-        assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
+        assertThat(metricsOutputFile.bucket()).isEqualTo(expectedRuntimeBucketName() + "/bam_metrics");
         assertThat(metricsOutputFile.path()).isEqualTo("results/" + REFERENCE_SUMMARY);
     }
 

@@ -103,10 +103,10 @@ public class TestInputs {
     public static final long EXTERNAL_SET_ID = 2L;
     private static final String RESULTS = "results/";
     private static final String REFERENCE_SAMPLE = "reference";
-    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
     private static final String TUMOR_SAMPLE = "tumor";
-    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
-    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
+    public static final String REFERENCE_BUCKET = "run-ref-" + REFERENCE_SAMPLE + "-test";
+    public static final String TUMOR_BUCKET = "run-tum-" + TUMOR_SAMPLE + "-test";
+    public static final String SOMATIC_BUCKET = "run-som-" + TUMOR_SAMPLE + "-test";
 
     public static PipelineInput pipelineInput() {
         return PipelineInput.builder()
@@ -172,8 +172,8 @@ public class TestInputs {
                 .set(SET)
                 .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                .barcode(referenceAlignmentOutput().sample())
-                .turquoiseSubject(referenceAlignmentOutput().sample())
+                .barcode(TestInputs.REFERENCE_SAMPLE)
+                .turquoiseSubject(TestInputs.REFERENCE_SAMPLE)
                 .build();
     }
 
@@ -183,8 +183,8 @@ public class TestInputs {
                 .set(SET)
                 .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                .barcode(tumorAlignmentOutput().sample())
-                .turquoiseSubject(tumorAlignmentOutput().sample())
+                .barcode(TestInputs.TUMOR_SAMPLE)
+                .turquoiseSubject(TestInputs.TUMOR_SAMPLE)
                 .primaryTumorDoids(List.of("01", "02"))
                 .samplingDate(LocalDate.of(2023, 5, 19))
                 .build();
@@ -195,30 +195,30 @@ public class TestInputs {
     }
 
     public static AlignmentOutput referenceAlignmentOutput() {
-        return alignerOutput(REFERENCE_SAMPLE);
+        return alignerOutput(referenceRunMetadata());
     }
 
     public static AlignmentOutput tumorAlignmentOutput() {
-        return alignerOutput(TUMOR_SAMPLE);
+        return alignerOutput(tumorRunMetadata());
     }
 
-    private static AlignmentOutput alignerOutput(final String sample) {
-        String bucket = namespacedBucket(sample, Aligner.NAMESPACE);
+    private static AlignmentOutput alignerOutput(final SingleSampleRunMetadata metadata) {
+        String bucket = namespacedBucket(metadata, Aligner.NAMESPACE);
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeAlignments(gsLocation(bucket, RESULTS + bam(sample)))
-                .maybeJitterParams(gsLocation(bucket, RESULTS + jitterParamsTsv(sample)))
-                .maybeMsTable(gsLocation(bucket, RESULTS + msTableTsv(sample)))
-                .sample(sample)
+                .maybeAlignments(gsLocation(bucket, RESULTS + bam(metadata.sampleName())))
+                .maybeJitterParams(gsLocation(bucket, RESULTS + jitterParamsTsv(metadata.sampleName())))
+                .maybeMsTable(gsLocation(bucket, RESULTS + msTableTsv(metadata.sampleName())))
+                .sample(metadata.sampleName())
                 .build();
     }
 
     public static BamMetricsOutput referenceMetricsOutput() {
-        return metricsOutput(REFERENCE_SAMPLE);
+        return metricsOutput(referenceRunMetadata());
     }
 
     public static BamMetricsOutput tumorMetricsOutput() {
-        return metricsOutput(TUMOR_SAMPLE);
+        return metricsOutput(tumorRunMetadata());
     }
 
     public static SnpGenotypeOutput snpGenotypeOutput() {
@@ -233,23 +233,24 @@ public class TestInputs {
         String germlineVcf = REFERENCE_SAMPLE + ".germline.vcf.gz";
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE), germlineVcf))
-                .maybeGermlineVcfIndexLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
+                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(referenceRunMetadata(), GermlineCaller.NAMESPACE), germlineVcf))
+                .maybeGermlineVcfIndexLocation(gsLocation(namespacedBucket(referenceRunMetadata(), GermlineCaller.NAMESPACE),
                         germlineVcf + ".tbi"))
                 .build();
     }
 
-    private static BamMetricsOutput metricsOutput(final String sample) {
+    private static BamMetricsOutput metricsOutput(final SingleSampleRunMetadata metadata) {
+        String sample = metadata.sampleName();
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .sample(sample)
                 .maybeOutputLocations(BamMetricsOutputLocations.builder()
-                        .outputDirectory(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), RESULTS))
-                        .summary(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), sample + BAM_METRICS_SUMMARY_TSV))
-                        .coverage(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), sample + BAM_METRICS_COVERAGE_TSV))
-                        .fragmentLengths(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), sample + BAM_METRICS_FRAG_LENGTH_TSV))
-                        .flagCounts(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), sample + BAM_METRICS_FLAG_COUNT_TSV))
-                        .partitionStats(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), sample + BAM_METRICS_PARTITION_STATS_TSV))
+                        .outputDirectory(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), RESULTS))
+                        .summary(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_SUMMARY_TSV))
+                        .coverage(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_COVERAGE_TSV))
+                        .fragmentLengths(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_FRAG_LENGTH_TSV))
+                        .flagCounts(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_FLAG_COUNT_TSV))
+                        .partitionStats(gsLocation(namespacedBucket(metadata, BamMetrics.NAMESPACE), sample + BAM_METRICS_PARTITION_STATS_TSV))
                         .build())
                 .build();
     }
@@ -405,8 +406,8 @@ public class TestInputs {
                 .build();
     }
 
-    public static String namespacedBucket(final String sample, final String namespace) {
-        return "run-" + sample + "-test/" + namespace;
+    public static String namespacedBucket(final SingleSampleRunMetadata metadata, final String namespace) {
+        return "run-" + metadata.stagePrefix() + "-" + metadata.sampleName() + "-test/" + namespace;
     }
 
     public static LinxSomaticOutput linxSomaticOutput() {

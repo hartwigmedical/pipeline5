@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 
@@ -45,9 +44,9 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
         return ImmutableList.of(
                 "mkdir -p /data/input/metrics",
                 "mkdir -p /data/input/purple",
-                input("run-reference-test/bam_metrics/results/", "metrics"),
-                input("run-tumor-test/bam_metrics/results/", "metrics"),
-                input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
+                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/results/", "metrics"),
+                input(TestInputs.TUMOR_BUCKET + "/bam_metrics/results/", "metrics"),
+                input(TestInputs.SOMATIC_BUCKET + "/purple/results/", "purple"));
     }
 
     @Override

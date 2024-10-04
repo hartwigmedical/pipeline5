@@ -70,8 +70,8 @@ public class BwaAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/flowcell-L001");
-        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/flowcell-L002");
+        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001");
+        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L002");
 
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-flowcell-l001");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-flowcell-l002");
@@ -93,7 +93,7 @@ public class BwaAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference-test/aligner");
+        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-redux");
     }
 
@@ -121,7 +121,7 @@ public class BwaAlignerTest {
     private void setupMocks() {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
-        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase() + "-test";
+        String rootBucketName = TestInputs.REFERENCE_BUCKET;
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);

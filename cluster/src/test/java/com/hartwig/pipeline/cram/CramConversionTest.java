@@ -20,7 +20,7 @@ import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMetadata> {
-    private static final String BUCKET_NAME = "run-reference-test";
+    private static final String BUCKET_NAME = TestInputs.REFERENCE_BUCKET;
 
     @Override
     protected Arguments createDisabledArguments() {
