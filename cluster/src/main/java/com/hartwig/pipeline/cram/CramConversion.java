@@ -34,7 +34,8 @@ import com.hartwig.pipeline.stages.Stage;
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "cram";
 
-    public static final int NUMBER_OF_CORES = 8;
+    public static final int NUMBER_OF_CORES = 16;
+    public static final int MEMORY_GB = 16;
 
     private final InputDownloadCommand bamDownload;
     private final String outputCram;
