@@ -117,7 +117,7 @@ public interface ResourceFiles {
     }
 
     default String vChordModel() {
-        return formPath(ResourceNames.V_CHORD, "v_chord.model.hmf_oncopanel_v3.pt");
+        return formPath(ResourceNames.V_CHORD, "vchord_model.targeted.pt");
     }
 
     default String formPath(final String name, final String file) {

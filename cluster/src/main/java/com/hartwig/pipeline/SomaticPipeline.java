@@ -235,8 +235,6 @@ public class SomaticPipeline {
                                         false,
                                         arguments.useTargetRegions())));
 
-                        composer.add(state.add(tealOutputFuture.get()));
-
                         composer.add(state.add(orangeOutputFuture.get()));
                         composer.add(state.add(orangeNoGermlineFuture.get()));
 
