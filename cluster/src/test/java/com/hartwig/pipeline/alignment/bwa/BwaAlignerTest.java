@@ -28,6 +28,7 @@ import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +36,7 @@ import org.mockito.ArgumentCaptor;
 public class BwaAlignerTest {
 
     private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
+    public static final String GS_BUCKET_PATH_REFERENCE_BAM = "gs://bucket/path/reference.bam";
     private BwaAligner victim;
     private SampleUpload sampleUpload;
     private Storage storage;
@@ -51,14 +53,7 @@ public class BwaAlignerTest {
                 .setName(TestInputs.SET)
                 .reference(SampleInput.builder().name(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
                 .build();
-        victim = new BwaAligner(arguments,
-                computeEngine,
-                storage,
-                input,
-                sampleUpload,
-                ResultsDirectory.defaultDirectory(),
-                Executors.newSingleThreadExecutor(),
-                mock(Labels.class));
+        victim = createVictimBwaAligner(input);
     }
 
     @Test
@@ -75,6 +70,37 @@ public class BwaAlignerTest {
 
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-flowcell-l001");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-flowcell-l002");
+    }
+
+    @Test
+    public void skipLaneAlignmentIfRedoDuplicates() throws Exception {
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(true).build();
+        PipelineInput input = createBamPipelineInput();
+        victim = createVictimBwaAligner(input);
+        setupMocks();
+
+        ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
+                ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
+        victim.run(METADATA);
+        assertThat(bucketCaptor.getAllValues().stream().noneMatch(b -> b.name().equals(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001"))).isTrue();
+
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("merge-redux");
+    }
+
+    @NotNull
+    private BwaAligner createVictimBwaAligner(final PipelineInput input)
+    {
+        return new BwaAligner(arguments,
+                computeEngine,
+                storage,
+                input,
+                sampleUpload,
+                ResultsDirectory.defaultDirectory(),
+                Executors.newSingleThreadExecutor(),
+                mock(Labels.class));
     }
 
     @Test
@@ -98,24 +124,23 @@ public class BwaAlignerTest {
     }
 
     @Test
-    public void returnsProvidedBamIfInSample() throws Exception {
-        String gsUrl = "gs://bucket/path/reference.bam";
-        PipelineInput input = PipelineInput.builder()
-                .setName(METADATA.set())
-                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build())
-                .build();
-        victim = new BwaAligner(arguments,
-                computeEngine,
-                storage,
-                input,
-                sampleUpload,
-                ResultsDirectory.defaultDirectory(),
-                Executors.newSingleThreadExecutor(),
-                mock(Labels.class));
+    public void returnsProvidedBamIfInSampleAndNotRedoAlignment() throws Exception {
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
+        PipelineInput input = createBamPipelineInput();
+        victim = createVictimBwaAligner(input);
         AlignmentOutput output = victim.run(METADATA);
-        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(gsUrl, arguments.project()));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(GS_BUCKET_PATH_REFERENCE_BAM, arguments.project()));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());
         assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
+    }
+
+    @NotNull
+    private static PipelineInput createBamPipelineInput()
+    {
+        return PipelineInput.builder()
+                .setName(METADATA.set())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(BwaAlignerTest.GS_BUCKET_PATH_REFERENCE_BAM).build())
+                .build();
     }
 
     private void setupMocks() {

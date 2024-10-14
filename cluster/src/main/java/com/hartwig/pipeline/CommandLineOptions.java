@@ -74,6 +74,7 @@ public class CommandLineOptions {
     private static final String PUBSUB_ENVIRONMENT_FLAG = "pubsub_environment";
     private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
     private static final String USE_PRIVATE_RESOURCES_FLAG = "use_private_resources";
+    private static final String REDO_DUPLICATE_MARKING_FLAG = "redo_duplicate_marking";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -134,7 +135,9 @@ public class CommandLineOptions {
                 .addOption(pubsubTopicWorkflow())
                 .addOption(pubsubTopicEnvironment())
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
-                        "Compute nothing, only publish events for downstream consumption"));
+                        "Compute nothing, only publish events for downstream consumption"))
+                .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG,
+                        "Redo duplicate marking on input BAM or CRAM"));
     }
 
     private static Option useTargetRegions() {
@@ -303,6 +306,7 @@ public class CommandLineOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
+                    .redoDuplicateMarking(booleanOptionWithDefault(commandLine, REDO_DUPLICATE_MARKING_FLAG, defaults.redoDuplicateMarking()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))

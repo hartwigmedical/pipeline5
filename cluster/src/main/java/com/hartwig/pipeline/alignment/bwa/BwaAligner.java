@@ -22,7 +22,6 @@ import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.ComputeEngine;
 import com.hartwig.computeengine.execution.vm.RuntimeFiles;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.execution.vm.command.OutputUploadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
@@ -39,7 +38,6 @@ import com.hartwig.pipeline.alignment.redux.Redux;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
@@ -85,77 +83,95 @@ public class BwaAligner implements Aligner {
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
 
-        StageTrace trace =
-                new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = createRuntimeBucket(NAMESPACE, metadata);
         SampleInput sample = Inputs.sampleFor(input, metadata);
-        if (sample.bam().isPresent()) {
+
+        if (sample.bam().isPresent() && !arguments.redoDuplicateMarking()) {
+            cleanUp(trace);
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)
                     .maybeAlignments(GoogleStorageLocation.from(sample.bam().get(), arguments.project()))
                     .build();
         }
+
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
-        sampleUpload.run(sample, rootBucket);
 
-        List<Future<ComputeEngineStatus>> futures = new ArrayList<>();
-        List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
-        List<OutputComponent> laneLogComponents = new ArrayList<>();
-        List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
-        for (LaneInput lane : sample.lanes()) {
+        final boolean alignmentSuccessful;
+        List<GoogleStorageLocation> unmergedBams;
+        List<OutputComponent> reportComponents;
+        List<GoogleStorageLocation> failedLogs;
+        if (sample.bam().isEmpty())
+        {
+            sampleUpload.run(sample, rootBucket);
 
-            RuntimeBucket laneBucket = createRuntimeBucket(laneNamespace(lane), metadata);
+            reportComponents = new ArrayList<>();
+            failedLogs = new ArrayList<>();
+            unmergedBams = new ArrayList<>();
+            List<Future<ComputeEngineStatus>> futures = new ArrayList<>();
+            for(LaneInput lane : sample.lanes())
+            {
 
-            BashStartupScript bash = BashStartupScript.of(laneBucket.name());
+                RuntimeBucket laneBucket = createRuntimeBucket(laneNamespace(lane), metadata);
 
-            InputDownloadCommand first = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
-                    fastQFileName(sample.name(), lane.firstOfPairPath())));
-            InputDownloadCommand second = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
-                    fastQFileName(sample.name(), lane.secondOfPairPath())));
-            bash.addCommand(first).addCommand(second);
+                BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
-            SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
-                    resourceFiles.refGenomeFile(),
-                    first.getLocalTargetPath(),
-                    second.getLocalTargetPath(),
-                    lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
-            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(),
-                    resultsDirectory.path(alignment.outputFile().fileName())));
+                InputDownloadCommand first = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
+                        fastQFileName(sample.name(), lane.firstOfPairPath())));
+                InputDownloadCommand second = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
+                        fastQFileName(sample.name(), lane.secondOfPairPath())));
+                bash.addCommand(first).addCommand(second);
 
-            bash.addCommands(alignment.bash())
-                    .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
-                            RuntimeFiles.typical()));
-            var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
-                    laneBucket,
-                    VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
-            futures.add(pipelineFuture);
-            laneLogComponents.add(new RunLogComponent(laneBucket,
-                    laneNamespace(lane),
-                    Folder.from(metadata),
-                    resultsDirectory));
-            laneFailedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
+                SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
+                        resourceFiles.refGenomeFile(),
+                        first.getLocalTargetPath(),
+                        second.getLocalTargetPath(),
+                        lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                unmergedBams.add(GoogleStorageLocation.of(laneBucket.name(),
+                        resultsDirectory.path(alignment.outputFile().fileName())));
+
+                bash.addCommands(alignment.bash())
+                        .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
+                                RuntimeFiles.typical()));
+                var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
+                        laneBucket,
+                        VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
+                futures.add(pipelineFuture);
+                reportComponents.add(new RunLogComponent(laneBucket,
+                        laneNamespace(lane),
+                        Folder.from(metadata),
+                        resultsDirectory));
+                failedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
+            }
+            alignmentSuccessful = lanesSuccessfullyComplete(futures);
+        }
+        else
+        {
+            alignmentSuccessful = true;
+            unmergedBams = List.of(GoogleStorageLocation.from(sample.bam().get(), arguments.project()));
+            reportComponents = new ArrayList<>();
+            failedLogs = new ArrayList<>();
         }
 
         AlignmentOutput output;
-        if (lanesSuccessfullyComplete(futures)) {
+        if (alignmentSuccessful) {
+            BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
 
-            List<InputDownloadCommand> laneBams = perLaneBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
-
-            List<InputDownloadCommand> laneBamIndexs = perLaneBams.stream()
+            List<InputDownloadCommand> unmergedBamDownloads = unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
+            List<InputDownloadCommand> bamIndexDownloads = unmergedBams.stream()
                     .map(x -> x.transform(FileTypes::bai))
                     .map(InputDownloadCommand::new).collect(Collectors.toList());
 
-            BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
-            laneBams.forEach(mergeMarkdupsBash::addCommand);
-            laneBamIndexs.forEach(mergeMarkdupsBash::addCommand);
+            unmergedBamDownloads.forEach(mergeMarkdupsBash::addCommand);
+            bamIndexDownloads.forEach(mergeMarkdupsBash::addCommand);
 
-            List<String> laneBamPaths = laneBams.stream()
+            List<String> localBamPaths = unmergedBamDownloads.stream()
                     .map(InputDownloadCommand::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged = new Redux(metadata.sampleName(), resourceFiles, laneBamPaths)
+            SubStageInputOutput merged = new Redux(metadata.sampleName(), resourceFiles, localBamPaths)
                     .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
@@ -171,50 +187,63 @@ public class BwaAligner implements Aligner {
             String jitterParams = resultsDirectory.path(jitterParamsTsv(metadata.sampleName()));
             String msTableParams = resultsDirectory.path(msTableTsv(metadata.sampleName()));
 
-            ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
+            reportComponents.add(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
+            reportComponents.add(new SingleFileComponent(rootBucket,
+                    Aligner.NAMESPACE,
+                    Folder.from(metadata),
+                    jitterParamsTsv(metadata.sampleName()),
+                    jitterParamsTsv(metadata.sampleName()),
+                    resultsDirectory));
+            reportComponents.add(new SingleFileComponent(rootBucket,
+                    Aligner.NAMESPACE,
+                    Folder.from(metadata),
+                    msTableTsv(metadata.sampleName()),
+                    msTableTsv(metadata.sampleName()),
+                    resultsDirectory));
+
+            List<AddDatatype> addDatatypes = new ArrayList<>();
+            addDatatypes.add(new AddDatatype(DataType.REDUX_JITTER_PARAMS,
+                    metadata.barcode(),
+                    new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, jitterParamsTsv(metadata.sampleName()))));
+            addDatatypes.add(new AddDatatype(DataType.REDUX_MS_TABLE,
+                    metadata.barcode(),
+                    new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, msTableTsv(metadata.sampleName()))));
+
+            if (!arguments.outputCram()) {
+                reportComponents.add(new SingleFileComponent(rootBucket,
+                        Aligner.NAMESPACE,
+                        Folder.from(metadata),
+                        bam(metadata.sampleName()),
+                        bam(metadata.sampleName()),
+                        resultsDirectory));
+                reportComponents.add(new SingleFileComponent(rootBucket,
+                        Aligner.NAMESPACE,
+                        Folder.from(metadata),
+                        bai(bam(metadata.sampleName())),
+                        bai(bam(metadata.sampleName())),
+                        resultsDirectory));
+                addDatatypes.add(new AddDatatype(
+                        DataType.ALIGNED_READS, metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))));
+                addDatatypes.add(new AddDatatype(DataType.ALIGNED_READS_INDEX,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(metadata.sampleName()))));
+            }
+            output = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(pipelineStatus)
                     .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(merged.outputFile().fileName())))
                     .maybeJitterParams(GoogleStorageLocation.of(rootBucket.name(), jitterParams))
                     .maybeMsTable(GoogleStorageLocation.of(rootBucket.name(), msTableParams))
-                    .addAllReportComponents(laneLogComponents)
-                    .addAllFailedLogLocations(laneFailedLogs)
+                    .addAllFailedLogLocations(failedLogs)
                     .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
-                    .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
-
-            if (!arguments.outputCram()) {
-                outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
-                                        Aligner.NAMESPACE,
-                                        Folder.from(metadata),
-                                        bam(metadata.sampleName()),
-                                        bam(metadata.sampleName()),
-                                        resultsDirectory),
-                                new SingleFileComponent(rootBucket,
-                                        Aligner.NAMESPACE,
-                                        Folder.from(metadata),
-                                        bai(bam(metadata.sampleName())),
-                                        bai(bam(metadata.sampleName())),
-                                        resultsDirectory))
-                        .addDatatypes(
-                                new AddDatatype(
-                                        DataType.ALIGNED_READS, metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))),
-                                new AddDatatype(DataType.ALIGNED_READS_INDEX,
-                                        metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(metadata.sampleName()))),
-                                new AddDatatype(DataType.REDUX_JITTER_PARAMS,
-                                        metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, jitterParamsTsv(metadata.sampleName()))),
-                                new AddDatatype(DataType.REDUX_MS_TABLE,
-                                        metadata.barcode(),
-                                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, msTableTsv(metadata.sampleName()))));
-            }
-            output = outputBuilder.build();
+                    .addAllDatatypes(addDatatypes)
+                    .addAllReportComponents(reportComponents)
+                    .build();
         } else {
             output = AlignmentOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.FAILED).build();
         }
-        trace.stop();
-        executorService.shutdown();
+        cleanUp(trace);
         return output;
     }
 
@@ -259,5 +288,11 @@ public class BwaAligner implements Aligner {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void cleanUp(final StageTrace trace)
+    {
+        trace.stop();
+        executorService.shutdown();
     }
 }
