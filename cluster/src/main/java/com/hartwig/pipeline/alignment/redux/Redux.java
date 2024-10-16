@@ -12,6 +12,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
@@ -52,7 +53,7 @@ public class Redux extends SubStage {
 
         List<String> arguments = formArguments(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus());
 
-        cmds.add(new JavaJarCommand(REDUX.getToolName(), REDUX.runVersion(), REDUX.jar(), REDUX.maxHeapStr(), arguments));
+        cmds.add(JavaCommandFactory.javaJarCommand(REDUX, arguments));
 
         return cmds;
     }
