@@ -121,16 +121,16 @@ public class TestInputs {
     }
 
     public static String toolCommand(final HmfTool hmfTool) {
-        return format("java -Xmx%dG -jar /opt/tools/%s/%s/%s",
-                hmfTool.getMaxHeap(),
+        return format("java -XX:MaxRAMPercentage=%d -jar /opt/tools/%s/%s/%s",
+                hmfTool.getMaxHeapPercentage(),
                 hmfTool.directory(),
                 hmfTool.runVersion(),
                 hmfTool.jar());
     }
 
     public static String toolCommand(final HmfTool hmfTool, final String classPath) {
-        return format("java -Xmx%dG -cp /opt/tools/%s/%s/%s %s",
-                hmfTool.getMaxHeap(),
+        return format("java -XX:MaxRAMPercentage=%d -cp /opt/tools/%s/%s/%s %s",
+                hmfTool.getMaxHeapPercentage(),
                 hmfTool.directory(),
                 hmfTool.runVersion(),
                 hmfTool.jar(),
