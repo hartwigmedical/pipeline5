@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.teal;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.computeengine.execution.vm.Bash;
@@ -11,7 +10,6 @@ import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaClassCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -19,11 +17,11 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
-import com.hartwig.pipeline.output.EntireOutputComponent;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
@@ -88,14 +86,7 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
     private List<BashCommand> formCommand(final List<String> arguments)
     {
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(new JavaClassCommand(
-                TEAL.getToolName(),
-                TEAL.runVersion(),
-                TEAL.jar(),
-                TELBAM_APP_CLASS,
-                "30G",
-                Collections.emptyList(),
-                arguments));
+        commands.add(JavaCommandFactory.javaClassCommand(TEAL, TELBAM_APP_CLASS, arguments));
         return commands;
     }
 

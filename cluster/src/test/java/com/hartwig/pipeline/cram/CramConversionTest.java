@@ -69,7 +69,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                 input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
-                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta -1 %s -2 %s -n 6 --samtools-binary /opt/tools/samtools/1.20/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
+                format("java -XX:MaxRAMPercentage=90 -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta -1 %s -2 %s -n 16 --samtools-binary /opt/tools/samtools/1.20/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
                         input,
                         output));
     }

@@ -11,6 +11,7 @@ import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
 import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
@@ -193,7 +194,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(name)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(96, 128))
+                .performanceProfile(custom(32, 64))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -244,25 +245,27 @@ public final class VirtualMachineJobDefinitions {
 
     public static VirtualMachineJobDefinition cram2Bam(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
             final SingleSampleRunMetadata.SampleType sampleType, final String namespace) {
+        int numLocalSsd = sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 2 : 4;
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(namespace)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
     public static VirtualMachineJobDefinition cramConversion(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
             final SingleSampleRunMetadata.SampleType sampleType) {
+        int numLocalSsd = sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 2 : 4;
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(CramConversion.NAMESPACE)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.NUMBER_OF_CORES, CramConversion.MEMORY_GB))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
@@ -304,7 +307,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(namespace.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(ORANGE.getCpus(), ORANGE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();

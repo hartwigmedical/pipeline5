@@ -12,6 +12,7 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
@@ -27,6 +28,7 @@ public class Redux extends SubStage {
 
     public static final String REDUX_JITTER_PARAMS_TSV = ".jitter_params.tsv";
     public static final String REDUX_MS_TABLE_TSV = ".ms_table.tsv.gz";
+    public static final String REDUX_REPEAT_TSV = ".repeat.tsv.gz";
 
     public Redux(
             final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths) {
@@ -39,8 +41,13 @@ public class Redux extends SubStage {
     public static String jitterParamsTsv(final String sampleId) {
         return sampleId + REDUX_MS_TABLE_TSV;
     }
+
     public static String msTableTsv(final String sampleId) {
         return sampleId + REDUX_JITTER_PARAMS_TSV;
+    }
+
+    public static String repeatTsv(final String sampleId) {
+        return sampleId + REDUX_REPEAT_TSV;
     }
 
     @Override
@@ -52,7 +59,7 @@ public class Redux extends SubStage {
 
         List<String> arguments = formArguments(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus());
 
-        cmds.add(new JavaJarCommand(REDUX.getToolName(), REDUX.runVersion(), REDUX.jar(), REDUX.maxHeapStr(), arguments));
+        cmds.add(JavaCommandFactory.javaJarCommand(REDUX, arguments));
 
         return cmds;
     }

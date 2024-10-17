@@ -21,8 +21,8 @@ class BamMetricsCommand extends JavaJarCommand
         super(BAM_TOOLS.getToolName(),
                 BAM_TOOLS.runVersion(),
                 BAM_TOOLS.jar(),
-                BAM_TOOLS.maxHeapStr(),
                 formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
+        withMaxHeapPercentage(BAM_TOOLS.getMaxHeapPercentage());
     }
 
     private static List<String> formArguments(
