@@ -2,6 +2,9 @@ COLO829v003T/aligner/NA-1/run.log
 COLO829v003T/aligner/NA-2/run.log
 COLO829v003T/aligner/NA-3/run.log
 COLO829v003T/aligner/NA-4/run.log
+COLO829v003T/aligner/COLO829v003T.jitter_params.tsv
+COLO829v003T/aligner/COLO829v003T.ms_table.tsv.gz
+COLO829v003T/aligner/COLO829v003T.repeat.tsv.gz
 COLO829v003T/aligner/run.log
 COLO829v003T/bam_metrics/COLO829v003T.wgsmetrics
 COLO829v003T/bam_metrics/run.log

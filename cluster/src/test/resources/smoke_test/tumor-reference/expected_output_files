@@ -2,6 +2,9 @@ COLO829v003R/aligner/NA-1/run.log
 COLO829v003R/aligner/NA-2/run.log
 COLO829v003R/aligner/NA-3/run.log
 COLO829v003R/aligner/NA-4/run.log
+COLO829v003R/aligner/COLO829v003R.jitter_params.tsv
+COLO829v003R/aligner/COLO829v003R.ms_table.tsv.gz
+COLO829v003R/aligner/COLO829v003R.repeat.tsv.gz
 COLO829v003R/aligner/run.log
 COLO829v003R/bam_metrics/COLO829v003R.bam_metric.coverage.tsv
 COLO829v003R/bam_metrics/COLO829v003R.bam_metric.flag_counts.tsv
@@ -24,6 +27,9 @@ COLO829v003T/aligner/NA-1/run.log
 COLO829v003T/aligner/NA-2/run.log
 COLO829v003T/aligner/NA-3/run.log
 COLO829v003T/aligner/NA-4/run.log
+COLO829v003T/aligner/COLO829v003T.jitter_params.tsv
+COLO829v003T/aligner/COLO829v003T.ms_table.tsv.gz
+COLO829v003T/aligner/COLO829v003T.repeat.tsv.gz
 COLO829v003T/aligner/run.log
 COLO829v003T/bam_metrics/COLO829v003T.bam_metric.coverage.tsv
 COLO829v003T/bam_metrics/COLO829v003T.bam_metric.flag_counts.tsv
