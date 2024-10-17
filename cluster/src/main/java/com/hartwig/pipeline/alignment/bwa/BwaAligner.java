@@ -83,7 +83,6 @@ public class BwaAligner implements Aligner {
     }
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
-
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = createRuntimeBucket(NAMESPACE, metadata);
         SampleInput sample = Inputs.sampleFor(input, metadata);
@@ -103,17 +102,14 @@ public class BwaAligner implements Aligner {
         List<GoogleStorageLocation> unmergedBams;
         List<OutputComponent> reportComponents;
         List<GoogleStorageLocation> failedLogs;
-        if (sample.bam().isEmpty())
-        {
+        if (sample.bam().isEmpty()) {
             sampleUpload.run(sample, rootBucket);
 
             reportComponents = new ArrayList<>();
             failedLogs = new ArrayList<>();
             unmergedBams = new ArrayList<>();
             List<Future<ComputeEngineStatus>> futures = new ArrayList<>();
-            for(LaneInput lane : sample.lanes())
-            {
-
+            for (LaneInput lane : sample.lanes()) {
                 RuntimeBucket laneBucket = createRuntimeBucket(laneNamespace(lane), metadata);
 
                 BashStartupScript bash = BashStartupScript.of(laneBucket.name());
@@ -129,8 +125,7 @@ public class BwaAligner implements Aligner {
                         first.getLocalTargetPath(),
                         second.getLocalTargetPath(),
                         lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
-                unmergedBams.add(GoogleStorageLocation.of(laneBucket.name(),
-                        resultsDirectory.path(alignment.outputFile().fileName())));
+                unmergedBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
                 bash.addCommands(alignment.bash())
                         .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
@@ -139,16 +134,11 @@ public class BwaAligner implements Aligner {
                         laneBucket,
                         VirtualMachineJobDefinitions.alignment(bash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
                 futures.add(pipelineFuture);
-                reportComponents.add(new RunLogComponent(laneBucket,
-                        laneNamespace(lane),
-                        Folder.from(metadata),
-                        resultsDirectory));
+                reportComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
                 failedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
             }
             alignmentSuccessful = lanesSuccessfullyComplete(futures);
-        }
-        else
-        {
+        } else {
             alignmentSuccessful = true;
             unmergedBams = List.of(GoogleStorageLocation.from(sample.bam().get(), arguments.project()));
             reportComponents = new ArrayList<>();
@@ -159,10 +149,10 @@ public class BwaAligner implements Aligner {
         if (alignmentSuccessful) {
             BashStartupScript mergeMarkdupsBash = BashStartupScript.of(rootBucket.name());
 
-            List<InputDownloadCommand> unmergedBamDownloads = unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
-            List<InputDownloadCommand> bamIndexDownloads = unmergedBams.stream()
-                    .map(x -> x.transform(FileTypes::bai))
-                    .map(InputDownloadCommand::new).collect(Collectors.toList());
+            List<InputDownloadCommand> unmergedBamDownloads =
+                    unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
+            List<InputDownloadCommand> bamIndexDownloads =
+                    unmergedBams.stream().map(x -> x.transform(FileTypes::bai)).map(InputDownloadCommand::new).collect(Collectors.toList());
 
             unmergedBamDownloads.forEach(mergeMarkdupsBash::addCommand);
             bamIndexDownloads.forEach(mergeMarkdupsBash::addCommand);
@@ -172,13 +162,13 @@ public class BwaAligner implements Aligner {
                     .filter(path -> path.endsWith("bam"))
                     .collect(Collectors.toList());
 
-            SubStageInputOutput merged = new Redux(metadata.sampleName(), resourceFiles, localBamPaths)
-                    .apply(SubStageInputOutput.empty(metadata.sampleName()));
+            SubStageInputOutput merged =
+                    new Redux(metadata.sampleName(), resourceFiles, localBamPaths).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
-            mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(),
-                    resultsDirectory.path()), RuntimeFiles.typical()));
+            mergeMarkdupsBash.addCommand(new OutputUploadCommand(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path()),
+                    RuntimeFiles.typical()));
 
             ComputeEngineStatus computeEngineStatus =
                     runWithRetries(metadata, rootBucket, VirtualMachineJobDefinitions.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
@@ -229,8 +219,8 @@ public class BwaAligner implements Aligner {
                         bai(bam(metadata.sampleName())),
                         bai(bam(metadata.sampleName())),
                         resultsDirectory));
-                addDatatypes.add(new AddDatatype(
-                        DataType.ALIGNED_READS, metadata.barcode(),
+                addDatatypes.add(new AddDatatype(DataType.ALIGNED_READS,
+                        metadata.barcode(),
                         new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))));
                 addDatatypes.add(new AddDatatype(DataType.ALIGNED_READS_INDEX,
                         metadata.barcode(),
@@ -299,8 +289,7 @@ public class BwaAligner implements Aligner {
         }
     }
 
-    private void cleanUp(final StageTrace trace)
-    {
+    private void cleanUp(final StageTrace trace) {
         trace.stop();
         executorService.shutdown();
     }

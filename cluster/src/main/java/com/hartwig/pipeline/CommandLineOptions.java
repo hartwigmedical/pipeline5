@@ -136,8 +136,7 @@ public class CommandLineOptions {
                 .addOption(pubsubTopicEnvironment())
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
                         "Compute nothing, only publish events for downstream consumption"))
-                .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG,
-                        "Redo duplicate marking on input BAM or CRAM"));
+                .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG, "Redo duplicate marking on input BAM or CRAM"));
     }
 
     private static Option useTargetRegions() {

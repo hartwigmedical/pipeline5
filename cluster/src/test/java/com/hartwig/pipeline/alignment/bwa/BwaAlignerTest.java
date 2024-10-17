@@ -84,15 +84,16 @@ public class BwaAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().stream().noneMatch(b -> b.name().equals(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001"))).isTrue();
+        assertThat(bucketCaptor.getAllValues()
+                .stream()
+                .noneMatch(b -> b.name().equals(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001"))).isTrue();
 
         assertThat(jobDefinitionArgumentCaptor.getAllValues().size()).isEqualTo(1);
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("merge-redux");
     }
 
     @NotNull
-    private BwaAligner createVictimBwaAligner(final PipelineInput input)
-    {
+    private BwaAligner createVictimBwaAligner(final PipelineInput input) {
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,
@@ -135,8 +136,7 @@ public class BwaAlignerTest {
     }
 
     @NotNull
-    private static PipelineInput createBamPipelineInput()
-    {
+    private static PipelineInput createBamPipelineInput() {
         return PipelineInput.builder()
                 .setName(METADATA.set())
                 .reference(SampleInput.builder().name(METADATA.sampleName()).bam(BwaAlignerTest.GS_BUCKET_PATH_REFERENCE_BAM).build())
