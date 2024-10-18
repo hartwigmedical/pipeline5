@@ -226,7 +226,7 @@ public class BwaAligner implements Aligner {
                         new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))));
                 addDatatypes.add(new AddDatatype(DataType.ALIGNED_READS_INDEX,
                         metadata.barcode(),
-                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(metadata.sampleName()))));
+                        new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bai(bam(metadata.sampleName())))));
             }
 
             String jitterParams = resultsDirectory.path(jitterParamsTsv(metadata.sampleName()));
