@@ -106,6 +106,7 @@ public class BwaAligner implements Aligner {
             alignmentData = alignLanes(sample, rootBucket, metadata, resourceFiles);
             alignmentSuccessful = alignmentData.alignmentSuccessfullyCompleted();
         } else {
+            // For redoing duplicate marking without redoing alignment
             alignmentData = new AlignmentData(new ArrayList<>(),
                     List.of(GoogleStorageLocation.from(sample.bam().get(), arguments.project())),
                     new ArrayList<>(),
