@@ -136,10 +136,12 @@ public class PipelineMain {
 
     public static void logCompletionMessage(final PipelineState state, final Duration timeTaken) {
         Level logLevel = state.status() != PipelineStatus.FAILED ? Level.INFO : Level.ERROR;
-        LOGGER.atLevel(logLevel).log("Pipeline completed with status [{}], time: {}, summary: [{}]",
+        LOGGER.atLevel(logLevel).log("Pipeline completed with status [{}], time: {}, summary: [PipelineState{stageOutputs=[",
                 state.status(),
-                DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"),
-                state);
+                DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"));
+        state.stageOutputs().forEach(stageOutput -> LOGGER.atLevel(logLevel).log("    {}:{}",
+                stageOutput.name(), stageOutput.status()));
+        LOGGER.atLevel(logLevel).log("]}]");
     }
 
     public PipelineState start(final Arguments arguments) {

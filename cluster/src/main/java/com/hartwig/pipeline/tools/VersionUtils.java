@@ -19,12 +19,12 @@ public final class VersionUtils {
         logger.info("HMF tool versions:");
 
         for (HmfTool tool : HmfTool.values()) {
-            logger.info("{}: {}", tool, tool.versionInfo());
+            logger.info("    {}: {}", tool, tool.versionInfo());
         }
 
         logger.info("External tools versions:");
         for (ExternalTool tool : ExternalTool.values()) {
-            logger.info("{}: {}", tool, tool.getVersion());
+            logger.info("    {}: {}", tool, tool.getVersion());
         }
 
         Stream.of(VersionUtils.class.getDeclaredFields())
