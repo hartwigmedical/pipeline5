@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,9 +47,11 @@ import com.hartwig.pipeline.tools.VersionUtils;
 import com.hartwig.pipeline.turquoise.Turquoise;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 public class PipelineMain {
     private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/root/anaconda3/bin/conda shell.bash hook`",
@@ -113,12 +117,12 @@ public class PipelineMain {
 
     public static void main(final String[] args) {
         try {
+            Instant start = Instant.now();
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
+            logCompletionMessage(state, Duration.between(start, Instant.now()));
             if (state.status() != PipelineStatus.FAILED) {
-                LOGGER.info(completionMessage(state));
                 System.exit(0);
             } else {
-                LOGGER.error(completionMessage(state));
                 System.exit(1);
             }
         } catch (ParseException e) {
@@ -130,8 +134,12 @@ public class PipelineMain {
         }
     }
 
-    public static String completionMessage(final PipelineState state) {
-        return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
+    public static void logCompletionMessage(final PipelineState state, final Duration timeTaken) {
+        Level logLevel = state.status() != PipelineStatus.FAILED ? Level.INFO : Level.ERROR;
+        LOGGER.atLevel(logLevel).log("Pipeline completed with status [{}], time: {}, summary: [{}]",
+                state.status(),
+                DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"),
+                state);
     }
 
     public PipelineState start(final Arguments arguments) {
