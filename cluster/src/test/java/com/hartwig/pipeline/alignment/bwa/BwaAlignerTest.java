@@ -28,7 +28,6 @@ import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -92,7 +91,6 @@ public class BwaAlignerTest {
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("merge-redux");
     }
 
-    @NotNull
     private BwaAligner createVictimBwaAligner(final PipelineInput input) {
         return new BwaAligner(arguments,
                 computeEngine,
@@ -135,7 +133,6 @@ public class BwaAlignerTest {
         assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
     }
 
-    @NotNull
     private static PipelineInput createBamPipelineInput() {
         return PipelineInput.builder()
                 .setName(METADATA.set())
