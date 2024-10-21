@@ -173,12 +173,13 @@ public class BwaAligner implements Aligner {
             final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles) {
         List<InputDownloadCommand> unmergedBamDownloads =
                 alignmentData.bamLocations.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
-        List<InputDownloadCommand> unmergedBamIndexDownloads =
-                alignmentData.bamLocations.stream().map(x -> x.transform(FileTypes::bai)).map(InputDownloadCommand::new).collect(Collectors.toList());
+        List<InputDownloadCommand> unmergedBamIndexDownloads = alignmentData.bamLocations.stream()
+                .map(x -> x.transform(FileTypes::toAlignmentIndex))
+                .map(InputDownloadCommand::new)
+                .collect(Collectors.toList());
 
         List<String> localBamPaths = unmergedBamDownloads.stream()
                 .map(InputDownloadCommand::getLocalTargetPath)
-                .filter(path -> path.endsWith("bam"))
                 .collect(Collectors.toList());
         SubStageInputOutput redux =
                 new Redux(metadata.sampleName(), resourceFiles, localBamPaths).apply(SubStageInputOutput.empty(metadata.sampleName()));
