@@ -100,23 +100,29 @@ public class BwaAligner implements Aligner {
 
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
 
-        AlignmentData alignmentData;
+        AlignmentStatus alignmentStatus;
         final boolean alignmentSuccessful;
+        List<GoogleStorageLocation> unmergedBams;
+        List<GoogleStorageLocation> laneAlignmentLogs;
+        List<OutputComponent> laneAlignmentOutputComponents;
         if (sample.bam().isEmpty()) {
-            alignmentData = alignLanes(sample, rootBucket, metadata, resourceFiles);
-            alignmentSuccessful = alignmentData.alignmentSuccessfullyCompleted();
+            alignmentStatus = submitLaneAlignments(sample, rootBucket, metadata, resourceFiles);
+
+            alignmentSuccessful = alignmentStatus.alignmentSuccessfullyCompleted();
+            unmergedBams = alignmentStatus.bamLocations;
+            laneAlignmentLogs = alignmentStatus.logLocations;
+            laneAlignmentOutputComponents = alignmentStatus.runLogComponents;
         } else {
             // For redoing duplicate marking without redoing alignment
-            alignmentData = new AlignmentData(new ArrayList<>(),
-                    List.of(GoogleStorageLocation.from(sample.bam().get(), arguments.project())),
-                    new ArrayList<>(),
-                    new ArrayList<>());
             alignmentSuccessful = true;
+            unmergedBams = List.of(GoogleStorageLocation.from(sample.bam().get(), arguments.project()));
+            laneAlignmentLogs = new ArrayList<>();
+            laneAlignmentOutputComponents = new ArrayList<>();
         }
 
         AlignmentOutput output;
         if (alignmentSuccessful) {
-            output = runRedux(alignmentData, rootBucket, metadata, resourceFiles);
+            output = runRedux(unmergedBams, rootBucket, metadata, resourceFiles, laneAlignmentLogs, laneAlignmentOutputComponents);
         } else {
             output = AlignmentOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.FAILED).build();
         }
@@ -124,22 +130,20 @@ public class BwaAligner implements Aligner {
         return output;
     }
 
-    private BwaAligner.AlignmentData alignLanes(final SampleInput sample, final RuntimeBucket rootBucket,
+    private AlignmentStatus submitLaneAlignments(final SampleInput sample, final RuntimeBucket rootBucket,
             final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles) throws IOException {
         sampleUpload.run(sample, rootBucket);
 
-        List<AlignmentData> laneAlignmentDatas = new ArrayList<>();
+        List<AlignmentStatus> laneAlignmentStatuses = new ArrayList<>();
         for (LaneInput lane : sample.lanes()) {
             RuntimeBucket laneBucket = createRuntimeBucket(laneNamespace(lane), metadata);
-            AlignmentData laneAlignmentData = submitLaneAlignment(lane, sample, laneBucket, rootBucket, metadata, resourceFiles);
-            laneAlignmentDatas.add(laneAlignmentData);
+            AlignmentStatus laneAlignmentStatus = submitLaneAlignment(lane, sample, laneBucket, rootBucket, metadata, resourceFiles);
+            laneAlignmentStatuses.add(laneAlignmentStatus);
         }
-        AlignmentData combinedLaneAlignmentData = AlignmentData.combine(laneAlignmentDatas);
-        combinedLaneAlignmentData.waitForCompletion();
-        return combinedLaneAlignmentData;
+        return AlignmentStatus.combine(laneAlignmentStatuses);
     }
 
-    private BwaAligner.AlignmentData submitLaneAlignment(final LaneInput lane, final SampleInput sample, final RuntimeBucket laneBucket,
+    private AlignmentStatus submitLaneAlignment(final LaneInput lane, final SampleInput sample, final RuntimeBucket laneBucket,
             final RuntimeBucket rootBucket, final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles) {
         InputDownloadCommand firstDownload = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                 fastQFileName(sample.name(), lane.firstOfPairPath())));
@@ -166,14 +170,16 @@ public class BwaAligner implements Aligner {
         OutputComponent runLogComponent = new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory);
         GoogleStorageLocation logLocation = GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE);
 
-        return new AlignmentData(List.of(pipelineFuture), List.of(bamLocation), List.of(logLocation), List.of(runLogComponent));
+        return new AlignmentStatus(List.of(pipelineFuture), List.of(bamLocation), List.of(logLocation), List.of(runLogComponent));
     }
 
-    private AlignmentOutput runRedux(final AlignmentData alignmentData, final RuntimeBucket rootBucket,
-            final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles) {
+    private AlignmentOutput runRedux(final List<GoogleStorageLocation> unmergedBams, final RuntimeBucket rootBucket,
+            final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles, final List<GoogleStorageLocation> laneAlignmentLogs,
+            final List<OutputComponent> laneAlignmentOutputComponents) {
+
         List<InputDownloadCommand> unmergedBamDownloads =
-                alignmentData.bamLocations.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
-        List<InputDownloadCommand> unmergedBamIndexDownloads = alignmentData.bamLocations.stream()
+                unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
+        List<InputDownloadCommand> unmergedBamIndexDownloads = unmergedBams.stream()
                 .map(x -> x.transform(FileTypes::toAlignmentIndex))
                 .map(InputDownloadCommand::new)
                 .collect(Collectors.toList());
@@ -204,8 +210,8 @@ public class BwaAligner implements Aligner {
                 .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(redux.outputFile().fileName())))
                 .maybeJitterParams(GoogleStorageLocation.of(rootBucket.name(), jitterParams))
                 .maybeMsTable(GoogleStorageLocation.of(rootBucket.name(), msTableParams))
-                .addAllFailedLogLocations(alignmentData.logLocations)
-                .addAllReportComponents(alignmentData.runLogComponents)
+                .addAllFailedLogLocations(laneAlignmentLogs)
+                .addAllReportComponents(laneAlignmentOutputComponents)
                 .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory),
                         new SingleFileComponent(rootBucket,
@@ -295,13 +301,13 @@ public class BwaAligner implements Aligner {
         executorService.shutdown();
     }
 
-    private static class AlignmentData {
+    private static class AlignmentStatus {
         private final List<Future<ComputeEngineStatus>> pipelineFutures;
         public final List<GoogleStorageLocation> bamLocations;
         public final List<GoogleStorageLocation> logLocations;
         public final List<OutputComponent> runLogComponents;
 
-        public AlignmentData(final List<Future<ComputeEngineStatus>> pipelineFutures, final List<GoogleStorageLocation> bamLocations,
+        public AlignmentStatus(final List<Future<ComputeEngineStatus>> pipelineFutures, final List<GoogleStorageLocation> bamLocations,
                 final List<GoogleStorageLocation> logLocations, final List<OutputComponent> runLogComponents) {
             this.pipelineFutures = pipelineFutures;
             this.bamLocations = bamLocations;
@@ -309,9 +315,9 @@ public class BwaAligner implements Aligner {
             this.runLogComponents = runLogComponents;
         }
 
-        public static AlignmentData combine(List<AlignmentData> outputs) {
+        public static AlignmentStatus combine(List<AlignmentStatus> outputs) {
 
-            return new AlignmentData(
+            return new AlignmentStatus(
                     outputs.stream().flatMap(o -> o.pipelineFutures.stream()).collect(Collectors.toList()),
                     outputs.stream().flatMap(o -> o.bamLocations.stream()).collect(Collectors.toList()),
                     outputs.stream().flatMap(o -> o.logLocations.stream()).collect(Collectors.toList()),
@@ -321,12 +327,8 @@ public class BwaAligner implements Aligner {
 
         public boolean alignmentSuccessfullyCompleted() {
             return pipelineFutures.stream()
-                    .map(AlignmentData::getFuture)
+                    .map(AlignmentStatus::getFuture)
                     .noneMatch(status -> status.equals(ComputeEngineStatus.FAILED));
-        }
-
-        public void waitForCompletion() {
-            pipelineFutures.forEach(AlignmentData::getFuture);
         }
 
         private static ComputeEngineStatus getFuture(final Future<ComputeEngineStatus> future) {
