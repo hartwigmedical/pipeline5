@@ -101,7 +101,7 @@ public class BwaAligner implements Aligner {
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
 
         AlignmentStatus alignmentStatus;
-        final boolean alignmentSuccessful;
+        boolean alignmentSuccessful;
         List<GoogleStorageLocation> unmergedBams;
         List<GoogleStorageLocation> laneAlignmentLogs;
         List<OutputComponent> laneAlignmentOutputComponents;
