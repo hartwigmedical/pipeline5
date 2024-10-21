@@ -123,7 +123,7 @@ public class BwaAlignerTest {
     }
 
     @Test
-    public void returnsProvidedBamIfInSampleAndNotRedoAlignment() throws Exception {
+    public void returnsProvidedBamIfInSampleAndNotRedoDuplicateMarking() throws Exception {
         arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
         PipelineInput input = createBamPipelineInput();
         victim = createVictimBwaAligner(input);
