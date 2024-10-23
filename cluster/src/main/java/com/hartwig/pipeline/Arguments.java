@@ -51,6 +51,7 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
+                    .redoDuplicateMarking(false)
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
@@ -82,6 +83,7 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
+                    .redoDuplicateMarking(false)
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
@@ -116,6 +118,7 @@ public interface Arguments extends CommonArguments {
                     .cmek(DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
+                    .redoDuplicateMarking(false)
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
@@ -148,6 +151,7 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
+                    .redoDuplicateMarking(false)
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
@@ -178,6 +182,8 @@ public interface Arguments extends CommonArguments {
     boolean publishDbLoadEvent();
 
     boolean cleanup();
+
+    boolean redoDuplicateMarking();
 
     boolean runBamMetrics();
 
