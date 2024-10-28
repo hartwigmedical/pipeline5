@@ -63,8 +63,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.somatic.vcf.gz", "tumor.esvee.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.somatic.vcf.gz.tbi", "tumor.esvee.somatic.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.unfiltered.vcf.gz", "tumor.esvee.unfiltered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.unfiltered.vcf.gz.tbi", "tumor.esvee.unfiltered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/esvee/results/tumor.esvee.germline.vcf.gz", "tumor.esvee.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
@@ -87,7 +85,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 + " -somatic_sv_vcf /data/input/tumor.esvee.somatic.vcf.gz"
                 + " -somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz"
                 + " -circos /opt/tools/circos/0.69.6/bin/circos"
-                + " -sv_recovery_vcf /data/input/tumor.esvee.unfiltered.vcf.gz"
                 + " -reference reference"
                 + " -germline_vcf /data/input/tumor.germline.vcf.gz"
                 + " -germline_sv_vcf /data/input/tumor.esvee.germline.vcf.gz"

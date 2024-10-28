@@ -22,8 +22,8 @@ import com.hartwig.pipeline.stages.SubStage;
 
 public class SvCalling extends SubStage {
 
-    public static final String SV_PREP_CLASS_PATH = "com.hartwig.hmftools.esvee.prep.SvPrepApplication";
-    public static final String ASSEMBLE_CLASS_PATH = "com.hartwig.hmftools.esvee.EsveeApplication";
+    public static final String PREP_CLASS_PATH = "com.hartwig.hmftools.esvee.prep.PrepApplication";
+    public static final String ASSEMBLE_CLASS_PATH = "com.hartwig.hmftools.esvee.assembly.AssemblyApplication";
     public static final String DEPTH_ANNOTATOR_CLASS_PATH = "com.hartwig.hmftools.esvee.depth.DepthAnnotator";
     public static final String CALLER_CLASS_PATH = "com.hartwig.hmftools.esvee.caller.CallerApplication";
 
@@ -137,7 +137,7 @@ public class SvCalling extends SubStage {
         List<String> arguments = new ArrayList<>();
 
         arguments.add(format("-sample %s", samplesString));
-        arguments.add(format("-bam_files %s", bamFilesString));
+        arguments.add(format("-bam_file %s", bamFilesString));
         arguments.add(format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
         arguments.add(format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
         arguments.add(format("-bamtool %s", SAMBAMBA.binaryPath()));
@@ -149,7 +149,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-threads %s", Bash.allCpus()));
         // arguments.add("-log_debug");
 
-        return JavaCommandFactory.javaClassCommand(ESVEE, SV_PREP_CLASS_PATH, arguments);
+        return JavaCommandFactory.javaClassCommand(ESVEE, PREP_CLASS_PATH, arguments);
     }
 
     private String junctionsFile() {
@@ -191,7 +191,7 @@ public class SvCalling extends SubStage {
             arguments.add(format("-tumor_bam %s", referencePrepBam()));
         }
 
-        arguments.add(format("-junction_files %s", junctionsFile()));
+        arguments.add(format("-junction_file %s", junctionsFile()));
         arguments.add("-write_types \"JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENT;BREAKEND;VCF\"");
 
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
@@ -226,13 +226,14 @@ public class SvCalling extends SubStage {
                 .map(sampleArgument -> sampleArgument.BamPath)
                 .collect(Collectors.joining(","));
 
-        arguments.add(format("-samples %s", samplesString));
-        arguments.add(format("-bam_files %s", bamFilesString));
+        arguments.add(format("-sample %s", samplesString));
+        arguments.add(format("-bam_file %s", bamFilesString));
 
         arguments.add(format("-input_vcf %s", rawVcfFile()));
 
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
+        arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
 

@@ -60,8 +60,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownloadCommand somaticSvVcfDownload;
     private final InputDownloadCommand somaticSvVcfIndexDownload;
     private final InputDownloadCommand germlineSvVcfDownload;
-    private final InputDownloadCommand svRecoveryVcfDownload;
-    private final InputDownloadCommand svRecoveryVcfIndexDownload;
     private final InputDownloadCommand amberOutputDownload;
     private final InputDownloadCommand cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
@@ -76,8 +74,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         this.germlineVcfDownload = new InputDownloadCommand(paveGermlineOutput.annotatedVariants());
         this.somaticSvVcfDownload = new InputDownloadCommand(esveeOutput.somaticVcf());
         this.somaticSvVcfIndexDownload = new InputDownloadCommand(esveeOutput.somaticVcf().transform(FileTypes::tabixIndex));
-        this.svRecoveryVcfDownload = new InputDownloadCommand(esveeOutput.unfilteredVcf());
-        this.svRecoveryVcfIndexDownload = new InputDownloadCommand(esveeOutput.unfilteredVcf().transform(FileTypes::tabixIndex));
         this.germlineSvVcfDownload = new InputDownloadCommand(esveeOutput.germlineVcf());
         this.amberOutputDownload = new InputDownloadCommand(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
@@ -100,8 +96,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
-                resourceFiles,
-                true, svRecoveryVcfDownload.getLocalTargetPath()));
+                resourceFiles));
 
         purpleArguments.addAll(PurpleArguments.germlineArguments(metadata.reference().sampleName(),
                 germlineVcfDownload.getLocalTargetPath(), germlineSvVcfDownload.getLocalTargetPath(),
@@ -122,9 +117,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         purpleArguments.addAll(PurpleArguments.tumorArguments(metadata.tumor().sampleName(),
                 somaticVcfDownload.getLocalTargetPath(),
                 somaticSvVcfDownload.getLocalTargetPath(),
-                resourceFiles,
-                false,
-                svRecoveryVcfDownload.getLocalTargetPath()));
+                resourceFiles));
         if (arguments.useTargetRegions()) {
             purpleArguments.addAll(PurpleArguments.addTargetRegionsArguments(resourceFiles));
         }
@@ -162,8 +155,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return List.of(somaticVcfDownload,
                 somaticSvVcfDownload,
                 somaticSvVcfIndexDownload,
-                svRecoveryVcfDownload,
-                svRecoveryVcfIndexDownload,
                 germlineSvVcfDownload,
                 amberOutputDownload,
                 cobaltOutputDownload,

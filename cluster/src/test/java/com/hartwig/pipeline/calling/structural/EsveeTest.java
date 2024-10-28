@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ASSEMBLE_CLASS_PATH;
 import static com.hartwig.pipeline.calling.structural.SvCalling.CALLER_CLASS_PATH;
 import static com.hartwig.pipeline.calling.structural.SvCalling.DEPTH_ANNOTATOR_CLASS_PATH;
-import static com.hartwig.pipeline.calling.structural.SvCalling.SV_PREP_CLASS_PATH;
+import static com.hartwig.pipeline.calling.structural.SvCalling.PREP_CLASS_PATH;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
@@ -102,9 +102,9 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
         // @formatter:off
         expectedCommands.add(
-                toolCommand(ESVEE, SV_PREP_CLASS_PATH)
+                toolCommand(ESVEE, PREP_CLASS_PATH)
                         + " -sample tumor,reference"
-                        + " -bam_files /data/input/tumor.bam,/data/input/reference.bam"
+                        + " -bam_file /data/input/tumor.bam,/data/input/reference.bam"
                         + " -blacklist_bed /opt/resources/sv/37/sv_prep_blacklist.37.bed"
                         + " -known_fusion_bed /opt/resources/sv/37/known_fusions.37.bedpe"
                         + " -bamtool /opt/tools/sambamba/0.6.8/sambamba"
@@ -121,7 +121,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -tumor_bam /data/output/tumor.esvee.prep.bam"
                         + " -reference reference"
                         + " -reference_bam /data/output/reference.esvee.prep.bam"
-                        + " -junction_files /data/output/tumor.esvee.prep.junction.tsv"
+                        + " -junction_file /data/output/tumor.esvee.prep.junction.tsv"
                         + " -write_types \"JUNC_ASSEMBLY;PHASED_ASSEMBLY;ALIGNMENT;BREAKEND;VCF\""
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -ref_genome_version V37"
@@ -132,11 +132,12 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
         expectedCommands.add(
                 toolCommand(ESVEE, DEPTH_ANNOTATOR_CLASS_PATH)
-                        + " -samples tumor,reference"
-                        + " -bam_files /data/input/tumor.bam,/data/input/reference.bam"
+                        + " -sample tumor,reference"
+                        + " -bam_file /data/input/tumor.bam,/data/input/reference.bam"
                         + " -input_vcf /data/output/tumor.esvee.raw.vcf.gz"
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -ref_genome_version V37"
+                        + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
                         + " -output_dir /data/output"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );
