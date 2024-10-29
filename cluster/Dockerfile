@@ -1,7 +1,7 @@
 FROM google/cloud-sdk:latest
 
 RUN apt-get update
-RUN apt-get --yes install openjdk-11-jre
+RUN apt-get --yes install openjdk-17-jre
 
 ADD bin/pipeline5.sh pipeline5.sh
 ADD target/lib /usr/share/pipeline5/lib
