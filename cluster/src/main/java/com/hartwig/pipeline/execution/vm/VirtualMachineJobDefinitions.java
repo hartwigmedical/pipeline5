@@ -194,7 +194,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(name)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 64))
+                .performanceProfile(custom(32, 128))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -340,7 +340,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(TealBam.NAMESPACE.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 32))
+                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -350,7 +350,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(Teal.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
+                .performanceProfile(custom(4, 8))
                 .startupCommand(startupScript)
                 .build();
     }

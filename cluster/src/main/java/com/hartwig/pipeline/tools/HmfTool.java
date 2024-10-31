@@ -23,7 +23,7 @@ public enum HmfTool {
     PURPLE("4.1rc", 40, 8, false), // 4.0.2 -> 4.1
     SAGE("4.0rc", 64, 16, false), // 3.4.3 -> 4.0
     SIGS("1.2.1", 16, 4, false, 30),
-    TEAL("1.3.2rc", 32, 16, false), // 1.2.2 -> 1.3.2
+    TEAL("1.3.2rc", 32, 32, false), // 1.2.2 -> 1.3.2
     VCHORD("0.1", 4, 2, false),
     VIRUSBREAKEND_GRIDSS("2.13.3", 64, 8, false),
     VIRUS_INTERPRETER("1.6rc", 8, 2, false); // 1.3 -> 1.6
