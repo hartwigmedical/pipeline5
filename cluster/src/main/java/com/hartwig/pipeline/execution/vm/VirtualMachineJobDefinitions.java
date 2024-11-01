@@ -19,7 +19,7 @@ import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
-import static com.hartwig.pipeline.tools.HmfTool.VCHORD;
+import static com.hartwig.pipeline.tools.HmfTool.V_CHORD;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
@@ -360,7 +360,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(VChord.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(VCHORD.getCpus(), VCHORD.getMemoryGb()))
+                .performanceProfile(custom(V_CHORD.getCpus(), V_CHORD.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }

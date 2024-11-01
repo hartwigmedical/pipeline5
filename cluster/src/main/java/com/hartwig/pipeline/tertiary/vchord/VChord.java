@@ -75,12 +75,13 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
     private List<BashCommand> formCommand(final List<String> arguments)
     {
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(JavaCommandFactory.javaJarCommand(HmfTool.VCHORD, arguments));
+        commands.add(JavaCommandFactory.javaJarCommand(HmfTool.V_CHORD, arguments)
+                .withJvmArguments(List.of("-Dai.djl.offline=true")));
         return commands;
     }
 
     private void addCommonArguments(final List<String> arguments) {
-        arguments.add(String.format("-purple %s", purpleOutputDirDownload.getLocalTargetPath()));
+        arguments.add(String.format("-purple_dir %s", purpleOutputDirDownload.getLocalTargetPath()));
         arguments.add(String.format("-model %s", resourceFiles.vChordModel()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
     }
