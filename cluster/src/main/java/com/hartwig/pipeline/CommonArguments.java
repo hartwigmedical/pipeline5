@@ -42,6 +42,8 @@ public interface CommonArguments {
 
     boolean useLocalSsds();
 
+    boolean vmSelfDeleteOnShutdown();
+
     String network();
 
     Optional<String> subnet();

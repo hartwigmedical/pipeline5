@@ -34,6 +34,7 @@ public class CommandLineOptions {
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
     private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
+    private static final String VM_SELF_DELETE_ON_SHUTDOWN_FLAG = "vm_self_delete_on_shutdown";
     private static final String DOWNLOAD_FLAG = "download";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
@@ -305,6 +306,7 @@ public class CommandLineOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
+                    .vmSelfDeleteOnShutdown(booleanOptionWithDefault(commandLine, VM_SELF_DELETE_ON_SHUTDOWN_FLAG, defaults.vmSelfDeleteOnShutdown()))
                     .redoDuplicateMarking(booleanOptionWithDefault(commandLine, REDO_DUPLICATE_MARKING_FLAG, defaults.redoDuplicateMarking()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))

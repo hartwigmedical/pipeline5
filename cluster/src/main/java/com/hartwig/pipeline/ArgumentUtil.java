@@ -17,6 +17,7 @@ public final class ArgumentUtil {
                 .region(arguments.region())
                 .usePreemptibleVms(arguments.usePreemptibleVms())
                 .useLocalSsds(arguments.useLocalSsds())
+                .vmSelfDeleteOnShutdown(arguments.vmSelfDeleteOnShutdown())
                 .network(arguments.network())
                 .subnet(arguments.subnet())
                 .tags(arguments.tags())
