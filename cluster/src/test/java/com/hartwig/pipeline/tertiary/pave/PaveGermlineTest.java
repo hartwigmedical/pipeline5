@@ -51,7 +51,8 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
                         + " -read_pass_only"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
                         + " -blacklist_bed /opt/resources/sage/37/KnownBlacklist.germline.37.bed"
-                        + " -blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz");
+                        + " -blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz"
+                        + " -gnomad_no_filter");
     }
 
     @Override

@@ -37,6 +37,7 @@ public class PaveArguments {
         addCommonArguments(arguments, resourceFiles, tumorSampleName, inputVcf, outputVcf);
         arguments.add(format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()));
         arguments.add(format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
+        arguments.add("-gnomad_no_filter");
 
         return arguments;
     }
