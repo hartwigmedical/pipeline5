@@ -179,7 +179,7 @@ public class SomaticPipeline {
                         Future<SigsOutput> signatureOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Sigs(purpleOutput, resourceFiles, persistedDataset)));
                         Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
+                                new Chord(purpleOutput, resourceFiles, persistedDataset)));
                         LinxGermlineOutput linxGermlineOutput = composer.add(state.add(linxGermlineOutputFuture.get()));
                         LinxSomaticOutput linxSomaticOutput = composer.add(state.add(linxSomaticOutputFuture.get()));
                         composer.add(state.add(healthCheckOutputFuture.get()));

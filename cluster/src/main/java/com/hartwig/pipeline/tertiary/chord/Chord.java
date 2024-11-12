@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static com.hartwig.computeengine.execution.vm.command.InputDownloadCommand.initialiseOptionalLocation;
 import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -31,7 +30,7 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -40,21 +39,21 @@ import org.jetbrains.annotations.NotNull;
 
 @Namespace(Chord.NAMESPACE)
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
-    public static final String CHORD_RUNNER = "com.hartwig.hmftools.chord.ChordRunner";
 
     public static final String NAMESPACE = "chord";
-    public static final String PREDICTION_TXT = "_chord_prediction.txt";
-    public static final String SIGNATURES_TXT = "_chord_signatures.txt";
+    public static final String PREDICTION_TSV = ".chord.prediction.tsv";
+    public static final String MUTATION_CONTEXTS_TSV = ".chord.mutation_contexts.tsv";
 
-    private final RefGenomeVersion refGenomeVersion;
     private final InputDownloadCommand purpleStructuralVcfDownload;
     private final InputDownloadCommand purpleSomaticVcfDownload;
+    private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
-        this.refGenomeVersion = refGenomeVersion;
+    public Chord(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles,
+            final PersistedDataset persistedDataset) {
         this.purpleStructuralVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().structuralVariants());
         this.purpleSomaticVcfDownload = initialiseOptionalLocation(purpleOutput.outputLocations().somaticVariants());
+        this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
 
@@ -80,15 +79,14 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     public List<BashCommand> chordCommands(final SomaticRunMetadata metadata) {
 
-        String chordToolDir = format("%s/%s/%s", VmDirectories.TOOLS, CHORD.getToolName(), CHORD.runVersion());
-
         List<String> chordArguments = Lists.newArrayList(format("-sample %s", metadata.tumor().sampleName()),
-                format("-ref_genome_version %s", refGenomeVersion.toString()),
+                format("-ref_genome %s", resourceFiles.refGenomeFile()),
                 format("-purple_dir %s", VmDirectories.INPUT),
                 format("-output_dir %s", VmDirectories.OUTPUT),
-                format("-chord_tool_dir %s", chordToolDir));
+                "-log_level DEBUG"
+        );
 
-        List<BashCommand> chordCommands = Lists.newArrayList(JavaCommandFactory.javaClassCommand(CHORD, CHORD_RUNNER, chordArguments));
+        List<BashCommand> chordCommands = Lists.newArrayList(JavaCommandFactory.javaJarCommand(CHORD, chordArguments));
 
         return chordCommands;
     }
@@ -115,12 +113,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @NotNull
     private String chordPredictionTxt(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + PREDICTION_TXT;
+        return metadata.tumor().sampleName() + PREDICTION_TSV;
     }
 
     @NotNull
     private String chordSignaturesTxt(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + SIGNATURES_TXT;
+        return metadata.tumor().sampleName() + MUTATION_CONTEXTS_TSV;
     }
 
     @Override
@@ -136,7 +134,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
                         .predictions(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_PREDICTION)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), chordPredictionTxt(metadata)))))
-                        .signatures(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_SIGNATURES)
+                        .signatures(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_MUTATION_CONTEXTS)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), chordSignaturesTxt(metadata)))))
                         .build())
@@ -150,7 +148,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
         return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), chordPredictionTxt(metadata))),
-                new AddDatatype(DataType.CHORD_SIGNATURES,
+                new AddDatatype(DataType.CHORD_MUTATION_CONTEXTS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), chordSignaturesTxt(metadata))));
     }

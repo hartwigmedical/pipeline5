@@ -382,8 +382,8 @@ public class TestInputs {
         return ChordOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeChordOutputLocations(ChordOutputLocations.builder()
-                        .predictions(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
-                        .signatures(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.SIGNATURES_TXT))
+                        .predictions(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TSV))
+                        .signatures(GoogleStorageLocation.of(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.MUTATION_CONTEXTS_TSV))
                         .build())
                 .build();
     }

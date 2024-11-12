@@ -59,8 +59,8 @@ amber/COLO829v003T.amber.contamination.vcf.gz.tbi
 amber/COLO829v003T.amber.qc
 amber/amber.version
 amber/run.log
-chord/COLO829v003T_chord_prediction.txt
-chord/COLO829v003T_chord_signatures.txt
+chord/COLO829v003T.chord.prediction.tsv
+chord/COLO829v003T.chord.mutation_contexts.tsv
 chord/run.log
 cobalt/COLO829v003R.cobalt.gc.median.tsv
 cobalt/COLO829v003R.cobalt.ratio.median.tsv

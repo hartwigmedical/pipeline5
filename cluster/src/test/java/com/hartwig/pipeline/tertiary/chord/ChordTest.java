@@ -9,14 +9,12 @@ import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import java.util.List;
 
-import static com.hartwig.pipeline.tertiary.chord.Chord.CHORD_RUNNER;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.CHORD;
@@ -26,12 +24,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
-    private static final String CHORD_PREDICTION_TXT = "tumor_chord_prediction.txt";
-    private static final String CHORD_SIGNATURES_TXT = "tumor_chord_signatures.txt";
+    private static final String CHORD_PREDICTION_TSV = "tumor.chord.prediction.tsv";
+    private static final String CHORD_MUTATION_CONTEXTS_TSV = "tumor.chord.mutation_contexts.tsv";
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
-        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput(), persistedDataset);
+        return new Chord(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -45,12 +43,12 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
         String chordDir = format("%s/%s/%s", VmDirectories.TOOLS, CHORD.getToolName(), CHORD.runVersion());
 
         return List.of(
-                toolCommand(CHORD, CHORD_RUNNER)
+                toolCommand(CHORD)
                         + " -sample tumor"
-                        + " -ref_genome_version V37"
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -purple_dir /data/input"
                         + " -output_dir /data/output"
-                        + " -chord_tool_dir " + chordDir
+                        + " -log_level DEBUG"
                );
     }
 
@@ -63,10 +61,10 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
     protected void validateOutput(final ChordOutput output) {
 
         assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
-                ResultsDirectory.defaultDirectory().path(CHORD_PREDICTION_TXT)));
+                ResultsDirectory.defaultDirectory().path(CHORD_PREDICTION_TSV)));
 
         assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
-                ResultsDirectory.defaultDirectory().path(CHORD_SIGNATURES_TXT)));
+                ResultsDirectory.defaultDirectory().path(CHORD_MUTATION_CONTEXTS_TSV)));
     }
 
     @Override
@@ -74,32 +72,32 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
         return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_PREDICTION_TXT)),
-                new AddDatatype(DataType.CHORD_SIGNATURES,
+                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_PREDICTION_TSV)),
+                new AddDatatype(DataType.CHORD_MUTATION_CONTEXTS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_SIGNATURES_TXT)));
+                        new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_MUTATION_CONTEXTS_TSV)));
     }
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.CHORD_PREDICTION, "chord/" + CHORD_PREDICTION_TXT);
-        persistedDataset.addPath(DataType.CHORD_SIGNATURES, "chord/" + CHORD_SIGNATURES_TXT);
+        persistedDataset.addPath(DataType.CHORD_PREDICTION, "chord/" + CHORD_PREDICTION_TSV);
+        persistedDataset.addPath(DataType.CHORD_MUTATION_CONTEXTS, "chord/" + CHORD_MUTATION_CONTEXTS_TSV);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
         assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "chord/" + CHORD_PREDICTION_TXT));
+                "chord/" + CHORD_PREDICTION_TSV));
         assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "chord/" + CHORD_SIGNATURES_TXT));
+                "chord/" + CHORD_MUTATION_CONTEXTS_TSV));
     }
 
     @Override
     protected void validatePersistedOutput(final ChordOutput output) {
 
         assertThat(output.chordOutputLocations().predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_PREDICTION_TXT));
+                "set/chord/" + CHORD_PREDICTION_TSV));
         assertThat(output.chordOutputLocations().signatures()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/" + CHORD_SIGNATURES_TXT));
+                "set/chord/" + CHORD_MUTATION_CONTEXTS_TSV));
     }
 }

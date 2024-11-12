@@ -61,7 +61,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 "mkdir -p /data/input/purple",
                 "mkdir -p /data/input/linx_germline",
                 input(TestInputs.SOMATIC_BUCKET + "/purple/results/", "purple"),
-                input(TestInputs.SOMATIC_BUCKET + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"),
+                input(TestInputs.SOMATIC_BUCKET + "/chord/tumor.chord.prediction.tsv", "tumor.chord.prediction.tsv"),
                 input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_SUMMARY_TSV, "reference" + BAM_METRICS_SUMMARY_TSV),
                 input(TestInputs.TUMOR_BUCKET + "/bam_metrics/tumor" + BAM_METRICS_SUMMARY_TSV, "tumor" + BAM_METRICS_SUMMARY_TSV),
                 input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_FLAG_COUNT_TSV, "reference" + BAM_METRICS_FLAG_COUNT_TSV),
