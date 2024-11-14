@@ -41,7 +41,7 @@
         <compar.version>1.3-beta.1</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <pdl.version>1.7.2</pdl.version>
-        <hmf-cloud-sdk.version>4.1.0-beta.9</hmf-cloud-sdk.version>
+        <hmf-cloud-sdk.version>4.1.0</hmf-cloud-sdk.version>
     </properties>
 
     <scm>
