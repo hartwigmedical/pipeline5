@@ -2,13 +2,14 @@ sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_down
 
 sudo chmod a+x /tmp/mk_python_venv
 
-# This tarball was built starting with a script that came from here:
-# https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
-sudo tar -C /root -xzf /opt/tools/R/anaconda3.tar.gz
-sudo /tmp/rebuild_anaconda_env.sh
+# This tarball was built starting with anaconda installer:
+# https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
+# install into /opt/tools/anaconda3
+# create bioconductor-r42 environment from anaconda.yaml
+sudo tar -C /opt/tools -xzf /opt/tools/R/anaconda3-bioconductor-r42.tar.gz
 sudo rm /usr/bin/perl
-sudo ln -s /root/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
-sudo rm /opt/tools/R/anaconda3.tar.gz
+sudo ln -s /opt/tools/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
+sudo rm -rf /opt/tools/R
 
 sudo mkdir -p /opt/tools/pycuppa/2.3rc/
 sudo unzip /opt/tools/cuppa/2.3rc/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.3rc

@@ -54,9 +54,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 public class PipelineMain {
-    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/root/anaconda3/bin/conda shell.bash hook`",
-            "source /root/anaconda3/bin/activate",
-            "conda activate /root/anaconda3/envs/bioconductor-r42");
+    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/opt/tools/anaconda3/bin/conda shell.bash hook`",
+            "source /opt/tools/anaconda3/bin/activate",
+            "conda activate /opt/tools/anaconda3/envs/bioconductor-r42");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
