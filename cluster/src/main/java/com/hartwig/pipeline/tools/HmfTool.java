@@ -12,13 +12,13 @@ public enum HmfTool {
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0rc", 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.3rc", 16, 4, false), // 2.1.1 -> 2.3
-    ESVEE("1.0rc", 96, 16, false),
+    ESVEE("1.0rc", 96, 32, false),
     HEALTH_CHECKER("3.6rc", 32, 8, false), // 3.5 -> 3.6
-    LILAC("1.6", 24, 8, false),
-    LINX("2.0rc", 12, 4, false), // 1.25 -> 2.0
-    REDUX("1.0rc", 128, 16, false), // MarkDups 1.1.7 -> Redux 1.0
+    LILAC("1.6", 24, 16, false),
+    LINX("2.0rc", 16, 4, false), // 1.25 -> 2.0
+    REDUX("1.0rc", 128, 32, false), // MarkDups 1.1.7 -> Redux 1.0
     ORANGE("3.7.1rc", 16, 4, false), // 3.5.1 -> 3.7.1
-    PAVE("1.7rc", 40, 8, false), // 1.6 -> 1.7
+    PAVE("1.7rc", 32, 8, false), // 1.6 -> 1.7
     PEACH("2.0.0", 4, 2, false, 50),
     PURPLE("4.1rc", 40, 8, false), // 4.0.2 -> 4.1
     SAGE("4.0rc", 64, 16, false), // 3.4.3 -> 4.0
