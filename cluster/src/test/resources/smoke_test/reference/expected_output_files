@@ -44,6 +44,7 @@ esvee/COLO829v003R.esvee.germline.vcf.gz.tbi
 esvee/COLO829v003R.esvee.phased_assembly.tsv
 esvee/COLO829v003R.esvee.prep.bam
 esvee/COLO829v003R.esvee.prep.bam.bai
+esvee/COLO829v003R.esvee.prep.disc_stats.tsv
 esvee/COLO829v003R.esvee.prep.fragment_length.tsv
 esvee/COLO829v003R.esvee.prep.junction.tsv
 esvee/COLO829v003R.esvee.raw.vcf.gz
