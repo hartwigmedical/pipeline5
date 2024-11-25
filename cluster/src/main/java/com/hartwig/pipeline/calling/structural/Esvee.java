@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.structural;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ALIGNMENT_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_ASSEMBLY_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_BREAKEND_TSV;
+import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_DISC_STATS_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_FRAG_LENGTH_TSV;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_GERMLINE_VCF;
 import static com.hartwig.pipeline.calling.structural.SvCalling.ESVEE_PHASED_ASSEMBLY_TSV;
@@ -130,6 +131,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
         String prepBamIndex = formSampleOutputFilename(metadata, ESVEE_PREP_INDEX_FILE);
         String prepJunctionTsv = formSampleOutputFilename(metadata, ESVEE_PREP_JUNCTION_TSV);
         String fragmentLengths = formSampleOutputFilename(metadata, ESVEE_FRAG_LENGTH_TSV);
+        String discordantStatistics = formSampleOutputFilename(metadata, ESVEE_DISC_STATS_TSV);
         String assemblyTsv = formSampleOutputFilename(metadata, ESVEE_ASSEMBLY_TSV);
         String phasedAssemblyTsv = formSampleOutputFilename(metadata, ESVEE_PHASED_ASSEMBLY_TSV);
         String breakendTsv = formSampleOutputFilename(metadata, ESVEE_BREAKEND_TSV);
@@ -142,6 +144,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
                 .maybePrepBamIndex(formOutputLocation(bucket, resultsDirectory, prepBamIndex))
                 .maybePrepJunctionTsv(formOutputLocation(bucket, resultsDirectory, prepJunctionTsv))
                 .maybeFragLengths(formOutputLocation(bucket, resultsDirectory, fragmentLengths))
+                .maybeDiscStats(formOutputLocation(bucket, resultsDirectory, discordantStatistics))
                 .maybeAssemblyTsv(formOutputLocation(bucket, resultsDirectory, assemblyTsv))
                 .maybePhasedAssemblyTsv(formOutputLocation(bucket, resultsDirectory, phasedAssemblyTsv))
                 .maybeBreakendTsv(formOutputLocation(bucket, resultsDirectory, breakendTsv))
@@ -157,6 +160,8 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
                                 DataType.ESVEE_PREP_JUNCTIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), prepJunctionTsv)),
                         new AddDatatype(
                                 DataType.ESVEE_FRAG_LENGTHS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), fragmentLengths)),
+                        new AddDatatype(
+                                DataType.ESVEE_DISC_STATS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), discordantStatistics)),
                         new AddDatatype(
                                 DataType.ESVEE_ASSEMBLY, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), assemblyTsv)),
                         new AddDatatype(
@@ -214,6 +219,7 @@ public class Esvee extends TertiaryStage<EsveeOutput> {
                 .maybePrepBamIndex(formPersistedOutputLocation(metadata, DataType.ESVEE_PREP_INDEX, ESVEE_PREP_INDEX_FILE))
                 .maybePrepJunctionTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_PREP_JUNCTIONS, ESVEE_PREP_JUNCTION_TSV))
                 .maybeFragLengths(formPersistedOutputLocation(metadata, DataType.ESVEE_FRAG_LENGTHS, ESVEE_FRAG_LENGTH_TSV))
+                .maybeDiscStats(formPersistedOutputLocation(metadata, DataType.ESVEE_DISC_STATS, ESVEE_DISC_STATS_TSV))
                 .maybeAssemblyTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_ASSEMBLY, ESVEE_ASSEMBLY_TSV))
                 .maybePhasedAssemblyTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_PHASED_ASSEMBLY, ESVEE_PHASED_ASSEMBLY_TSV))
                 .maybeAlignmentTsv(formPersistedOutputLocation(metadata, DataType.ESVEE_ALIGNMENT, ESVEE_ALIGNMENT_TSV))

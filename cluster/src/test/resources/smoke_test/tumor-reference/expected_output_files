@@ -88,6 +88,7 @@ esvee/COLO829v003T.esvee.prep.bam
 esvee/COLO829v003T.esvee.prep.bam.bai
 esvee/COLO829v003T.esvee.prep.fragment_length.tsv
 esvee/COLO829v003T.esvee.prep.junction.tsv
+esvee/COLO829v003T.esvee.prep.disc_stats.tsv
 esvee/COLO829v003T.esvee.raw.vcf.gz
 esvee/COLO829v003T.esvee.raw.vcf.gz.tbi
 esvee/COLO829v003T.esvee.ref_depth.vcf.gz

@@ -34,6 +34,7 @@ public class SvCalling extends SubStage {
     public static final String ESVEE_PREP_INDEX_FILE = "esvee.prep.bam.bai";
     public static final String ESVEE_PREP_JUNCTION_TSV = "esvee.prep.junction.tsv";
     public static final String ESVEE_FRAG_LENGTH_TSV = "esvee.prep.fragment_length.tsv";
+    public static final String ESVEE_DISC_STATS_TSV = "esvee.prep.disc_stats.tsv";
     public static final String ESVEE_ASSEMBLY_TSV = "esvee.assembly.tsv";
     public static final String ESVEE_PHASED_ASSEMBLY_TSV = "esvee.phased_assembly.tsv";
     public static final String ESVEE_ALIGNMENT_TSV = "esvee.alignment.tsv";

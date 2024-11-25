@@ -19,6 +19,7 @@ public interface EsveeOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybePrepBamIndex();
     Optional<GoogleStorageLocation> maybePrepJunctionTsv();
     Optional<GoogleStorageLocation> maybeFragLengths();
+    Optional<GoogleStorageLocation> maybeDiscStats();
 
     Optional<GoogleStorageLocation> maybeAssemblyTsv();
     Optional<GoogleStorageLocation> maybePhasedAssemblyTsv();
@@ -26,7 +27,6 @@ public interface EsveeOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeAlignmentTsv();
 
     Optional<GoogleStorageLocation> maybeUnfilteredVcf();
-    // Optional<GoogleStorageLocation> maybeUnfilteredVcfIndex();
     Optional<GoogleStorageLocation> maybeSomaticVcf();
     Optional<GoogleStorageLocation> maybeGermlineVcf();
 
@@ -40,6 +40,7 @@ public interface EsveeOutput extends StageOutput {
         return maybePrepJunctionTsv().orElse(GoogleStorageLocation.empty());
     }
     default GoogleStorageLocation fragmentLengths() { return maybeFragLengths().orElse(GoogleStorageLocation.empty()); }
+    default GoogleStorageLocation discordantStatistics() { return maybeDiscStats().orElse(GoogleStorageLocation.empty()); }
     default GoogleStorageLocation assemblyTsv() {
         return maybeAssemblyTsv().orElse(GoogleStorageLocation.empty());
     }
