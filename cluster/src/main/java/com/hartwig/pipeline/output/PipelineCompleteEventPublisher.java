@@ -107,8 +107,11 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
             outputDataset.serializeAndUpload();
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
+                            .engine(Pipeline.Engine.PIPELINE5)
+                            .molecule(Pipeline.Molecule.DNA)
                             .sample(tumorSampleName.orElseGet(refSampleName::orElseThrow))
                             .bucket(sourceBucket.getName())
+                            .rootPath(Optional.of(metadata.set()))
                             .runId(metadata.maybeExternalIds().get().runId())
                             .setId(metadata.maybeExternalIds().get().setId())
                             .context(context)
