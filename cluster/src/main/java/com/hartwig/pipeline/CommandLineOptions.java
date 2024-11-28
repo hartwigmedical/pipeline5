@@ -135,6 +135,7 @@ public class CommandLineOptions {
                 .addOption(publishDbLoadEvent())
                 .addOption(pubsubTopicWorkflow())
                 .addOption(pubsubTopicEnvironment())
+                .addOption(optionWithBooleanArg(VM_SELF_DELETE_ON_SHUTDOWN_FLAG, "Delete VMs on shutdown"))
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
                         "Compute nothing, only publish events for downstream consumption"))
                 .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG, "Redo duplicate marking on input BAM or CRAM"));
