@@ -51,7 +51,7 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
-                    .vmSelfDeleteOnShutdown(true)
+                    .vmSelfDeleteOnShutdown(false)
                     .redoDuplicateMarking(false)
                     .runBamMetrics(true)
                     .runSnpGenotyper(true)
