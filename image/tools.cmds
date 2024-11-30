@@ -10,10 +10,10 @@ sudo /tmp/rebuild_anaconda_env.sh
 sudo rm /usr/bin/perl
 sudo ln -s /root/anaconda3/envs/bioconductor-r42/bin/perl /usr/bin/perl
 
-sudo mkdir -p /opt/tools/pycuppa/2.1.1/
-sudo unzip /opt/tools/cuppa/2.1.1/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.1.1
-sudo mv /tmp/pycuppa-2.1.1/pycuppa/* /opt/tools/pycuppa/2.1.1
-sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.1.1
+sudo mkdir -p /opt/tools/pycuppa/2.3.0/
+sudo unzip /opt/tools/cuppa/2.3.0/cuppa.jar pycuppa/* -d /tmp/pycuppa-2.3.0
+sudo mv /tmp/pycuppa-2.3.0/pycuppa/* /opt/tools/pycuppa/2.3.0
+sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.3.0
 
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
