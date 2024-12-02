@@ -17,7 +17,7 @@ sudo /tmp/mk_python_venv --no-extract-tarball pycuppa 2.3.0
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
-sudo tar xzvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar.gz -C /opt/tools/repeatmasker/4.1.1/
+sudo tar xf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
 sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
@@ -28,7 +28,7 @@ sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 
 # Local overrides for Debian 12
 sudo mv /opt/tools/gridss/2.13.3/gridsstools.debian12 /opt/tools/gridss/2.13.3/gridsstools
-sudo mv /tmp/RepeatMasker /opt/tools/repeatmasker/4.1.1/RepeatMasker
+sudo /tmp/repeat_masker_mod.pl /opt/tools/repeatmasker/4.1.1
 sudo mv /tmp/virusbreakend /opt/tools/gridss/2.13.3/virusbreakend
 
 sudo chmod a+x /opt/tools/gridss/2.13.3/gridss
