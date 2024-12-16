@@ -1,4 +1,4 @@
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
+sudo gcloud storage cp --no-clobber -r gs://common-tools/* /opt/tools/
 
 sudo chmod a+x /tmp/mk_python_venv
 
