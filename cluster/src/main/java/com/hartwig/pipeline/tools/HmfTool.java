@@ -21,7 +21,7 @@ public enum HmfTool {
     PAVE("1.7-rc.1", 32, 8, false), // 1.6 -> 1.7
     PEACH("2.0.0", 4, 2, false, 50),
     PURPLE("4.1-rc.1", 40, 8, false), // 4.0.2 -> 4.1
-    SAGE("4.0-rc.1", 64, 32, false), // 3.4.3 -> 4.0
+    SAGE("4.0-rc.3", 64, 32, false), // 3.4.3 -> 4.0
     SIGS("1.2.1", 16, 4, false, 30),
     TEAL("1.3.2", 32, 32, false), // 1.2.2 -> 1.3.2
     V_CHORD("1.0", 4, 2, false), // will be 1.0
