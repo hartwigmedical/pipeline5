@@ -9,6 +9,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Prime Maven cache'
     args:
+      - '-q'
       - '-m'
       - 'rsync'
       - '-r'
@@ -33,6 +34,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Update Maven cache after dependency resolution'
     args:
+      - '-q'
       - '-m'
       - 'rsync'
       - '-r'
