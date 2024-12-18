@@ -141,7 +141,6 @@ public class SmokeTest {
         String setName = pipelineInput.setName() + "-" + runTag;
         ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .cleanup(false)
-                .usePreemptibleVms(false)
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson(sampleJson)
                 .cloudSdkPath(findCloudSdk())
