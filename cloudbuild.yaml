@@ -2,10 +2,6 @@ steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
-  - name: 'maven:3-jdk-11'
-    id: 'Set version for Maven'
-    entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=${TAG_NAME}' ]
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Prime Maven cache'
     args:
@@ -18,6 +14,10 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
+  - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
+    id: 'Set version for Maven'
+    entrypoint: mvn
+    args: [ 'versions:set', '-DnewVersion=${TAG_NAME}' ]
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
