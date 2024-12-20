@@ -10,15 +10,12 @@ import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.tools.ExternalTool;
-
-import joptsimple.internal.Strings;
 
 public class Redux extends SubStage {
 
@@ -55,7 +52,7 @@ public class Redux extends SubStage {
 
         List<BashCommand> cmds = Lists.newArrayList();
 
-        String inputBams = Strings.join(inputBamPaths, ",");
+        String inputBams = String.join(",", inputBamPaths);
 
         List<String> arguments = formArguments(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus());
 
