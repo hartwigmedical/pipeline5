@@ -19,6 +19,7 @@ COLO829v003R/cram/run.log
 COLO829v003R/cram/run.sh
 COLO829v003R/metadata.json
 COLO829v003R/pipeline.version
+COLO829v003R/run.log
 COLO829v003R/snp_genotype/run.log
 COLO829v003R/snp_genotype/run.sh
 COLO829v003R/snp_genotype/snp_genotype_output.vcf
@@ -44,6 +45,7 @@ COLO829v003T/cram/run.log
 COLO829v003T/cram/run.sh
 COLO829v003T/metadata.json
 COLO829v003T/pipeline.version
+COLO829v003T/run.log
 COLO829v003T/snp_genotype/run.log
 COLO829v003T/snp_genotype/run.sh
 COLO829v003T/snp_genotype/snp_genotype_output.vcf
@@ -237,6 +239,7 @@ purple/plot/COLO829v003T.somatic.rainfall.png
 purple/plot/COLO829v003T.somatic_data.tsv
 purple/purple.version
 purple/run.log
+run.log
 sage_germline/COLO829v003R.sage.bqr.png
 sage_germline/COLO829v003R.sage.bqr.tsv
 sage_germline/COLO829v003R.sage.exon.medians.tsv

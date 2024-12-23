@@ -19,6 +19,7 @@ COLO829v003R/cram/run.log
 COLO829v003R/cram/run.sh
 COLO829v003R/metadata.json
 COLO829v003R/pipeline.version
+COLO829v003R/run.log
 COLO829v003R/snp_genotype/run.log
 COLO829v003R/snp_genotype/run.sh
 COLO829v003R/snp_genotype/snp_genotype_output.vcf
@@ -95,6 +96,7 @@ purple/COLO829v003R.purple.sv.germline.vcf.gz
 purple/COLO829v003R.purple.sv.germline.vcf.gz.tbi
 purple/purple.version
 purple/run.log
+run.log
 sage_germline/COLO829v003R.sage.bqr.png
 sage_germline/COLO829v003R.sage.bqr.tsv
 sage_germline/COLO829v003R.sage.exon.medians.tsv
