@@ -17,7 +17,10 @@ steps:
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Set version for Maven'
     entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=${TAG_NAME}' ]
+    args:
+      - 'versions:set'
+      - '-DnewVersion=${TAG_NAME}'
+      - '--batch-mode'
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
@@ -26,7 +29,6 @@ steps:
       - 'deploy'
       - '-Drelease'
       - '--batch-mode'
-      - '--no-transfer-progress'
     env:
       - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
     volumes:
@@ -47,7 +49,12 @@ steps:
   - name: 'eu.gcr.io/hmf-build/docker-tag'
     id: 'Publish Docker image'
     dir: cluster
-    args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME', 'Dockerfile', '--build-arg', 'VERSION=$TAG_NAME']
+    args:
+      - 'eu.gcr.io/hmf-build/pipeline5'
+      - '$TAG_NAME'
+      - 'Dockerfile'
+      - '--build-arg'
+      - 'VERSION=$TAG_NAME'
 images:
   - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'

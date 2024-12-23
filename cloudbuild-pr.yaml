@@ -22,7 +22,6 @@ steps:
       - 'install'
       - '-Drelease'
       - '--batch-mode'
-      - '--no-transfer-progress'
     env:
       - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
     volumes:
