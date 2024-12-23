@@ -31,7 +31,7 @@ public class ReduxTest extends SubStageTest{
 
     @Test
     public void markDupsConsensus() {
-        String sambamba = "/opt/tools/sambamba/0.6.8/sambamba";
+        String samtools = "/opt/tools/samtools/1.20/samtools";
 
         // expected commands
         StringJoiner expectedCommands = new StringJoiner(" ");
@@ -45,7 +45,7 @@ public class ReduxTest extends SubStageTest{
                         + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
                         + " -ref_genome_msi_file /opt/resources/mappability/37/msi_jitter_sites.37.tsv.gz"
                         + " -form_consensus"
-                        + " -bamtool " + sambamba
+                        + " -bamtool " + samtools
                         + " -output_bam /data/output/tumor.bam"
                         + " -output_dir /data/output"
                         + " -log_debug"
