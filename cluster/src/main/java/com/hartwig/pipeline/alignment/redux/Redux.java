@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
-import com.hartwig.computeengine.execution.vm.command.java.JavaJarCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.OutputFile;
@@ -39,11 +38,11 @@ public class Redux extends SubStage {
     }
 
     public static String jitterParamsTsv(final String sampleId) {
-        return sampleId + REDUX_MS_TABLE_TSV;
+        return sampleId + REDUX_JITTER_PARAMS_TSV;
     }
 
     public static String msTableTsv(final String sampleId) {
-        return sampleId + REDUX_JITTER_PARAMS_TSV;
+        return sampleId + REDUX_MS_TABLE_TSV;
     }
 
     public static String repeatTsv(final String sampleId) {
