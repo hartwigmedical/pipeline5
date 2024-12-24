@@ -14,8 +14,8 @@
 
         <junit.version>4.13.1</junit.version>
         <immutables.version>2.5.5</immutables.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <mockito.version>5.12.0</mockito.version>
         <assertj-core.version>3.8.0</assertj-core.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
@@ -41,7 +41,7 @@
         <compar.version>1.3-beta.1</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <pdl.version>1.7.2</pdl.version>
-        <hmf-cloud-sdk.version>4.1.1</hmf-cloud-sdk.version>
+        <hmf-cloud-sdk.version>5.1.0-beta.6</hmf-cloud-sdk.version>
     </properties>
 
     <scm>
@@ -240,7 +240,6 @@
                 <version>${org-reflections.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j2-impl</artifactId>
@@ -258,6 +257,10 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
 
         <dependency>
@@ -279,12 +282,6 @@
             <groupId>com.hartwig.api</groupId>
             <artifactId>java-client</artifactId>
             <version>${java-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
