@@ -56,6 +56,7 @@ public class CommandLineOptions {
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
+    private static final String MACHINE_FAMILIES = "machine_families";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
     private static final String STARTING_POINT_FLAG = "starting_point";
@@ -115,7 +116,7 @@ public class CommandLineOptions {
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
-                .addOption(zone())
+                .addOption(machineFamilies())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
                 .addOption(json())
@@ -271,8 +272,8 @@ public class CommandLineOptions {
         return optionWithArg(PROJECT_FLAG, "The Google project for which to get the cluster.");
     }
 
-    private static Option zone() {
-        return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
+    private static Option machineFamilies() {
+        return optionWithArg(MACHINE_FAMILIES, "Machine families overrides");
     }
 
     private static Option refGenomeVersion() {
@@ -324,7 +325,7 @@ public class CommandLineOptions {
                     .publishToTurquoise(booleanOptionWithDefault(commandLine, PUBLISH_TO_TURQUOISE_FLAG, defaults.publishToTurquoise()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
                             defaults.pollInterval().toString())))
-                    .zone(zone(commandLine, defaults))
+                    .machineFamilies(machineFamily(commandLine))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
@@ -453,11 +454,18 @@ public class CommandLineOptions {
         return defaults.imageName();
     }
 
-    private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
+    private static Optional<String> zone(final CommandLine commandLine) {
         if (commandLine.hasOption(ZONE_FLAG)) {
             return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
         }
-        return defaults.zone();
+        return Optional.empty();
+    }
+
+    private static List<String> machineFamily(final CommandLine commandLine) {
+        if (commandLine.hasOption(MACHINE_FAMILIES)) {
+            return List.of(commandLine.getOptionValue(MACHINE_FAMILIES).split(","));
+        }
+        return List.of();
     }
 
     private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {

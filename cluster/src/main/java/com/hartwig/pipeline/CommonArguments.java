@@ -64,6 +64,8 @@ public interface CommonArguments {
 
     Optional<String> imageProject();
 
+    List<String> machineFamilies();
+
     RefGenomeVersion refGenomeVersion();
 
     Optional<String> pubsubProject();
@@ -75,6 +77,4 @@ public interface CommonArguments {
     Optional<String> costCenterLabel();
 
     Optional<String> userLabel();
-
-    boolean useTargetRegions();
 }
