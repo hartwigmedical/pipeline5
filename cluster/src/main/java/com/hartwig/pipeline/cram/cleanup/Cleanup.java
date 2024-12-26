@@ -7,7 +7,7 @@ import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
-import com.hartwig.pipeline.storage.GSUtil;
+import com.hartwig.pipeline.storage.GcloudStorage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +42,13 @@ public class Cleanup {
 
     private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
         if (storage.get(BlobId.of(arguments.outputBucket(), RunTag.apply(arguments, metadata.barcode()))) != null) {
-            GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.barcode()));
+            GcloudStorage.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.barcode()));
         }
     }
 
     private void deleteBucket(final String runId) {
         if (storage.get(runId) != null) {
-            GSUtil.rm(arguments.cloudSdkPath(), runId);
+            GcloudStorage.rm(arguments.cloudSdkPath(), runId);
         }
     }
 }
