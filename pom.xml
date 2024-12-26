@@ -11,11 +11,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <junit.version>4.13.1</junit.version>
         <immutables.version>2.5.5</immutables.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <mockito.version>5.12.0</mockito.version>
         <assertj-core.version>3.8.0</assertj-core.version>
         <slf4j-api.version>2.0.13</slf4j-api.version>
@@ -25,23 +25,17 @@
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <dockerfile.googleContainerRegistryEnabled>false</dockerfile.googleContainerRegistryEnabled>
         <commons-cli.version>1.4</commons-cli.version>
-        <jersey.version>2.29.1</jersey.version>
-        <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
-        <protobuf-java.version>3.6.1</protobuf-java.version>
         <slf4j-log4j2.version>2.23.1</slf4j-log4j2.version>
         <failsafe.version>2.0.1</failsafe.version>
         <annotations.version>16.0.1</annotations.version>
-        <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
         <commons-lang3.version>3.9</commons-lang3.version>
-        <htsjdk.version>2.23.0</htsjdk.version>
-        <org-reflections.version>0.9.11</org-reflections.version>
-        <google-api-services-serviceusage.version>v1beta1-rev20200804-1.30.10</google-api-services-serviceusage.version>
+        <htsjdk.version>4.1.3</htsjdk.version>
         <events.version>3.23.0</events.version>
         <java-client.version>1.31.1</java-client.version>
         <compar.version>1.3-beta.1</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
         <pdl.version>1.7.2</pdl.version>
-        <hmf-cloud-sdk.version>5.1.0-beta.6</hmf-cloud-sdk.version>
+        <hmf-cloud-sdk.version>5.1.0-beta.7</hmf-cloud-sdk.version>
     </properties>
 
     <scm>
@@ -95,11 +89,6 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-serviceusage</artifactId>
-                <version>${google-api-services-serviceusage.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>20.0</version>
@@ -113,21 +102,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.core</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.inject</groupId>
-                <artifactId>jersey-hk2</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>${javax.ws.rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -168,13 +142,6 @@
                 <groupId>com.intellij</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${intellij.annotations.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${aws-java-sdk.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.jodah</groupId>
