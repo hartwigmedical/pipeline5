@@ -48,12 +48,14 @@ import com.hartwig.pipeline.turquoise.Turquoise;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 public class PipelineMain {
+    // for perl and R to work we need to activate conda env
     private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/opt/tools/anaconda3/bin/conda shell.bash hook`",
             "source /opt/tools/anaconda3/bin/activate",
             "conda activate /opt/tools/anaconda3/envs/bioconductor-r42");
@@ -145,6 +147,11 @@ public class PipelineMain {
     }
 
     public PipelineState start(final Arguments arguments) {
+        if (arguments.logDebug()) {
+            // slf4j does not provide functionality to set logging level, therefore we must
+            // set it at the underlying log4j backend
+            Configurator.setLevel("com.hartwig", org.apache.logging.log4j.Level.DEBUG);
+        }
         for (String line : ArgumentUtil.prettyPrint(arguments).split("\n")) {
             LOGGER.info(line);
         }

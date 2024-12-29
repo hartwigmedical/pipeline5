@@ -77,4 +77,6 @@ public interface CommonArguments {
     Optional<String> costCenterLabel();
 
     Optional<String> userLabel();
+
+    boolean logDebug();
 }
