@@ -36,11 +36,11 @@ public class Redux extends SubStage {
     }
 
     public static String jitterParamsTsv(final String sampleId) {
-        return sampleId + REDUX_MS_TABLE_TSV;
+        return sampleId + REDUX_JITTER_PARAMS_TSV;
     }
 
     public static String msTableTsv(final String sampleId) {
-        return sampleId + REDUX_JITTER_PARAMS_TSV;
+        return sampleId + REDUX_MS_TABLE_TSV;
     }
 
     public static String repeatTsv(final String sampleId) {

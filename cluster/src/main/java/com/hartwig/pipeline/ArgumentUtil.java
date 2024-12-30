@@ -3,16 +3,16 @@ package com.hartwig.pipeline;
 import java.util.Objects;
 
 import com.hartwig.computeengine.execution.vm.ComputeEngineConfig;
+import com.hartwig.computeengine.execution.vm.ImmutableComputeEngineConfig;
 import com.hartwig.computeengine.storage.RunIdentifier;
 import com.hartwig.pipeline.input.RunMetadata;
 
 public final class ArgumentUtil {
     private ArgumentUtil() {
-
     }
 
     public static ComputeEngineConfig toComputeEngineConfig(Arguments arguments) {
-        return ComputeEngineConfig.builder()
+        ImmutableComputeEngineConfig.Builder builder = ComputeEngineConfig.builder()
                 .project(arguments.project())
                 .region(arguments.region())
                 .usePreemptibleVms(arguments.usePreemptibleVms())
@@ -24,8 +24,12 @@ public final class ArgumentUtil {
                 .pollInterval(arguments.pollInterval())
                 .serviceAccountEmail(arguments.serviceAccountEmail())
                 .imageName(arguments.imageName())
-                .imageProject(arguments.imageProject())
-                .build();
+                .imageProject(arguments.imageProject());
+
+        if (!arguments.machineFamilies().isEmpty()) {
+            builder.machineFamilies(arguments.machineFamilies());
+        }
+        return builder.build();
     }
 
     public static RunIdentifier toRunIdentifier(Arguments arguments, RunMetadata metadata) {

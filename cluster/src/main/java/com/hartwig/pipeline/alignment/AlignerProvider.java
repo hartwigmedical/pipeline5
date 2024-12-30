@@ -19,7 +19,7 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSFileSource;
-import com.hartwig.pipeline.storage.GSUtilCloudCopy;
+import com.hartwig.pipeline.storage.GcloudStorageCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
 
 public abstract class AlignerProvider {
@@ -89,8 +89,8 @@ public abstract class AlignerProvider {
         @Override
         BwaAligner wireUp(final PipelineInput input, final GoogleCredentials credentials, final Storage storage,
                 final ResultsDirectory resultsDirectory, final Labels labels) throws Exception {
-            GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
-            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
+            GcloudStorageCopy gcloudStorageCopy = new GcloudStorageCopy(getArguments().cloudSdkPath());
+            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gcloudStorageCopy);
             return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, input, sampleUpload, resultsDirectory, labels);
         }
     }

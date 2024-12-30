@@ -19,14 +19,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CommandLineOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
-    private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
     private static final String CLEANUP_FLAG = "cleanup";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
@@ -35,7 +33,7 @@ public class CommandLineOptions {
     private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
     private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
     private static final String VM_SELF_DELETE_ON_SHUTDOWN_FLAG = "vm_self_delete_on_shutdown";
-    private static final String DOWNLOAD_FLAG = "download";
+    private static final String LOG_DEBUG_FLAG = "log_debug";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
     private static final String PROFILE_FLAG = "profile";
@@ -47,7 +45,6 @@ public class CommandLineOptions {
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
-    private static final String RUN_CUPPA_FLAG = "run_cuppa";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String SET_NAME_FLAG = "set_id";
     private static final String NETWORK_FLAG = "network";
@@ -55,7 +52,7 @@ public class CommandLineOptions {
     private static final String NETWORK_TAGS_FLAG = "network_tags";
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
-    private static final String ZONE_FLAG = "zone";
+    private static final String MACHINE_FAMILIES = "machine_families";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
     private static final String STARTING_POINT_FLAG = "starting_point";
@@ -79,7 +76,6 @@ public class CommandLineOptions {
 
     private static Options options() {
         return new Options().addOption(profile())
-                .addOption(sampleDirectory())
                 .addOption(setId())
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
@@ -88,8 +84,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(USE_LOCAL_SSDS_FLAG,
                         "Use local (ephemeral) SSDs rather than persistent storage to lower cost and improve performance. "
                                 + "VMs started with these devices can only be started once so may not be suitable for development"))
-                .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
-                        "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
+                .addOption(Option.builder(LOG_DEBUG_FLAG).desc("Turn on debug logging").build())
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
                         "Have stdout and stderr of Google tools like gsutil stream to the console"))
                 .addOption(project())
@@ -100,7 +95,6 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple, cuppa, etc)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
-                .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG, "Run cuppa in tertiary stage (must be explicitly enabled)"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
                 .addOption(network())
@@ -115,7 +109,7 @@ public class CommandLineOptions {
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
-                .addOption(zone())
+                .addOption(machineFamilies())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
                 .addOption(json())
@@ -271,8 +265,8 @@ public class CommandLineOptions {
         return optionWithArg(PROJECT_FLAG, "The Google project for which to get the cluster.");
     }
 
-    private static Option zone() {
-        return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
+    private static Option machineFamilies() {
+        return optionWithArg(MACHINE_FAMILIES, "Machine families overrides");
     }
 
     private static Option refGenomeVersion() {
@@ -285,11 +279,6 @@ public class CommandLineOptions {
     private static Option publishDbLoadEvent() {
         return optionWithBooleanArg(PUBLISH_DB_LOAD_EVENT_FLAG,
                 format("Publish an event for downstream DB load; has no effect unless context is [%s]", Pipeline.Context.PLATINUM));
-    }
-
-    @NotNull
-    private static Option sampleDirectory() {
-        return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
     }
 
     public static Arguments from(final String[] args) throws ParseException {
@@ -308,6 +297,7 @@ public class CommandLineOptions {
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
                     .vmSelfDeleteOnShutdown(booleanOptionWithDefault(commandLine, VM_SELF_DELETE_ON_SHUTDOWN_FLAG, defaults.vmSelfDeleteOnShutdown()))
+                    .logDebug(commandLine.hasOption(LOG_DEBUG_FLAG))
                     .redoDuplicateMarking(booleanOptionWithDefault(commandLine, REDO_DUPLICATE_MARKING_FLAG, defaults.redoDuplicateMarking()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
@@ -324,7 +314,7 @@ public class CommandLineOptions {
                     .publishToTurquoise(booleanOptionWithDefault(commandLine, PUBLISH_TO_TURQUOISE_FLAG, defaults.publishToTurquoise()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
                             defaults.pollInterval().toString())))
-                    .zone(zone(commandLine, defaults))
+                    .machineFamilies(machineFamily(commandLine))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
@@ -453,11 +443,11 @@ public class CommandLineOptions {
         return defaults.imageName();
     }
 
-    private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(ZONE_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
+    private static List<String> machineFamily(final CommandLine commandLine) {
+        if (commandLine.hasOption(MACHINE_FAMILIES)) {
+            return List.of(commandLine.getOptionValue(MACHINE_FAMILIES).split(","));
         }
-        return defaults.zone();
+        return List.of();
     }
 
     private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {
