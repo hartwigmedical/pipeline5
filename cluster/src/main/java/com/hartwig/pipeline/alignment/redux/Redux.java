@@ -17,8 +17,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.tools.ExternalTool;
 
-import joptsimple.internal.Strings;
-
 public class Redux extends SubStage {
 
     private final String sampleId;
@@ -54,7 +52,7 @@ public class Redux extends SubStage {
 
         List<BashCommand> cmds = Lists.newArrayList();
 
-        String inputBams = Strings.join(inputBamPaths, ",");
+        String inputBams = String.join(",", inputBamPaths);
 
         List<String> arguments = formArguments(sampleId, inputBams, output.path(), resourceFiles, VmDirectories.OUTPUT, Bash.allCpus());
 
