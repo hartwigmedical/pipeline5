@@ -29,7 +29,6 @@
         <failsafe.version>2.0.1</failsafe.version>
         <annotations.version>16.0.1</annotations.version>
         <commons-lang3.version>3.9</commons-lang3.version>
-        <htsjdk.version>2.23.0</htsjdk.version>
         <events.version>3.23.0</events.version>
         <java-client.version>3.12.11</java-client.version>
         <compar.version>1.3-beta.1</compar.version>
@@ -193,12 +192,6 @@
                 <groupId>com.hartwig</groupId>
                 <artifactId>compar</artifactId>
                 <version>${compar.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.samtools</groupId>
-                <artifactId>htsjdk</artifactId>
-                <version>${htsjdk.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

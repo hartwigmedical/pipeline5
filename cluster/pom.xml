@@ -29,10 +29,6 @@
             <artifactId>events-pubsub</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>compar</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.hartwig.pdl</groupId>
             <artifactId>pdl-spec</artifactId>
         </dependency>
@@ -93,10 +89,10 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.github.samtools</groupId>
-            <artifactId>htsjdk</artifactId>
-            <version>${htsjdk.version}</version>
+            <groupId>com.hartwig</groupId>
+            <artifactId>compar</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
