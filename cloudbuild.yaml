@@ -21,6 +21,11 @@ steps:
       - 'versions:set'
       - '-DnewVersion=${TAG_NAME}'
       - '--batch-mode'
+    env:
+      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
