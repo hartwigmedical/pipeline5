@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.alignment.redux.Redux.jitterParamsTsv;
 import static com.hartwig.pipeline.alignment.redux.Redux.msTableTsv;
-import static com.hartwig.pipeline.alignment.redux.Redux.repeatTsv;
 import static com.hartwig.pipeline.datatypes.FileTypes.bai;
 import static com.hartwig.pipeline.datatypes.FileTypes.bam;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
@@ -225,22 +224,13 @@ public class BwaAligner implements Aligner {
                                 Folder.from(metadata),
                                 msTableTsv(metadata.sampleName()),
                                 msTableTsv(metadata.sampleName()),
-                                resultsDirectory),
-                        new SingleFileComponent(rootBucket,
-                                Aligner.NAMESPACE,
-                                Folder.from(metadata),
-                                repeatTsv(metadata.sampleName()),
-                                repeatTsv(metadata.sampleName()),
                                 resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.REDUX_JITTER_PARAMS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, jitterParamsTsv(metadata.sampleName()))),
                         new AddDatatype(DataType.REDUX_MS_TABLE,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, msTableTsv(metadata.sampleName()))),
-                        new AddDatatype(DataType.REDUX_REPEAT,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, repeatTsv(metadata.sampleName()))));
+                                new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, msTableTsv(metadata.sampleName()))));
 
         if (!arguments.outputCram()) {
             outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,

@@ -25,7 +25,6 @@ public class Redux extends SubStage {
 
     public static final String REDUX_JITTER_PARAMS_TSV = ".jitter_params.tsv";
     public static final String REDUX_MS_TABLE_TSV = ".ms_table.tsv.gz";
-    public static final String REDUX_REPEAT_TSV = ".repeat.tsv.gz";
 
     public Redux(
             final String sampleId, final ResourceFiles resourceFiles, final List<String> inputBamPaths) {
@@ -41,10 +40,6 @@ public class Redux extends SubStage {
 
     public static String msTableTsv(final String sampleId) {
         return sampleId + REDUX_MS_TABLE_TSV;
-    }
-
-    public static String repeatTsv(final String sampleId) {
-        return sampleId + REDUX_REPEAT_TSV;
     }
 
     @Override
