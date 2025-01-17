@@ -8,7 +8,7 @@ public enum HmfTool {
 
     AMBER("4.1-rc.2", 24, 16, false), // 4.0.1 -> 4.1
     BAM_TOOLS("1.3-rc.1", 24, 16, false), // 1.2.1 -> 1.3
-    CHORD("2.1-rc.1", 12, 4, false), // 2.02_1.14 ->
+    CHORD("2.1-rc.1", 24, 4, false), // 2.02_1.14 ->
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0-rc.1", 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.3.0", 16, 4, false), // 2.1.1 -> 2.3
