@@ -119,7 +119,7 @@ Essentially this is starting from scratch with the new version. General ideas:
 
 ### R/Perl/Python Dependencies
 
-Manually create a new VM from the latest functional image. The Anaconda-created environment is in `/root/anaconda3` and can be
+Manually create a new VM from the latest functional image. The Anaconda-created environment is in `/opt/tools/anaconda3` and can be
 enabled using a few activation commands. Look at the `pipeline5` Java code to see how this is done by the application.
 
 The `anaconda.yaml` file here can be used as a reference or to start from scratch (eg using `conda env create -f ...`)  and should

@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -25,7 +25,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
-    private static final String TUMOR_PEACH_GENOTYPE_TSV = "tumor.peach.genotype.tsv";
+    private static final String REFERENCE_PEACH_GENOTYPE_TSV = "reference.peach.haplotypes.best.tsv";
 
     @Override
     public void disabledAppropriately() {
@@ -41,31 +41,40 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.PEACH_CALLS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.calls.tsv")),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "reference.peach.events.tsv")),
+                new AddDatatype(DataType.PEACH_CALLS_PER_GENE,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "reference.peach.gene.events.tsv")),
+                new AddDatatype(DataType.PEACH_ALL_HAPLOTYPES,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "reference.peach.haplotypes.all.tsv")),
                 new AddDatatype(DataType.PEACH_GENOTYPE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Peach.NAMESPACE, TUMOR_PEACH_GENOTYPE_TSV)));
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, REFERENCE_PEACH_GENOTYPE_TSV)),
+                new AddDatatype(DataType.PEACH_QC,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "reference.peach.qc.tsv")));
     }
 
     @Override
     protected void validateOutput(final PeachOutput output) {
         assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/peach",
-                ResultsDirectory.defaultDirectory().path(TUMOR_PEACH_GENOTYPE_TSV)));
+                ResultsDirectory.defaultDirectory().path(REFERENCE_PEACH_GENOTYPE_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final PeachOutput output) {
-        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/peach/" + TUMOR_PEACH_GENOTYPE_TSV));
+        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/peach/" + REFERENCE_PEACH_GENOTYPE_TSV));
     }
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.PEACH_GENOTYPE, "peach/" + TUMOR_PEACH_GENOTYPE_TSV);
+        persistedDataset.addPath(DataType.PEACH_GENOTYPE, "peach/" + REFERENCE_PEACH_GENOTYPE_TSV);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final PeachOutput output) {
-        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "peach/" + TUMOR_PEACH_GENOTYPE_TSV));
+        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "peach/" + REFERENCE_PEACH_GENOTYPE_TSV));
     }
 
     @Override
@@ -76,13 +85,13 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                format("%s/%s/%s_venv/bin/python ", VmDirectories.TOOLS, PEACH.getToolName(), PEACH.runVersion()) + format(
-                        "%s/%s/%s/src/main.py ",
-                        VmDirectories.TOOLS,
-                        PEACH.getToolName(),
-                        PEACH.runVersion())
-                        + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.8 "
-                        + "--outputdir /data/output --panel /opt/resources/peach/peach.json");
+                toolCommand(PEACH)
+                        + " -vcf_file /data/input/tumor.purple.germline.vcf.gz "
+                        + "-sample_name reference "
+                        + "-haplotypes_file /opt/resources/peach/37/haplotypes.37.tsv "
+                        + "-function_file /opt/resources/peach/37/haplotype_functions.37.tsv "
+                        + "-drugs_file /opt/resources/peach/37/peach_drugs.37.tsv "
+                        + "-output_dir /data/output");
     }
 
     @Override

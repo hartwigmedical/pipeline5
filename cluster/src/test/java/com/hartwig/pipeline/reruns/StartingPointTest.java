@@ -11,10 +11,9 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.reruns.StartingPoint.StartingPoints;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -35,6 +34,8 @@ import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.teal.Teal;
+import com.hartwig.pipeline.tertiary.teal.TealBam;
+import com.hartwig.pipeline.tertiary.vchord.VChord;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 
 import org.junit.Test;
@@ -57,7 +58,6 @@ public class StartingPointTest {
         StartingPoint victim = new StartingPoint(testArgumentsWithStartingPoint("alignment_complete"));
         assertThat(victim.usePersisted(Aligner.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(BamMetrics.NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Flagstat.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SnpGenotype.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(CramConversion.NAMESPACE)).isFalse();
     }
@@ -77,7 +77,7 @@ public class StartingPointTest {
         assertThat(victim.usePersisted(Amber.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Cobalt.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SageConfiguration.SAGE_SOMATIC_NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Gridss.NAMESPACE)).isTrue();
+        assertThat(victim.usePersisted(Esvee.NAMESPACE)).isTrue();
     }
 
     @Test
@@ -89,14 +89,15 @@ public class StartingPointTest {
         assertThat(victim.usePersisted(Amber.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Cobalt.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(SageConfiguration.SAGE_SOMATIC_NAMESPACE)).isTrue();
-        assertThat(victim.usePersisted(Gridss.NAMESPACE)).isTrue();
+        assertThat(victim.usePersisted(Esvee.NAMESPACE)).isTrue();
         assertThat(victim.usePersisted(Purple.NAMESPACE)).isTrue();
     }
 
     @Test
     public void startingPointsAreUpToDate() {
         List<Namespace> endStages = namespacesOf(Sigs.class, Orange.class, Cram2Bam.class, HealthChecker.class, Lilac.class,
-                Cuppa.class, Peach.class, LinxSomatic.class, LinxGermline.class, Chord.class, VirusInterpreter.class, Cider.class, Teal.class);
+                Cuppa.class, Peach.class, LinxSomatic.class, LinxGermline.class, Chord.class, VirusInterpreter.class, Cider.class,
+                TealBam.class, Teal.class, VChord.class);
         NamespacesTest.allNamespaces().stream().filter(n -> !endStages.contains(n)).map(Namespace::value).collect(toList()).forEach(n -> {
             boolean referenced = false;
             for (StartingPoints points: StartingPoints.values()) {

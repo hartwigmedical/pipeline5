@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
+import com.hartwig.computeengine.execution.vm.command.InputDownloadCommand;
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
@@ -37,11 +39,22 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     protected final PersistedDataset persistedDataset;
     protected final SageConfiguration sageConfiguration;
 
+    private final InputDownloadCommand tumorJitterParams;
+    private final InputDownloadCommand tumorMsTable;
+    private final InputDownloadCommand referenceJitterParams;
+    private final InputDownloadCommand referenceMsTable;
+
     public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset,
             final SageConfiguration sageConfiguration) {
         super(alignmentPair);
         this.persistedDataset = persistedDataset;
         this.sageConfiguration = sageConfiguration;
+
+        tumorJitterParams = new InputDownloadCommand(alignmentPair.tumor().jitterParams());
+        tumorMsTable = new InputDownloadCommand(alignmentPair.tumor().msTable());
+
+        referenceJitterParams = new InputDownloadCommand(alignmentPair.reference().jitterParams());
+        referenceMsTable = new InputDownloadCommand(alignmentPair.reference().msTable());
     }
 
     @Override
@@ -57,6 +70,17 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     @Override
     public String namespace() {
         return sageConfiguration.namespace();
+    }
+
+    @Override
+    public List<BashCommand> inputs() {
+
+        List<BashCommand> bamInputs = Lists.newArrayList(super.inputs());
+        bamInputs.add(tumorJitterParams);
+        bamInputs.add(tumorMsTable);
+        bamInputs.add(referenceJitterParams);
+        bamInputs.add(referenceMsTable);
+        return new ArrayList<>(bamInputs);
     }
 
     @Override

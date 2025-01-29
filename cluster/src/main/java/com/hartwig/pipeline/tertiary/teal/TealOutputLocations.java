@@ -10,10 +10,7 @@ import org.immutables.value.Value;
 public interface TealOutputLocations
 {
     Optional<GoogleStorageLocation> germlineTellength();
-    Optional<GoogleStorageLocation> germlineTelbam();
-
     Optional<GoogleStorageLocation> somaticTellength();
-    Optional<GoogleStorageLocation> somaticTelbam();
     Optional<GoogleStorageLocation> somaticBreakend();
 
     static ImmutableTealOutputLocations.Builder builder() {

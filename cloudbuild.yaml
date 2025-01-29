@@ -2,13 +2,10 @@ steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
-  - name: 'maven:3-jdk-11'
-    id: 'Set version for Maven'
-    entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=${TAG_NAME}' ]
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Prime Maven cache'
     args:
+      - '-q'
       - '-m'
       - 'rsync'
       - '-r'
@@ -18,9 +15,21 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
   - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
+    id: 'Set version for Maven'
+    entrypoint: mvn
+    args:
+      - 'versions:set'
+      - '-DnewVersion=${TAG_NAME}'
+      - '--batch-mode'
+    env:
+      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+  - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
-    timeout: 3600s
+    timeout: 7200s
     args:
       - 'deploy'
       - '-Drelease'
@@ -33,6 +42,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Update Maven cache after dependency resolution'
     args:
+      - '-q'
       - '-m'
       - 'rsync'
       - '-r'
@@ -44,10 +54,15 @@ steps:
   - name: 'eu.gcr.io/hmf-build/docker-tag'
     id: 'Publish Docker image'
     dir: cluster
-    args: ['eu.gcr.io/hmf-build/pipeline5', '$TAG_NAME', 'Dockerfile', '--build-arg', 'VERSION=$TAG_NAME']
+    args:
+      - 'eu.gcr.io/hmf-build/pipeline5'
+      - '$TAG_NAME'
+      - 'Dockerfile'
+      - '--build-arg'
+      - 'VERSION=$TAG_NAME'
 images:
   - eu.gcr.io/hmf-build/pipeline5
 logsBucket: 'gs://hmf-build-logs'
-timeout: 4800s
+timeout: 8000s
 options:
   machineType: 'E2_HIGHCPU_32'

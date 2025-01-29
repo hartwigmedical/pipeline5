@@ -35,10 +35,9 @@ public class PaveArguments {
         List<String> arguments = Lists.newArrayList();
 
         addCommonArguments(arguments, resourceFiles, tumorSampleName, inputVcf, outputVcf);
-        arguments.add(format("-clinvar_vcf %s", resourceFiles.clinvarVcf()));
         arguments.add(format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()));
         arguments.add(format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
-        arguments.add("-gnomad_pon_filter -1"); // disable filtering in germline mode while still annotating
+        arguments.add("-gnomad_no_filter");
 
         return arguments;
     }
@@ -62,6 +61,8 @@ public class PaveArguments {
             arguments.add(format("-gnomad_freq_file %s", resourceFiles.gnomadPonCache()));
         }
 
+        arguments.add(format("-clinvar_vcf %s", resourceFiles.clinvarVcf()));
+
         arguments.add("-read_pass_only");
         arguments.add(format("-threads %s", Bash.allCpus()));
     }
@@ -70,8 +71,6 @@ public class PaveArguments {
 
         return List.of(
                 format("-pon_artefact_file %s", resourceFiles.targetRegionsPonArtefacts()),
-                "-force_pathogenic_pass", // annotate with Clinvar but don't filter
-                format("-clinvar_vcf %s", resourceFiles.clinvarVcf()),
                 format("-blacklist_bed %s", resourceFiles.germlineBlacklistBed()),
                 format("-blacklist_vcf %s", resourceFiles.germlineBlacklistVcf()));
     }

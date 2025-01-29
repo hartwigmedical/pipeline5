@@ -107,7 +107,6 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     private void addCommonArguments(final List<String> arguments) {
-        arguments.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(String.format("-gc_profile %s", resourceFiles.gcProfileFile()));
         arguments.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(String.format("-threads %s", Bash.allCpus()));

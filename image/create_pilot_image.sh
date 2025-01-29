@@ -92,7 +92,7 @@ for f in $(find ${pilot_dir} -maxdepth 1 -type f); do
     ssh "sudo mkdir -p ${toolDir}/pilot && sudo chmod a+w ${toolDir}/pilot"
     gcloud compute scp ${f} ${imager_vm}:${toolDir}/pilot/$(basename $f) --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap 
 done
-gcloud compute scp $(dirname $0)/link_pilot_venvs.sh ${imager_vm}:/tmp --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap
+gcloud compute scp $(dirname $0)/copy_to_imager_vm/link_pilot_venvs.sh ${imager_vm}:/tmp --zone=$ZONE --project=$IMAGE_PROJECT --tunnel-through-iap
 ssh "sudo /tmp/link_pilot_venvs.sh"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$IMAGE_PROJECT

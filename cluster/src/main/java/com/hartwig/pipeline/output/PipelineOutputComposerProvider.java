@@ -43,7 +43,7 @@ public class PipelineOutputComposerProvider {
                         .setStorageClass(StorageClass.REGIONAL)
                         .setLocation(arguments.region());
                 arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
-                storage.create(builder.build());
+                reportBucket = storage.create(builder.build());
             } else {
                 LOGGER.warn("Output bucket [{}] does not exist and pipeline invoked in publish-only mode", arguments.outputBucket());
             }

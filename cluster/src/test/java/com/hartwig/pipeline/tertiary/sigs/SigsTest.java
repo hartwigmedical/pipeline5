@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.sigs;
 
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("java -Xmx4G -jar /opt/tools/sigs/" + SIGS.runVersion() + "/sigs.jar -sample tumor "
+        return List.of(toolCommand(SIGS) + " -sample tumor "
                 + "-signatures_file /opt/resources/sigs/snv_cosmic_signatures.csv -somatic_vcf_file /data/input/tumor.purple.somatic.vcf.gz "
                 + "-output_dir /data/output");
     }

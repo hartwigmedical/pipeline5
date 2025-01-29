@@ -61,8 +61,7 @@ public interface SageConfiguration {
                 .refSampleBqrPlot(DataType.SOMATIC_REF_SAMPLE_BQR_PLOT)
                 .vcfFile(m -> String.format("%s.%s.%s", m.tumor().sampleName(), SAGE_SOMATIC_VCF_ID, FileTypes.GZIPPED_VCF))
                 .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
-                .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(arguments.shallow())
-                        .targetRegionsMode(arguments.useTargetRegions()))
+                .commandBuilder(new SageCommandBuilder(resourceFiles).targetRegionsMode(arguments.useTargetRegions()))
                 .jobDefinition(VirtualMachineJobDefinitions::sageSomaticCalling)
                 .build();
     }

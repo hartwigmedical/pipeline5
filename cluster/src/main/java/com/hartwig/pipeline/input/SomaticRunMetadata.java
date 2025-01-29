@@ -13,7 +13,12 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface SomaticRunMetadata extends RunMetadata {
 
-    int MAX_SAMPLE_LENGTH = 13;
+    // The run name is used downstream to construct compute instance names (which are limited by GCP to max 63 characters)
+    // We prepend the run name with "run" (length 3) and append with stage name (longest stage is "orange_no_germline", length 18)
+    // So the current maximum for run name in production environment is 63 minus (3+1) minus (1+18) = 40
+    int MAX_RUN_NAME_LENGTH = 36;
+
+    String SOMATIC_STAGE_PREFIX = "som";
 
     @JsonProperty("external_ids")
     Optional<OperationalReferences> maybeExternalIds();
@@ -26,12 +31,12 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     @Override
     default String runName() {
-        if (maybeReference().isPresent() && maybeTumor().isPresent()) {
-            return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
+        if (maybeTumor().isPresent()) {
+            return truncate(tumor().barcode());
         } else if (maybeReference().isPresent()) {
             return truncate(reference().barcode());
         } else {
-            return truncate(tumor().barcode());
+            throw new IllegalStateException("Neither tumor nor reference is present in this run/set");
         }
     }
 
@@ -44,8 +49,8 @@ public interface SomaticRunMetadata extends RunMetadata {
         return maybeTumor().map(SingleSampleRunMetadata::sampleName).orElseGet(() -> reference().sampleName());
     }
 
-    static String truncate(final String sample) {
-        return sample.length() > MAX_SAMPLE_LENGTH ? sample.substring(0, MAX_SAMPLE_LENGTH) : sample;
+    static String truncate(final String run) {
+        return run.length() > MAX_RUN_NAME_LENGTH ? run.substring(0, MAX_RUN_NAME_LENGTH) : run;
     }
 
     @JsonIgnore
@@ -66,5 +71,10 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     static ImmutableSomaticRunMetadata.Builder builder() {
         return ImmutableSomaticRunMetadata.builder();
+    }
+
+    @Override
+    default String stagePrefix() {
+        return SOMATIC_STAGE_PREFIX;
     }
 }
