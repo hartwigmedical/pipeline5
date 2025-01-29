@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.metrics;
 
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_COVERAGE_TSV;
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_FLAG_COUNT_TSV;
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_FRAG_LENGTH_TSV;
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_PARTITION_STATS_TSV;
+import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
 import static com.hartwig.pipeline.testsupport.TestInputs.toolCommand;
 import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
 
@@ -25,11 +30,29 @@ import org.junit.Test;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
-    public static final String REFERENCE_WGSMETRICS = "reference.wgsmetrics";
+    private static final String REFERENCE_SUMMARY = "reference" + BAM_METRICS_SUMMARY_TSV;
+    private static final String REFERENCE_COVERAGE = "reference" + BAM_METRICS_COVERAGE_TSV;
+    private static final String REFERENCE_FRAG_LENGTHS = "reference" + BAM_METRICS_FRAG_LENGTH_TSV;
+    private static final String REFERENCE_FLAG_COUNTS = "reference" + BAM_METRICS_FLAG_COUNT_TSV;
+    private static final String REFERENCE_PARTITION_STATS = "reference" + BAM_METRICS_PARTITION_STATS_TSV;
 
-    public static final AddDatatype ADD_DATATYPE = new AddDatatype(DataType.WGSMETRICS,
-            TestInputs.referenceRunMetadata().barcode(),
-            new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics"));
+    public static final List<AddDatatype> ADD_DATATYPES = List.of(
+            new AddDatatype(
+                    DataType.METRICS_SUMMARY, TestInputs.referenceRunMetadata().barcode(),
+                    new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, REFERENCE_SUMMARY)),
+            new AddDatatype(
+                    DataType.METRICS_COVERAGE, TestInputs.referenceRunMetadata().barcode(),
+                    new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, REFERENCE_COVERAGE)),
+            new AddDatatype(
+                    DataType.METRICS_FRAG_LENGTH, TestInputs.referenceRunMetadata().barcode(),
+                    new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, REFERENCE_FRAG_LENGTHS)),
+            new AddDatatype(
+                    DataType.METRICS_FLAG_COUNT, TestInputs.referenceRunMetadata().barcode(),
+                    new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, REFERENCE_FLAG_COUNTS)),
+            new AddDatatype(
+                    DataType.METRICS_PARTITION, TestInputs.referenceRunMetadata().barcode(),
+                    new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, REFERENCE_PARTITION_STATS))
+            );
 
     @Override
     @Before
@@ -58,13 +81,13 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(
-                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
-                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam", "reference.bam"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-test";
+        return TestInputs.REFERENCE_BUCKET;
     }
 
     @Override
@@ -72,14 +95,13 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
         return ImmutableList.of(
                 toolCommand(BAM_TOOLS)
-                + " -sample reference "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-bam_file /data/input/reference.bam "
-                + "-output_dir /data/output "
-                + "-log_level INFO "
-                + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                + "-write_old_style");
+                + " -sample reference"
+                + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                + " -ref_genome_version V37"
+                + " -bam_file /data/input/reference.bam"
+                + " -output_dir /data/output"
+                + " -log_level INFO"
+                + " -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
@@ -92,43 +114,41 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
         assertThat(victim.tumorReferenceCommands(TestInputs.tumorRunMetadata()).get(0).asBash()).isEqualTo(
                 toolCommand(BAM_TOOLS)
-                        + " -sample tumor "
-                        + "-ref_genome /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna "
-                        + "-ref_genome_version V38 "
-                        + "-bam_file /data/input/tumor.bam "
-                        + "-output_dir /data/output "
-                        + "-log_level INFO "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-write_old_style "
-                        + "-regions_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
+                        + " -sample tumor"
+                        + " -ref_genome /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta"
+                        + " -ref_genome_version V38"
+                        + " -bam_file /data/input/tumor.bam"
+                        + " -output_dir /data/output"
+                        + " -log_level INFO"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -regions_file /opt/resources/target_regions/38/target_regions_definition.38.bed");
     }
 
     @Override
     protected void validateOutput(final BamMetricsOutput output) {
-        GoogleStorageLocation metricsOutputFile = output.metricsOutputFile();
-        assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
-        assertThat(metricsOutputFile.path()).isEqualTo("results/" + REFERENCE_WGSMETRICS);
+        GoogleStorageLocation metricsOutputFile = output.outputLocations().summary();
+        assertThat(metricsOutputFile.bucket()).isEqualTo(expectedRuntimeBucketName() + "/bam_metrics");
+        assertThat(metricsOutputFile.path()).isEqualTo("results/" + REFERENCE_SUMMARY);
     }
 
     @Override
     protected void validatePersistedOutput(final BamMetricsOutput output) {
-        assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/reference/bam_metrics/" + REFERENCE_WGSMETRICS));
+        assertThat(output.outputLocations().summary()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/reference/bam_metrics/" + REFERENCE_SUMMARY));
     }
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.WGSMETRICS, "bam_metrics/" + REFERENCE_WGSMETRICS);
+        persistedDataset.addPath(DataType.METRICS_SUMMARY, "bam_metrics/" + REFERENCE_SUMMARY);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
-        assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_WGSMETRICS));
-        assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
+        assertThat(output.outputLocations().summary()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_SUMMARY));
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(ADD_DATATYPE);
+        return ADD_DATATYPES;
     }
 }

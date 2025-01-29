@@ -33,7 +33,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-test";
+        return TestInputs.REFERENCE_BUCKET;
     }
 
     @Override

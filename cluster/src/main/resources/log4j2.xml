@@ -13,7 +13,6 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Logger>
-        <Logger name="org.apache.hadoop.util.NativeCodeLoader" level="off" additivity="false"/>
         <Root level="warn">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>

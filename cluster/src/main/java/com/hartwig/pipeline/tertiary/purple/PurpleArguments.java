@@ -13,18 +13,14 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 final class PurpleArguments {
 
-    public static List<String> tumorArguments(final String tumorSampleName, final String somaticVcfPath, final String structuralVcfPath,
-            final ResourceFiles resourceFiles, boolean useUnfilteredVcf, final String unfilteredVcfPath) {
+    public static List<String> tumorArguments(
+            final String tumorSampleName, final String somaticVcfPath, final String structuralVcfPath, final ResourceFiles resourceFiles) {
 
         List<String> arguments = Lists.newArrayList(format("-tumor %s", tumorSampleName),
                 format("-somatic_vcf %s", somaticVcfPath),
                 format("-somatic_sv_vcf %s", structuralVcfPath),
                 format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()),
                 format("-circos %s", CIRCOS.binaryPath()));
-
-        if (useUnfilteredVcf) {
-            arguments.add(format("-sv_recovery_vcf %s", unfilteredVcfPath));
-        }
 
         return arguments;
     }

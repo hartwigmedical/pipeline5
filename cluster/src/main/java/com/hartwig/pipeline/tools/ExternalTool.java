@@ -14,7 +14,7 @@ public enum ExternalTool {
     KRAKEN("kraken2", "", "2.1.0"),
     REPEAT_MASKER("repeatmasker", "", "4.1.1"),
     SAMBAMBA("sambamba", "sambamba", "0.6.8"),
-    SAMTOOLS("samtools", "samtools", "1.14"),
+    SAMTOOLS("samtools", "samtools", "1.20"),
     TABIX("tabix", "tabix", "0.2.6"),
     BLASTN("ncbi-blast", "bin/blastn", "2.14.1");
 

@@ -42,8 +42,8 @@ public class StageRunnerTest {
     public void setUp() throws Exception {
         storage = mock(Storage.class);
         Bucket runtimeBucket = mock(Bucket.class);
-        when(runtimeBucket.getName()).thenReturn("run-reference-tumor-test");
-        when(storage.get("run-reference-tumor-test")).thenReturn(runtimeBucket);
+        when(runtimeBucket.getName()).thenReturn(TestInputs.SOMATIC_BUCKET);
+        when(storage.get(TestInputs.SOMATIC_BUCKET)).thenReturn(runtimeBucket);
         computeEngine = mock(ComputeEngine.class);
         when(computeEngine.submit(any(), any())).thenReturn(ComputeEngineStatus.SUCCESS);
         //noinspection unchecked

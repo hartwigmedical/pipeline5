@@ -40,6 +40,11 @@ public interface SingleSampleRunMetadata extends RunMetadata {
         return barcode();
     }
 
+    @Override
+    default String stagePrefix() {
+        return type().toString().toLowerCase().substring(0, 3);
+    }
+
     List<String> primaryTumorDoids();
 
     Optional<LocalDate> samplingDate();

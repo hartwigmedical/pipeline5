@@ -42,6 +42,8 @@ public interface CommonArguments {
 
     boolean useLocalSsds();
 
+    boolean vmSelfDeleteOnShutdown();
+
     String network();
 
     Optional<String> subnet();
@@ -62,6 +64,8 @@ public interface CommonArguments {
 
     Optional<String> imageProject();
 
+    List<String> machineFamilies();
+
     RefGenomeVersion refGenomeVersion();
 
     Optional<String> pubsubProject();
@@ -74,5 +78,5 @@ public interface CommonArguments {
 
     Optional<String> userLabel();
 
-    boolean useTargetRegions();
+    boolean logDebug();
 }

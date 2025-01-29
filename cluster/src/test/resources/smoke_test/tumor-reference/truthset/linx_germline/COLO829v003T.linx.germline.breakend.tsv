@@ -1,1 +1,1 @@
-id	svId	isStart	gene	transcriptId	canonical	geneOrientation	disruptive	reportedDisruption	undisruptedCopyNumber	regionType	codingType	biotype	exonicBasePhase	nextSpliceExonRank	nextSpliceExonPhase	nextSpliceDistance	totalExonCount	type	chromosome	orientation	strand	chrBand	exonUp	exonDown	junctionCopyNumber
+id	svId	isStart	gene	transcriptId	canonical	geneOrientation	disruptive	reportedDisruption	undisruptedCopyNumber	regionType	codingType	biotype	exonicBasePhase	nextSpliceExonRank	nextSpliceExonPhase	nextSpliceDistance	totalExonCount	exonUp	exonDown

@@ -31,18 +31,18 @@ public class LilacBamSlicerTest extends TertiaryStageTest<LilacBamSliceOutput> {
     @Override
     protected List<String> expectedCommands() {
         return List.of(
-                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/reference.hla.bam /data/input/reference.bam",
+                "/opt/tools/samtools/1.20/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/reference.hla.bam /data/input/reference.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
-                "/opt/tools/samtools/1.14/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/tumor.hla.bam /data/input/tumor.bam",
+                "/opt/tools/samtools/1.20/samtools view -L /opt/resources/lilac/37/hla.37.bed -@ $(grep -c '^processor' /proc/cpuinfo) -u -M -T /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam");
     }
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-tumor-test/aligner/results/tumor.bam", "tumor.bam"),
-                input("run-tumor-test/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
-                input("run-reference-test/aligner/results/reference.bam", "reference.bam"),
-                input("run-reference-test/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        return List.of(input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.bam", "tumor.bam"),
+                input(TestInputs.TUMOR_BUCKET + "/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam", "reference.bam"),
+                input(TestInputs.REFERENCE_BUCKET + "/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Override

@@ -9,19 +9,21 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface ChordOutput extends StageOutput {
+    static ImmutableChordOutput.Builder builder() {
+        return ImmutableChordOutput.builder();
+    }
 
     @Override
     default String name() {
         return Chord.NAMESPACE;
     }
 
-    static ImmutableChordOutput.Builder builder() {
-        return ImmutableChordOutput.builder();
-    }
+    Optional<ChordOutputLocations> maybeChordOutputLocations();
 
-    Optional<GoogleStorageLocation> maybePredictions();
-
-    default GoogleStorageLocation predictions() {
-        return maybePredictions().orElse(GoogleStorageLocation.empty());
+    default ChordOutputLocations chordOutputLocations() {
+        return maybeChordOutputLocations().orElse(ChordOutputLocations.builder()
+                .predictions(GoogleStorageLocation.empty())
+                .signatures(GoogleStorageLocation.empty())
+                .build());
     }
 }

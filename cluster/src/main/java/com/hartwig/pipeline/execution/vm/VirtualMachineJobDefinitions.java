@@ -7,18 +7,20 @@ import static com.hartwig.pipeline.tools.HmfTool.CHORD;
 import static com.hartwig.pipeline.tools.HmfTool.CIDER;
 import static com.hartwig.pipeline.tools.HmfTool.COBALT;
 import static com.hartwig.pipeline.tools.HmfTool.CUPPA;
-import static com.hartwig.pipeline.tools.HmfTool.GRIDSS;
-import static com.hartwig.pipeline.tools.HmfTool.GRIPSS;
+import static com.hartwig.pipeline.tools.HmfTool.ESVEE;
 import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
-import static com.hartwig.pipeline.tools.HmfTool.MARK_DUPS;
+import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
+import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
+import static com.hartwig.pipeline.tools.HmfTool.V_CHORD;
+import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
@@ -26,9 +28,8 @@ import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
-import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.Esvee;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -43,6 +44,8 @@ import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.teal.Teal;
+import com.hartwig.pipeline.tertiary.teal.TealBam;
+import com.hartwig.pipeline.tertiary.vchord.VChord;
 import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virus.VirusInterpreter;
 import com.hartwig.pipeline.tools.VersionUtils;
@@ -100,23 +103,12 @@ public final class VirtualMachineJobDefinitions {
                 .build();
     }
 
-    public static VirtualMachineJobDefinition gridds(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+    public static VirtualMachineJobDefinition esvee(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
-                .name(Gridss.NAMESPACE)
+                .name(Esvee.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
-                .startupCommand(startupScript)
-                .build();
-    }
-
-    public static VirtualMachineJobDefinition gripss(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
-            final String namespace) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(STANDARD_IMAGE)
-                .name(namespace.replace("_", "-"))
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIPSS.getCpus(), GRIPSS.getMemoryGb()))
+                .performanceProfile(custom(ESVEE.getCpus(), ESVEE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -160,7 +152,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(VirusBreakend.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(GRIDSS.getCpus(), GRIDSS.getMemoryGb()))
+                .performanceProfile(custom(VIRUSBREAKEND_GRIDSS.getCpus(), VIRUSBREAKEND_GRIDSS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -196,23 +188,13 @@ public final class VirtualMachineJobDefinitions {
                 .build();
     }
 
-    public static VirtualMachineJobDefinition flagstat(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.builder()
-                .imageFamily(STANDARD_IMAGE)
-                .name(Flagstat.NAMESPACE)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(32, 48))
-                .startupCommand(startupScript)
-                .build();
-    }
-
     public static VirtualMachineJobDefinition alignment(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
             final String name) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(name)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(96, 128))
+                .performanceProfile(custom(32, 128))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -221,9 +203,9 @@ public final class VirtualMachineJobDefinitions {
             final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
-                .name("merge-markdup")
+                .name("merge-redux")
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(MARK_DUPS.getCpus(), MARK_DUPS.getMemoryGb()))
+                .performanceProfile(custom(REDUX.getCpus(), REDUX.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }
@@ -263,25 +245,27 @@ public final class VirtualMachineJobDefinitions {
 
     public static VirtualMachineJobDefinition cram2Bam(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
             final SingleSampleRunMetadata.SampleType sampleType, final String namespace) {
+        int numLocalSsd = sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 2 : 4;
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(namespace)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
     public static VirtualMachineJobDefinition cramConversion(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
             final SingleSampleRunMetadata.SampleType sampleType) {
+        int numLocalSsd = sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 2 : 4;
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(CramConversion.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.NUMBER_OF_CORES, 6))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.NUMBER_OF_CORES, CramConversion.MEMORY_GB))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
@@ -323,7 +307,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(namespace.replace("_", "-"))
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(ORANGE.getCpus(), ORANGE.getMemoryGb()))
                 .startupCommand(startupScript)
                 .workingDiskSpaceGb(MINIMAL_DISK_SPACE_GB)
                 .build();
@@ -351,12 +335,32 @@ public final class VirtualMachineJobDefinitions {
                 .build();
     }
 
+    public static VirtualMachineJobDefinition tealBam(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.builder()
+                .imageFamily(STANDARD_IMAGE)
+                .name(TealBam.NAMESPACE.replace("_", "-"))
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
+                .startupCommand(startupScript)
+                .build();
+    }
+
     public static VirtualMachineJobDefinition teal(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(Teal.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(TEAL.getCpus(), TEAL.getMemoryGb()))
+                .performanceProfile(custom(4, 8))
+                .startupCommand(startupScript)
+                .build();
+    }
+
+    public static VirtualMachineJobDefinition vchord(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.builder()
+                .imageFamily(STANDARD_IMAGE)
+                .name(VChord.NAMESPACE)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(V_CHORD.getCpus(), V_CHORD.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
     }

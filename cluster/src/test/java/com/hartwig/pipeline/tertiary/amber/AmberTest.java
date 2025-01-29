@@ -41,7 +41,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected void validateOutput(final AmberOutput output) {
-        assertThat(output.outputDirectory().bucket()).isEqualTo("run-reference-tumor-test/amber");
+        assertThat(output.outputDirectory().bucket()).isEqualTo(TestInputs.SOMATIC_BUCKET + "/amber");
         assertThat(output.outputDirectory().path()).isEqualTo("results");
         assertThat(output.outputDirectory().isDirectory()).isTrue();
     }
@@ -64,12 +64,12 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     @Override
     protected List<String> expectedCommands() {
         return List.of(toolCommand(AMBER)
-                + " -tumor tumor -tumor_bam /data/input/tumor.bam "
-                + "-reference reference -reference_bam /data/input/reference.bam "
-                + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-ref_genome_version V37 "
-                + "-loci /opt/resources/amber/37/AmberGermlineSites.37.tsv.gz "
-                + "-output_dir /data/output "
-                + "-threads 12");
+                + " -tumor tumor -tumor_bam /data/input/tumor.bam"
+                + " -reference reference -reference_bam /data/input/reference.bam"
+                + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                + " -ref_genome_version V37"
+                + " -loci /opt/resources/amber/37/AmberGermlineSites.37.tsv.gz"
+                + " -output_dir /data/output"
+                + " -threads 12");
     }
 }

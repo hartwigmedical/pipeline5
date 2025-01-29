@@ -39,12 +39,12 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return List.of(input("run-reference-tumor-test/lilac_slicer/tumor.hla.bam", "tumor.hla.bam"),
-                input("run-reference-tumor-test/lilac_slicer/tumor.hla.bam.bai", "tumor.hla.bam.bai"),
-                input("run-reference-tumor-test/lilac_slicer/reference.hla.bam", "reference.hla.bam"),
-                input("run-reference-tumor-test/lilac_slicer/reference.hla.bam.bai", "reference.hla.bam.bai"),
-                input("run-reference-tumor-test/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
-                input("run-reference-tumor-test/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
+        return List.of(input(TestInputs.SOMATIC_BUCKET + "/lilac_slicer/tumor.hla.bam", "tumor.hla.bam"),
+                input(TestInputs.SOMATIC_BUCKET + "/lilac_slicer/tumor.hla.bam.bai", "tumor.hla.bam.bai"),
+                input(TestInputs.SOMATIC_BUCKET + "/lilac_slicer/reference.hla.bam", "reference.hla.bam"),
+                input(TestInputs.SOMATIC_BUCKET + "/lilac_slicer/reference.hla.bam.bai", "reference.hla.bam.bai"),
+                input(TestInputs.SOMATIC_BUCKET + "/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
+                input(TestInputs.SOMATIC_BUCKET + "/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
     }
 
     @Override
@@ -63,8 +63,8 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected void validateOutput(final LilacOutput output) {
-        assertThat(output.result()).contains(GoogleStorageLocation.of("run-reference-tumor-test/lilac", "results/" + TUMOR_LILAC_CSV));
-        assertThat(output.qc()).contains(GoogleStorageLocation.of("run-reference-tumor-test/lilac", "results/" + TUMOR_LILAC_QC_CSV));
+        assertThat(output.result()).contains(GoogleStorageLocation.of(TestInputs.SOMATIC_BUCKET + "/lilac", "results/" + TUMOR_LILAC_CSV));
+        assertThat(output.qc()).contains(GoogleStorageLocation.of(TestInputs.SOMATIC_BUCKET + "/lilac", "results/" + TUMOR_LILAC_QC_CSV));
     }
 
     @Override

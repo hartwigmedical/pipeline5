@@ -371,4 +371,4 @@ dependencies:
   - yq=3.2.3=pyhd8ed1ab_0
   - zlib=1.2.13=hd590300_5
   - zstd=1.5.5=hc292b87_0
-prefix: /root/anaconda3/envs/bioconductor-r42
+prefix: /opt/tools/anaconda3/envs/bioconductor-r42

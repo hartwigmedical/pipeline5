@@ -9,4 +9,6 @@ public interface RunMetadata {
     String set();
 
     String barcode();
+
+    String stagePrefix();
 }

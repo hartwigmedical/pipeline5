@@ -31,7 +31,7 @@ public class LaneAlignmentTest extends SubStageTest {
                 + "\"@RG\\tID:AHHKYHDSXX_S13_L001_001\\tLB:NA\\tPL:ILLUMINA\\tPU:flowCell\\tSM:NA\" "
                 + "-Y -t $(grep -c '^processor' /proc/cpuinfo) reference.fasta COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz "
                 + "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz "
-                + "| /opt/tools/samtools/1.14/samtools view --no-PG --bam --uncompressed /dev/stdin "
+                + "| /opt/tools/samtools/1.20/samtools view --no-PG --bam --uncompressed /dev/stdin "
                 + "| /opt/tools/sambamba/0.6.8/sambamba sort -o /data/output/tumor.flowCell-L001.bam /dev/stdin)");
     }
 }

@@ -36,32 +36,29 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     protected Stage<HealthCheckOutput, SomaticRunMetadata> createVictim() {
         return new HealthChecker(TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorMetricsOutput(),
-                TestInputs.referenceFlagstatOutput(),
-                TestInputs.tumorFlagstatOutput(),
                 TestInputs.purpleOutput());
     }
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of("mkdir -p /data/input/metrics",
-                "mkdir -p /data/input/flagstat",
+        return ImmutableList.of(
+                "mkdir -p /data/input/metrics",
                 "mkdir -p /data/input/purple",
-                input("run-reference-test/bam_metrics/results/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
-                input("run-tumor-test/bam_metrics/results/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
-                input("run-reference-test/flagstat/reference.flagstat", "flagstat/reference.flagstat"),
-                input("run-tumor-test/flagstat/tumor.flagstat", "flagstat/tumor.flagstat"),
-                input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
+                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/results/", "metrics"),
+                input(TestInputs.TUMOR_BUCKET + "/bam_metrics/results/", "metrics"),
+                input(TestInputs.SOMATIC_BUCKET + "/purple/results/", "purple"));
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
                 toolCommand(HEALTH_CHECKER)
-                        + " -purple_dir /data/input/purple -output_dir /data/output "
-                        + "-tumor tumor -tum_wgs_metrics_file /data/input/metrics/tumor.wgsmetrics -tum_flagstat_file "
-                        + "/data/input/flagstat/tumor.flagstat -reference reference "
-                        + "-ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -ref_flagstat_file "
-                        + "/data/input/flagstat/reference.flagstat");
+                        + " -purple_dir /data/input/purple"
+                        + " -output_dir /data/output"
+                        + " -tumor tumor"
+                        + " -tumor_metrics_dir /data/input/metrics"
+                        + " -reference reference"
+                        + " -ref_metrics_dir /data/input/metrics");
     }
 
     @Test

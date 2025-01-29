@@ -17,7 +17,6 @@ import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.output.AddDatatype;
@@ -89,18 +88,17 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final boolean includeGermline;
     private final boolean isTargeted;
 
-    public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
-            final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
+    public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics,
+                  final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LilacOutput lilacOutput,
             final LinxGermlineOutput linxGermlineOutput, final LinxSomaticOutput linxSomaticOutput, final CuppaOutput cuppaOutput,
             final VirusInterpreterOutput virusOutput, final PeachOutput peachOutput, final SigsOutput sigsOutput,
                   final ResourceFiles resourceFiles, final boolean includeGermline, final boolean isTargeted) {
-
         this.resourceFiles = resourceFiles;
-        this.refMetrics = new InputDownloadCommand(referenceMetrics.metricsOutputFile());
-        this.tumMetrics = new InputDownloadCommand(tumorMetrics.metricsOutputFile());
-        this.refFlagstat = new InputDownloadCommand(referenceFlagstat.flagstatOutputFile());
-        this.tumFlagstat = new InputDownloadCommand(tumorFlagstat.flagstatOutputFile());
+        this.refMetrics = new InputDownloadCommand(referenceMetrics.outputLocations().summary());
+        this.tumMetrics = new InputDownloadCommand(tumorMetrics.outputLocations().summary());
+        this.refFlagstat = new InputDownloadCommand(referenceMetrics.outputLocations().flagCounts());
+        this.tumFlagstat = new InputDownloadCommand(tumorMetrics.outputLocations().flagCounts());
         this.includeGermline = includeGermline;
         this.isTargeted = isTargeted;
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
@@ -112,7 +110,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.linxSomaticOutputDir = new InputDownloadCommand(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_SOMATIC_DIR);
         this.linxGermlineDataDir =
                 new InputDownloadCommand(linxGermlineOutput.linxOutputLocations().outputDirectory(), LOCAL_LINX_GERMLINE_DIR);
-        this.chordPredictionTxt = new InputDownloadCommand(chordOutput.predictions());
+        this.chordPredictionTxt = new InputDownloadCommand(chordOutput.chordOutputLocations().predictions());
         CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
         this.cuppaVisData = new InputDownloadCommand(cuppaOutputLocations.visData());
         this.cuppaVisPlot = new InputDownloadCommand(cuppaOutputLocations.visPlot());
@@ -258,7 +256,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 "-ensembl_data_dir",
                 resourceFiles.ensemblDataCache(),
                 "-signatures_etiology_tsv",
-                resourceFiles.signaturesEtiologyTsv(),
+                resourceFiles.signaturesEtiology(),
                 "-add_disclaimer");
     }
 
@@ -271,10 +269,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 "-primary_tumor_doids",
                 primaryTumorDoidsString,
-                "-tumor_sample_wgs_metrics_file",
-                tumMetrics.getLocalTargetPath(),
-                "-tumor_sample_flagstat_file",
-                tumFlagstat.getLocalTargetPath(),
+                "-tumor_metrics_dir",
+                VmDirectories.INPUT,
                 "-linx_plot_dir",
                 getLinxPlotDir(),
                 "-linx_dir",
@@ -294,10 +290,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private List<String> germlineArguments(final SomaticRunMetadata metadata) {
         return List.of("-reference_sample_id",
                 metadata.reference().sampleName(),
-                "-ref_sample_wgs_metrics_file",
-                refMetrics.getLocalTargetPath(),
-                "-ref_sample_flagstat_file",
-                refFlagstat.getLocalTargetPath(),
+                "-ref_metrics_dir",
+                VmDirectories.INPUT,
                 "-linx_germline_dir",
                 linxGermlineDataDir.getLocalTargetPath());
     }
