@@ -6,13 +6,13 @@ import com.hartwig.computeengine.execution.vm.VmDirectories;
 
 public enum HmfTool {
 
-    AMBER("4.1-rc.2", 24, 16, false), // 4.0.1 -> 4.1
+    AMBER("4.1-rc.3", 24, 16, false), // 4.0.1 -> 4.1
     BAM_TOOLS("1.3-rc.1", 24, 16, false), // 1.2.1 -> 1.3
     CHORD("2.1-rc.1", 24, 4, false), // 2.02_1.14 ->
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0-rc.1", 24, 16, false), // 1.16 -> 2.0
     CUPPA("2.3.0", 16, 4, false), // 2.1.1 -> 2.3
-    ESVEE("1.0-rc.6", 64, 32, false),
+    ESVEE("1.0-rc.7", 64, 32, false),
     HEALTH_CHECKER("3.6-rc.1", 32, 8, false), // 3.5 -> 3.6
     LILAC("1.6", 24, 16, false),
     LINX("2.0-rc.1", 16, 4, false), // 1.25 -> 2.0
