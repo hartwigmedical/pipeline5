@@ -23,6 +23,7 @@ sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/bwa-mem2/2.2.1/bwa-mem2*
+sudo chmod a+x /opt/tools/bwa-mem2/20250204.7aa5ff6/bwa-mem2*
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 
 # Local overrides for Debian 12
