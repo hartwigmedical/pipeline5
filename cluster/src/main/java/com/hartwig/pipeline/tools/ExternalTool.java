@@ -8,7 +8,7 @@ public enum ExternalTool {
     BAMCOMP("bamcomp", "bamcomp.jar", "1.3"),
     BCF_TOOLS("bcftools", "bcftools", "1.9"),
     BWA("bwa", "bwa", "0.7.17"),
-    BWA_MEM2("bwa-mem2", "bwa-mem2", "2.2.1"),
+    BWA_MEM2("bwa-mem2", "bwa-mem2", "20250204.7aa5ff6"), // 2.2.1 -> 20250204.7aa5ff6
     CIRCOS("circos", "bin/circos", "0.69.6"),
     GATK("gatk", "GenomeAnalysisTK.jar", "3.8.0"),
     KRAKEN("kraken2", "", "2.1.0"),
