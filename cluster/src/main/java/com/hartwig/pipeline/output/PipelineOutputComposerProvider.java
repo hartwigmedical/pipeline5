@@ -40,7 +40,8 @@ public class PipelineOutputComposerProvider {
         if (reportBucket == null) {
             if (!arguments.publishEventsOnly()) {
                 BucketInfo.Builder builder = BucketInfo.newBuilder(arguments.outputBucket())
-                        .setStorageClass(StorageClass.REGIONAL)
+                        .setStorageClass(StorageClass.STANDARD)
+                        .setAutoclass(BucketInfo.Autoclass.newBuilder().setEnabled(true).build())
                         .setLocation(arguments.region());
                 arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
                 reportBucket = storage.create(builder.build());
