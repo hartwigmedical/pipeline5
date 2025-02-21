@@ -130,6 +130,7 @@ public class ComparSmokeTester {
         String whoami = System.getProperty("user.name");
 
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
+                .project(SmokeTest.PROJECT)
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson("")

@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
+    protected static final String PROJECT = "hmf-build";
     protected static final String FILE_ENCODING = "UTF-8";
     protected static final String STAGED_FLAG_FILE = "STAGED";
     protected static final String INPUT_MODE_TUMOR_REF = "tumor-reference";
@@ -140,6 +141,7 @@ public class SmokeTest {
         PipelineInput pipelineInput = PdlJsonConversion.getInstance().read(sampleJson);
         String setName = pipelineInput.setName() + "-" + runTag;
         ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
+                .project(PROJECT)
                 .cleanup(false)
                 .context(Pipeline.Context.PLATINUM)
                 .sampleJson(sampleJson)
