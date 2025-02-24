@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.storage;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
@@ -50,9 +51,15 @@ public class RuntimeBucket {
         Bucket bucket = storage.get(runId);
         if (bucket == null) {
             LOGGER.info("Creating runtime bucket [{}] in Google Storage", runId);
+            var deleteAfter14Days = new BucketInfo.LifecycleRule(BucketInfo.LifecycleRule.LifecycleAction.newDeleteAction(),
+                    BucketInfo.LifecycleRule.LifecycleCondition.newBuilder().setAge(14).build());
             BucketInfo.Builder builder = BucketInfo.newBuilder(runId)
-                    .setStorageClass(StorageClass.REGIONAL)
+                    .setStorageClass(StorageClass.STANDARD)
                     .setLocation(arguments.region())
+                    // By default, soft delete is enabled, but we never want soft delete on run buckets
+                    .setSoftDeletePolicy(BucketInfo.SoftDeletePolicy.newBuilder().setRetentionDuration(Duration.ZERO).build())
+                    // auto delete after 14 days (this happens if pipeline5 crashes and doesn't clean up)
+                    .setLifecycleRules(List.of(deleteAfter14Days))
                     .setLabels(labels.asMap());
             arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
             bucket = storage.create(builder.build());
