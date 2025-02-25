@@ -73,9 +73,9 @@ public class RuntimeBucketTest {
     }
 
     @Test
-    public void usesRegionalStorageClass() {
+    public void usesStandardStorageClass() {
         defaultBucket();
-        assertThat(bucketInfo.getValue().getStorageClass()).isEqualTo(StorageClass.REGIONAL);
+        assertThat(bucketInfo.getValue().getStorageClass()).isEqualTo(StorageClass.STANDARD);
     }
 
     @Test

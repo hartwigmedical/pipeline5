@@ -2,7 +2,9 @@ package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.google.auth.CredentialTypeForMetrics;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -22,6 +24,8 @@ public class AlignerProviderTest {
     @Before
     public void setUp() throws Exception {
         credentials = mock(GoogleCredentials.class);
+        var a = mock(CredentialTypeForMetrics.class);
+        when(credentials.getMetricsCredentialType()).thenReturn(a);
         storage = mock(Storage.class);
     }
 
