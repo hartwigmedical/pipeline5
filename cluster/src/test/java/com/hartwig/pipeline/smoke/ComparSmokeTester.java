@@ -28,8 +28,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 
 public class ComparSmokeTester {
@@ -68,8 +66,6 @@ public class ComparSmokeTester {
 
         final CommandLineParser parser = new DefaultParser();
         final CommandLine cmd = parser.parse(options, args);
-
-        Configurator.setRootLevel(Level.DEBUG);
 
         ComparSmokeTester comparSmokeTester = new ComparSmokeTester(cmd);
         comparSmokeTester.run();

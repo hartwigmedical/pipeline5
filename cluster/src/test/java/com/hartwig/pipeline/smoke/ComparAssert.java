@@ -12,7 +12,6 @@ import java.util.List;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.testsupport.Resources;
 
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
@@ -40,7 +39,7 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
     public ComparAssert isEqualToTruthset(final String truthSet) {
         try {
             new ComparWrapper().run(new File(localCopyOfBucket, runName), new File(truthSet), outputDir);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to run Compar", e);
         }
         File noDifferences = new File(Resources.testResource("smoke_test/compar_no_differences"));
@@ -72,13 +71,17 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
     }
 
     private class ComparWrapper {
-        void run(final File victim, final File truthset, final File outputDir) throws ParseException {
+        void run(final File victim, final File truthset, final File outputDir) throws Exception {
 
-            List<String> arguments = List.of(
+            List<String> arguments = List.of("java",
+                    "-jar",
+                    "target/compar.jar",
                     "-match_level",
-                    "REPORTABLE", // KEY_FIELDS
+                    "REPORTABLE",
+                    // KEY_FIELDS
                     "-categories",
-                    "PURPLE,LINX,LILAC,CUPPA", // GERMLINE_VARIANT,SOMATIC_VARIANT
+                    "PURPLE,LINX,LILAC,CUPPA",
+                    // GERMLINE_VARIANT,SOMATIC_VARIANT
                     "-sample",
                     "COLO829v003T",
                     "-output_dir",
@@ -88,7 +91,7 @@ public class ComparAssert extends AbstractAssert<ComparAssert, File> {
                     "-sample_dir_new",
                     victim.getAbsolutePath());
 
-            com.hartwig.hmftools.compar.Compar.main(arguments.toArray(new String[] {}));
+            ExternalProcess.run(arguments);
         }
     }
 }
