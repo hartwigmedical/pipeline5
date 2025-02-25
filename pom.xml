@@ -37,6 +37,7 @@
         <org-reflections.version>0.9.11</org-reflections.version>
         <google-cloud-bom.version>26.52.0</google-cloud-bom.version>
         <google-api-services-serviceusage.version>v1beta1-rev20250218-2.0.0</google-api-services-serviceusage.version>
+        <guava.version>31.1-jre</guava.version>
         <events.version>1.0.0</events.version>
         <java-client.version>1.31.1</java-client.version>
         <compar.version>1.2</compar.version>
@@ -97,7 +98,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>20.0</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.immutables</groupId>
