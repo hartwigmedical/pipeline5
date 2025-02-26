@@ -14,7 +14,7 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
+  - name: europe-west4-docker.pkg.dev/hmf-build/hmf-docker/gcloud-jdk-mvn:1.7.5
     id: 'Set version for Maven'
     entrypoint: mvn
     args:
@@ -26,7 +26,7 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: eu.gcr.io/hmf-build/gcloud-jdk-mvn:1.7.5
+  - name: europe-west4-docker.pkg.dev/hmf-build/hmf-docker/gcloud-jdk-mvn:1.7.5
     id: 'Deploy artifacts to Maven repository'
     entrypoint: mvn
     timeout: 7200s
@@ -51,17 +51,17 @@ steps:
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
-  - name: 'eu.gcr.io/hmf-build/docker-tag'
+  - name: 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker/docker-tag'
     id: 'Publish Docker image'
     dir: cluster
     args:
-      - 'eu.gcr.io/hmf-build/pipeline5'
+      - 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5'
       - '$TAG_NAME'
       - 'Dockerfile'
       - '--build-arg'
       - 'VERSION=$TAG_NAME'
 images:
-  - eu.gcr.io/hmf-build/pipeline5
+  - europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5
 logsBucket: 'gs://hmf-build-logs'
 timeout: 8000s
 options:

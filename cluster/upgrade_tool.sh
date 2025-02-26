@@ -19,5 +19,5 @@ fi
 ./images/create_public_image.sh -t
 
 mvn versions:set -DnewVersion=${full}
-mvn clean install -DskipTests -Dcontainer-registry=eu.gcr.io/hmf-build/pipeline5
+mvn clean install -DskipTests -Dcontainer-registry=europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5
 mvn versions:set -DnewVersion=local-SNAPSHOT
