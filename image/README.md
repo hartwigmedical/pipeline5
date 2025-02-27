@@ -98,12 +98,12 @@ docker container image. There is no script for this but it can be done by execut
 cd /path/to/root/of/pipeline5
 mvn clean install -Prelease -DskipTests
 cd cluster
-docker build --build-arg VERSION=local-SNAPSHOT -t eu.gcr.io/hmf-build/pipeline5:{your_version} .
-docker push eu.gcr.io/hmf-build/pipeline5:{your_version}
+docker build --build-arg VERSION=local-SNAPSHOT -t europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5:{your_version} .
+docker push europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5:{your_version}
 ```
 
 Where `your_version` is some descriptive name for the image, usually prefixed with the major version of the pipeline
-(eg 5.31.pmc-1). The image can then be accessed from platinum or other docker based tools via the tag `eu.gcr.io/hmf-build/pipeline5:{your_version}`
+(eg 5.31.pmc-1). The image can then be accessed from platinum or other docker based tools via the tag `europe-west4-docker.pkg.dev/hmf-build/hmf-docker/pipeline5:{your_version}`
 
 ## Maintenance
 
