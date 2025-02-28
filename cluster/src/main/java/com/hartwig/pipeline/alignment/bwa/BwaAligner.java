@@ -79,9 +79,9 @@ public class BwaAligner implements Aligner {
     private final ExecutorService executorService;
     private final Labels labels;
 
-    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final PipelineInput input,
-            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService,
-            final Labels labels) {
+    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
+            final PipelineInput input, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final ExecutorService executorService, final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -194,27 +194,28 @@ public class BwaAligner implements Aligner {
 
     private AlignmentStatus submitLaneAlignment(final LaneInput lane, final SampleInput sample, final RuntimeBucket laneBucket,
             final RuntimeBucket rootBucket, final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles) {
-        InputDownloadCommand firstDownload =
-                new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.firstOfPairPath())));
+        InputDownloadCommand firstDownload = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
+                fastQFileName(sample.name(), lane.firstOfPairPath())));
         InputDownloadCommand secondDownload = new InputDownloadCommand(GoogleStorageLocation.of(rootBucket.name(),
                 fastQFileName(sample.name(), lane.secondOfPairPath())));
         SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
                 resourceFiles.refGenomeFile(),
                 firstDownload.getLocalTargetPath(),
-                secondDownload.getLocalTargetPath(),
-                lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                secondDownload.getLocalTargetPath(), lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
         OutputUploadCommand outputUpload =
-                new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()), RuntimeFiles.typical());
+                new OutputUploadCommand(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
+                        RuntimeFiles.typical());
 
         BashStartupScript laneBash = BashStartupScript.of(laneBucket.name());
-        laneBash.addCommand(firstDownload).addCommand(secondDownload).addCommands(alignment.bash()).addCommand(outputUpload);
+        laneBash.addCommand(firstDownload)
+                .addCommand(secondDownload)
+                .addCommands(alignment.bash())
+                .addCommand(outputUpload);
 
-        var pipelineFuture = executorService.submit(() -> runWithRetries(metadata,
-                laneBucket,
+        var pipelineFuture = executorService.submit(() -> runWithRetries(metadata, laneBucket,
                 VirtualMachineJobDefinitions.alignment(laneBash, resultsDirectory, "aligner-" + laneId(lane).toLowerCase())));
 
-        GoogleStorageLocation bamLocation =
-                GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName()));
+        GoogleStorageLocation bamLocation = GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName()));
         OutputComponent runLogComponent = new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory);
         GoogleStorageLocation logLocation = GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE);
 
@@ -225,14 +226,16 @@ public class BwaAligner implements Aligner {
             final SingleSampleRunMetadata metadata, final ResourceFiles resourceFiles, final List<GoogleStorageLocation> laneAlignmentLogs,
             final List<OutputComponent> laneAlignmentOutputComponents) {
 
-        List<InputDownloadCommand> unmergedBamDownloads = unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
+        List<InputDownloadCommand> unmergedBamDownloads =
+                unmergedBams.stream().map(InputDownloadCommand::new).collect(Collectors.toList());
         List<InputDownloadCommand> unmergedBamIndexDownloads = unmergedBams.stream()
                 .map(x -> x.transform(FileTypes::toAlignmentIndex))
                 .map(InputDownloadCommand::new)
                 .collect(Collectors.toList());
 
-        List<String> localBamPaths =
-                unmergedBamDownloads.stream().map(InputDownloadCommand::getLocalTargetPath).collect(Collectors.toList());
+        List<String> localBamPaths = unmergedBamDownloads.stream()
+                .map(InputDownloadCommand::getLocalTargetPath)
+                .collect(Collectors.toList());
         SubStageInputOutput redux =
                 new Redux(metadata.sampleName(), resourceFiles, localBamPaths).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
@@ -304,8 +307,9 @@ public class BwaAligner implements Aligner {
 
     public ComputeEngineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
-        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
-                .get(() -> computeEngine.submit(laneBucket, jobDefinition));
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
+                metadata.toString(),
+                Aligner.NAMESPACE))).get(() -> computeEngine.submit(laneBucket, jobDefinition));
     }
 
     private static String laneNamespace(final LaneInput lane) {
@@ -353,14 +357,18 @@ public class BwaAligner implements Aligner {
 
         public static AlignmentStatus combine(List<AlignmentStatus> outputs) {
 
-            return new AlignmentStatus(outputs.stream().flatMap(o -> o.pipelineFutures.stream()).collect(Collectors.toList()),
+            return new AlignmentStatus(
+                    outputs.stream().flatMap(o -> o.pipelineFutures.stream()).collect(Collectors.toList()),
                     outputs.stream().flatMap(o -> o.bamLocations.stream()).collect(Collectors.toList()),
                     outputs.stream().flatMap(o -> o.logLocations.stream()).collect(Collectors.toList()),
-                    outputs.stream().flatMap(o -> o.runLogComponents.stream()).collect(Collectors.toList()));
+                    outputs.stream().flatMap(o -> o.runLogComponents.stream()).collect(Collectors.toList())
+            );
         }
 
         public boolean alignmentSuccessfullyCompleted() {
-            return pipelineFutures.stream().map(AlignmentStatus::getFuture).noneMatch(status -> status.equals(ComputeEngineStatus.FAILED));
+            return pipelineFutures.stream()
+                    .map(AlignmentStatus::getFuture)
+                    .noneMatch(status -> status.equals(ComputeEngineStatus.FAILED));
         }
 
         private static ComputeEngineStatus getFuture(final Future<ComputeEngineStatus> future) {
