@@ -156,13 +156,13 @@ public class BwaAligner implements Aligner {
         var tumor = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? metadata.sampleName() : "___";
         var reference = metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? metadata.sampleName() : "___";
         var pipelineRun = new PipelineRun(Pipeline.DNA_6_0, tumor, reference);
-        var refDataSampleType = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? SampleType.TUMOR : SampleType.REFERENCE;
+        var sampleType = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? SampleType.TUMOR : SampleType.REFERENCE;
         // We assume the default output format for pipeline5, both the BAM and the CRAM file are 2 levels below the pipeline output root.
         var pipelineOutputLocation =
                 new PipelineOutputTemporaryLocation(URI.create(bamLocation).resolve("../../"), PipelineOutputStructure.PIPELINE5);
 
         var reduxFile =
-                PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(refDataSampleType), PipelineFiles.dataTypeIsAnyOf(dataType))
+                PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(sampleType), PipelineFiles.dataTypeIsAnyOf(dataType))
                         .stream()
                         .findFirst()
                         .map(it -> it.getUriOrNull(pipelineOutputLocation))
