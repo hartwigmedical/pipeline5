@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executors;
 
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -145,6 +147,7 @@ public class BwaAlignerTest {
 
     @Test
     public void returnsProvidedBamIfInSampleAndNotRedoDuplicateMarking() throws Exception {
+        setupMocks();
         arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
         PipelineInput input = createBamPipelineInput();
         victim = createVictimBwaAligner(input);
@@ -156,6 +159,7 @@ public class BwaAlignerTest {
 
     @Test
     public void returnsProvidedCramIfInSampleAndNotRedoDuplicateMarking() throws Exception {
+        setupMocks();
         arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
         PipelineInput input = createCramPipelineInput();
         victim = createVictimBwaAligner(input);
@@ -197,6 +201,7 @@ public class BwaAlignerTest {
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
+        when(storage.get(any(BlobId.class), any(Storage.BlobGetOption[].class))).thenReturn(mock(Blob.class));
     }
 
     private static LaneInput lane(final int index) {
