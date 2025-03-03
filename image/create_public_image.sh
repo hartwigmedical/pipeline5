@@ -102,7 +102,7 @@ if [ -n "$flavour" ]; then
 fi
 
 if [ -n "${checkout_target}" ]; then
-    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target} && sudo git tag ${image_name} && git push origin ${image_name}\""
+    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target} && sudo git tag ${image_name} && sudo git push origin ${image_name}\""
 else
     echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && sudo git push origin ${image_name}\""
 fi
