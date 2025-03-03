@@ -32,6 +32,10 @@
             <groupId>com.hartwig.pdl</groupId>
             <artifactId>pdl-spec</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig.pipeline</groupId>
+            <artifactId>pipeline-reference-data</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>

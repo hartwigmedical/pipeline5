@@ -10,6 +10,7 @@ import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFi
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,18 +30,19 @@ import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.computeengine.storage.RuntimeBucketOptions;
+import com.hartwig.gcp.StorageUtil;
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
 import com.hartwig.pipeline.ArgumentUtil;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.alignment.redux.Redux;
-import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
+import com.hartwig.pipeline.alignment.redux.Redux;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.input.Inputs;
@@ -52,6 +54,12 @@ import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.output.OutputComponent;
 import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
+import com.hartwig.pipeline.reference.api.Pipeline;
+import com.hartwig.pipeline.reference.api.PipelineFiles;
+import com.hartwig.pipeline.reference.api.PipelineOutputStructure;
+import com.hartwig.pipeline.reference.api.PipelineOutputTemporaryLocation;
+import com.hartwig.pipeline.reference.api.PipelineRun;
+import com.hartwig.pipeline.reference.api.SampleType;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -64,6 +72,7 @@ public class BwaAligner implements Aligner {
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
+    private final StorageUtil storageUtil;
     private final PipelineInput input;
     private final SampleUpload sampleUpload;
     private final ResultsDirectory resultsDirectory;
@@ -76,6 +85,7 @@ public class BwaAligner implements Aligner {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
+        this.storageUtil = new StorageUtil(storage);
         this.input = input;
         this.sampleUpload = sampleUpload;
         this.resultsDirectory = resultsDirectory;
@@ -90,10 +100,13 @@ public class BwaAligner implements Aligner {
 
         if (sample.bam().isPresent() && !arguments.redoDuplicateMarking()) {
             cleanUp(trace);
+            var bamLocation = sample.bam().get();
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)
-                    .maybeAlignments(GoogleStorageLocation.from(sample.bam().get(), arguments.project()))
+                    .maybeAlignments(GoogleStorageLocation.from(bamLocation, arguments.project()))
+                    .maybeJitterParams(locateJitterParamsFile(metadata, bamLocation))
+                    .maybeMsTable(locateMsTableFile(metadata, bamLocation))
                     .build();
         }
 
@@ -127,6 +140,43 @@ public class BwaAligner implements Aligner {
         }
         cleanUp(trace);
         return output;
+    }
+
+    private GoogleStorageLocation locateJitterParamsFile(SingleSampleRunMetadata metadata, String bamLocation) {
+        return locateFile(metadata, bamLocation, com.hartwig.pipeline.reference.api.DataType.REDUX_JITTER_PARAMS);
+    }
+
+    private GoogleStorageLocation locateMsTableFile(SingleSampleRunMetadata metadata, String bamLocation) {
+        return locateFile(metadata, bamLocation, com.hartwig.pipeline.reference.api.DataType.REDUX_MS_TABLE);
+    }
+
+    private GoogleStorageLocation locateFile(SingleSampleRunMetadata metadata, String bamLocation,
+            com.hartwig.pipeline.reference.api.DataType dataType) {
+        // Because the tumor and reference are not nullable, but they are not necessary for location the file, we use the placeholder ___
+        var tumor = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? metadata.sampleName() : "___";
+        var reference = metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? metadata.sampleName() : "___";
+        var pipelineRun = new PipelineRun(Pipeline.DNA_6_0, tumor, reference);
+        var sampleType = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? SampleType.TUMOR : SampleType.REFERENCE;
+        // We assume the default output format for pipeline5, both the BAM and the CRAM file are 2 levels below the pipeline output root.
+        var pipelineOutputLocation =
+                new PipelineOutputTemporaryLocation(URI.create(bamLocation).resolve("../../"), PipelineOutputStructure.PIPELINE5);
+
+        var reduxFile =
+                PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(sampleType), PipelineFiles.dataTypeIsAnyOf(dataType))
+                        .stream()
+                        .findFirst()
+                        .map(it -> it.getUriOrNull(pipelineOutputLocation))
+                        .map(URI::toString)
+                        .orElseThrow();
+        if (!storageUtil.exists(reduxFile)) {
+            // If the file is not found, it either means the user made a mistake, or the file really does not exist.
+            // In the first case, we let the user know by crashing pipeline5.
+            // In the second case, the user should redo marking duplicates to generate the file.
+            throw new IllegalStateException(("Duplicate marking output file not found. Expected at location: '%s'. "
+                                             + "If this is intentional, consider enabling the '--redo_duplicate_marking' flag.").formatted(
+                    reduxFile));
+        }
+        return GoogleStorageLocation.from(reduxFile, arguments.project());
     }
 
     private AlignmentStatus submitLaneAlignments(final SampleInput sample, final RuntimeBucket rootBucket,
