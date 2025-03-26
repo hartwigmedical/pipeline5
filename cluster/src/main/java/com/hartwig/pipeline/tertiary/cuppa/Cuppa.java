@@ -78,11 +78,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return cuppaCommands(metadata);
-    }
-
-    @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return cuppaCommands(metadata);
     }

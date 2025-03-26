@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -22,7 +24,6 @@ import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.cleanup.CleanupProvider;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
@@ -46,14 +47,18 @@ import com.hartwig.pipeline.tools.VersionUtils;
 import com.hartwig.pipeline.turquoise.Turquoise;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 public class PipelineMain {
-    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/root/anaconda3/bin/conda shell.bash hook`",
-            "source /root/anaconda3/bin/activate",
-            "conda activate /root/anaconda3/envs/bioconductor-r42");
+    // for perl and R to work we need to activate conda env
+    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/opt/tools/anaconda3/bin/conda shell.bash hook`",
+            "source /opt/tools/anaconda3/bin/activate",
+            "conda activate /opt/tools/anaconda3/envs/bioconductor-r42");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
@@ -65,7 +70,6 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
@@ -81,8 +85,6 @@ public class PipelineMain {
                         mode),
                 referenceBamMetricsOutputQueue,
                 tumourBamMetricsOutputQueue,
-                referenceFlagstatOutputQueue,
-                tumorFlagstatOutputQueue,
                 metadata,
                 PipelineOutputComposerProvider.from(storage, arguments, VersionUtils.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
@@ -92,7 +94,7 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
             final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final BlockingQueue<FlagstatOutput> flagstatOutputQueue,
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
             final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
@@ -112,18 +114,17 @@ public class PipelineMain {
                 arguments,
                 persistedDataset,
                 metricsOutputQueue,
-                flagstatOutputQueue,
                 germlineCallerOutputQueue);
     }
 
     public static void main(final String[] args) {
         try {
+            Instant start = Instant.now();
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
+            logCompletionMessage(state, Duration.between(start, Instant.now()));
             if (state.status() != PipelineStatus.FAILED) {
-                LOGGER.info(completionMessage(state));
                 System.exit(0);
             } else {
-                LOGGER.error(completionMessage(state));
                 System.exit(1);
             }
         } catch (ParseException e) {
@@ -135,12 +136,25 @@ public class PipelineMain {
         }
     }
 
-    public static String completionMessage(final PipelineState state) {
-        return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
+    public static void logCompletionMessage(final PipelineState state, final Duration timeTaken) {
+        Level logLevel = state.status() != PipelineStatus.FAILED ? Level.INFO : Level.ERROR;
+        LOGGER.atLevel(logLevel).log("Pipeline completed with status [{}], time: {}, summary: [PipelineState{stageOutputs=[",
+                state.status(),
+                DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"));
+        state.stageOutputs().forEach(stageOutput -> LOGGER.atLevel(logLevel).log("    {}:{}",
+                stageOutput.name(), stageOutput.status()));
+        LOGGER.atLevel(logLevel).log("]}]");
     }
 
     public PipelineState start(final Arguments arguments) {
-        LOGGER.info("Arguments are [{}]", arguments);
+        if (arguments.logDebug()) {
+            // slf4j does not provide functionality to set logging level, therefore we must
+            // set it at the underlying log4j backend
+            Configurator.setLevel("com.hartwig", org.apache.logging.log4j.Level.DEBUG);
+        }
+        for (String line : ArgumentUtil.prettyPrint(arguments).split("\n")) {
+            LOGGER.info(line);
+        }
         VersionUtils.printAll();
         try {
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
@@ -162,8 +176,6 @@ public class PipelineMain {
                 turquoise.publishStarted();
                 BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
                 BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
-                BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
-                BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
                 BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
                 StartingPoint startingPoint = new StartingPoint(arguments);
                 PersistedDataset persistedDataset = new InputPersistedDataset(input, arguments.project());
@@ -175,7 +187,6 @@ public class PipelineMain {
                         somaticRunMetadata,
                         referenceBamMetricsOutputQueue,
                         germlineCallerOutputQueue,
-                        referenceFlagstatOutputQueue,
                         startingPoint,
                         persistedDataset,
                         mode),
@@ -187,7 +198,6 @@ public class PipelineMain {
                                 somaticRunMetadata,
                                 tumorBamMetricsOutputQueue,
                                 germlineCallerOutputQueue,
-                                tumorFlagstatOutputQueue,
                                 startingPoint,
                                 persistedDataset,
                                 mode),
@@ -197,8 +207,6 @@ public class PipelineMain {
                                 somaticRunMetadata,
                                 referenceBamMetricsOutputQueue,
                                 tumorBamMetricsOutputQueue,
-                                referenceFlagstatOutputQueue,
-                                tumorFlagstatOutputQueue,
                                 startingPoint,
                                 persistedDataset,
                                 mode),

@@ -25,16 +25,16 @@ public class VmExecutionLogSummary {
         if (!failures.isEmpty()) {
             LOGGER.error("Failures in pipeline stages. Printing each failures full run.log here");
             for (StageOutput failure : failures) {
-                for (Blob log : failure.failedLogLocations()
-                        .stream()
-                        .map(GoogleStorageLocation::asBlobId)
-                        .map(storage::get)
-                        .collect(Collectors.toList())) {
-                    LOGGER.error("========================================== start {} ==========================================",
-                            log.getName());
-                    LOGGER.error(new String(log.getContent()));
-                    LOGGER.error("========================================== end {} ==========================================",
-                            log.getName());
+                for (GoogleStorageLocation logLocation : failure.failedLogLocations()) {
+                    Blob log = storage.get(logLocation.asBlobId());
+                    if (log != null) {
+                        LOGGER.error("========================================== start {} ==========================================", log.getName());
+                        LOGGER.error(new String(log.getContent()));
+                        LOGGER.error("========================================== end {} ==========================================", log.getName());
+                    }
+                    else {
+                        LOGGER.error("run log [{}] missing", logLocation);
+                    }
                 }
             }
         }

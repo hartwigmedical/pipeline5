@@ -1,13 +1,14 @@
 package com.hartwig.pipeline.tools;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Collections.emptyList;
 
 public final class VersionUtils {
 
@@ -18,19 +19,18 @@ public final class VersionUtils {
         logger.info("HMF tool versions:");
 
         for (HmfTool tool : HmfTool.values()) {
-            logger.info(String.format("%s: %s", tool.toString(), tool.versionInfo()));
+            logger.info("    {}: {}", tool, tool.versionInfo());
         }
 
         logger.info("External tools versions:");
         for (ExternalTool tool : ExternalTool.values()) {
-            logger.info(String.format("%s: %s", tool.toString(), tool.getVersion()));
+            logger.info("    {}: {}", tool, tool.getVersion());
         }
 
         Stream.of(VersionUtils.class.getDeclaredFields())
                 .filter(field -> Modifier.isStatic(field.getModifiers()))
                 .map(VersionUtils::format)
                 .forEach(logger::info);
-        logger.info("]");
     }
 
     public static String pipelineVersion() {
@@ -65,7 +65,7 @@ public final class VersionUtils {
     }
 
     public static String imageVersion() {
-        return "5-38";
+        return "6-0";
     }
 
     public static void main(final String[] args) {

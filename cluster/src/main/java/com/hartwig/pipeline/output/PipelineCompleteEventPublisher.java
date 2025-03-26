@@ -24,7 +24,6 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -108,8 +107,11 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
             outputDataset.serializeAndUpload();
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
+                            .engine(Pipeline.Engine.PIPELINE5)
+                            .molecule(Pipeline.Molecule.DNA)
                             .sample(tumorSampleName.orElseGet(refSampleName::orElseThrow))
                             .bucket(sourceBucket.getName())
+                            .rootPath(Optional.of(metadata.set()))
                             .runId(metadata.maybeExternalIds().get().runId())
                             .setId(metadata.maybeExternalIds().get().setId())
                             .context(context)
@@ -130,7 +132,6 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
                 ? InNamespace.of(CramConversion.NAMESPACE)
                 : InNamespace.of(Aligner.NAMESPACE)).or(InNamespace.of(BamMetrics.NAMESPACE))
                 .or(InNamespace.of(SnpGenotype.NAMESPACE))
-                .or(InNamespace.of(Flagstat.NAMESPACE))
                 .test(blobWithMd5);
     }
 

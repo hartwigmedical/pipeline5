@@ -20,8 +20,10 @@ public abstract class TertiaryStage<S extends StageOutput> implements Stage<S, S
     private final InputDownloadCommand referenceBaiDownload;
 
     public TertiaryStage(final AlignmentPair alignmentPair) {
+
         tumorBamDownload = new InputDownloadCommand(alignmentPair.tumor().alignments());
         tumorBaiDownload = new InputDownloadCommand(alignmentPair.tumor().alignments().transform(FileTypes::toAlignmentIndex));
+
         referenceBamDownload = new InputDownloadCommand(alignmentPair.reference().alignments());
         referenceBaiDownload = new InputDownloadCommand(alignmentPair.reference().alignments().transform(FileTypes::toAlignmentIndex));
     }
@@ -36,11 +38,6 @@ public abstract class TertiaryStage<S extends StageOutput> implements Stage<S, S
         return arguments.runTertiary();
     }
 
-    protected InputDownloadCommand getTumorBamDownload() {
-        return tumorBamDownload;
-    }
-
-    protected InputDownloadCommand getReferenceBamDownload() {
-        return referenceBamDownload;
-    }
+    protected InputDownloadCommand getTumorBamDownload() { return tumorBamDownload; }
+    protected InputDownloadCommand getReferenceBamDownload() { return referenceBamDownload; }
 }

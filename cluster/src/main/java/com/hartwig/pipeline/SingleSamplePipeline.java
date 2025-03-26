@@ -15,8 +15,6 @@ import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.datatypes.FileTypes;
-import com.hartwig.pipeline.flagstat.Flagstat;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -43,13 +41,12 @@ public class SingleSamplePipeline {
     private final Arguments arguments;
     private final PersistedDataset persistedDataset;
     private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
-    private final BlockingQueue<FlagstatOutput> flagstatOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
             final Aligner aligner, final PipelineOutputComposer composer, final ExecutorService executorService, final Arguments arguments,
             final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
@@ -58,7 +55,6 @@ public class SingleSamplePipeline {
         this.arguments = arguments;
         this.persistedDataset = persistedDataset;
         this.metricsOutputQueue = metricsOutputQueue;
-        this.flagstatOutputQueue = flagstatOutputQueue;
         this.germlineCallerOutputQueue = germlineCallerOutputQueue;
     }
 
@@ -76,8 +72,6 @@ public class SingleSamplePipeline {
                     new BamMetrics(resourceFiles, alignmentOutput, persistedDataset, arguments)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
-            Future<FlagstatOutput> flagstatOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput, persistedDataset)));
             Future<CramOutput> cramOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                     new CramConversion(alignmentOutput, metadata.type(), resourceFiles)));
 
@@ -91,11 +85,8 @@ public class SingleSamplePipeline {
 
             BamMetricsOutput bamMetricsOutput = futurePayload(bamMetricsFuture);
             metricsOutputQueue.put(bamMetricsOutput);
-            FlagstatOutput flagstatOutput = futurePayload(flagstatOutputFuture);
-            flagstatOutputQueue.put(flagstatOutput);
             composer.add(state.add(bamMetricsOutput));
             composer.add(state.add(futurePayload(unifiedGenotyperFuture)));
-            composer.add(state.add(flagstatOutput));
             composer.add(state.add(futurePayload(cramOutputFuture)));
             composer.compose(metadata,  Folder.from(metadata));
             eventListener.complete(state);

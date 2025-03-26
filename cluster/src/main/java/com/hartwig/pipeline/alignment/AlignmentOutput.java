@@ -19,9 +19,19 @@ public interface AlignmentOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeAlignments();
 
+    Optional<GoogleStorageLocation> maybeJitterParams();
+
+    Optional<GoogleStorageLocation> maybeMsTable();
+
     default GoogleStorageLocation alignments() {
         return maybeAlignments().orElse(GoogleStorageLocation.empty());
     }
+
+    default GoogleStorageLocation jitterParams() {
+        return maybeJitterParams().orElse(GoogleStorageLocation.empty());
+    }
+
+    default GoogleStorageLocation msTable() { return maybeMsTable().orElse(GoogleStorageLocation.empty()); }
 
     static ImmutableAlignmentOutput.Builder builder() {
         return ImmutableAlignmentOutput.builder();

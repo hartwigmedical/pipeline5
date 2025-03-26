@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executors;
 
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -35,6 +37,8 @@ import org.mockito.ArgumentCaptor;
 public class BwaAlignerTest {
 
     private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
+    public static final String GS_BUCKET_PATH_REFERENCE_BAM = "gs://bucket/path/reference.bam";
+    public static final String GS_BUCKET_PATH_REFERENCE_CRAM = "gs://bucket/path/reference.cram";
     private BwaAligner victim;
     private SampleUpload sampleUpload;
     private Storage storage;
@@ -51,14 +55,7 @@ public class BwaAlignerTest {
                 .setName(TestInputs.SET)
                 .reference(SampleInput.builder().name(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build())
                 .build();
-        victim = new BwaAligner(arguments,
-                computeEngine,
-                storage,
-                input,
-                sampleUpload,
-                ResultsDirectory.defaultDirectory(),
-                Executors.newSingleThreadExecutor(),
-                mock(Labels.class));
+        victim = createVictimBwaAligner(input);
     }
 
     @Test
@@ -70,11 +67,62 @@ public class BwaAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/flowcell-L001");
-        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/flowcell-L002");
+        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001");
+        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L002");
 
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-flowcell-l001");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-flowcell-l002");
+    }
+
+    @Test
+    public void skipLaneAlignmentIfRedoDuplicatesFromBam() throws Exception {
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(true).build();
+        PipelineInput input = createBamPipelineInput();
+        victim = createVictimBwaAligner(input);
+
+        setupMocks();
+        ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
+                ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
+        victim.run(METADATA);
+
+        assertThat(bucketCaptor.getAllValues()
+                .stream()
+                .noneMatch(b -> b.name().equals(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001"))).isTrue();
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("merge-redux");
+    }
+
+    @Test
+    public void skipLaneAlignmentIfRedoDuplicatesFromCram() throws Exception {
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(true).build();
+        PipelineInput input = createCramPipelineInput();
+        victim = createVictimBwaAligner(input);
+
+        setupMocks();
+        ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
+                ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
+        when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
+        victim.run(METADATA);
+
+        assertThat(bucketCaptor.getAllValues()
+                .stream()
+                .noneMatch(b -> b.name().equals(TestInputs.REFERENCE_BUCKET + "/aligner/flowcell-L001"))).isTrue();
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("merge-redux");
+    }
+
+    @Test
+    public void outputBamIfRedoDuplicatesFromCram() throws Exception {
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(true).build();
+        PipelineInput input = createCramPipelineInput();
+        victim = createVictimBwaAligner(input);
+        setupMocks();
+        when(computeEngine.submit(any(), any())).thenReturn(ComputeEngineStatus.SUCCESS);
+        AlignmentOutput output = victim.run(METADATA);
+        assertThat(output.alignments().path()).endsWith(".bam");
     }
 
     @Test
@@ -93,18 +141,36 @@ public class BwaAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(ComputeEngineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference-test/aligner");
-        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-markdup");
+        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo(TestInputs.REFERENCE_BUCKET + "/aligner");
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-redux");
     }
 
     @Test
-    public void returnsProvidedBamIfInSample() throws Exception {
-        String gsUrl = "gs://bucket/path/reference.bam";
-        PipelineInput input = PipelineInput.builder()
-                .setName(METADATA.set())
-                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(gsUrl).build())
-                .build();
-        victim = new BwaAligner(arguments,
+    public void returnsProvidedBamIfInSampleAndNotRedoDuplicateMarking() throws Exception {
+        setupMocks();
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
+        PipelineInput input = createBamPipelineInput();
+        victim = createVictimBwaAligner(input);
+        AlignmentOutput output = victim.run(METADATA);
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(GS_BUCKET_PATH_REFERENCE_BAM, arguments.project()));
+        assertThat(output.sample()).isEqualTo(METADATA.sampleName());
+        assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
+    }
+
+    @Test
+    public void returnsProvidedCramIfInSampleAndNotRedoDuplicateMarking() throws Exception {
+        setupMocks();
+        arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(false).build();
+        PipelineInput input = createCramPipelineInput();
+        victim = createVictimBwaAligner(input);
+        AlignmentOutput output = victim.run(METADATA);
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(GS_BUCKET_PATH_REFERENCE_CRAM, arguments.project()));
+        assertThat(output.sample()).isEqualTo(METADATA.sampleName());
+        assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
+    }
+
+    private BwaAligner createVictimBwaAligner(final PipelineInput input) {
+        return new BwaAligner(arguments,
                 computeEngine,
                 storage,
                 input,
@@ -112,19 +178,30 @@ public class BwaAlignerTest {
                 ResultsDirectory.defaultDirectory(),
                 Executors.newSingleThreadExecutor(),
                 mock(Labels.class));
-        AlignmentOutput output = victim.run(METADATA);
-        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.from(gsUrl, arguments.project()));
-        assertThat(output.sample()).isEqualTo(METADATA.sampleName());
-        assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
+    }
+
+    private static PipelineInput createBamPipelineInput() {
+        return PipelineInput.builder()
+                .setName(METADATA.set())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(GS_BUCKET_PATH_REFERENCE_BAM).build())
+                .build();
+    }
+
+    private static PipelineInput createCramPipelineInput() {
+        return PipelineInput.builder()
+                .setName(METADATA.set())
+                .reference(SampleInput.builder().name(METADATA.sampleName()).bam(GS_BUCKET_PATH_REFERENCE_CRAM).build())
+                .build();
     }
 
     private void setupMocks() {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
-        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase() + "-test";
+        String rootBucketName = TestInputs.REFERENCE_BUCKET;
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
+        when(storage.get(any(BlobId.class), any(Storage.BlobGetOption[].class))).thenReturn(mock(Blob.class));
     }
 
     private static LaneInput lane(final int index) {

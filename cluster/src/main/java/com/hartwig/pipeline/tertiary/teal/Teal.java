@@ -17,7 +17,7 @@ import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
-import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
@@ -32,16 +32,19 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
-import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 @Namespace(Teal.NAMESPACE)
-public class Teal extends TertiaryStage<TealOutput> {
-
+public class Teal implements Stage<TealOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "teal";
 
+    private static final String TEAL_APP_CLASS = "com.hartwig.hmftools.teal.TealPipelineApp";
+
+    private final InputDownloadCommand tumorTelBamDownload;
+    private final InputDownloadCommand germlineTelBamDownload;
     private final InputDownloadCommand purpleOutputDirDownload;
     private final InputDownloadCommand cobaltOutputDirDownload;
 
@@ -52,18 +55,18 @@ public class Teal extends TertiaryStage<TealOutput> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Teal(final AlignmentPair alignmentPair,
-            final PurpleOutput purpleOutput,
-            final CobaltOutput cobaltOutput,
-            final BamMetricsOutput referenceBamMetricsOutput,
-            final BamMetricsOutput tumorBamMetricsOutput,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        super(alignmentPair);
+    public Teal(final PurpleOutput purpleOutput, final CobaltOutput cobaltOutput, final BamMetricsOutput referenceBamMetricsOutput,
+            final BamMetricsOutput tumorBamMetricsOutput, final TealBamOutput tealBamOutput, final ResourceFiles resourceFiles,
+            final PersistedDataset persistedDataset) {
+
+        tumorTelBamDownload = new InputDownloadCommand(tealBamOutput.somaticTelbam().orElse(GoogleStorageLocation.empty()));
+        germlineTelBamDownload = new InputDownloadCommand(tealBamOutput.germlineTelbam().orElse(GoogleStorageLocation.empty()));
+
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
         cobaltOutputDirDownload = new InputDownloadCommand(cobaltOutput.outputDirectory());
-        referenceBamMetricsDownload = new InputDownloadCommand(referenceBamMetricsOutput.metricsOutputFile());
-        tumorBamMetricsDownload = new InputDownloadCommand(tumorBamMetricsOutput.metricsOutputFile());
+        referenceBamMetricsDownload = new InputDownloadCommand(referenceBamMetricsOutput.outputLocations().summary());
+        tumorBamMetricsDownload = new InputDownloadCommand(tumorBamMetricsOutput.outputLocations().summary());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -75,14 +78,7 @@ public class Teal extends TertiaryStage<TealOutput> {
 
     @Override
     public List<BashCommand> inputs() {
-
-        // add all download of the super class
-        List<BashCommand> commands = new ArrayList<>(super.inputs());
-        commands.add(purpleOutputDirDownload);
-        commands.add(cobaltOutputDirDownload);
-        commands.add(referenceBamMetricsDownload);
-        commands.add(tumorBamMetricsDownload);
-        return ImmutableList.copyOf(commands);
+        return ImmutableList.of(purpleOutputDirDownload, cobaltOutputDirDownload, referenceBamMetricsDownload, tumorBamMetricsDownload);
     }
 
     @Override
@@ -93,48 +89,50 @@ public class Teal extends TertiaryStage<TealOutput> {
         addTumor(arguments, metadata);
         addReference(arguments, metadata);
         addCommonArguments(arguments);
+        BashCommand tealCommand = formTealCommand(arguments);
 
-        return formCommand(arguments);
+        return List.of(tumorTelBamDownload,
+                germlineTelBamDownload,
+                SamtoolsCommand.index(tumorTelBamDownload.getLocalTargetPath()),
+                SamtoolsCommand.index(germlineTelBamDownload.getLocalTargetPath()),
+                tealCommand);
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addTumor(arguments, metadata);
         addCommonArguments(arguments);
+        BashCommand tealCommand = formTealCommand(arguments);
 
-        return formCommand(arguments);
+        return List.of(tumorTelBamDownload, SamtoolsCommand.index(tumorTelBamDownload.getLocalTargetPath()), tealCommand);
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addReference(arguments, metadata);
         addCommonArguments(arguments);
+        BashCommand tealCommand = formTealCommand(arguments);
 
-        return formCommand(arguments);
+        return List.of(germlineTelBamDownload, SamtoolsCommand.index(germlineTelBamDownload.getLocalTargetPath()), tealCommand);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
-        List<BashCommand> commands = new ArrayList<>();
-        commands.add(JavaCommandFactory.javaJarCommand(TEAL, arguments));
-        return commands;
+    private BashCommand formTealCommand(final List<String> arguments) {
+        return JavaCommandFactory.javaClassCommand(TEAL, TEAL_APP_CLASS, arguments);
     }
 
     private void addTumor(final List<String> arguments, final SomaticRunMetadata metadata) {
         arguments.add(String.format("-tumor %s", metadata.tumor().sampleName()));
-        arguments.add(String.format("-tumor_bam %s", getTumorBamDownload().getLocalTargetPath()));
+        arguments.add(String.format("-tumor_bam %s", tumorTelBamDownload.getLocalTargetPath()));
         arguments.add(String.format("-tumor_wgs_metrics %s", tumorBamMetricsDownload.getLocalTargetPath()));
     }
 
     private void addReference(final List<String> arguments, final SomaticRunMetadata metadata) {
         arguments.add(String.format("-reference %s", metadata.reference().sampleName()));
-        arguments.add(String.format("-reference_bam %s", getReferenceBamDownload().getLocalTargetPath()));
+        arguments.add(String.format("-reference_bam %s", germlineTelBamDownload.getLocalTargetPath()));
         arguments.add(String.format("-reference_wgs_metrics %s", referenceBamMetricsDownload.getLocalTargetPath()));
     }
 
@@ -156,26 +154,22 @@ public class Teal extends TertiaryStage<TealOutput> {
             final ResultsDirectory resultsDirectory) {
 
         ImmutableTealOutputLocations.Builder outputLocationsBuilder = TealOutputLocations.builder();
-                //.outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true));
+        //.outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true));
 
         metadata.maybeTumor().ifPresent(tumor -> {
             final String tumorSampleName = tumor.sampleName();
             String somaticTellength = tellength(tumorSampleName);
-            String somaticTelbam = telbam(tumorSampleName);
             String somaticBreakend = breakend(tumorSampleName);
 
             outputLocationsBuilder.somaticTellength(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticTellength)))
-                    .somaticTelbam(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticTelbam)))
                     .somaticBreakend(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticBreakend)));
         });
 
         metadata.maybeReference().ifPresent(reference -> {
             final String germlineSampleName = reference.sampleName();
             String germlineTellength = tellength(germlineSampleName);
-            String germlineTelbam = telbam(germlineSampleName);
 
-            outputLocationsBuilder.germlineTellength(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineTellength)))
-                    .germlineTelbam(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineTelbam)));
+            outputLocationsBuilder.germlineTellength(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineTellength)));
         });
 
         return TealOutput.builder()
@@ -197,22 +191,15 @@ public class Teal extends TertiaryStage<TealOutput> {
 
         final String tumorSampleName = metadata.tumor().sampleName();
         String somaticTellength = tellength(tumorSampleName);
-        String somaticTelbam = telbam(tumorSampleName);
         String somaticBreakend = breakend(tumorSampleName);
         final String germlineSampleName = metadata.reference().sampleName();
         String germlineTellength = tellength(germlineSampleName);
-        String germlineTelbam = telbam(germlineSampleName);
 
         GoogleStorageLocation somaticTellengthLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
                 DataType.TEAL_SOMATIC_TELLENGTH,
                 somaticTellength);
-        GoogleStorageLocation somaticTelbamLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.TEAL_SOMATIC_TELBAM,
-                somaticTelbam);
         GoogleStorageLocation somaticBreakendLocation = persistedOrDefault(metadata.sampleName(),
                 metadata.set(),
                 metadata.bucket(),
@@ -223,18 +210,11 @@ public class Teal extends TertiaryStage<TealOutput> {
                 metadata.bucket(),
                 DataType.TEAL_GERMLINE_TELLENGTH,
                 germlineTellength);
-        GoogleStorageLocation germlineTelbamLocation = persistedOrDefault(metadata.sampleName(),
-                metadata.set(),
-                metadata.bucket(),
-                DataType.TEAL_GERMLINE_TELBAM,
-                germlineTelbam);
 
         ImmutableTealOutputLocations.Builder outputLocationsBuilder = TealOutputLocations.builder()
                 .somaticTellength(somaticTellengthLocation)
-                .somaticTelbam(somaticTelbamLocation)
                 .somaticBreakend(somaticBreakendLocation)
-                .germlineTellength(germlineTellengthLocation)
-                .germlineTelbam(germlineTelbamLocation);
+                .germlineTellength(germlineTellengthLocation);
 
         return TealOutput.builder()
                 .status(PipelineStatus.PERSISTED)
@@ -254,8 +234,8 @@ public class Teal extends TertiaryStage<TealOutput> {
             String somaticBreakend = breakend(tumorSampleName);
 
             datatypes.add(new AddDatatype(DataType.TEAL_SOMATIC_TELLENGTH,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticTellength)));
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), somaticTellength)));
             datatypes.add(new AddDatatype(DataType.TEAL_SOMATIC_TELBAM,
                     metadata.barcode(),
                     new ArchivePath(Folder.root(), namespace(), somaticTelbam)));
@@ -285,8 +265,8 @@ public class Teal extends TertiaryStage<TealOutput> {
         return arguments.runTertiary() && !arguments.useTargetRegions();
     }
 
-    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType dataType, final String fileName) {
+    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket, final DataType dataType,
+            final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

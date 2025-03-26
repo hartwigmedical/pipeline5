@@ -45,11 +45,6 @@ version="$($VERSION_CMD)"
 set +e
 [[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 
-declare -A tool_versions
-while read tool tool_version; do
-   tool_versions[$tool]="$tool_version"
-done <<< "$(${VERSION_CMD} tools)"
-
 echo "Building public image for pipeline version ${version}"
 image_family="pipeline5-${version}${flavour+"-$flavour"}"
 source_instance="${image_family}-$(whoami)"
@@ -68,7 +63,7 @@ fi
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
 set -e
-GCL="gcloud beta compute --project=${PROJECT} --verbosity=error"
+GCL="gcloud compute --project=${PROJECT} --verbosity=error"
 SSH_ARGS="--zone=${ZONE} --tunnel-through-iap"
 SSH="$GCL ssh $source_instance ${SSH_ARGS}"
 generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
@@ -107,7 +102,7 @@ if [ -n "$flavour" ]; then
 fi
 
 if [ -n "${checkout_target}" ]; then
-    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target} && sudo git tag ${image_name} && git push origin ${image_name}\""
+    echo "$SSH --command=\"cd /opt/resources && sudo git checkout ${checkout_target} && sudo git tag ${image_name} && sudo git push origin ${image_name}\""
 else
     echo "$SSH --command=\"cd /opt/resources && sudo git tag ${image_name} && sudo git push origin ${image_name}\""
 fi

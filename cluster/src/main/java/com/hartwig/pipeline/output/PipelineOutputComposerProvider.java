@@ -40,10 +40,11 @@ public class PipelineOutputComposerProvider {
         if (reportBucket == null) {
             if (!arguments.publishEventsOnly()) {
                 BucketInfo.Builder builder = BucketInfo.newBuilder(arguments.outputBucket())
-                        .setStorageClass(StorageClass.REGIONAL)
+                        .setStorageClass(StorageClass.STANDARD)
+                        .setAutoclass(BucketInfo.Autoclass.newBuilder().setEnabled(true).build())
                         .setLocation(arguments.region());
                 arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
-                storage.create(builder.build());
+                reportBucket = storage.create(builder.build());
             } else {
                 LOGGER.warn("Output bucket [{}] does not exist and pipeline invoked in publish-only mode", arguments.outputBucket());
             }

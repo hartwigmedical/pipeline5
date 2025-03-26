@@ -61,10 +61,13 @@ public class FullPipeline {
         tumorSampleEventListener.register(trapTumorAlignmentComplete);
         tumorSampleEventListener.register(trapTumorPipelineComplete);
         executorService.submit(() -> metadata.maybeReference()
-                .map(reference -> runPipeline(referencePipeline, reference, bothSingleSamplesAlignmentComplete))
+                .map(reference -> runPipeline(referencePipeline,
+                        reference,
+                        bothSingleSamplesAlignmentComplete,
+                        bothSingleSamplesPipelineComplete))
                 .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
         executorService.submit(() -> metadata.maybeTumor()
-                .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesAlignmentComplete))
+                .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete))
                 .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
         waitForSingleSamples(bothSingleSamplesAlignmentComplete);
 
@@ -105,12 +108,13 @@ public class FullPipeline {
     }
 
     private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata,
-            final CountDownLatch latch) {
+            final CountDownLatch alignmentLatch, final CountDownLatch pipelineCompleteLatch) {
         try {
             return pipeline.run(metadata);
         } catch (Exception e) {
             LOGGER.error("Could not run single sample pipeline. ", e);
-            latch.countDown();
+            alignmentLatch.countDown();
+            pipelineCompleteLatch.countDown();
             return empty();
         }
     }

@@ -21,8 +21,8 @@ class BamMetricsCommand extends JavaJarCommand
         super(BAM_TOOLS.getToolName(),
                 BAM_TOOLS.runVersion(),
                 BAM_TOOLS.jar(),
-                BAM_TOOLS.maxHeapStr(),
                 formArguments(sampleId, inputBam, resourceFiles, outputDir, threads, targetRegionsBed));
+        withMaxHeapPercentage(BAM_TOOLS.getMaxHeapPercentage());
     }
 
     private static List<String> formArguments(
@@ -38,7 +38,6 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add(format("-output_dir %s", outputDir));
         arguments.add("-log_level INFO");
         arguments.add(format("-threads %s", threads));
-        arguments.add("-write_old_style");
 
         if(targetRegionsBed != null)
             arguments.add(format("-regions_file %s", targetRegionsBed));

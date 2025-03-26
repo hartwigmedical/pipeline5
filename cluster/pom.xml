@@ -29,12 +29,12 @@
             <artifactId>events-pubsub</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>compar</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.hartwig.pdl</groupId>
             <artifactId>pdl-spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hartwig.pipeline</groupId>
+            <artifactId>pipeline-reference-data</artifactId>
         </dependency>
 
         <dependency>
@@ -58,24 +58,8 @@
             <artifactId>google-cloud-storage</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-serviceusage</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-pubsub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -105,10 +89,10 @@
             <groupId>com.hartwig.cloud-sdk</groupId>
             <artifactId>compute-engine</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.github.samtools</groupId>
-            <artifactId>htsjdk</artifactId>
-            <version>${htsjdk.version}</version>
+            <groupId>com.hartwig</groupId>
+            <artifactId>compar</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -190,6 +174,11 @@
                                     <goal>copy-dependencies</goal>
                                 </goals>
                                 <configuration>
+                                    <!--
+                                      Only include dependencies with scope "compile" and "runtime"
+                                      https://maven.apache.org/plugins/maven-dependency-plugin/copy-dependencies-mojo.html#includeScope
+                                    -->
+                                    <includeScope>runtime</includeScope>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>false</overWriteSnapshots>

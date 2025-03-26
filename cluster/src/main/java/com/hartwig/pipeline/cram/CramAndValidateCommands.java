@@ -49,7 +49,7 @@ public class CramAndValidateCommands {
                         "'grep -v ^@PG'",
                         outputCram),
                 new VersionedToolCommand(SAMTOOLS.getToolName(), SAMTOOLS.getBinary(), SAMTOOLS.getVersion(), "index", outputCram),
-                JavaCommandFactory.javaClassCommand(BAMCOMP, "com.hartwig.bamcomp.BamCompMain", "4G", javaClassCommandArguments()));
+                JavaCommandFactory.javaClassCommand(BAMCOMP, "com.hartwig.bamcomp.BamCompMain", javaClassCommandArguments()));
     }
 
     private List<String> javaClassCommandArguments() {

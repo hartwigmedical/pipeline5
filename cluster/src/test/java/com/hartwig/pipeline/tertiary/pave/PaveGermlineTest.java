@@ -38,21 +38,21 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     protected List<String> expectedCommands() {
         return ImmutableList.of(
                 toolCommand(PAVE)
-                        + " -sample tumor "
-                        + "-vcf_file /data/input/tumor.germline.vcf.gz "
-                        + "-output_vcf_file /data/output/tumor.pave.germline.vcf.gz "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-ref_genome_version V37 "
-                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                        + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
-                        + "-mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz "
-                        + "-gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz "
-                        + "-read_pass_only "
-                        + "-threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-clinvar_vcf /opt/resources/sage/37/clinvar.37.vcf.gz "
-                        + "-blacklist_bed /opt/resources/sage/37/KnownBlacklist.germline.37.bed "
-                        + "-blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz "
-                        + "-gnomad_pon_filter -1");
+                        + " -sample tumor"
+                        + " -vcf_file /data/input/tumor.germline.vcf.gz"
+                        + " -output_vcf_file /data/output/tumor.pave.germline.vcf.gz"
+                        + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
+                        + " -ref_genome_version V37"
+                        + " -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
+                        + " -ensembl_data_dir /opt/resources/ensembl_data_cache/37/"
+                        + " -mappability_bed /opt/resources/mappability/37/mappability_150.37.bed.gz"
+                        + " -gnomad_freq_file /opt/resources/gnomad/37/gnomad_variants_v37.csv.gz"
+                        + " -clinvar_vcf /opt/resources/sage/37/clinvar.37.vcf.gz"
+                        + " -read_pass_only"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -blacklist_bed /opt/resources/sage/37/KnownBlacklist.germline.37.bed"
+                        + " -blacklist_vcf /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz"
+                        + " -gnomad_no_filter");
     }
 
     @Override
@@ -63,13 +63,13 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
     @Override
     protected List<String> expectedInputs() {
         return List.of(
-                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input("run-reference-tumor-test/sage_germline/results/tumor.germline.vcf.gz.tbi", "tumor.germline.vcf.gz.tbi"));
+                input(TestInputs.SOMATIC_BUCKET + "/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
+                input(TestInputs.SOMATIC_BUCKET + "/sage_germline/results/tumor.germline.vcf.gz.tbi", "tumor.germline.vcf.gz.tbi"));
     }
 
     @Override
     protected String expectedRuntimeBucketName() {
-        return "run-reference-tumor-test";
+        return TestInputs.SOMATIC_BUCKET;
     }
 
     @Override
