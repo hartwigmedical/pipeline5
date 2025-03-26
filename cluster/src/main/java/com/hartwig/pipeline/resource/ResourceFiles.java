@@ -21,45 +21,70 @@ public interface ResourceFiles {
     }
 
     RefGenomeVersion version();
-        String versionDirectory();
+
+    String versionDirectory();
 
     // ref genome and mappability
     String refGenomeFile();
+
     String mappabilityBed();
+
     String unmapRegionsFile();
+
     String msiJitterSitesFile();
 
     // drivers and other common files
     String ensemblDataCache();
+
     String driverGenePanel();
 
     // copy number
     String gcProfileFile();
+
     String diploidRegionsBed();
+
     String amberHeterozygousLoci();
+
     String purpleCohortGermlineDeletions();
 
     // variant calling
     String sageSomaticHotspots();
+
     String sagePanelBed();
+
     String sageGermlineHotspots();
+
     String sageGeneCoverageBed();
+
     String germlineBlacklistVcf();
+
     String germlineBlacklistBed();
+
     String clinvarVcf();
+
     String germlinePon();
+
     String gnomadPonCache();
+
     String giabHighConfidenceBed();
+
     String genotypeSnpsDB(); // will be decommission when Sage germline covers entire genome or exome
+
     String genotypeMipSnpsDB(); // comment about decommission for genotypeSnpsDB above also applies here
 
     // structural variants and virus
     String repeatMaskerDb();
+
     String svPrepBlacklistBed();
+
     String decoyGenome();
+
     String sglBreakendPon();
+
     String svBreakpointPon();
+
     String knownFusionData();
+
     String knownFusionPairBedpe();
 
     default String gridssVirusRefGenomeFile() {
@@ -71,34 +96,50 @@ public interface ResourceFiles {
 
     // targeted panel
     String targetRegionsPonArtefacts();
+
     String targetRegionsBed();
+
     String targetRegionsNormalisation();
+
     String targetRegionsRatios();
+
     String targetRegionsMsiIndels();
 
     // CUP
     String cuppaClassifier();
+
     String cuppaCvPredictions();
 
     // misc other
     String peachHaplotypes();
+
     String peachHaplotypeFunctions();
+
     String peachDrugs();
 
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "doid.json");
     }
 
-    default String snvSignatures() { return of(SIGS, "snv_cosmic_signatures.csv"); }
-    default String signaturesEtiology() { return of(SIGS, "signatures_etiology.tsv"); }
+    default String signaturesEtiology() {
+        return of(SIGS, "signatures_etiology.tsv");
+    }
+
+    default String snvSignatures() {
+        return of(SIGS, "snv_cosmic_signatures.csv");
+    }
+
+    default String virusBlacklistingDb() {
+        return of(VIRUS_INTERPRETER, "virus_blacklisting_db.tsv");
+    }
 
     default String virusInterpreterTaxonomyDb() {
         return of(VIRUS_INTERPRETER, "taxonomy_db.tsv");
     }
+
     default String virusReportingDb() {
         return of(VIRUS_INTERPRETER, "virus_reporting_db.tsv");
     }
-    default String virusBlacklistingDb() { return of(VIRUS_INTERPRETER, "virus_blacklisting_db.tsv"); }
 
     default String orangeCohortMapping() {
         return of(ORANGE, "cohort_mapping.tsv");

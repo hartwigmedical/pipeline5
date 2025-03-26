@@ -59,8 +59,8 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
 
     @Override
     protected void validateOutput(final VirusInterpreterOutput output) {
-        assertThat(output.maybeVirusAnnotations()).isEqualTo(Optional.of(GoogleStorageLocation.of(TestInputs.SOMATIC_BUCKET + "/virusintrprtr",
-                ResultsDirectory.defaultDirectory().path(ANNOTATED_VIRUS_TSV))));
+        assertThat(output.maybeVirusAnnotations()).isEqualTo(Optional.of(GoogleStorageLocation.of(
+                TestInputs.SOMATIC_BUCKET + "/virusintrprtr", ResultsDirectory.defaultDirectory().path(ANNOTATED_VIRUS_TSV))));
     }
 
     @Override
@@ -81,6 +81,7 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
 
     @Override
     protected List<String> expectedCommands() {
+        // @formatter:off
         return List.of(
                 toolCommand(HmfTool.VIRUS_INTERPRETER)
                         + " -sample tumor"
@@ -91,5 +92,6 @@ public class VirusInterpreterTest extends TertiaryStageTest<VirusInterpreterOutp
                         + " -virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv"
                         + " -virus_blacklisting_db_tsv /opt/resources/virus_interpreter/virus_blacklisting_db.tsv"
                         + " -output_dir /data/output");
+        // @formatter:on
     }
 }

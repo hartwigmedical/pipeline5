@@ -62,9 +62,11 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 "mkdir -p /data/input/linx_germline",
                 input(TestInputs.SOMATIC_BUCKET + "/purple/results/", "purple"),
                 input(TestInputs.SOMATIC_BUCKET + "/chord/tumor.chord.prediction.tsv", "tumor.chord.prediction.tsv"),
-                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_SUMMARY_TSV, "reference" + BAM_METRICS_SUMMARY_TSV),
+                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_SUMMARY_TSV,
+                        "reference" + BAM_METRICS_SUMMARY_TSV),
                 input(TestInputs.TUMOR_BUCKET + "/bam_metrics/tumor" + BAM_METRICS_SUMMARY_TSV, "tumor" + BAM_METRICS_SUMMARY_TSV),
-                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_FLAG_COUNT_TSV, "reference" + BAM_METRICS_FLAG_COUNT_TSV),
+                input(TestInputs.REFERENCE_BUCKET + "/bam_metrics/reference" + BAM_METRICS_FLAG_COUNT_TSV,
+                        "reference" + BAM_METRICS_FLAG_COUNT_TSV),
                 input(TestInputs.TUMOR_BUCKET + "/bam_metrics/tumor" + BAM_METRICS_FLAG_COUNT_TSV, "tumor" + BAM_METRICS_FLAG_COUNT_TSV),
                 /*
                 input("run-reference-test/bam_metrics/results/reference.wgsmetrics", "reference.wgsmetrics"),
@@ -173,39 +175,27 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        String jarRunCommand = toolCommand(ORANGE)
-                + " -output_dir /data/output"
-                + " -experiment_type WGS"
-                + " -ref_genome_version 37"
-                + " -doid_json /opt/resources/disease_ontology/doid.json"
-                + " -sample_data_dir /data/input"
-                + " -purple_dir /data/input/purple"
-                + " -purple_plot_dir /data/input/purple/plot"
-                + " -lilac_dir /data/input"
-                + " -pipeline_version_file /data/input/orange_pipeline.version.txt"
-                + " -cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv"
-                + " -cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv"
-                + " -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
-                + " -known_fusion_file /opt/resources/sv/37/known_fusion_data.37.csv"
-                + " -ensembl_data_dir /opt/resources/ensembl_data_cache/37/"
-                + " -signatures_etiology_tsv /opt/resources/sigs/signatures_etiology.tsv"
-                + " -add_disclaimer"
-                + " -tumor_sample_id tumor"
-                + " -primary_tumor_doids \"01;02\""
-                + " -tumor_metrics_dir /data/input"
-                + " -linx_plot_dir /data/input/linx/plot"
-                + " -linx_dir /data/input/linx"
-                + " -sage_dir /data/input"
-                + " -sampling_date 230519"
-                + " -reference_sample_id reference"
-                + " -ref_metrics_dir /data/input"
-                + " -linx_germline_dir /data/input/linx_germline";
+        String jarRunCommand = toolCommand(ORANGE) + " -output_dir /data/output" + " -experiment_type WGS" + " -ref_genome_version 37"
+                               + " -doid_json /opt/resources/disease_ontology/doid.json" + " -sample_data_dir /data/input"
+                               + " -purple_dir /data/input/purple" + " -purple_plot_dir /data/input/purple/plot" + " -lilac_dir /data/input"
+                               + " -pipeline_version_file /data/input/orange_pipeline.version.txt"
+                               + " -cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv"
+                               + " -cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv"
+                               + " -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv"
+                               + " -known_fusion_file /opt/resources/sv/37/known_fusion_data.37.csv"
+                               + " -ensembl_data_dir /opt/resources/ensembl_data_cache/37/"
+                               + " -signatures_etiology_tsv /opt/resources/sigs/signatures_etiology.tsv" + " -add_disclaimer"
+                               + " -tumor_sample_id tumor" + " -primary_tumor_doids \"01;02\"" + " -tumor_metrics_dir /data/input"
+                               + " -linx_plot_dir /data/input/linx/plot" + " -linx_dir /data/input/linx" + " -sage_dir /data/input"
+                               + " -sampling_date 230519" + " -reference_sample_id reference" + " -ref_metrics_dir /data/input"
+                               + " -linx_germline_dir /data/input/linx_germline";
 
         return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
     protected List<String> expectedTumorOnlyCommands() {
+        // @formatter:off
         String jarRunCommand = toolCommand(ORANGE)
                 + " -output_dir /data/output"
                 + " -experiment_type WGS"
@@ -230,6 +220,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + " -linx_dir /data/input/linx"
                 + " -sage_dir /data/input"
                 + " -sampling_date 230519";
+        // @formatter:on
 
         return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
