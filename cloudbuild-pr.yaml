@@ -42,4 +42,4 @@ steps:
 logsBucket: 'gs://hmf-build-logs'
 timeout: 8000s
 options:
-  machineType: 'N1_HIGHCPU_32'
+  machineType: 'E2_HIGHCPU_32'
