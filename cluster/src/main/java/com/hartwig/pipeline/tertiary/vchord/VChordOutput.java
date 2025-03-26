@@ -10,7 +10,9 @@ import org.immutables.value.Value;
 public interface VChordOutput extends StageOutput {
 
     @Override
-    default String name() { return VChord.NAMESPACE; }
+    default String name() {
+        return VChord.NAMESPACE;
+    }
 
     Optional<VChordOutputLocations> maybeOutputLocations();
 

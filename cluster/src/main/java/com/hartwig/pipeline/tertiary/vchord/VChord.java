@@ -33,8 +33,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.HmfTool;
 
 @Namespace(VChord.NAMESPACE)
-public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
-{
+public class VChord implements Stage<VChordOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "vchord";
 
@@ -43,8 +42,7 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public VChord(final PurpleOutput purpleOutput,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public VChord(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
         purpleOutputDirDownload = new InputDownloadCommand(purpleOutputLocations.outputDirectory());
         this.resourceFiles = resourceFiles;
@@ -62,8 +60,7 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         arguments.add(String.format("-sample %s", metadata.tumor().sampleName()));
@@ -72,11 +69,9 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
         return formCommand(arguments);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
+    private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(JavaCommandFactory.javaJarCommand(HmfTool.V_CHORD, arguments)
-                .withJvmArguments(List.of("-Dai.djl.offline=true")));
+        commands.add(JavaCommandFactory.javaJarCommand(HmfTool.V_CHORD, arguments).withJvmArguments(List.of("-Dai.djl.offline=true")));
         return commands;
     }
 
@@ -101,10 +96,10 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
             final String tumorSampleName = tumor.sampleName();
             String somaticVChordPrediction = vChordPrediction(tumorSampleName);
 
-            outputLocationsBuilder.vChordPrediction(
-                    GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVChordPrediction)));
+            outputLocationsBuilder.vChordPrediction(GoogleStorageLocation.of(bucket.name(),
+                    resultsDirectory.path(somaticVChordPrediction)));
         });
-        
+
         return ImmutableVChordOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -131,8 +126,8 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
                 DataType.VCHORD_PREDICTION,
                 somaticVChordPrediction);
 
-        ImmutableVChordOutputLocations.Builder outputLocationsBuilder = VChordOutputLocations.builder()
-                .vChordPrediction(somaticVChordPredictionLocation);
+        ImmutableVChordOutputLocations.Builder outputLocationsBuilder =
+                VChordOutputLocations.builder().vChordPrediction(somaticVChordPredictionLocation);
 
         return VChordOutput.builder()
                 .status(PipelineStatus.PERSISTED)
@@ -150,8 +145,8 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
             final String somaticVChordPrediction = vChordPrediction(tumorSampleName);
 
             datatypes.add(new AddDatatype(DataType.VCHORD_PREDICTION,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), somaticVChordPrediction)));
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), somaticVChordPrediction)));
         });
 
         return datatypes;
@@ -162,8 +157,8 @@ public class VChord implements Stage<VChordOutput, SomaticRunMetadata>
         return arguments.runTertiary() && arguments.useTargetRegions();
     }
 
-    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType dataType, final String fileName) {
+    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket, final DataType dataType,
+            final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

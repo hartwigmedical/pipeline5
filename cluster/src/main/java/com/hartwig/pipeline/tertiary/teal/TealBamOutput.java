@@ -8,10 +8,11 @@ import com.hartwig.pipeline.StageOutput;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface TealBamOutput extends StageOutput
-{
+public interface TealBamOutput extends StageOutput {
     @Override
-    default String name() { return TealBam.NAMESPACE; }
+    default String name() {
+        return TealBam.NAMESPACE;
+    }
 
     Optional<GoogleStorageLocation> germlineTelbam();
 

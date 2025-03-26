@@ -39,15 +39,16 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public TealBam(final AlignmentPair alignmentPair,
-            final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public TealBam(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
 
     @Override
-    public String namespace() { return NAMESPACE; }
+    public String namespace() {
+        return NAMESPACE;
+    }
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
@@ -62,8 +63,7 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addTumor(arguments, metadata);
@@ -73,8 +73,7 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
     }
 
     @Override
-    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata)
-    {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         List<String> arguments = new ArrayList<>();
 
         addReference(arguments, metadata);
@@ -83,8 +82,7 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
         return formCommand(arguments);
     }
 
-    private List<BashCommand> formCommand(final List<String> arguments)
-    {
+    private List<BashCommand> formCommand(final List<String> arguments) {
         List<BashCommand> commands = new ArrayList<>();
         commands.add(JavaCommandFactory.javaClassCommand(TEAL, TELBAM_APP_CLASS, arguments));
         return commands;
@@ -130,8 +128,7 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
             final String tumorSampleName = tumor.sampleName();
             String somaticTelbam = telbam(tumorSampleName);
 
-            outputLocationsBuilder
-                    .somaticTelbam(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticTelbam)));
+            outputLocationsBuilder.somaticTelbam(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticTelbam)));
         });
 
         return outputLocationsBuilder.build();
@@ -145,23 +142,27 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
     @Override
     public TealBamOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        ImmutableTealBamOutput.Builder outputLocationsBuilder = TealBamOutput.builder()
-                .status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata));
+        ImmutableTealBamOutput.Builder outputLocationsBuilder =
+                TealBamOutput.builder().status(PipelineStatus.PERSISTED).addAllDatatypes(addDatatypes(metadata));
 
         metadata.maybeReference().ifPresent(reference -> {
             final String germlineSampleName = reference.sampleName();
             String germlineTelbam = telbam(germlineSampleName);
-            outputLocationsBuilder
-                    .germlineTelbam(persistedOrDefault(
-                            germlineSampleName, metadata.set(), metadata.bucket(), DataType.TEAL_GERMLINE_TELBAM, germlineTelbam));
+            outputLocationsBuilder.germlineTelbam(persistedOrDefault(germlineSampleName,
+                    metadata.set(),
+                    metadata.bucket(),
+                    DataType.TEAL_GERMLINE_TELBAM,
+                    germlineTelbam));
         });
 
         metadata.maybeTumor().ifPresent(tumor -> {
             final String tumorSampleName = tumor.sampleName();
             String somaticTelbam = telbam(tumorSampleName);
-            outputLocationsBuilder
-                    .somaticTelbam(persistedOrDefault(
-                            tumorSampleName, metadata.set(), metadata.bucket(), DataType.TEAL_SOMATIC_TELBAM, somaticTelbam));
+            outputLocationsBuilder.somaticTelbam(persistedOrDefault(tumorSampleName,
+                    metadata.set(),
+                    metadata.bucket(),
+                    DataType.TEAL_SOMATIC_TELBAM,
+                    somaticTelbam));
         });
 
         return outputLocationsBuilder.build();
@@ -197,8 +198,8 @@ public class TealBam extends TertiaryStage<TealBamOutput> {
         return arguments.runTertiary() && !arguments.useTargetRegions();
     }
 
-    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket,
-            final DataType dataType, final String fileName) {
+    private GoogleStorageLocation persistedOrDefault(final String sample, final String set, final String bucket, final DataType dataType,
+            final String fileName) {
         return persistedDataset.path(sample, dataType)
                 .orElse(GoogleStorageLocation.of(bucket, PersistedLocations.blobForSet(set, namespace(), fileName)));
     }

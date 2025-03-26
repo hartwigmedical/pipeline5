@@ -35,8 +35,12 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String mappabilityBed() {
         return formPath(MAPPABILITY, "mappability_150.37.bed.gz");
     }
-    public String unmapRegionsFile() { return formPath(MAPPABILITY, "unmap_regions.37.tsv"); }
-    public String msiJitterSitesFile() { return formPath(MAPPABILITY, "msi_jitter_sites.37.tsv.gz"); }
+    public String unmapRegionsFile() {
+        return formPath(MAPPABILITY, "unmap_regions.37.tsv");
+    }
+    public String msiJitterSitesFile() {
+        return formPath(MAPPABILITY, "msi_jitter_sites.37.tsv.gz");
+    }
 
     // drivers and other common files
     public String driverGenePanel() {
@@ -100,7 +104,9 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String svPrepBlacklistBed() {
         return formPath(SV, "sv_prep_blacklist.37.bed");
     }
-    public String decoyGenome() { return formPath(SV, "hg38_decoys.fa.img"); }
+    public String decoyGenome() {
+        return formPath(SV, "hg38_decoys.fa.img");
+    }
     public String sglBreakendPon() {
         return formPath(SV, "sgl_pon.37.bed.gz");
     }

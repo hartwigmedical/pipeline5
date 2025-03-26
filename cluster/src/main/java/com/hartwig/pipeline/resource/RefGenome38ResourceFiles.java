@@ -33,8 +33,12 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String mappabilityBed() {
         return formPath(MAPPABILITY, "mappability_150.38.bed.gz");
     }
-    public String unmapRegionsFile() { return formPath(MAPPABILITY, "unmap_regions.38.tsv"); }
-    public String msiJitterSitesFile() { return formPath(MAPPABILITY, "msi_jitter_sites.38.tsv.gz"); }
+    public String unmapRegionsFile() {
+        return formPath(MAPPABILITY, "unmap_regions.38.tsv");
+    }
+    public String msiJitterSitesFile() {
+        return formPath(MAPPABILITY, "msi_jitter_sites.38.tsv.gz");
+    }
 
     // drivers and other common files
     public String ensemblDataCache() {
@@ -99,7 +103,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String svPrepBlacklistBed() {
         return formPath(SV, "sv_prep_blacklist.38.bed");
     }
-    public String decoyGenome() { return formPath(SV, ""); } // not required
+    public String decoyGenome() {
+        return formPath(SV, "");
+    } // not required
     public String sglBreakendPon() {
         return formPath(SV, "sgl_pon.38.bed.gz");
     }
@@ -109,7 +115,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String knownFusionData() {
         return formPath(SV, "known_fusion_data.38.csv");
     }
-    public String knownFusionPairBedpe() { return formPath(SV, "known_fusions.38.bedpe"); }
+    public String knownFusionPairBedpe() {
+        return formPath(SV, "known_fusions.38.bedpe");
+    }
 
     // immune
     public String hlaRegionBed() {
