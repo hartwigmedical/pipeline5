@@ -43,7 +43,7 @@ echo "Rebuilding pipeline JAR to ensure correct version"
 mvn -f "${PV5_DIR}/pom.xml" clean package -DskipTests
 version="$($VERSION_CMD)"
 set +e
-[[ "$version" =~ ^5\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
+[[ "$version" =~ ^(5|6)\-[0-9]+$ ]] || (echo "Got junk version: ${version}" && exit 1)
 
 echo "Building public image for pipeline version ${version}"
 image_family="pipeline5-${version}${flavour+"-$flavour"}"
@@ -89,6 +89,10 @@ echo "$SSH --command=\"echo $version | tee /tmp/pipeline.version\""
 echo "$GCL scp $(dirname $0)/copy_to_imager_vm/* ${source_instance}:/tmp/ ${SSH_ARGS}"
 echo "$SSH --command=\"sudo mkdir -p /opt/tools\""
 echo "$SSH --command=\"sudo rm -rf /opt/tools/*\""
+
+while read tool tool_version; do
+   echo "$SSH --command=\"sudo /tmp/fetch_tool_from_registry.sh $tool $tool_version\""
+done <<< "$(${VERSION_CMD} tools)"
 
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do

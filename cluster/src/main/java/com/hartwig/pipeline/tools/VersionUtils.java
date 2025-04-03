@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tools;
 
-import static java.util.Collections.emptyList;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -53,7 +51,23 @@ public final class VersionUtils {
     }
 
     public static List<HmfTool> inArtifactRegistry() {
-        return emptyList();
+        // Only include tools with a new release in 2025
+        return List.of(HmfTool.AMBER,
+                HmfTool.BAM_TOOLS,
+                HmfTool.CHORD,
+                HmfTool.COBALT,
+                HmfTool.CUPPA,
+                HmfTool.ESVEE,
+                HmfTool.HEALTH_CHECKER,
+                HmfTool.LINX,
+                HmfTool.REDUX,
+                HmfTool.ORANGE,
+                HmfTool.PAVE,
+                HmfTool.PURPLE,
+                HmfTool.SAGE,
+                HmfTool.TEAL,
+                HmfTool.V_CHORD,
+                HmfTool.VIRUS_INTERPRETER);
     }
 
     public static String format(final Field field) {
