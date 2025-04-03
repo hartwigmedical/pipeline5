@@ -53,7 +53,7 @@ public final class VersionUtils {
     }
 
     public static List<HmfTool> inArtifactRegistry() {
-        return emptyList();
+        return List.of(HmfTool.values());
     }
 
     public static String format(final Field field) {
