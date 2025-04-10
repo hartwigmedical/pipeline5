@@ -1,9 +1,9 @@
 package com.hartwig.pipeline;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -28,6 +28,7 @@ import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
 import com.hartwig.pipeline.input.ModeResolver;
+import com.hartwig.pipeline.input.ReduxFileLocator;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
@@ -69,8 +70,8 @@ public class PipelineMain {
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
-            final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+            final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         final Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
         return new SomaticPipeline(arguments,
@@ -94,8 +95,8 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final PipelineInput input,
             final GoogleCredentials credentials, final Storage storage, final SingleSampleEventListener eventListener,
             final SomaticRunMetadata metadata, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
-            final StartingPoint startingPoint, final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset, final InputMode mode) throws Exception {
         Labels labels = Labels.of(arguments, metadata);
         var computeEngineConfig = ArgumentUtil.toComputeEngineConfig(arguments);
         return new SingleSamplePipeline(eventListener,
@@ -114,7 +115,8 @@ public class PipelineMain {
                 arguments,
                 persistedDataset,
                 metricsOutputQueue,
-                germlineCallerOutputQueue);
+                germlineCallerOutputQueue,
+                new ReduxFileLocator(input, storage, arguments.project()));
     }
 
     public static void main(final String[] args) {
@@ -138,11 +140,11 @@ public class PipelineMain {
 
     public static void logCompletionMessage(final PipelineState state, final Duration timeTaken) {
         Level logLevel = state.status() != PipelineStatus.FAILED ? Level.INFO : Level.ERROR;
-        LOGGER.atLevel(logLevel).log("Pipeline completed with status [{}], time: {}, summary: [PipelineState{stageOutputs=[",
-                state.status(),
-                DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"));
-        state.stageOutputs().forEach(stageOutput -> LOGGER.atLevel(logLevel).log("    {}:{}",
-                stageOutput.name(), stageOutput.status()));
+        LOGGER.atLevel(logLevel)
+                .log("Pipeline completed with status [{}], time: {}, summary: [PipelineState{stageOutputs=[",
+                        state.status(),
+                        DurationFormatUtils.formatDuration(timeTaken.toMillis(), "H 'hr' mm 'min'"));
+        state.stageOutputs().forEach(stageOutput -> LOGGER.atLevel(logLevel).log("    {}:{}", stageOutput.name(), stageOutput.status()));
         LOGGER.atLevel(logLevel).log("]}]");
     }
 
