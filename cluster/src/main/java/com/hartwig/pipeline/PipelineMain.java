@@ -28,6 +28,7 @@ import com.hartwig.pipeline.input.InputMode;
 import com.hartwig.pipeline.input.JsonPipelineInput;
 import com.hartwig.pipeline.input.MetadataProvider;
 import com.hartwig.pipeline.input.ModeResolver;
+import com.hartwig.pipeline.input.ReduxFileLocator;
 import com.hartwig.pipeline.input.SomaticRunMetadata;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.HmfApiStatusUpdate;
@@ -114,7 +115,8 @@ public class PipelineMain {
                 arguments,
                 persistedDataset,
                 metricsOutputQueue,
-                germlineCallerOutputQueue);
+                germlineCallerOutputQueue,
+                new ReduxFileLocator(input, storage, arguments.project()));
     }
 
     public static void main(final String[] args) {

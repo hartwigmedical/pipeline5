@@ -15,6 +15,7 @@ import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.input.ReduxFileLocator;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -42,11 +43,12 @@ public class SingleSamplePipeline {
     private final PersistedDataset persistedDataset;
     private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
+    private final ReduxFileLocator reduxFileLocator;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
             final Aligner aligner, final PipelineOutputComposer composer, final ExecutorService executorService, final Arguments arguments,
             final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final ReduxFileLocator reduxFileLocator) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
@@ -56,6 +58,7 @@ public class SingleSamplePipeline {
         this.persistedDataset = persistedDataset;
         this.metricsOutputQueue = metricsOutputQueue;
         this.germlineCallerOutputQueue = germlineCallerOutputQueue;
+        this.reduxFileLocator = reduxFileLocator;
     }
 
     public PipelineState run(final SingleSampleRunMetadata metadata) throws Exception {
@@ -97,10 +100,11 @@ public class SingleSamplePipeline {
     private AlignmentOutput convertCramsIfNecessary(final Arguments arguments, final SingleSampleRunMetadata metadata,
             final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = composer.add(state.add(aligner.run(metadata)));
-        alignmentOutput =
-                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM) ? state.add(
-                        stageRunner.run(metadata, new Cram2Bam(alignmentOutput.alignments(), metadata.type()))) : alignmentOutput;
-        return alignmentOutput;
+        if (state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM)) {
+            return state.add(stageRunner.run(metadata, new Cram2Bam(arguments, reduxFileLocator, alignmentOutput.alignments(), metadata.type())));
+        } else {
+            return alignmentOutput;
+        }
     }
 
     private static <T> T futurePayload(final Future<T> future) {
