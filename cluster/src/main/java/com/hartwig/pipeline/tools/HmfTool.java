@@ -25,7 +25,7 @@ public enum HmfTool {
     SIGS("1.2.1", 16, 4, false, 30),
     TEAL("1.3.3", 32, 32, false),
     V_CHORD("1.0", 4, 2, false),
-    VIRUSBREAKEND_GRIDSS("2.13.3", 64, 8, false),
+    VIRUSBREAKEND_GRIDSS("2.13.3", 64, 16, false),
     VIRUS_INTERPRETER("1.7", 8, 2, false);
 
     private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar
