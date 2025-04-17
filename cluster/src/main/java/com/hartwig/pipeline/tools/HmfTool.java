@@ -8,11 +8,11 @@ public enum HmfTool {
 
     AMBER("4.1.1", 24, 16, false),
     BAM_TOOLS("1.3", 24, 16, false),
-    CHORD("2.1.0", 24, 4, false),
+    CHORD("2.1.2", 24, 4, false),
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0", 24, 16, false),
     CUPPA("2.3.0", 16, 4, false),
-    ESVEE("1.0.2", 64, 32, false),
+    ESVEE("1.0.2", 96, 32, false),
     HEALTH_CHECKER("3.6", 32, 8, false),
     LILAC("1.6", 24, 16, false),
     LINX("2.0.2", 16, 4, false),
