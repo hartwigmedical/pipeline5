@@ -55,6 +55,7 @@ import com.hartwig.pipeline.output.RunLogComponent;
 import com.hartwig.pipeline.output.SingleFileComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
+import com.hartwig.pipeline.stages.VmMemoryAdjuster;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
@@ -64,6 +65,7 @@ public class BwaAligner implements Aligner {
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
+    private final VmMemoryAdjuster vmMemoryAdjuster;
     private final Storage storage;
     private final PipelineInput input;
     private final SampleUpload sampleUpload;
@@ -76,6 +78,7 @@ public class BwaAligner implements Aligner {
             final ExecutorService executorService, final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
+        this.vmMemoryAdjuster = new VmMemoryAdjuster(arguments);
         this.storage = storage;
         this.input = input;
         this.sampleUpload = sampleUpload;
@@ -262,9 +265,10 @@ public class BwaAligner implements Aligner {
 
     public ComputeEngineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
+        var modifiedDefinition = vmMemoryAdjuster.overrideVmDefinition(jobDefinition);
         return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]",
                 metadata.toString(),
-                Aligner.NAMESPACE))).get(() -> computeEngine.submit(laneBucket, jobDefinition));
+                Aligner.NAMESPACE))).get(() -> computeEngine.submit(laneBucket, modifiedDefinition));
     }
 
     private static String laneNamespace(final LaneInput lane) {

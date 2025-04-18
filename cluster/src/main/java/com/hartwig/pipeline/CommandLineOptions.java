@@ -73,6 +73,8 @@ public class CommandLineOptions {
     private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
     private static final String USE_PRIVATE_RESOURCES_FLAG = "use_private_resources";
     private static final String REDO_DUPLICATE_MARKING_FLAG = "redo_duplicate_marking";
+    private static final String STAGE_MEMORY_OVERRIDE_GB_FLAG = "stage_memory_override_gb";
+    private static final String STAGE_MEMORY_OVERRIDE_REGEX_FLAG = "stage_memory_override_regex";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -336,6 +338,8 @@ public class CommandLineOptions {
                     .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
                     .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
                     .hmfApiUrl(hmfApiUrl(commandLine, defaults))
+                    .stageMemoryOverrideRegex(stageMemoryOverrideRegex(commandLine))
+                    .stageMemoryOverrideGb(stageMemoryOverrideGb(commandLine))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -496,6 +500,20 @@ public class CommandLineOptions {
             return commandLine.getOptionValue(REGION_FLAG);
         }
         return defaultRegion;
+    }
+
+    private static Optional<String> stageMemoryOverrideRegex(final CommandLine commandLine) {
+        if (commandLine.hasOption(STAGE_MEMORY_OVERRIDE_REGEX_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(STAGE_MEMORY_OVERRIDE_REGEX_FLAG));
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Integer> stageMemoryOverrideGb(final CommandLine commandLine) {
+        if (commandLine.hasOption(STAGE_MEMORY_OVERRIDE_GB_FLAG)) {
+            return Optional.of(Integer.parseInt(commandLine.getOptionValue(STAGE_MEMORY_OVERRIDE_GB_FLAG)));
+        }
+        return Optional.empty();
     }
 
     private static Option optionWithArg(final String option, final String description) {

@@ -160,6 +160,10 @@ public interface Arguments extends CommonArguments {
 
     boolean publishEventsOnly();
 
+    Optional<Integer> stageMemoryOverrideGb();
+
+    Optional<String> stageMemoryOverrideRegex();
+
     enum DefaultsProfile {
         PUBLIC,
         PRODUCTION,
