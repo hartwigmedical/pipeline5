@@ -34,7 +34,7 @@
         <org-reflections.version>0.9.11</org-reflections.version>
         <pdl.version>1.7.2</pdl.version>
         <pipeline-reference-data.version>0.14.1</pipeline-reference-data.version>
-        <hmf-cloud-sdk.version>5.4.5</hmf-cloud-sdk.version>
+        <hmf-cloud-sdk.version>5.5.0</hmf-cloud-sdk.version>
     </properties>
 
     <scm>
