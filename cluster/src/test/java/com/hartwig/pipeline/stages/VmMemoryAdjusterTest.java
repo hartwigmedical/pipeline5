@@ -58,4 +58,30 @@ public class VmMemoryAdjusterTest {
         var adjustedVmDefinition = vmMemoryAdjuster.overrideVmDefinition(peach);
         assertEquals(4, adjustedVmDefinition.performanceProfile().memoryGB().getAsInt());
     }
+
+    @Test
+    public void testRegexNotSet() {
+        var arguments = mock(Arguments.class);
+        when(arguments.stageMemoryOverrideRegex()).thenReturn(Optional.empty());
+        when(arguments.stageMemoryOverrideGb()).thenReturn(Optional.of(64));
+
+        var vmMemoryAdjuster = new VmMemoryAdjuster(arguments);
+
+        var peach = VirtualMachineJobDefinitions.peach(mock(BashStartupScript.class), mock(ResultsDirectory.class));
+        var adjustedVmDefinition = vmMemoryAdjuster.overrideVmDefinition(peach);
+        assertEquals(4, adjustedVmDefinition.performanceProfile().memoryGB().getAsInt());
+    }
+
+    @Test
+    public void testMemoryValueNotSet() {
+        var arguments = mock(Arguments.class);
+        when(arguments.stageMemoryOverrideRegex()).thenReturn(Optional.of(".*"));
+        when(arguments.stageMemoryOverrideGb()).thenReturn(Optional.empty());
+
+        var vmMemoryAdjuster = new VmMemoryAdjuster(arguments);
+
+        var peach = VirtualMachineJobDefinitions.peach(mock(BashStartupScript.class), mock(ResultsDirectory.class));
+        var adjustedVmDefinition = vmMemoryAdjuster.overrideVmDefinition(peach);
+        assertEquals(4, adjustedVmDefinition.performanceProfile().memoryGB().getAsInt());
+    }
 }
