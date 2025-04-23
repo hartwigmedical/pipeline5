@@ -134,7 +134,11 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(VM_SELF_DELETE_ON_SHUTDOWN_FLAG, "Delete VMs on shutdown"))
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
                         "Compute nothing, only publish events for downstream consumption"))
-                .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG, "Redo duplicate marking on input BAM or CRAM"));
+                .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG, "Redo duplicate marking on input BAM or CRAM"))
+                .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_GB_FLAG,
+                        "Override the memory for a stage (specified by regex) to a specific value. "))
+                .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_REGEX_FLAG,
+                        "Regex to match the stage name to override the memory for. This is used in conjunction with the -stage_memory_override_gb flag."));
     }
 
     private static Option useTargetRegions() {
