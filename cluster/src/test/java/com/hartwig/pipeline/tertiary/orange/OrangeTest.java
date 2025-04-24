@@ -205,7 +205,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + " -linx_germline_dir /data/input/linx_germline";
         // @formatter:on
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.1' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
@@ -237,7 +237,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 + " -sampling_date 230519";
         // @formatter:on
 
-        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.0' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
+        return Arrays.asList("mkdir -p /data/input/linx/plot", "echo '6.1' | tee /data/input/orange_pipeline.version.txt", jarRunCommand);
     }
 
     @Override
