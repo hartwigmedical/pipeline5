@@ -17,7 +17,7 @@ public enum HmfTool {
     LILAC("1.6", 24, 16, false),
     LINX("2.0.2", 16, 4, false),
     REDUX("1.1.2", 64, 32, false),
-    ORANGE("3.7.1", 16, 4, false),
+    ORANGE("3.7.2", 16, 4, false),
     PAVE("1.7.1", 32, 8, false),
     PEACH("2.0.0", 4, 2, false, 50),
     PURPLE("4.1", 40, 8, false),
