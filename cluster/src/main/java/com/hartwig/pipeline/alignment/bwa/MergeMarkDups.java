@@ -18,8 +18,6 @@ import com.hartwig.pipeline.execution.vm.unix.RedirectStdoutCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
-import joptsimple.internal.Strings;
-
 public class MergeMarkDups extends SubStage {
 
     private final String sampleId;
@@ -64,7 +62,7 @@ public class MergeMarkDups extends SubStage {
         String inputBam;
 
         if(inputBamPaths.size() > 1) {
-            String inputBamStr = Strings.join(inputBamPaths, " ");
+            String inputBamStr = String.join(" ", inputBamPaths);
             inputBam = format("%s/%s.raw.bam", VmDirectories.OUTPUT, sampleId);
             String mergeArgs = format("merge -t %s %s %s", Bash.allCpus(), inputBam, inputBamStr);
             cmds.add(new SambambaCommand(mergeArgs));
