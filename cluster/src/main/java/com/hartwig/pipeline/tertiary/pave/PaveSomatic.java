@@ -47,9 +47,10 @@ public class PaveSomatic extends Pave {
 
         if (this.arguments.useTargetRegions()) {
             arguments.addAll(addTargetRegionsArguments(resourceFiles));
+        } else {
+            arguments.add("-write_pass_only");
         }
 
-        arguments.add("-write_pass_only");
         return paveCommand(arguments);
     }
 
