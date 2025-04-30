@@ -45,6 +45,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     public static final int MEMORY_GB = 16;
 
     private final InputDownloadCommand bamDownload;
+    private final InputDownloadCommand bamBaiDownload;
     private final String outputCram;
     private final String bamCompareTsv;
     private final SampleType sampleType;
@@ -52,6 +53,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, final ResourceFiles resourceFiles) {
         bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
+        bamBaiDownload = new InputDownloadCommand(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
         var sample = alignmentOutput.sample();
         outputCram = VmDirectories.outputFile(FileTypes.cram(sample));
         bamCompareTsv = VmDirectories.outputFile(sample + ".bam_compare.tsv");
@@ -61,7 +63,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public List<BashCommand> inputs() {
-        return Collections.singletonList(bamDownload);
+        return List.of(bamDownload, bamBaiDownload);
     }
 
     @Override
@@ -168,7 +170,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         "-threads",
                         Bash.allCpus(),
                         "-output_file", bamCompareTsv));
-        BashCommand compareTest = () -> String.format("[ \"$(wc -l < %s)\" -eq 1 ] || exit 1", bamCompareTsv);
+        BashCommand compareTest = () -> String.format("[ \"$(wc -l < %s)\" -eq 1 ] || { echo \"BamCompare found differences\"; false; }", bamCompareTsv);
         return ImmutableList.of(samtoolsView, samtoolsReheader, samtoolsIndex, bamCompare, compareTest);
     }
 }

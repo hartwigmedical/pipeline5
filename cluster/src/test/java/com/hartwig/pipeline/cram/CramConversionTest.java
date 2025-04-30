@@ -49,7 +49,10 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(BUCKET_NAME + "/aligner/results/reference.bam", "reference.bam"));
+        return ImmutableList.of(
+                input(BUCKET_NAME + "/aligner/results/reference.bam", "reference.bam"),
+                input(BUCKET_NAME + "/aligner/results/reference.bam", "reference.bam.bai")
+        );
     }
 
     @Override
@@ -75,7 +78,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                        + " -threads $(grep -c '^processor' /proc/cpuinfo) -output_file /data/output/reference.bam_compare.tsv",
                         input,
                         output),
-                "[ \"$(wc -l < /data/output/reference.bam_compare.tsv)\" -eq 1 ] || exit 1");
+                "[ \"$(wc -l < /data/output/reference.bam_compare.tsv)\" -eq 1 ] || { echo \"BamCompare found differences\"; false; }");
     }
 
     @Override
