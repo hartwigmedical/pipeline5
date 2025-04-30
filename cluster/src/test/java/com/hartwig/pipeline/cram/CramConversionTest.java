@@ -74,7 +74,8 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                        + " -ref_genome /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta"
                        + " -threads $(grep -c '^processor' /proc/cpuinfo) -output_file /data/output/reference.bam_compare.tsv",
                         input,
-                        output));
+                        output),
+                "[ \"$(wc -l < /data/output/reference.bam_compare.tsv)\" -eq 1 ] || exit 1");
     }
 
     @Override

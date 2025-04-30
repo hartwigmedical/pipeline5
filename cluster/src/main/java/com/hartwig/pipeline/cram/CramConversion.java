@@ -168,6 +168,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         "-threads",
                         Bash.allCpus(),
                         "-output_file", bamCompareTsv));
-        return ImmutableList.of(samtoolsView, samtoolsReheader, samtoolsIndex, bamCompare);
+        BashCommand compareTest = () -> String.format("[ \"$(wc -l < %s)\" -eq 1 ] || exit 1", bamCompareTsv);
+        return ImmutableList.of(samtoolsView, samtoolsReheader, samtoolsIndex, bamCompare, compareTest);
     }
 }
