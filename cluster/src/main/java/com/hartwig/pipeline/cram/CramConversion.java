@@ -1,9 +1,13 @@
 package com.hartwig.pipeline.cram;
 
+import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
@@ -15,8 +19,10 @@ import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.JavaCommandFactory;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinitions;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata;
 import com.hartwig.pipeline.input.SingleSampleRunMetadata.SampleType;
@@ -29,6 +35,7 @@ import com.hartwig.pipeline.output.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Namespace;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tools.HmfTool;
 
 @Namespace(CramConversion.NAMESPACE)
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
@@ -39,12 +46,15 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     private final InputDownloadCommand bamDownload;
     private final String outputCram;
+    private final String bamCompareTsv;
     private final SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, final ResourceFiles resourceFiles) {
         bamDownload = new InputDownloadCommand(alignmentOutput.alignments());
-        outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
+        var sample = alignmentOutput.sample();
+        outputCram = VmDirectories.outputFile(FileTypes.cram(sample));
+        bamCompareTsv = VmDirectories.outputFile(sample + ".bam_compare.tsv");
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
     }
@@ -72,10 +82,6 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     @Override
     public List<BashCommand> tumorReferenceCommands(final SingleSampleRunMetadata metadata) {
         return cramCommands();
-    }
-
-    public List<BashCommand> cramCommands() {
-        return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram, resourceFiles).commands();
     }
 
     @Override
@@ -123,5 +129,45 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.outputCram();
+    }
+
+    private List<BashCommand> cramCommands() {
+        var inputBam = bamDownload.getLocalTargetPath();
+        var samtoolsView = new VersionedToolCommand(SAMTOOLS.getToolName(),
+                SAMTOOLS.getBinary(),
+                SAMTOOLS.getVersion(),
+                "view",
+                "-T",
+                resourceFiles.refGenomeFile(),
+                "-o",
+                outputCram,
+                "-O",
+                "cram,embed_ref=1",
+                "-@",
+                Bash.allCpus(),
+                inputBam);
+        var samtoolsReheader = new VersionedToolCommand(SAMTOOLS.getToolName(),
+                SAMTOOLS.getBinary(),
+                SAMTOOLS.getVersion(),
+                "reheader",
+                "--no-PG",
+                "--in-place",
+                "--command",
+                "'grep -v ^@PG'",
+                outputCram);
+        var samtoolsIndex =
+                new VersionedToolCommand(SAMTOOLS.getToolName(), SAMTOOLS.getBinary(), SAMTOOLS.getVersion(), "index", outputCram);
+        var bamCompare = JavaCommandFactory.javaClassCommand(HmfTool.BAM_TOOLS,
+                "com.hartwig.hmftools.bamtools.compare.BamCompare",
+                List.of("-orig_bam_file",
+                        inputBam,
+                        "-new_bam_file",
+                        outputCram,
+                        "-ref_genome",
+                        resourceFiles.refGenomeFile(),
+                        "-threads",
+                        Bash.allCpus(),
+                        "-output_file", bamCompareTsv));
+        return ImmutableList.of(samtoolsView, samtoolsReheader, samtoolsIndex, bamCompare);
     }
 }

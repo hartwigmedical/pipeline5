@@ -63,13 +63,16 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
         return ImmutableList.of(format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                samtools,
-                TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
-                output,
-                input),
+                        samtools,
+                        TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
+                        output,
+                        input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
-                format("java -XX:MaxRAMPercentage=90 -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain -r /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta -1 %s -2 %s -n 16 --samtools-binary /opt/tools/samtools/1.20/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
+                format("java -XX:MaxRAMPercentage=90 -cp /opt/tools/bam-tools/1.3/bam-tools.jar com.hartwig.hmftools.bamtools.compare.BamCompare"
+                       + " -orig_bam_file %s -new_bam_file %s"
+                       + " -ref_genome /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta"
+                       + " -threads $(grep -c '^processor' /proc/cpuinfo) -output_file /data/output/reference.bam_compare.tsv",
                         input,
                         output));
     }
