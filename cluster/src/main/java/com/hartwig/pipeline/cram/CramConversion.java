@@ -3,7 +3,6 @@ package com.hartwig.pipeline.cram;
 import static com.hartwig.pipeline.tools.ExternalTool.SAMTOOLS;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -169,8 +168,10 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         resourceFiles.refGenomeFile(),
                         "-threads",
                         Bash.allCpus(),
-                        "-output_file", bamCompareTsv));
-        BashCommand compareTest = () -> String.format("[ \"$(wc -l < %s)\" -eq 1 ] || { echo \"BamCompare found differences\"; false; }", bamCompareTsv);
+                        "-output_file",
+                        bamCompareTsv)).withMaxHeapPercentage(70); // Default setting of 90 caused random OOM errors
+        BashCommand compareTest =
+                () -> String.format("[ \"$(wc -l < %s)\" -eq 1 ] || { echo \"BamCompare found differences\"; false; }", bamCompareTsv);
         return ImmutableList.of(samtoolsView, samtoolsReheader, samtoolsIndex, bamCompare, compareTest);
     }
 }

@@ -51,7 +51,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     protected List<String> expectedInputs() {
         return ImmutableList.of(
                 input(BUCKET_NAME + "/aligner/results/reference.bam", "reference.bam"),
-                input(BUCKET_NAME + "/aligner/results/reference.bam", "reference.bam.bai")
+                input(BUCKET_NAME + "/aligner/results/reference.bam.bai", "reference.bam.bai")
         );
     }
 
@@ -72,7 +72,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                         input),
                 format("%s reheader --no-PG --in-place --command 'grep -v ^@PG' %s", samtools, output),
                 format("%s index %s", samtools, output),
-                format("java -XX:MaxRAMPercentage=90 -cp /opt/tools/bam-tools/1.3/bam-tools.jar com.hartwig.hmftools.bamtools.compare.BamCompare"
+                format("java -XX:MaxRAMPercentage=70 -cp /opt/tools/bam-tools/1.3/bam-tools.jar com.hartwig.hmftools.bamtools.compare.BamCompare"
                        + " -orig_bam_file %s -new_bam_file %s"
                        + " -ref_genome /opt/resources/reference_genome/38/Homo_sapiens_assembly38.alt.masked.fasta"
                        + " -threads $(grep -c '^processor' /proc/cpuinfo) -output_file /data/output/reference.bam_compare.tsv",
