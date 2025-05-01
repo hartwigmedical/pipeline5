@@ -39,8 +39,10 @@ class BamMetricsCommand extends JavaJarCommand
         arguments.add("-log_level INFO");
         arguments.add(format("-threads %s", threads));
 
-        if(targetRegionsBed != null)
+        if (targetRegionsBed != null) {
             arguments.add(format("-regions_file %s", targetRegionsBed));
+            arguments.add("-only_target");
+        }
 
         return arguments;
     }
