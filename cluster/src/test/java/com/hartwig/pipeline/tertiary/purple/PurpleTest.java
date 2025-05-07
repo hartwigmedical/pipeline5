@@ -17,6 +17,7 @@ import com.hartwig.pipeline.output.AddDatatype;
 import com.hartwig.pipeline.output.ArchivePath;
 import com.hartwig.pipeline.output.Folder;
 import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
+import com.hartwig.pipeline.resource.RefGenome38ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.TestPersistedDataset;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -124,6 +125,23 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 Arguments.testDefaultsBuilder().shallow(true).build());
         assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains(
                 "-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
+    }
+
+    @Test
+    public void targetedTumorOnlyIncludesTargetedSettings() {
+        Purple victim = new Purple(new RefGenome38ResourceFiles(),
+                TestInputs.paveSomaticOutput(),
+                TestInputs.paveGermlineSkippedOutput(),
+                TestInputs.esveeOutput(),
+                TestInputs.amberOutput(),
+                TestInputs.cobaltOutput(),
+                new TestPersistedDataset(),
+                Arguments.testDefaultsBuilder().useTargetRegions(true).build());
+        assertThat(victim.tumorOnlyCommands(input()).get(0).asBash()).contains(
+                "-target_regions_bed /opt/resources/target_regions/38/target_regions_definition.38.bed "
+                        + "-target_regions_ratios /opt/resources/target_regions/38/target_regions_ratios.38.tsv "
+                        + "-target_regions_msi_indels /opt/resources/target_regions/38/target_regions_msi_indels.38.tsv "
+                        + "-write_all_somatics");
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")

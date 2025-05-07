@@ -37,7 +37,8 @@ final class PurpleArguments {
     public static List<String> addTargetRegionsArguments(final ResourceFiles resourceFiles) {
         return List.of(format("-target_regions_bed %s", resourceFiles.targetRegionsBed()),
                 format("-target_regions_ratios %s", resourceFiles.targetRegionsRatios()),
-                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()));
+                format("-target_regions_msi_indels %s", resourceFiles.targetRegionsMsiIndels()),
+                "-write_all_somatics");
     }
 
     public static List<String> addCommonArguments(final String amberOutputPath, final String cobaltOutputPath,

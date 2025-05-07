@@ -24,6 +24,7 @@ import static com.hartwig.pipeline.metrics.BamMetrics.BAM_METRICS_SUMMARY_TSV;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.pdl.OperationalReferences;
@@ -290,6 +291,13 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static PaveOutput paveGermlineSkippedOutput() {
+        return PaveOutput.builder(PaveGermline.NAMESPACE)
+                .status(PipelineStatus.SKIPPED)
+                .maybeAnnotatedVariants(Optional.empty())
                 .build();
     }
 
