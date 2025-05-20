@@ -12,7 +12,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class PaveArguments {
     private static final String PON_FILTERS_V37 = "HOTSPOT:10:5;PANEL:6:5;UNKNOWN:6:0";
-    private static final String PON_FILTERS_V38 = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
+    private static final String PON_FILTERS_V38 = "HOTSPOT:6:5;PANEL:3:3;UNKNOWN:3:0";
 
     public static List<String> somatic(final ResourceFiles resourceFiles, final String tumorSampleName, final String inputVcf,
             final String outputVcf) {
