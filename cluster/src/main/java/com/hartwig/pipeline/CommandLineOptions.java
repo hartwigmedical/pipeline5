@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
+import com.hartwig.pipeline.reference.api.PipelineOutputStructure;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.VersionUtils;
 
@@ -75,6 +76,7 @@ public class CommandLineOptions {
     private static final String REDO_DUPLICATE_MARKING_FLAG = "redo_duplicate_marking";
     private static final String STAGE_MEMORY_OVERRIDE_GB_FLAG = "stage_memory_override_gb";
     private static final String STAGE_MEMORY_OVERRIDE_REGEX_FLAG = "stage_memory_override_regex";
+    private static final String INPUT_BAM_DIRECTORY_STRUCTURE = "input_bam_directory_structure";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -138,7 +140,8 @@ public class CommandLineOptions {
                 .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_GB_FLAG,
                         "Override the memory for a stage (specified by regex) to a specific value. "))
                 .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_REGEX_FLAG,
-                        "Regex to match the stage name to override the memory for. This is used in conjunction with the -stage_memory_override_gb flag."));
+                        "Regex to match the stage name to override the memory for. This is used in conjunction with the -stage_memory_override_gb flag."))
+                .addOption(inputBamDirectoryStructure());
     }
 
     private static Option useTargetRegions() {
@@ -287,6 +290,13 @@ public class CommandLineOptions {
                 format("Publish an event for downstream DB load; has no effect unless context is [%s]", Pipeline.Context.PLATINUM));
     }
 
+    private static Option inputBamDirectoryStructure() {
+        return optionWithArg(INPUT_BAM_DIRECTORY_STRUCTURE,
+                format("Assumed format of input files for finding non-BAM Redux outputs when applicable. default [%s], values [%s]",
+                        PipelineOutputStructure.PIPELINE5,
+                        Arrays.stream(PipelineOutputStructure.values()).map(Enum::toString).sorted().collect(Collectors.joining(","))));
+    }
+
     public static Arguments from(final String[] args) throws ParseException {
         try {
             DefaultParser defaultParser = new DefaultParser();
@@ -344,6 +354,7 @@ public class CommandLineOptions {
                     .hmfApiUrl(hmfApiUrl(commandLine, defaults))
                     .stageMemoryOverrideRegex(stageMemoryOverrideRegex(commandLine))
                     .stageMemoryOverrideGb(stageMemoryOverrideGb(commandLine))
+                    .inputBamDirectoryStructure(inputBamDirectoryStructure(commandLine, defaults.inputBamDirectoryStructure()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -518,6 +529,14 @@ public class CommandLineOptions {
             return Optional.of(Integer.parseInt(commandLine.getOptionValue(STAGE_MEMORY_OVERRIDE_GB_FLAG)));
         }
         return Optional.empty();
+    }
+
+    private static PipelineOutputStructure inputBamDirectoryStructure(final CommandLine commandLine,
+            final PipelineOutputStructure defaultStructure) {
+        if (commandLine.hasOption(INPUT_BAM_DIRECTORY_STRUCTURE)) {
+            return PipelineOutputStructure.valueOf(commandLine.getOptionValue(INPUT_BAM_DIRECTORY_STRUCTURE));
+        }
+        return defaultStructure;
     }
 
     private static Option optionWithArg(final String option, final String description) {

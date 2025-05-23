@@ -7,23 +7,31 @@ import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.gcp.StorageUtil;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.reference.api.DataType;
 import com.hartwig.pipeline.reference.api.Pipeline;
+import com.hartwig.pipeline.reference.api.PipelineFilePath;
 import com.hartwig.pipeline.reference.api.PipelineFiles;
 import com.hartwig.pipeline.reference.api.PipelineOutputStructure;
 import com.hartwig.pipeline.reference.api.PipelineOutputTemporaryLocation;
 import com.hartwig.pipeline.reference.api.PipelineRun;
 import com.hartwig.pipeline.reference.api.SampleType;
+import com.hartwig.pipeline.reference.api.Tool;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class ReduxFileLocator {
 
     private final PipelineInput input;
     private final StorageUtil storageUtil;
     private final String project;
+    private final PipelineOutputStructure inputBamDirectoryStructure;
 
-    public ReduxFileLocator(final PipelineInput input, final Storage storage, final String project) {
+    public ReduxFileLocator(final PipelineInput input, final Storage storage, final String project,
+            final PipelineOutputStructure inputBamDirectoryStructure) {
         this.input = input;
         this.storageUtil = new StorageUtil(storage);
         this.project = project;
+        this.inputBamDirectoryStructure = inputBamDirectoryStructure;
     }
 
     public GoogleStorageLocation locateJitterParamsFile(SingleSampleRunMetadata metadata) {
@@ -43,9 +51,19 @@ public class ReduxFileLocator {
         var reference = metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? metadata.sampleName() : "___";
         var pipelineRun = new PipelineRun(Pipeline.DNA_6_0, tumor, reference);
         var sampleType = metadata.type().equals(SingleSampleRunMetadata.SampleType.TUMOR) ? SampleType.TUMOR : SampleType.REFERENCE;
-        // We assume the default output format for pipeline5, both the BAM and the CRAM file are 2 levels below the pipeline output root.
-        var pipelineOutputLocation =
-                new PipelineOutputTemporaryLocation(URI.create(bamLocation).resolve("../../"), PipelineOutputStructure.PIPELINE5);
+
+        var bamTool = bamLocation.endsWith(".cram") ? Tool.CRAM : Tool.ALIGNER;
+        var relativeBamPath = PipelineFiles.get(pipelineRun,
+                        PipelineFiles.sampleTypeIs(sampleType),
+                        PipelineFiles.dataTypeIsAnyOf(DataType.ALIGNED_READS),
+                        PipelineFiles.toolIsAnyOf(bamTool))
+                .stream()
+                .findFirst()
+                .map(it -> it.getPathOrNull(inputBamDirectoryStructure))
+                .map(PipelineFilePath::toString)
+                .orElseThrow();
+        var rootDirectory = URI.create(bamLocation).resolve("../".repeat(StringUtils.countMatches(relativeBamPath, "/")));
+        var pipelineOutputLocation = new PipelineOutputTemporaryLocation(rootDirectory, inputBamDirectoryStructure);
 
         var reduxFile =
                 PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(sampleType), PipelineFiles.dataTypeIsAnyOf(dataType))

@@ -95,7 +95,7 @@ public class BwaAligner implements Aligner {
         if (sample.bam().isPresent() && !arguments.redoDuplicateMarking()) {
             cleanUp(trace);
             var bamLocation = sample.bam().get();
-            var reduxFileLocator = new ReduxFileLocator(input, storage, arguments.project());
+            var reduxFileLocator = new ReduxFileLocator(input, storage, arguments.project(), arguments.inputBamDirectoryStructure());
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)

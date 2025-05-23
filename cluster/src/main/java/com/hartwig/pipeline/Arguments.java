@@ -3,6 +3,7 @@ package com.hartwig.pipeline;
 import java.util.Optional;
 
 import com.hartwig.events.pipeline.Pipeline;
+import com.hartwig.pipeline.reference.api.PipelineOutputStructure;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.immutables.value.Value;
@@ -22,6 +23,7 @@ public interface Arguments extends CommonArguments {
     RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.V37;
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
     Pipeline.Context DEFAULT_CONTEXT = Pipeline.Context.DIAGNOSTIC;
+    PipelineOutputStructure DEFAULT_INPUT_BAM_DIRECTORY_STRUCTURE = PipelineOutputStructure.PIPELINE5;
 
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
@@ -66,7 +68,8 @@ public interface Arguments extends CommonArguments {
                 .anonymize(false)
                 .usePrivateResources(false)
                 .context(DEFAULT_CONTEXT)
-                .sampleJson(DEFAULT_SAMPLE_JSON);
+                .sampleJson(DEFAULT_SAMPLE_JSON)
+                .inputBamDirectoryStructure(DEFAULT_INPUT_BAM_DIRECTORY_STRUCTURE);
 
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
@@ -163,6 +166,8 @@ public interface Arguments extends CommonArguments {
     Optional<Integer> stageMemoryOverrideGb();
 
     Optional<String> stageMemoryOverrideRegex();
+
+    PipelineOutputStructure inputBamDirectoryStructure();
 
     enum DefaultsProfile {
         PUBLIC,

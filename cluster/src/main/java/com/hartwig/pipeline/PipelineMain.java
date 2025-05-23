@@ -116,7 +116,7 @@ public class PipelineMain {
                 persistedDataset,
                 metricsOutputQueue,
                 germlineCallerOutputQueue,
-                new ReduxFileLocator(input, storage, arguments.project()));
+                new ReduxFileLocator(input, storage, arguments.project(), arguments.inputBamDirectoryStructure()));
     }
 
     public static void main(final String[] args) {
