@@ -76,7 +76,7 @@ public class CommandLineOptions {
     private static final String REDO_DUPLICATE_MARKING_FLAG = "redo_duplicate_marking";
     private static final String STAGE_MEMORY_OVERRIDE_GB_FLAG = "stage_memory_override_gb";
     private static final String STAGE_MEMORY_OVERRIDE_REGEX_FLAG = "stage_memory_override_regex";
-    private static final String INPUT_BAM_DIRECTORY_STRUCTURE = "input_bam_directory_structure";
+    public static final String INPUT_BAM_DIRECTORY_STRUCTURE = "input_bam_directory_structure";
 
     private static Options options() {
         return new Options().addOption(profile())

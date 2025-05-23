@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.input;
 
+import static com.hartwig.pipeline.CommandLineOptions.INPUT_BAM_DIRECTORY_STRUCTURE;
+
 import java.net.URI;
 
 import com.google.cloud.storage.Storage;
@@ -26,10 +28,10 @@ public class ReduxFileLocator {
     private final String project;
     private final PipelineOutputStructure inputBamDirectoryStructure;
 
-    public ReduxFileLocator(final PipelineInput input, final Storage storage, final String project,
+    public ReduxFileLocator(final PipelineInput input, final StorageUtil storageUtil, final String project,
             final PipelineOutputStructure inputBamDirectoryStructure) {
         this.input = input;
-        this.storageUtil = new StorageUtil(storage);
+        this.storageUtil = storageUtil;
         this.project = project;
         this.inputBamDirectoryStructure = inputBamDirectoryStructure;
     }
@@ -77,8 +79,10 @@ public class ReduxFileLocator {
             // In the first case, we let the user know by crashing pipeline5.
             // In the second case, the user should redo marking duplicates to generate the file.
             throw new IllegalStateException(("Duplicate marking output file not found. Expected at location: '%s'. "
-                                             + "If this is intentional, consider enabling the '--redo_duplicate_marking' flag.").formatted(
-                    reduxFile));
+                    + "If these files exist in a different location, consider changing the '--%s' argument from '%s' to something more appropriate. "
+                    + "If these files don't exist, consider enabling the '--redo_duplicate_marking' flag.").formatted(reduxFile,
+                    INPUT_BAM_DIRECTORY_STRUCTURE,
+                    inputBamDirectoryStructure));
         }
         return GoogleStorageLocation.from(reduxFile, project);
     }
