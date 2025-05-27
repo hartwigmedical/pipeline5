@@ -63,17 +63,19 @@ public class ReduxFileLocator {
                 .findFirst()
                 .map(it -> it.getPathOrNull(inputBamDirectoryStructure))
                 .map(PipelineFilePath::toString)
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalStateException(
+                        "Path to file of type " + dataType.name() + " cannot be derived since there is no known expected format for "
+                                + bamTool.name() + " path."));
         var rootDirectory = URI.create(bamLocation).resolve("../".repeat(StringUtils.countMatches(relativeBamPath, "/")));
         var pipelineOutputLocation = new PipelineOutputTemporaryLocation(rootDirectory, inputBamDirectoryStructure);
 
-        var reduxFile =
-                PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(sampleType), PipelineFiles.dataTypeIsAnyOf(dataType))
-                        .stream()
-                        .findFirst()
-                        .map(it -> it.getUriOrNull(pipelineOutputLocation))
-                        .map(URI::toString)
-                        .orElseThrow();
+        var reduxFile = PipelineFiles.get(pipelineRun, PipelineFiles.sampleTypeIs(sampleType), PipelineFiles.dataTypeIsAnyOf(dataType))
+                .stream()
+                .findFirst()
+                .map(it -> it.getUriOrNull(pipelineOutputLocation))
+                .map(URI::toString)
+                .orElseThrow(() -> new IllegalStateException("Path to file of type " + dataType.name()
+                        + " cannot be derived since there is no known expected format for such a path."));
         if (!storageUtil.exists(reduxFile)) {
             // If the file is not found, it either means the user made a mistake, or the file really does not exist.
             // In the first case, we let the user know by crashing pipeline5.
