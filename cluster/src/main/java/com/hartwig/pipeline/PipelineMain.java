@@ -20,6 +20,7 @@ import com.hartwig.events.EventPublisher;
 import com.hartwig.events.pipeline.Pipeline;
 import com.hartwig.events.pipeline.PipelineComplete;
 import com.hartwig.events.pubsub.PubsubEventBuilder;
+import com.hartwig.gcp.StorageUtil;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -116,7 +117,7 @@ public class PipelineMain {
                 persistedDataset,
                 metricsOutputQueue,
                 germlineCallerOutputQueue,
-                new ReduxFileLocator(input, storage, arguments.project()));
+                new ReduxFileLocator(input, new StorageUtil(storage), arguments.project(), arguments.inputBamDirectoryStructure()));
     }
 
     public static void main(final String[] args) {

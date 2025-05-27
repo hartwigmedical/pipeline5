@@ -29,6 +29,7 @@ import com.hartwig.computeengine.storage.GoogleStorageLocation;
 import com.hartwig.computeengine.storage.ResultsDirectory;
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.computeengine.storage.RuntimeBucketOptions;
+import com.hartwig.gcp.StorageUtil;
 import com.hartwig.pdl.LaneInput;
 import com.hartwig.pdl.PipelineInput;
 import com.hartwig.pdl.SampleInput;
@@ -95,7 +96,7 @@ public class BwaAligner implements Aligner {
         if (sample.bam().isPresent() && !arguments.redoDuplicateMarking()) {
             cleanUp(trace);
             var bamLocation = sample.bam().get();
-            var reduxFileLocator = new ReduxFileLocator(input, storage, arguments.project());
+            var reduxFileLocator = new ReduxFileLocator(input, new StorageUtil(storage), arguments.project(), arguments.inputBamDirectoryStructure());
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)
