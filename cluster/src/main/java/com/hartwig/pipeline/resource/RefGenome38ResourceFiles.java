@@ -85,7 +85,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
         return formPath(SAGE, "clinvar.38.vcf.gz");
     }
     public String germlinePon() {
-        return formPath(SAGE, "SageGermlinePon.1000x.38.tsv.gz");
+        return formPath(SAGE, "hmf_wgs_sage_pon_1000.38.tsv.gz");
     }
     public String gnomadPonCache() {
         return formPath(GNOMAD, "");
