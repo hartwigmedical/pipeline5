@@ -244,15 +244,14 @@ public final class VirtualMachineJobDefinitions {
     }
 
     public static VirtualMachineJobDefinition cram2Bam(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
-            final SingleSampleRunMetadata.SampleType sampleType, final String namespace) {
-        int numLocalSsd = sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 2 : 4;
+            final String namespace) {
         return VirtualMachineJobDefinition.builder()
                 .imageFamily(STANDARD_IMAGE)
                 .name(namespace)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
+                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * 4)
                 .build();
     }
 

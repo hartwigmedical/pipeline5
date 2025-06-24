@@ -101,7 +101,7 @@ public class SingleSamplePipeline {
             final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = composer.add(state.add(aligner.run(metadata)));
         if (state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM)) {
-            return state.add(stageRunner.run(metadata, new Cram2Bam(arguments, reduxFileLocator, alignmentOutput.alignments(), metadata.type())));
+            return state.add(stageRunner.run(metadata, new Cram2Bam(arguments, reduxFileLocator, alignmentOutput.alignments())));
         } else {
             return alignmentOutput;
         }

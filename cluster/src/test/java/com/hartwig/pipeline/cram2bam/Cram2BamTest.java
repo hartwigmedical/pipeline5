@@ -28,10 +28,7 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
     @Override
     protected Stage<AlignmentOutput, SingleSampleRunMetadata> createVictim() {
         var arguments = Arguments.testDefaultsBuilder().redoDuplicateMarking(true).build();
-        return new Cram2Bam(arguments,
-                null,
-                GoogleStorageLocation.of(TestInputs.TUMOR_BUCKET, FileTypes.bam(TestInputs.tumorSample())),
-                SingleSampleRunMetadata.SampleType.TUMOR);
+        return new Cram2Bam(arguments, null, GoogleStorageLocation.of(TestInputs.TUMOR_BUCKET, FileTypes.bam(TestInputs.tumorSample())));
     }
 
     @Override

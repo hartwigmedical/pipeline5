@@ -29,14 +29,11 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
     private final Arguments arguments;
     private final ReduxFileLocator reduxFileLocator;
     private final InputDownloadCommand bamDownload;
-    private final SingleSampleRunMetadata.SampleType sampleType;
 
-    public Cram2Bam(final Arguments arguments, final ReduxFileLocator reduxFileLocator, final GoogleStorageLocation bamLocation,
-            final SingleSampleRunMetadata.SampleType sampleType) {
+    public Cram2Bam(final Arguments arguments, final ReduxFileLocator reduxFileLocator, final GoogleStorageLocation bamLocation) {
         this.arguments = arguments;
         this.reduxFileLocator = reduxFileLocator;
         this.bamDownload = new InputDownloadCommand(bamLocation);
-        this.sampleType = sampleType;
     }
 
     @Override
@@ -58,7 +55,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinitions.cram2Bam(bash, resultsDirectory, sampleType, namespace());
+        return VirtualMachineJobDefinitions.cram2Bam(bash, resultsDirectory, namespace());
     }
 
     @Override
