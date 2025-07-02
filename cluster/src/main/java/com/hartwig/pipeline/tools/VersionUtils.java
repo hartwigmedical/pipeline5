@@ -79,7 +79,7 @@ public final class VersionUtils {
     }
 
     public static String imageVersion() {
-        return "6-0";
+        return "6-0-dev4191";
     }
 
     public static void main(final String[] args) {
