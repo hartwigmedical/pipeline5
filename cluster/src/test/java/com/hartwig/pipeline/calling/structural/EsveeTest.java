@@ -106,7 +106,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -sample tumor,reference"
                         + " -bam_file /data/input/tumor.bam,/data/input/reference.bam"
                         + " -blacklist_bed /opt/resources/sv/37/sv_prep_blacklist.37.bed"
-                        + " -known_fusion_bed /opt/resources/sv/37/known_fusions.37.bedpe"
+                        + " -known_hotspot_file /opt/resources/sv/37/known_fusions.37.bedpe"
                         + " -bamtool /opt/tools/sambamba/0.6.8/sambamba"
                         + " -write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\""
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
@@ -127,7 +127,8 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -ref_genome_version V37"
                         + " -decoy_genome /opt/resources/sv/37/hg38_decoys.fa.img"
                         + " -output_dir /data/output"
-                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)" 
+                        + " -phase_group_links false"
         );
 
         expectedCommands.add(

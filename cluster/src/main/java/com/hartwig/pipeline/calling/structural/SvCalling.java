@@ -199,6 +199,7 @@ public class SvCalling extends SubStage {
 
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
+        arguments.add("-phase_group_links false");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, ASSEMBLE_CLASS_PATH, arguments);
     }
