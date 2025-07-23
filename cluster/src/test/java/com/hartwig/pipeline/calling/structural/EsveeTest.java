@@ -144,7 +144,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
         expectedCommands.add(
                 toolCommand(ESVEE, CALLER_CLASS_PATH)
-                        + " -sample tumor"
+                        + " -tumor tumor"
                         + " -reference reference"
                         + " -input_vcf /data/output/tumor.esvee.ref_depth.vcf.gz"
                         + " -ref_genome_version V37"

@@ -239,7 +239,7 @@ public class SvCalling extends SubStage {
 
         if (!germlineOnly()) {
 
-            arguments.add(format("-sample %s", mainSampleName()));
+            arguments.add(format("-tumor %s", mainSampleName()));
 
             SampleArgument referenceSample = getSample(SampleType.REFERENCE);
             if (referenceSample != null) {
