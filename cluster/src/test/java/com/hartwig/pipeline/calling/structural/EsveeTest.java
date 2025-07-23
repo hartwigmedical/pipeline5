@@ -127,8 +127,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -ref_genome_version V37"
                         + " -decoy_genome /opt/resources/sv/37/hg38_decoys.fa.img"
                         + " -output_dir /data/output"
-                        + " -threads $(grep -c '^processor' /proc/cpuinfo)" 
-                        + " -phase_group_links false"
+                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
         );
 
         expectedCommands.add(
