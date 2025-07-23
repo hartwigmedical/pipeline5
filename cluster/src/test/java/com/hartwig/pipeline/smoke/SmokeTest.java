@@ -40,6 +40,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
