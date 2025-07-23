@@ -260,8 +260,6 @@ public class SvCalling extends SubStage {
         arguments.add(format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
         arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
 
-        arguments.add("-write_breakend_tsv false");
-
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
     }
