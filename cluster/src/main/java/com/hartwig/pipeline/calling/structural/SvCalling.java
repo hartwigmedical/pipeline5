@@ -137,7 +137,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-sample %s", samplesString));
         arguments.add(format("-bam_file %s", bamFilesString));
         arguments.add(format("-blacklist_bed %s", resourceFiles.svPrepBlacklistBed()));
-        arguments.add(format("-known_fusion_bed %s", resourceFiles.knownFusionPairBedpe()));
+        arguments.add(format("-known_hotspot_file %s", resourceFiles.knownFusionPairBedpe()));
         arguments.add(format("-bamtool %s", SAMBAMBA.binaryPath()));
         arguments.add("-write_types \"JUNCTIONS;BAM;FRAGMENT_LENGTH_DIST\"");
 
@@ -145,6 +145,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         arguments.add(format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-unpaired_reads false"));
         // arguments.add("-log_debug");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, PREP_CLASS_PATH, arguments);
@@ -261,7 +262,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
 
         arguments.add("-write_breakend_tsv false");
-     
+
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
     }
