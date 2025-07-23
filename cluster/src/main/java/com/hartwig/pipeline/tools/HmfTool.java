@@ -12,7 +12,7 @@ public enum HmfTool {
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0", 24, 16, false),
     CUPPA("2.3.0", 16, 4, false),
-    ESVEE("1.0.2", 192, 32, false),
+    ESVEE("1.1.1", 192, 32, false),
     HEALTH_CHECKER("3.6", 32, 8, false),
     LILAC("1.6", 24, 16, false),
     LINX("2.0.2", 16, 4, false),
@@ -25,7 +25,7 @@ public enum HmfTool {
     SIGS("1.2.1", 16, 4, false, 30),
     TEAL("1.3.3", 32, 32, false),
     V_CHORD("1.0", 4, 2, false),
-    VIRUSBREAKEND_GRIDSS("2.13.3", 128, 16, false),
+    VIRUSBREAKEND_GRIDSS("2.13.3", 128, 24, false),
     VIRUS_INTERPRETER("1.7", 8, 2, false);
 
     private static final String PILOT_VERSION = "pilot"; // will pick up the jar from /opt/toolName/pilot/toolName.jar

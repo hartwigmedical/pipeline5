@@ -152,6 +152,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -pon_sgl_file /opt/resources/sv/37/sgl_pon.37.bed.gz"
                         + " -pon_sv_file /opt/resources/sv/37/sv_pon.37.bedpe.gz"
                         + " -repeat_mask_file /opt/resources/sv/37/repeat_mask_data.37.fa.gz"
+                        + " -write_breakend_tsv false"
                         + " -output_dir /data/output"
         );
         // @formatter:on

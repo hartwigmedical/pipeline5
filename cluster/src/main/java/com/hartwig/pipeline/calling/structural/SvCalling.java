@@ -43,8 +43,7 @@ public class SvCalling extends SubStage {
     private final ResourceFiles resourceFiles;
     private final List<SampleArgument> sampleArguments = new ArrayList<>();
 
-    private enum SampleType
-    {
+    private enum SampleType {
         TUMOR,
         REFERENCE
     }
@@ -76,35 +75,37 @@ public class SvCalling extends SubStage {
         return this;
     }
 
-    private boolean germlineOnly() { return getSample(SampleType.TUMOR) == null; }
+    private boolean germlineOnly() {
+        return getSample(SampleType.TUMOR) == null;
+    }
 
-    private List<SampleArgument> orderedSamples()
-    {
+    private List<SampleArgument> orderedSamples() {
         List<SampleArgument> samples = Lists.newArrayList();
 
         SampleArgument tumorSample = getSample(SampleType.TUMOR);
 
-        if(tumorSample != null)
+        if (tumorSample != null) {
             samples.add(tumorSample);
+        }
 
         SampleArgument referenceSample = getSample(SampleType.REFERENCE);
 
-        if(referenceSample != null)
+        if (referenceSample != null) {
             samples.add(referenceSample);
+        }
 
         return samples;
     }
 
-    private SampleArgument getSample(SampleType sampleType)
-    {
+    private SampleArgument getSample(SampleType sampleType) {
         return sampleArguments.stream().filter(x -> x.Type == sampleType).findFirst().orElse(null);
     }
 
-    private String mainSampleName()
-    {
+    private String mainSampleName() {
         SampleArgument tumorSample = getSample(SampleType.TUMOR);
-        if(tumorSample != null)
+        if (tumorSample != null) {
             return tumorSample.SampleName;
+        }
 
         return sampleArguments.get(0).SampleName;
     }
@@ -127,13 +128,9 @@ public class SvCalling extends SubStage {
         // ensure tumor is passed in first since it's name is used for all prep output files
         List<SampleArgument> samples = orderedSamples();
 
-        String samplesString = samples.stream()
-                .map(sampleArgument -> sampleArgument.SampleName)
-                .collect(Collectors.joining(","));
+        String samplesString = samples.stream().map(sampleArgument -> sampleArgument.SampleName).collect(Collectors.joining(","));
 
-        String bamFilesString = samples.stream()
-                .map(sampleArgument -> sampleArgument.BamPath)
-                .collect(Collectors.joining(","));
+        String bamFilesString = samples.stream().map(sampleArgument -> sampleArgument.BamPath).collect(Collectors.joining(","));
 
         List<String> arguments = new ArrayList<>();
 
@@ -169,23 +166,20 @@ public class SvCalling extends SubStage {
 
         List<String> arguments = new ArrayList<>();
 
-        if(!germlineOnly()) {
+        if (!germlineOnly()) {
 
             SampleArgument tumorSample = getSample(SampleType.TUMOR);
-            if(tumorSample != null)
-            {
+            if (tumorSample != null) {
                 arguments.add(format("-tumor %s", tumorSample.SampleName));
                 arguments.add(format("-tumor_bam %s", tumorPrepBam()));
             }
 
             SampleArgument referenceSample = getSample(SampleType.REFERENCE);
-            if(referenceSample != null)
-            {
+            if (referenceSample != null) {
                 arguments.add(format("-reference %s", referenceSample.SampleName));
                 arguments.add(format("-reference_bam %s", referencePrepBam()));
             }
-        }
-        else {
+        } else {
 
             SampleArgument referenceSample = getSample(SampleType.REFERENCE);
             arguments.add(format("-tumor %s", referenceSample.SampleName));
@@ -198,8 +192,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version()));
 
-        if(resourceFiles.version().equals(V37))
-        {
+        if (resourceFiles.version().equals(V37)) {
             arguments.add(format("-decoy_genome %s", resourceFiles.decoyGenome()));
         }
 
@@ -219,13 +212,9 @@ public class SvCalling extends SubStage {
 
         List<SampleArgument> samples = orderedSamples();
 
-        String samplesString = samples.stream()
-                .map(sampleArgument -> sampleArgument.SampleName)
-                .collect(Collectors.joining(","));
+        String samplesString = samples.stream().map(sampleArgument -> sampleArgument.SampleName).collect(Collectors.joining(","));
 
-        String bamFilesString = samples.stream()
-                .map(sampleArgument -> sampleArgument.BamPath)
-                .collect(Collectors.joining(","));
+        String bamFilesString = samples.stream().map(sampleArgument -> sampleArgument.BamPath).collect(Collectors.joining(","));
 
         arguments.add(format("-sample %s", samplesString));
         arguments.add(format("-bam_file %s", bamFilesString));
@@ -248,17 +237,15 @@ public class SvCalling extends SubStage {
     private BashCommand buildCallerCommand() {
         List<String> arguments = new ArrayList<>();
 
-        if(!germlineOnly()){
+        if (!germlineOnly()) {
 
             arguments.add(format("-sample %s", mainSampleName()));
 
             SampleArgument referenceSample = getSample(SampleType.REFERENCE);
-            if(referenceSample != null)
-            {
+            if (referenceSample != null) {
                 arguments.add(format("-reference %s", referenceSample.SampleName));
             }
-        }
-        else {
+        } else {
 
             SampleArgument referenceSample = getSample(SampleType.REFERENCE);
             arguments.add(format("-reference %s", referenceSample.SampleName));
@@ -273,8 +260,9 @@ public class SvCalling extends SubStage {
         arguments.add(format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
         arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
 
+        arguments.add("-write_breakend_tsv false");
+     
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
     }
 }
