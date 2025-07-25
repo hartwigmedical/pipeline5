@@ -64,8 +64,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
 
     @Override
     protected void validatePersistedOutput(final EsveeOutput output) {
-        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/esvee/" + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
+        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/esvee/" + TUMOR_ESVEE_UNFILTERED_VCF_GZ));
     }
 
     @Override
@@ -140,6 +139,8 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
                         + " -output_dir /data/output"
                         + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -min_qual 60"
+                        + " -hotspot_min_qual 60"
         );
 
         expectedCommands.add(

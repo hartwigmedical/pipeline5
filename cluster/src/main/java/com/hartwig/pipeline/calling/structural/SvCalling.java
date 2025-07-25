@@ -259,6 +259,8 @@ public class SvCalling extends SubStage {
         arguments.add(format("-pon_sgl_file %s", resourceFiles.sglBreakendPon()));
         arguments.add(format("-pon_sv_file %s", resourceFiles.svBreakpointPon()));
         arguments.add(format("-repeat_mask_file %s", resourceFiles.repeatMaskerDb()));
+        arguments.add("-min_qual 60");
+        arguments.add("-hotspot_min_qual 60");
 
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
         return JavaCommandFactory.javaClassCommand(ESVEE, CALLER_CLASS_PATH, arguments);
