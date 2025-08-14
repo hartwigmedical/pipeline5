@@ -32,7 +32,7 @@ public class StageRunner<M extends RunMetadata> {
 
     private final Storage storage;
     private final Arguments arguments;
-    private final VmMemoryAdjuster vmMemoryAdjuster;
+    private final VmResourcesAdjuster vmResourcesAdjuster;
     private final ComputeEngine computeEngine;
     private final ResultsDirectory resultsDirectory;
     private final StartingPoint startingPoint;
@@ -43,7 +43,7 @@ public class StageRunner<M extends RunMetadata> {
             final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels, final InputMode mode) {
         this.storage = storage;
         this.arguments = arguments;
-        this.vmMemoryAdjuster = new VmMemoryAdjuster(arguments);
+        this.vmResourcesAdjuster = new VmResourcesAdjuster(arguments);
         this.computeEngine = computeEngine;
         this.resultsDirectory = resultsDirectory;
         this.startingPoint = startingPoint;
@@ -70,7 +70,7 @@ public class StageRunner<M extends RunMetadata> {
                         .addCommands(commands)
                         .addCommand(new OutputUploadCommand(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
-                var jobDefinition = vmMemoryAdjuster.overrideVmDefinition(stage.vmDefinition(bash, resultsDirectory));
+                var jobDefinition = vmResourcesAdjuster.overrideVmDefinition(stage.vmDefinition(bash, resultsDirectory));
                 ComputeEngineStatus computeEngineStatus =
                         Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.runName(), stage.namespace())))
                                 .get(() -> computeEngine.submit(bucket, jobDefinition));
