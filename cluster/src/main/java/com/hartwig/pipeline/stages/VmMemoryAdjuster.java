@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.stages;
 
-import java.util.OptionalInt;
-
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.Arguments;

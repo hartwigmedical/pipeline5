@@ -73,6 +73,8 @@ public class CommandLineOptions {
     private static final String PUBLISH_EVENTS_ONLY_FLAG = "publish_events_only";
     private static final String USE_PRIVATE_RESOURCES_FLAG = "use_private_resources";
     private static final String REDO_DUPLICATE_MARKING_FLAG = "redo_duplicate_marking";
+    private static final String STAGE_CPUS_OVERRIDE_FLAG = "stage_cpus_override";
+    private static final String STAGE_CPUS_OVERRIDE_REGEX_FLAG = "stage_cpus_override_regex";
     private static final String STAGE_MEMORY_OVERRIDE_GB_FLAG = "stage_memory_override_gb";
     private static final String STAGE_MEMORY_OVERRIDE_REGEX_FLAG = "stage_memory_override_regex";
 
@@ -135,8 +137,12 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(PUBLISH_EVENTS_ONLY_FLAG,
                         "Compute nothing, only publish events for downstream consumption"))
                 .addOption(optionWithBooleanArg(REDO_DUPLICATE_MARKING_FLAG, "Redo duplicate marking on input BAM or CRAM"))
+                .addOption(optionWithArg(STAGE_CPUS_OVERRIDE_FLAG,
+                        "Override the number of cpus for a stage (specified by regex) to a specific value."))
+                .addOption(optionWithArg(STAGE_CPUS_OVERRIDE_REGEX_FLAG,
+                        "Regex to match the stage name to override the number of cpus for. This is used in conjunction with the -stage_cpus_override flag."))
                 .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_GB_FLAG,
-                        "Override the memory for a stage (specified by regex) to a specific value. "))
+                        "Override the memory for a stage (specified by regex) to a specific value."))
                 .addOption(optionWithArg(STAGE_MEMORY_OVERRIDE_REGEX_FLAG,
                         "Regex to match the stage name to override the memory for. This is used in conjunction with the -stage_memory_override_gb flag."));
     }
@@ -342,6 +348,8 @@ public class CommandLineOptions {
                     .pubsubTopicEnvironment(pubsubTopicEnvironment(commandLine, defaults))
                     .publishEventsOnly(booleanOptionWithDefault(commandLine, PUBLISH_EVENTS_ONLY_FLAG, defaults.publishEventsOnly()))
                     .hmfApiUrl(hmfApiUrl(commandLine, defaults))
+                    .stageCpusOverrideRegex(stageCpusOverrideRegex(commandLine))
+                    .stageCpusOverride(stageCpusOverride(commandLine))
                     .stageMemoryOverrideRegex(stageMemoryOverrideRegex(commandLine))
                     .stageMemoryOverrideGb(stageMemoryOverrideGb(commandLine))
                     .build();
@@ -504,6 +512,20 @@ public class CommandLineOptions {
             return commandLine.getOptionValue(REGION_FLAG);
         }
         return defaultRegion;
+    }
+
+    private static Optional<String> stageCpusOverrideRegex(final CommandLine commandLine) {
+        if (commandLine.hasOption(STAGE_CPUS_OVERRIDE_REGEX_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(STAGE_CPUS_OVERRIDE_REGEX_FLAG));
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Integer> stageCpusOverride(final CommandLine commandLine) {
+        if (commandLine.hasOption(STAGE_CPUS_OVERRIDE_FLAG)) {
+            return Optional.of(Integer.parseInt(commandLine.getOptionValue(STAGE_CPUS_OVERRIDE_FLAG)));
+        }
+        return Optional.empty();
     }
 
     private static Optional<String> stageMemoryOverrideRegex(final CommandLine commandLine) {
