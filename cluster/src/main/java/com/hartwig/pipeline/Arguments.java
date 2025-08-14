@@ -163,6 +163,10 @@ public interface Arguments extends CommonArguments {
 
     boolean publishEventsOnly();
 
+    Optional<Integer> stageCpusOverride();
+
+    Optional<String> stageCpusOverrideRegex();
+
     Optional<Integer> stageMemoryOverrideGb();
 
     Optional<String> stageMemoryOverrideRegex();
