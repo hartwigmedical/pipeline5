@@ -4,8 +4,13 @@ set -euo pipefail
 
 usage() {
     echo "Usage: $0 --cram <cram_file> --output-dir <output_directory> --sample-id <sample_identifier> [--threads <num_threads>]"
-    echo "  --cram        local path to CRAM file"
-    echo "  --output-dir  directory where output files should be placed"
+    echo
+    echo "Required arguments:"
+    echo "  --cram        Local path to CRAM file"
+    echo "  --output-dir  Local directory where output files should be placed"
+    echo "  --sample-id   Sample identifier to use in output file names"
+    echo
+    echo "Optional arguments:"
     echo "  --threads     number of threads to use (default: number of processors - 1)"
     exit 1
 }
