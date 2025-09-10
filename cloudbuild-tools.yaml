@@ -1,5 +1,6 @@
 steps:
   - id: 'Build and push tool images'
+    dir: 'tools'
     name: 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker/docker-tag'
     args: [ 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker', '$TAG_NAME', 'Dockerfile']
 
