@@ -110,7 +110,7 @@ log "Creating local output directory..."
 mkdir -p "$OUTPUT_TMP_DIR"
 
 log "Extracting mitochondrial read names, step 1 of 2..."
-samtools view --threads "$thread_count" "$cram_file" "*" | grep "$chromosome" || echo -n "" | cut -f 1 > "$OUTPUT_READ_NAMES"
+samtools view --threads "$thread_count" "$cram_file" "*" | (grep "$chromosome" || echo -n "") | cut -f 1 > "$OUTPUT_READ_NAMES"
 
 log "Extracting mitochondrial read names, step 2 of 2..."
 samtools view --threads "$thread_count" "$cram_file" "$chromosome"  | cut -f 1 >> "$OUTPUT_READ_NAMES"
