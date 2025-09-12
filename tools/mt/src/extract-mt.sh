@@ -99,7 +99,7 @@ log "Extracting mitochondrial DNA from $cram_file"
 log "  chromosome name:  $chromosome"
 log "  threads used:     $thread_count"
 log "  output stored at: $output_dir"
-log "  sample id:      : $sample_id"
+log "  sample id:        $sample_id"
 
 if [ ! -d "$output_dir" ]; then
     log "Creating output directory"
