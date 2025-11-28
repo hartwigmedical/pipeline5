@@ -16,15 +16,17 @@ public class LaneAlignment extends SubStage {
     private final String referenceGenomePath;
     private final String firstFastqPath;
     private final String secondFastqPath;
+    private final String sampleName;
     private final LaneInput lane;
 
-    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath,
-            final LaneInput lane) {
+    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath,
+            final String secondFastqPath, final String sampleName, final LaneInput lane) {
         super(BwaAligner.laneId(lane), FileTypes.BAM);
         this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;
         this.firstFastqPath = firstFastqPath;
         this.secondFastqPath = secondFastqPath;
+        this.sampleName = sampleName;
         this.lane = lane;
     }
 
@@ -34,6 +36,7 @@ public class LaneAlignment extends SubStage {
                 lane.flowCellId(),
                 referenceGenomePath,
                 firstFastqPath,
-                secondFastqPath), new SamtoolsViewCommand(), new SambambaSortCommand(output.path(), "/dev/stdin")));
+                secondFastqPath,
+                sampleName), new SamtoolsViewCommand(), new SambambaSortCommand(output.path(), "/dev/stdin")));
     }
 }

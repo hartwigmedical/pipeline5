@@ -17,6 +17,7 @@ public class LaneAlignmentTest extends SubStageTest {
                 "reference.fasta",
                 "COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
                 "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz",
+                "sample",
                 emptyBuilder().laneNumber("L001").flowCellId("flowCell").build());
     }
 
@@ -28,7 +29,7 @@ public class LaneAlignmentTest extends SubStageTest {
     @Test
     public void alignsBamsAndSortsEachLaneFastqPair() {
         assertThat(bash()).contains("(/opt/tools/bwa-mem2/20250204.7aa5ff6/bwa-mem2 mem -R "
-                + "\"@RG\\tID:AHHKYHDSXX_S13_L001_001\\tLB:NA\\tPL:ILLUMINA\\tPU:flowCell\\tSM:NA\" "
+                + "\"@RG\\tID:AHHKYHDSXX_S13_L001_001\\tLB:NA\\tPL:ILLUMINA\\tPU:flowCell\\tSM:sample\" "
                 + "-Y -t $(grep -c '^processor' /proc/cpuinfo) reference.fasta COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz "
                 + "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz "
                 + "| /opt/tools/samtools/1.20/samtools view --no-PG --bam --uncompressed /dev/stdin "

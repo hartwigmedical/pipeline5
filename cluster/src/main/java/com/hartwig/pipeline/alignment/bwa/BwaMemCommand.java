@@ -3,16 +3,15 @@ package com.hartwig.pipeline.alignment.bwa;
 import static java.lang.String.format;
 
 import com.hartwig.computeengine.execution.vm.Bash;
+import com.hartwig.pipeline.calling.command.BwaCommand;
 
-class BwaMemCommand extends BwaMem2Command
-{
-    private static final String SAMPLE_NAME = "NA";
+class BwaMemCommand extends BwaCommand {
 
-    BwaMemCommand(final String recordGroupId, final String flowcellId, final String referenceGenomePath,
+    BwaMemCommand(final String recordGroupId, final String sampleName, final String flowcellId, final String referenceGenomePath,
             final String first, final String second) {
         super("mem",
                 "-R",
-                format("\"@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s\"", recordGroupId, SAMPLE_NAME, flowcellId, SAMPLE_NAME),
+                format("\"@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s\"", recordGroupId, sampleName, flowcellId, sampleName),
                 "-Y",
                 "-t",
                 Bash.allCpus(),
