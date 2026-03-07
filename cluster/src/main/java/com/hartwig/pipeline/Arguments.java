@@ -20,7 +20,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String VIRTUAL_MACHINE_PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
     RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.V37;
-    int DEFAULT_MAX_CONCURRENT_LANES = 16;
+    int DEFAULT_MAX_CONCURRENT_LANES = 24;
     Pipeline.Context DEFAULT_CONTEXT = Pipeline.Context.DIAGNOSTIC;
 
     static ImmutableArguments.Builder builder() {

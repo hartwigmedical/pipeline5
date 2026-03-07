@@ -350,7 +350,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(Teal.NAMESPACE)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 8))
+                .performanceProfile(custom(6, 16))
                 .startupCommand(startupScript)
                 .build();
     }
