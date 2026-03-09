@@ -111,7 +111,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta"
                         + " -ref_genome_version V37"
                         + " -output_dir /data/output"
-                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -threads 32"
         );
 
         expectedCommands.add(
@@ -126,7 +126,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -ref_genome_version V37"
                         + " -decoy_genome /opt/resources/sv/37/hg38_decoys.fa.img"
                         + " -output_dir /data/output"
-                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -threads 32"
         );
 
         expectedCommands.add(
@@ -138,7 +138,7 @@ public class EsveeTest extends StageTest<EsveeOutput, SomaticRunMetadata> {
                         + " -ref_genome_version V37"
                         + " -unmap_regions /opt/resources/mappability/37/unmap_regions.37.tsv"
                         + " -output_dir /data/output"
-                        + " -threads $(grep -c '^processor' /proc/cpuinfo)"
+                        + " -threads 32"
                        
         );
 

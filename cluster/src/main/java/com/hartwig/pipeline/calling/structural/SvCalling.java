@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import com.hartwig.computeengine.execution.vm.Bash;
 import com.hartwig.computeengine.execution.vm.VmDirectories;
 import com.hartwig.computeengine.execution.vm.command.BashCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -144,7 +143,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads 32", Bash.allCpus()));
+        arguments.add("-threads 32");
         // arguments.add("-log_debug");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, PREP_CLASS_PATH, arguments);
@@ -197,7 +196,7 @@ public class SvCalling extends SubStage {
         }
 
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads 32", Bash.allCpus()));
+        arguments.add("-threads 32");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, ASSEMBLE_CLASS_PATH, arguments);
     }
@@ -225,7 +224,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(format("-unmap_regions %s", resourceFiles.unmapRegionsFile()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads %s", Bash.allCpus()));
+        arguments.add("-threads 32");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, DEPTH_ANNOTATOR_CLASS_PATH, arguments);
     }
