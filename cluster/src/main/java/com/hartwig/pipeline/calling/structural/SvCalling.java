@@ -144,7 +144,7 @@ public class SvCalling extends SubStage {
         arguments.add(format("-ref_genome %s", resourceFiles.refGenomeFile()));
         arguments.add(format("-ref_genome_version %s", resourceFiles.version().toString()));
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-threads 32", Bash.allCpus()));
         // arguments.add("-log_debug");
 
         return JavaCommandFactory.javaClassCommand(ESVEE, PREP_CLASS_PATH, arguments);
@@ -197,7 +197,7 @@ public class SvCalling extends SubStage {
         }
 
         arguments.add(format("-output_dir %s", VmDirectories.OUTPUT));
-        arguments.add(format("-threads %s", Bash.allCpus()));
+        arguments.add(format("-threads 32", Bash.allCpus()));
 
         return JavaCommandFactory.javaClassCommand(ESVEE, ASSEMBLE_CLASS_PATH, arguments);
     }
