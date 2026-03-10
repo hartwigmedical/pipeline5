@@ -12,7 +12,7 @@ public enum HmfTool {
     CIDER("1.0.3", 24, 4, false),
     COBALT("2.0", 24, 16, false),
     CUPPA("2.3.0", 16, 4, false),
-    ESVEE("1.1.2", 380, 50, false),
+    ESVEE("1.1.2", 375, 48, false),
     HEALTH_CHECKER("3.6", 32, 8, false),
     LILAC("1.6", 24, 16, false),
     LINX("2.0.2", 16, 4, false),
