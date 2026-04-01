@@ -174,8 +174,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
             pycuppaPredictArguments.add(format("--cv_predictions_path %s", cuppaCvPredictionsFile));
         }
 
-        cuppaCommands.add(new SubShellCommand(new Python3ModuleCommand("pycuppa",
-                CUPPA.runVersion(),
+        cuppaCommands.add(new SubShellCommand(new Python3ModuleCommand(
                 "cuppa.predict",
                 pycuppaPredictArguments)));
 

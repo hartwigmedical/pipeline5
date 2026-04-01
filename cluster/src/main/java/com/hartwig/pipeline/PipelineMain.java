@@ -57,9 +57,10 @@ import org.slf4j.event.Level;
 
 public class PipelineMain {
     // for perl and R to work we need to activate conda env
-    private static final List<String> EXTRA_SOMATIC_ARGS = List.of("eval `/opt/tools/anaconda3/bin/conda shell.bash hook`",
-            "source /opt/tools/anaconda3/bin/activate",
-            "conda activate /opt/tools/anaconda3/envs/bioconductor-r42");
+    private static final List<String> EXTRA_SOMATIC_ARGS = List.of(
+            "export MAMBA_ROOT_PREFIX='/opt/tools/miniforge3'",
+            "eval \"$($MAMBA_ROOT_PREFIX/bin/mamba shell hook --shell bash --root-prefix $MAMBA_ROOT_PREFIX)\"",
+            "mamba activate hmftools");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 

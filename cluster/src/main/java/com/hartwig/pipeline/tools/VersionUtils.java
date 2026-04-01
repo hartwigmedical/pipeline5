@@ -79,7 +79,7 @@ public final class VersionUtils {
     }
 
     public static String imageVersion() {
-        return "6-1";
+        return "6-2";
     }
 
     public static void main(final String[] args) {

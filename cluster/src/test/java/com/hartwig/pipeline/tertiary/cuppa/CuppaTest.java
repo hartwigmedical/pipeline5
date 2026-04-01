@@ -96,7 +96,6 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected List<String> expectedCommands() {
         // @formatter:off
-        String cuppaPythonVersionedCommmand = format("/opt/tools/pycuppa/%s_venv/bin/activate", CUPPA.runVersion());
 
         return List.of(toolCommand(CUPPA, CUPPA_DATA_PREP)
                 + " -sample tumor"
@@ -104,14 +103,12 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                 + " -ref_genome_version V37"
                 + " -sample_data_dir /data/input/results"
                 + " -output_dir /data/output",
-                "(source " + cuppaPythonVersionedCommmand + " &&"
-                + " python -m cuppa.predict"
+                "python -m cuppa.predict"
                 + " --classifier_path /opt/resources/cuppa/37/cuppa_classifier.37.pickle.gz"
                 + " --features_path /data/output/tumor.cuppa_data.tsv.gz"
                 + " --output_dir /data/output"
                 + " --sample_id tumor"
-                + " --clf_group 'dna'"
-                + " && deactivate)");
+                + " --clf_group 'dna'");
         // @formatter:on
     }
 

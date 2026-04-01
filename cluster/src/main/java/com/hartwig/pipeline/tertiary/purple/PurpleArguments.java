@@ -20,7 +20,7 @@ final class PurpleArguments {
                 format("-somatic_vcf %s", somaticVcfPath),
                 format("-somatic_sv_vcf %s", structuralVcfPath),
                 format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()),
-                format("-circos %s", CIRCOS.binaryPath()));
+                "-circos circos");
 
         return arguments;
     }
