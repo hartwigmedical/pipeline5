@@ -1,0 +1,7 @@
+steps:
+  - id: 'Build and push tool image'
+    dir: 'tools'
+    name: 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker/docker-tag'
+    args: [ 'europe-west4-docker.pkg.dev/hmf-build/hmf-docker', '$TAG_NAME', 'Dockerfile']
+
+logsBucket: 'gs://hmf-build-logs'
