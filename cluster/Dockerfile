@@ -1,4 +1,4 @@
-FROM google/cloud-sdk:latest
+FROM google/cloud-sdk:565.0.0
 
 RUN apt-get update
 RUN apt-get --yes install openjdk-17-jre
