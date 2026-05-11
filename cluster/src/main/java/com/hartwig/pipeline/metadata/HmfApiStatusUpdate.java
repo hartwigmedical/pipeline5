@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public interface HmfApiStatusUpdate {
     static HmfApiStatusUpdate from(final Arguments arguments, final RunApi runApi, final PipelineInput input) {
         if (arguments.hmfApiUrl().isPresent()) {
-            return new RealApiStatusUpdate(runApi, input.operationalReferences().map(OperationalReferences::runId).orElseThrow());
+            return new RealApiStatusUpdate(runApi, input.operationalReferences().map(OperationalReferences::runId).orElseThrow().longValue());
         } else {
             return new NoOpStatusUpdate();
         }

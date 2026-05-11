@@ -49,8 +49,8 @@ public class MetadataProviderTest {
 
     @Test
     public void shouldSetOperationalReferencesFromPdlWhenGiven() {
-        long runId = 1L;
-        long setId = 42L;
+        int runId = 1;
+        int setId = 42;
         OperationalReferences setReferences = OperationalReferences.builder().runId(runId).setId(setId).build();
         pipelineInput = PipelineInput.builder().operationalReferences(setReferences).setName(SET_NAME).build();
         victim = new MetadataProvider(arguments, pipelineInput);

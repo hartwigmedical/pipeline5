@@ -14,7 +14,9 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Labels {
-
+    
+    Optional<String> submission();
+    
     Optional<String> sample();
 
     Optional<String> runId();
@@ -43,6 +45,7 @@ public interface Labels {
 
     default Map<String, String> asMap(final List<Map.Entry<String, String>> additional) {
         ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
+        submission().ifPresent(l -> mapBuilder.put("submission", clean(l)));
         sample().ifPresent(l -> mapBuilder.put("sample", clean(l)));
         runId().ifPresent(l -> mapBuilder.put("run_id", clean(l)));
         user().ifPresent(l -> mapBuilder.put("user", clean(l)));

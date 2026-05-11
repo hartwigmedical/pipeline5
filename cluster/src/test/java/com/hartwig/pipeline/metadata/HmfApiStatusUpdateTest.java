@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor;
 
 public class HmfApiStatusUpdateTest {
 
-    private static final Long RUN_ID = 3L;
+    private static final Integer RUN_ID = 3;
     private RunApi runApi;
     private Run run;
     private ArgumentCaptor<UpdateRun> argCaptor;
@@ -40,11 +40,11 @@ public class HmfApiStatusUpdateTest {
     @Before
     public void setup() {
         runApi = mock(RunApi.class);
-        run = new Run().id(RUN_ID);
+        run = new Run().id(RUN_ID.longValue());
         argCaptor = ArgumentCaptor.forClass(UpdateRun.class);
         pipelineInput = PipelineInput.builder()
                 .setName(TestInputs.SET)
-                .operationalReferences(OperationalReferences.builder().runId(RUN_ID).setId(1L).build())
+                .operationalReferences(OperationalReferences.builder().runId(RUN_ID).setId(1).build())
                 .build();
     }
 
@@ -60,7 +60,7 @@ public class HmfApiStatusUpdateTest {
     @Test
     public void startSetsApiStatusToProcessingWhenUrlProvided() {
         setupForRealUpdate().start();
-        verify(runApi).update(eq(RUN_ID), argCaptor.capture());
+        verify(runApi).update(eq(RUN_ID.longValue()), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.PROCESSING);
         assertThat(LocalDateTime.parse(Objects.requireNonNull(argCaptor.getValue().getStartTime()),
                 DateTimeFormatter.ISO_DATE_TIME)).isCloseTo(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(),
@@ -70,14 +70,14 @@ public class HmfApiStatusUpdateTest {
     @Test
     public void successSetsApiStatusToFinishedWhenApiProvided() {
         setupForRealUpdate().finish(PipelineStatus.SUCCESS);
-        verify(runApi).update(eq(RUN_ID), argCaptor.capture());
+        verify(runApi).update(eq(RUN_ID.longValue()), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Test
     public void qcFailureSetsApiStatusToFailedWhenApiProvided() {
         setupForRealUpdate().finish(PipelineStatus.QC_FAILED);
-        verify(runApi).update(eq(RUN_ID), argCaptor.capture());
+        verify(runApi).update(eq(RUN_ID.longValue()), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.QCFAILURE);
     }
@@ -85,7 +85,7 @@ public class HmfApiStatusUpdateTest {
     @Test
     public void technicalFailureSetsApiStatusToFailedWhenApiProvided() {
         setupForRealUpdate().finish(PipelineStatus.FAILED);
-        verify(runApi).update(eq(RUN_ID), argCaptor.capture());
+        verify(runApi).update(eq(RUN_ID.longValue()), argCaptor.capture());
         assertThat(argCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
         assertThat(argCaptor.getValue().getFailure().getType()).isEqualTo(RunFailure.TypeEnum.TECHNICALFAILURE);
     }

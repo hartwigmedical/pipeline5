@@ -32,9 +32,8 @@ public class LaneAlignment extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new PipeCommands(new BwaMemCommand(RecordGroupId.from(strictFastqNaming, firstFastqPath),
-                sampleName,
-                lane.flowCellId(),
+        return Collections.singletonList(new PipeCommands(new BwaMemCommand(lane.readGroup()
+                .orElse(ReadGroup.fromFastq(sampleName, lane.flowCellId(), strictFastqNaming, firstFastqPath)),
                 referenceGenomePath,
                 firstFastqPath,
                 secondFastqPath), new SamtoolsViewCommand(), new SambambaSortCommand(output.path(), "/dev/stdin")));

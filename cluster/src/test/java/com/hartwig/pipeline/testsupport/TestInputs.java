@@ -99,8 +99,8 @@ public class TestInputs {
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
-    public static final long EXTERNAL_RUN_ID = 1L;
-    public static final long EXTERNAL_SET_ID = 2L;
+    public static final int EXTERNAL_RUN_ID = 1;
+    public static final int EXTERNAL_SET_ID = 2;
     private static final String RESULTS = "results/";
     private static final String REFERENCE_SAMPLE = "reference";
     private static final String TUMOR_SAMPLE = "tumor";

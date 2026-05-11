@@ -32,7 +32,7 @@
         <java-client.version>3.12.11</java-client.version>
         <compar.version>1.3.0</compar.version>
         <org-reflections.version>0.9.11</org-reflections.version>
-        <pdl.version>1.7.2</pdl.version>
+        <pdl.version>2.9.0</pdl.version>
         <pipeline-reference-data.version>0.14.1</pipeline-reference-data.version>
         <hmf-cloud-sdk.version>5.5.0</hmf-cloud-sdk.version>
     </properties>
