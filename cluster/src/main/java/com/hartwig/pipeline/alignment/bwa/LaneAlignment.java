@@ -33,6 +33,7 @@ public class LaneAlignment extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return Collections.singletonList(new PipeCommands(new BwaMemCommand(lane.readGroup()
+                .map(rg -> String.format("\"%s\"", rg))
                 .orElse(ReadGroup.fromFastq(sampleName, lane.flowCellId(), strictFastqNaming, firstFastqPath)),
                 referenceGenomePath,
                 firstFastqPath,
