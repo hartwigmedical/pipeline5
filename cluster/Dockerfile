@@ -1,4 +1,5 @@
-FROM google/cloud-sdk:latest
+# Version 565.0.0 is the last one that supports openjdk-17
+FROM google/cloud-sdk:565.0.0
 
 RUN apt-get update
 RUN apt-get --yes install openjdk-17-jre
