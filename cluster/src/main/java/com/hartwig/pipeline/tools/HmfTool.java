@@ -14,7 +14,7 @@ public enum HmfTool {
     CUPPA("2.3.0", 16, 4, false),
     ESVEE("1.1.2", 300, 40, false),
     HEALTH_CHECKER("3.6", 32, 8, false),
-    LILAC("1.6", 48, 16, false),
+    LILAC("1.6", 72, 16, false),
     LINX("2.0.2", 16, 4, false),
     REDUX("1.1.2", 64, 32, false),
     ORANGE("4.0.1", 16, 4, false),
