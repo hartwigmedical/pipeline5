@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB;
 import static com.hartwig.computeengine.execution.vm.VirtualMachinePerformanceProfile.custom;
 import static com.hartwig.pipeline.tools.HmfTool.AMBER;
 import static com.hartwig.pipeline.tools.HmfTool.BAM_TOOLS;
@@ -12,16 +13,16 @@ import static com.hartwig.pipeline.tools.HmfTool.HEALTH_CHECKER;
 import static com.hartwig.pipeline.tools.HmfTool.LILAC;
 import static com.hartwig.pipeline.tools.HmfTool.LINX;
 import static com.hartwig.pipeline.tools.HmfTool.ORANGE;
-import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import static com.hartwig.pipeline.tools.HmfTool.PAVE;
 import static com.hartwig.pipeline.tools.HmfTool.PEACH;
 import static com.hartwig.pipeline.tools.HmfTool.PURPLE;
+import static com.hartwig.pipeline.tools.HmfTool.REDUX;
 import static com.hartwig.pipeline.tools.HmfTool.SAGE;
 import static com.hartwig.pipeline.tools.HmfTool.SIGS;
 import static com.hartwig.pipeline.tools.HmfTool.TEAL;
-import static com.hartwig.pipeline.tools.HmfTool.V_CHORD;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUSBREAKEND_GRIDSS;
 import static com.hartwig.pipeline.tools.HmfTool.VIRUS_INTERPRETER;
+import static com.hartwig.pipeline.tools.HmfTool.V_CHORD;
 
 import com.hartwig.computeengine.execution.vm.BashStartupScript;
 import com.hartwig.computeengine.execution.vm.VirtualMachineJobDefinition;
@@ -152,6 +153,7 @@ public final class VirtualMachineJobDefinitions {
                 .imageFamily(STANDARD_IMAGE)
                 .name(VirusBreakend.NAMESPACE)
                 .namespacedResults(resultsDirectory)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB * 8)
                 .performanceProfile(custom(VIRUSBREAKEND_GRIDSS.getCpus(), VIRUSBREAKEND_GRIDSS.getMemoryGb()))
                 .startupCommand(startupScript)
                 .build();
@@ -252,7 +254,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
@@ -265,7 +267,7 @@ public final class VirtualMachineJobDefinitions {
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(CramConversion.NUMBER_OF_CORES, CramConversion.MEMORY_GB))
                 .startupCommand(startupScript)
-                .workingDiskSpaceGb(VirtualMachineJobDefinition.LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
+                .workingDiskSpaceGb(LOCAL_SSD_DISK_SPACE_GB * numLocalSsd)
                 .build();
     }
 
