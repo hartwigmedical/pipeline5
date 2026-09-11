@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.failsafe;
 
+import static java.lang.String.format;
+
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
@@ -13,26 +15,34 @@ import net.jodah.failsafe.RetryPolicy;
 public class DefaultBackoffPolicy<R> extends RetryPolicy<R> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBackoffPolicy.class);
+    private static final int UNLIMITED_RETRIES = -1;
 
-    DefaultBackoffPolicy(final int delay, final long maxDelay, final String taskName) {
+    DefaultBackoffPolicy(final int delay, final long maxDelay, final String taskName, final int maxRetries) {
         withBackoff(delay, maxDelay, ChronoUnit.SECONDS);
-        withMaxRetries(-1);
+        withMaxRetries(maxRetries);
         abortOn(InvalidArgumentException.class);
         onAbort(e -> LOGGER.error("Unable to submit operation", e.getFailure()));
         handle(Exception.class);
         onFailedAttempt(rExecutionAttemptedEvent ->
         {
             // we need to keep tracing the cause to print out the real failure reason
+            String attempt = maxRetries == UNLIMITED_RETRIES
+                    ? ""
+                    : format(" attempt [%s/%s]", rExecutionAttemptedEvent.getAttemptCount(), maxRetries + 1);
             Throwable lastFailure = rExecutionAttemptedEvent.getLastFailure();
             while(lastFailure != null)
             {
-                LOGGER.warn("[{}] failed: {}", taskName, lastFailure.getMessage());
+                LOGGER.warn("[{}]{} failed: {}", taskName, attempt, lastFailure.getMessage());
                 lastFailure = lastFailure.getCause();
             }
         });
     }
 
     public static <R> DefaultBackoffPolicy<R> of(final String taskName) {
-        return new DefaultBackoffPolicy<>(1, TimeUnit.MINUTES.toSeconds(5), taskName);
+        return new DefaultBackoffPolicy<>(1, TimeUnit.MINUTES.toSeconds(5), taskName, UNLIMITED_RETRIES);
+    }
+
+    public static <R> DefaultBackoffPolicy<R> bounded(final String taskName, final int maxRetries) {
+        return new DefaultBackoffPolicy<>(1, TimeUnit.MINUTES.toSeconds(5), taskName, maxRetries);
     }
 }
