@@ -9,22 +9,32 @@ import java.util.stream.Stream;
 
 import com.hartwig.computeengine.storage.RuntimeBucket;
 import com.hartwig.pdl.SampleInput;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.jodah.failsafe.Failsafe;
+
 public class CloudSampleUpload implements SampleUpload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleUpload.class);
     private static final String SAMPLE_DIRECTORY = "samples/";
+    private static final int MAX_UPLOAD_RETRIES = 5;
 
     private final Function<String, String> sourceResolver;
     private final CloudCopy cloudCopy;
+    private final int maxUploadRetries;
 
     public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy) {
+        this(sourceResolver, cloudCopy, MAX_UPLOAD_RETRIES);
+    }
+
+    CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy, final int maxUploadRetries) {
         this.sourceResolver = sourceResolver;
         this.cloudCopy = cloudCopy;
+        this.maxUploadRetries = maxUploadRetries;
     }
 
     @Override
@@ -54,6 +64,11 @@ public class CloudSampleUpload implements SampleUpload {
     private void gsutilCP(final SampleInput sample, final RuntimeBucket bucket, final String file) {
         String target = singleSampleFile(sample, file);
         String targetPath = format("gs://%s/%s", bucket.name(), target);
+        Failsafe.with(DefaultBackoffPolicy.<Void>bounded(format("upload of fastq [%s]", targetPath), maxUploadRetries))
+                .run(() -> copyIfAbsent(bucket, target, targetPath, file));
+    }
+
+    private void copyIfAbsent(final RuntimeBucket bucket, final String target, final String targetPath, final String file) {
         if (bucket.get(target) != null || bucket.get(target.replaceAll(".gz", "") + "/") != null) {
             LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", targetPath);
         } else {
