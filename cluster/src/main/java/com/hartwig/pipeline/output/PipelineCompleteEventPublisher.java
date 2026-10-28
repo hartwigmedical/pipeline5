@@ -33,6 +33,8 @@ import com.hartwig.pipeline.tools.VersionUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class PipelineCompleteEventPublisher implements OutputPublisher {
+    private static final String FASTQ_FOLDER = "fastq";
+
     private final Bucket sourceBucket;
     private final EventPublisher<PipelineComplete> publisher;
     private final Pipeline.Context context;
@@ -54,7 +56,7 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
                 .barcode(dataType.map(AddDatatype::barcode))
                 .bucket(blobWithMd5.getBucket())
                 .filesize(blobWithMd5.getSize())
-                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                .hash(hash(blobWithMd5))
                 .build();
     }
 
@@ -91,6 +93,9 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
 
             OutputDataset outputDataset = new OutputDataset(sourceBucket, metadata.set());
             OutputIterator.from(blob -> {
+                if (isInputFastq(blob, metadata)) {
+                    return;
+                }
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 dataType.ifPresent(d -> outputDataset.add(d, blob));
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
@@ -125,6 +130,17 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
     @NotNull
     private ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
         return ImmutableAnalysis.builder().molecule(Analysis.Molecule.DNA).type(secondary);
+    }
+
+    // The research pipeline launcher copies the input FASTQs into <set>/fastq/ so they are cleaned up with the run. They are not
+    // pipeline output.
+    private static boolean isInputFastq(final Blob blob, final SomaticRunMetadata metadata) {
+        return blob.getName().startsWith(metadata.set() + "/" + FASTQ_FOLDER + "/");
+    }
+
+    // Composite objects (e.g. FASTQs uploaded with parallel composite uploads) have no MD5, only a CRC32C
+    private static String hash(final Blob blob) {
+        return blob.getMd5() != null ? MD5s.asHex(blob.getMd5()) : blob.getCrc32cToHexString();
     }
 
     private boolean isSecondary(final Blob blobWithMd5) {
