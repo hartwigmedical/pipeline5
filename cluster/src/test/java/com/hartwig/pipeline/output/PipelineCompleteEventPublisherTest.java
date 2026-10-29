@@ -134,6 +134,32 @@ public class PipelineCompleteEventPublisherTest {
         assertThat(result.pipeline().analyses().get(2).output().get(0).barcode()).hasValue("barcode");
     }
 
+    @Test
+    public void fallsBackToCrc32cWhenBlobHasNoMd5() {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = blob("set/sage/" + TestInputs.tumorSample() + ".vcf");
+        when(vcf.getBucket()).thenReturn("bucket");
+        when(vcf.getCrc32cToHexString()).thenReturn("crc32c");
+        when(bucket.get(vcf.getName())).thenReturn(vcf);
+        Page<Blob> page = pageOf(vcf);
+        PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
+        assertThat(result.pipeline().analyses()).flatExtracting(Analysis::output)
+                .extracting(AnalysisOutputBlob::hash)
+                .containsExactly("crc32c");
+    }
+
+    @Test
+    public void skipsInputFastqs() {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = withBucketAndMd5(blob("set/sage/" + TestInputs.tumorSample() + ".vcf"));
+        Blob fastq = withBucketAndMd5(blob("set/fastq/" + TestInputs.tumorSample() + "_FLOWCELL_S1_L001_R1_001.fastq.gz"));
+        Page<Blob> page = pageOf(vcf, fastq);
+        PipelineComplete result = publish(page, TestInputs.defaultSomaticRunMetadata());
+        assertThat(result.pipeline().analyses()).flatExtracting(Analysis::output)
+                .extracting(AnalysisOutputBlob::filename)
+                .containsExactly("tumor.vcf");
+    }
+
     public void verifyGermline(final String filename, final String expectedFile, final String namespace) {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob(namespace + TestInputs.referenceSample() + filename));

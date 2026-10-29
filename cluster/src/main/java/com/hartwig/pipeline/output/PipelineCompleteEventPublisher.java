@@ -33,6 +33,8 @@ import com.hartwig.pipeline.tools.VersionUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class PipelineCompleteEventPublisher implements OutputPublisher {
+    private static final String FASTQ_FOLDER = "fastq";
+
     private final Bucket sourceBucket;
     private final EventPublisher<PipelineComplete> publisher;
     private final Pipeline.Context context;
@@ -48,13 +50,13 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static AnalysisOutputBlob createBlob(final Optional<String> tumorSample, final Optional<String> referenceSample,
-            final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
-        return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithMd5.getName()).datatype(dataType.map(
+            final Optional<AddDatatype> dataType, final Blob blobWithHash) {
+        return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithHash.getName()).datatype(dataType.map(
                         AddDatatype::dataType).map(Object::toString))
                 .barcode(dataType.map(AddDatatype::barcode))
-                .bucket(blobWithMd5.getBucket())
-                .filesize(blobWithMd5.getSize())
-                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                .bucket(blobWithHash.getBucket())
+                .filesize(blobWithHash.getSize())
+                .hash(hash(blobWithHash))
                 .build();
     }
 
@@ -91,16 +93,19 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
 
             OutputDataset outputDataset = new OutputDataset(sourceBucket, metadata.set());
             OutputIterator.from(blob -> {
+                if (isInputFastq(blob, metadata)) {
+                    return;
+                }
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 dataType.ifPresent(d -> outputDataset.add(d, blob));
-                Blob blobWithMd5 = sourceBucket.get(blob.getName());
-                if (isSecondary(blobWithMd5)) {
-                    alignedReadsAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
+                Blob blobWithHash = sourceBucket.get(blob.getName());
+                if (isSecondary(blobWithHash)) {
+                    alignedReadsAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithHash));
                 } else {
-                    if (isGermline(blobWithMd5)) {
-                        germlineAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
-                    } else if (notSecondary(blobWithMd5)) {
-                        somaticAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
+                    if (isGermline(blobWithHash)) {
+                        germlineAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithHash));
+                    } else if (notSecondary(blobWithHash)) {
+                        somaticAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithHash));
                     }
                 }
             }, sourceBucket).iterate(metadata);
@@ -127,23 +132,34 @@ public class PipelineCompleteEventPublisher implements OutputPublisher {
         return ImmutableAnalysis.builder().molecule(Analysis.Molecule.DNA).type(secondary);
     }
 
-    private boolean isSecondary(final Blob blobWithMd5) {
+    // The research pipeline launcher copies the input FASTQs into <set>/fastq/ so they are cleaned up with the run. They are not
+    // pipeline output.
+    private static boolean isInputFastq(final Blob blob, final SomaticRunMetadata metadata) {
+        return blob.getName().startsWith(metadata.set() + "/" + FASTQ_FOLDER + "/");
+    }
+
+    // Composite objects (e.g. FASTQs uploaded with parallel composite uploads) have no MD5, only a CRC32C
+    private static String hash(final Blob blob) {
+        return blob.getMd5() != null ? MD5s.asHex(blob.getMd5()) : blob.getCrc32cToHexString();
+    }
+
+    private boolean isSecondary(final Blob blobWithHash) {
         return (stageCrams
                 ? InNamespace.of(CramConversion.NAMESPACE)
                 : InNamespace.of(Aligner.NAMESPACE)).or(InNamespace.of(BamMetrics.NAMESPACE))
                 .or(InNamespace.of(SnpGenotype.NAMESPACE))
-                .test(blobWithMd5);
+                .test(blobWithHash);
     }
 
-    private boolean isGermline(final Blob blobWithMd5) {
+    private boolean isGermline(final Blob blobWithHash) {
         return InNamespace.of(GermlineCaller.NAMESPACE)
                 .or(InNamespace.of(SageConfiguration.SAGE_GERMLINE_NAMESPACE))
                 .or(b -> b.getName().contains("germline") && !b.getName().contains("no_germline"))
-                .test(blobWithMd5);
+                .test(blobWithHash);
     }
 
-    private boolean notSecondary(final Blob blobWithMd5) {
-        return not(InNamespace.of(CramConversion.NAMESPACE)).and(not(InNamespace.of(Aligner.NAMESPACE))).test(blobWithMd5);
+    private boolean notSecondary(final Blob blobWithHash) {
+        return not(InNamespace.of(CramConversion.NAMESPACE)).and(not(InNamespace.of(Aligner.NAMESPACE))).test(blobWithHash);
     }
 
     public void publish(final PipelineComplete event) {
